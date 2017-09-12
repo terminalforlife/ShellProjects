@@ -1,0 +1,38 @@
+#!/bin/bash
+#Written by terminalforlife (terminalforlife@yahoo.com)
+# Ensures XFCE4's Smart Placement is effectively disabled.
+# [E143] = The XML file is either not found or has no write access.
+
+XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
+ERR(){ echo "ERROR: $1" 1>&2; }
+
+[ $UID -eq 0 ] && XERR "Root access is not required."
+[ $# -eq 0 ] || XERR "No arguments are required."
+
+DEPCOUNT=0
+for DEP in /usr/bin/xfconf-query /bin/sleep
+{
+	if ! type -P "$DEP" &> /dev/null
+	then
+		ERR "Dependency '$DEP' unmet."
+		let DEPCOUNT++
+	fi
+}
+
+[ $DEPCOUNT -gt 0 ] && exit 1
+
+#GLOBAL_XML_FILE="/etc/xdg/xdg-xubuntu/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+LOCAL_XML_FILE="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+CURRENT_VALUE=`/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
+
+if [ -f "$LOCAL_XML_FILE" ] && [ -w "$LOCAL_XML_FILE" ]
+then
+	{
+		/bin/sleep 3s
+		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 90 -t int
+		/bin/sleep 0.3 # Removing wait time results in this fix not working.
+		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
+	} &
+else
+	XERR "Unable to fix Smart Placement."
+fi
