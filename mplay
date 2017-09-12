@@ -1,0 +1,42 @@
+#!/bin/bash
+#Written by terminalforlife (terminalforlife@yahoo.com)
+
+ERR(){ echo "ERROR: $1" 1>&2; }
+XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
+
+[ $UID -eq 0 ] && XERR "Root access is not required."
+[ $# -eq 0 ] || XERR "No arguments required."
+THEME_DIR="/usr/share/moc/themes"
+[ -d $THEME_DIR ] || XERR "Theme directory not found."
+CHOSEN_THEME="transparent-background"
+[ -f "$THEME_DIR/$CHOSEN_THEME" ] || XERR "Theme file not found."
+
+if type -P /usr/bin/mocp /sbin/alsa &> /dev/null
+then
+	if ! /usr/bin/mocp -T $THEME_DIR/$CHOSEN_THEME   \
+		-O ShowFormat=yes                        \
+		-O ShowTime=no                           \
+		-O Shuffle=yes                           \
+		-O HideFileExtension=yes                 \
+		-O SavePlaylist=no                       \
+		-O TagsCacheSize=3000                    \
+		-O PlaylistNumbering=yes                 \
+		-O Layout1="playlist(50%,50%,50%,50%)"   \
+		-O FollowPlayedFile=yes                  \
+		-O ModPlug_NoiseReduction=yes            \
+		-O ModPlug_ResamplingMode=FIR            \
+		-O OnSongChange="notify-send '%t'"       \
+		-O CanStartInPlaylist=yes                \
+		-O ResampleMethod=SincMediumQuality      \
+		-O UseMimeMagic=no                       \
+		-O ShowHiddenFiles=no                    \
+		-O SoundDriver=ALSA                      \
+		-O InputBuffer=512                       \
+		-O OutputBuffer=512                      \
+		-O Prebuffering=256
+	then
+		XERR "Unable to start the MOC player."
+	fi
+else
+	XERR "Dependency 'mocp' unmet."
+fi
