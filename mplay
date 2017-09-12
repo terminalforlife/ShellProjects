@@ -1,4 +1,5 @@
 #!/bin/bash
+#My mocp (moc) settings. Simple script to allow me to quickly load mocp how I like.
 #Written by terminalforlife (terminalforlife@yahoo.com)
 
 ERR(){ echo "ERROR: $1" 1>&2; }
@@ -38,5 +39,5 @@ then
 		XERR "Unable to start the MOC player."
 	fi
 else
-	XERR "Dependency 'mocp' unmet."
+	XERR "Dependency '/usr/bin/mocp' unmet."
 fi
