@@ -3,10 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - installit (miscellaneous/nosp)
 # Started On        - Thu 14 Sep 14:44:27 BST 2017
-# Last Change       - Sat 16 Sep 20:43:31 BST 2017
+# Last Change       - Sun 17 Sep 00:08:24 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+
+#TODO - Fix wget's ERROR 404: Not found.
 
 XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
 ERR(){ echo "ERROR: $1" 1>&2; }
