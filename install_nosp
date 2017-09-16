@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - installit (nosp)
+# Project Name      - installit (miscellaneous/nosp)
 # Started On        - Thu 14 Sep 14:44:27 BST 2017
-# Last Change       - Sat 16 Sep 20:32:38 BST 2017
+# Last Change       - Sat 16 Sep 20:43:31 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ NVB(){ printf "L%-0.3d: %s\n" "$1" "$2"; }
 [ "$DEBUGME" == "true" ] && set -xeu
 
 GITHUB_URL="https://raw.githubusercontent.com/terminalforlife"
-PROJECT="nosp"
+PROJECT="miscellaneous"
 
 if [ "$UNINSTALL" == "true" ]
 then
@@ -89,7 +89,7 @@ fi
 
 for FILENAME in\
 \
-	"/usr/bin/$PROJECT":"755"
+	"/usr/bin/nosp":"755"
 {
 	if ! [ "$UNINSTALL" == "true" ]
 	then
@@ -106,7 +106,7 @@ for FILENAME in\
 		fi
 
 		NVB "$LINENO" "Downloading here: ${FILENAME%:*}"
-		/usr/bin/wget -q "$GITHUB_URL"/$PROJECT/master/$PROJECT\
+		/usr/bin/wget -q "$GITHUB_URL"/$PROJECT/master/nosp\
 			-O "${FILENAME%:*}"
 
 		NVB "$LINENO" "Correcting attributes: ${FILENAME%:*}"
