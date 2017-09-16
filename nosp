@@ -1,14 +1,24 @@
 #!/bin/bash
-#Written by terminalforlife (terminalforlife@yahoo.com)
-# Ensures XFCE4's Smart Placement is effectively disabled.
-# [E143] = The XML file is either not found or has no write access.
 
+#----------------------------------------------------------------------------------
+# Project Name      - nosp
+# Started On        - Sat 16 Sep 20:03:52 BST 2017
+# Last Change       - Sat 16 Sep 20:30:24 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# Load error functions.
 XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
 ERR(){ echo "ERROR: $1" 1>&2; }
 
+# Check for root access.
 [ $UID -eq 0 ] && XERR "Root access is not required."
+
+# Check for zero arguments.
 [ $# -eq 0 ] || XERR "No arguments are required."
 
+# Check for dependencies.
 DEPCOUNT=0
 for DEP in /usr/bin/xfconf-query /bin/sleep
 {
@@ -19,14 +29,20 @@ for DEP in /usr/bin/xfconf-query /bin/sleep
 	fi
 }
 
+# If any unmet dependencies, exit.
 [ $DEPCOUNT -gt 0 ] && exit 1
 
+# Set the variable for the XML file to edit. Global is there just in-case.
 #GLOBAL_XML_FILE="/etc/xdg/xdg-xubuntu/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
 LOCAL_XML_FILE="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+
+# Set the variable to the current value of Smart Placement.
 CURRENT_VALUE=`/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
 
+# If the local XML file is exists, is a file, and has write access...
 if [ -f "$LOCAL_XML_FILE" ] && [ -w "$LOCAL_XML_FILE" ]
 then
+	# This command group waits, sets value to 90, waits, then sets back to 100.
 	{
 		/bin/sleep 3s
 		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 90 -t int
@@ -34,5 +50,6 @@ then
 		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
 	} &
 else
+	# Error and exit if the XML file is inaccessible.
 	XERR "Unable to fix Smart Placement."
 fi
