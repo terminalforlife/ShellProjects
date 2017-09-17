@@ -11,7 +11,7 @@ INSTALLATION
 
 Download and use the `install_NAME` installer by using this terminal command:
 
-    wget -cq https://raw.githubusercontent.com/terminalforlife/NAME/master/install_NAME
+    wget -q https://raw.githubusercontent.com/terminalforlife/NAME/master/install_NAME
 
 Now execute the installer with this:
 
