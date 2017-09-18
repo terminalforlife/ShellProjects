@@ -1,8 +1,8 @@
 # miscellaneous
-Here you'll find my smaller projects or quick scripts.
+Here you'll find my smaller projects, quick scripts, and some configuration files.
 
-NOTE
-----
+CONTENTS
+--------
 
 Some of these files are just quick and dirty scripts, but some are more fleshed out and program-like, so I have provided some installit installers for them. The instructions for those are as usual. Just substitute NAME for the name of the file/program you wish to install.
 
