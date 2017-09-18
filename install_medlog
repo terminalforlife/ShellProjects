@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - installit (miscellaneous/medlog)
 # Started On        - Thu 14 Sep 14:44:27 BST 2017
-# Last Change       - Mon 18 Sep 14:50:57 BST 2017
+# Last Change       - Mon 18 Sep 17:17:31 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ shopt -s extglob
 USAGE()
 {
 	/bin/cat <<-EOF
-		            INSTALLIT (16th September 2017)
+		            INSTALLIT (18th September 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Installer for many shell programs from terminalforlife.
@@ -40,7 +40,7 @@ USAGE()
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug                 - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --force|-F              - Force installation, despite conflicts.
+		            --update|-U             - Replace and update existing files.
 		            --uninstall|-u          - Uninstall files installed here.
 
 		WARNING:    Uninstalling with this program will permanently delete the files it
@@ -64,7 +64,7 @@ for ARG in $@
 			DEBUGME="true" ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
-		--force|-F)
+		--update|-U)
 			FORCE_INSTALL="true" ;;
 		--uninstall|-u)
 			UNINSTALL="true" ;;
@@ -98,12 +98,12 @@ for FILENAME in\
 		NVB "$LINENO" "Checking conflict: ${FILENAME%:*}"
 		if [ -f "${FILENAME%:*}" ]
 		then
-			ERR "Conflict found: ${FILENAME%:*}"
 			if ! [ "$FORCE_INSTALL" == "true" ]
 			then
+				ERR "Conflict found: ${FILENAME%:*}"
 				continue
 			else
-				NVB "$LINENO" "Item forced: ${FILENAME%:*}"
+				NVB "$LINENO" "Item updated: ${FILENAME%:*}"
 			fi
 		fi
 
