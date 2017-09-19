@@ -23,7 +23,7 @@ done
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ `id -u` -eq 0 ] && XERR "Root access isn't required."
+[ `/usr/bin/id -u` -eq 0 ] && XERR "Root access isn't required."
 
 DOMAIN="https://ocw.mit.edu"
 CATEGORY="electrical-engineering-and-computer-science"
