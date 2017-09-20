@@ -1,10 +1,18 @@
-" Essential Remaps
+"----------------------------------------------------------------------------------
+" Project Name      - $HOME/.vimrc
+" Started On        - Wed 20 Sep 09:36:54 BST 2017
+" Last Change       - Wed 20 Sep 10:32:34 BST 2017
+" Author E-Mail     - terminalforlife@yahoo.com
+" Author GitHub     - https://github.com/terminalforlife
+"----------------------------------------------------------------------------------
+
+" Remap to sane, touch-typing standard movement keys.
 noremap j h
 noremap k j
 noremap l k
 noremap ; l
 
-" Variable Letting
+" Set variables used within this file.
 let g:autoscrollstate=0
 let g:moremodestate=0
 let g:hardmodestate=0
@@ -13,31 +21,72 @@ let g:mousesupportstate=0
 let g:virtualeditstate=0
 let mapleader=","
 
-" Standard Sets
+" Allow recursive fuzzy finding.
+set path+=**
+
+" Stop asking VIM to act like ancient vi.
 set nocompatible
+
+" Don't clutter your drive with swap and backup files.
 set noswapfile
-set matchtime=0
 set nobackup
+
+" ???
+set matchtime=0
+
+" Disable text wrapping.
 set nowrap
+
+" Make the ESC timeout sane.
 set ttimeout
 set ttimeoutlen=10
+
+" ???
 set viewoptions=folds,options,cursor,unix,slash
-set history=4000 "Longer command history. Default is apparently 20.
-set listchars=tab:»→,trail:→,extends:#,nbsp:.
+
+"Longer command history. Default is apparently 20.
+set history=4000
+
 "set listchars=tab:-,trail:,extends:#,nbsp:.
+set listchars=tab:»→,trail:→,extends:#,nbsp:.
+
+" Disable the ruler.
 set noruler
+
+" Set the status line at the bottom of VIM.
 set statusline=\ %F%m%r%h%w\ \ FF=%{&ff}\ \ T=%Y\ \ A=\%03.3b\ \ H=\%02.2B\ \ POS=%04l,%04v\ \ %p%%\ \ LEN=%L
+
+" ???
 set cmdheight=1
+
+" Display VIM's current mode; insert and visual.
 set showmode
+
+" Set the way in which folds are registered.
 set foldmethod=marker
+
+" Set the marker used to recognise a fold.
 set foldmarker=#\ {{{,#\ }}}
+
+" Enable search highlighting.
 set hlsearch
+
+" ???
 set wildchar=<TAB>
+
+" Display a menu in : when tab shows multiple possibilities.
 set wildmenu
+
+" ???
 set wrapmargin=0
+
+" ???
 set nomore
+
+" Enables live searching; search as you type.
 set incsearch
 
+" Just holds some extra color settings.
 func! ExtraColorSets()
 	hi SpecialKey     ctermfg=darkyellow   ctermbg=NONE
 	hi ColorColumn    ctermbg=235          ctermfg=250
@@ -49,12 +98,14 @@ func! ExtraColorSets()
 	hi Comment        ctermfg=241
 endfunc
 
+" Removing tailing spaces and tabs, then save.
 func! CleanupThenSave()
 	exe "normal! :%s/\\s\\+$//\<CR>"
 	exe "normal! :%s/\\t\\+$//\<CR>"
 	write
 endfunc
 
+" Function deals with autoscrolling.
 func! AutoScroll()
 	if(g:autoscrollstate == 0)
 		let g:autoscrollstate = 1
@@ -69,6 +120,7 @@ func! AutoScroll()
 	endif
 endfunc
 
+" The function for toggling mouse support.
 func! MouseSupport()
 	if(g:mousesupportstate == 0)
 		let g:mousesupportstate = 1
@@ -81,6 +133,7 @@ func! MouseSupport()
 	endif
 endfunc
 
+" The function for toggle virtual editing.
 func! VirtualEdit()
 	if(g:virtualeditstate == 1)
 		let g:virtualeditstate = 0
@@ -93,6 +146,7 @@ func! VirtualEdit()
 	endif
 endfunc
 
+" The function for toggling DocMode.
 func! DocMode()
 	set linebreak!
 	set wrap!
@@ -120,6 +174,7 @@ func! DocMode()
 	endif
 endfunc
 
+" The function for toggling ListMode.
 func! ListMode()
 	set list!
 
@@ -130,6 +185,7 @@ func! ListMode()
 	endif
 endfunc
 
+" The function for toggling MoreMode.
 func! MoreMode()
 	set showmatch!
 	set ruler!
@@ -150,6 +206,7 @@ func! MoreMode()
 	endif
 endfunc
 
+" The function for toggling HardMode. Incomplete.
 func! HardMode()
 	if(g:hardmodestate == 0)
 		let g:hardmodestate = 1
@@ -168,6 +225,7 @@ func! HardMode()
 	endif
 endfunc
 
+" Set colors depending on terminal type.
 if(&ttytype == "xterm-256color")
 	colorscheme tfl
 	set background=dark
@@ -178,25 +236,30 @@ else
 	set nottyfast
 endif
 
+" A color preset.
 func! ColorPreset1()
 	colorscheme default
 	set background=dark
 endfunc
 
+" Another color preset.
 func! ColorPreset2()
 	colorscheme tfl
 	set background=dark
 	silent call ExtraColorSets()
 endfunc
 
+" Enter a shell (bash) hashbang.
 func! HashBang()
 	exe "normal! ggi#!/bin/bash\<CR>\<CR>\<Esc>G"
 endfunc
 
+" Enter a shell (sh) hashbang.
 func! ShHashBang()
 	exe "normal! ggi#!/bin/sh\<CR>\<CR>\<Esc>G"
 endfunc
 
+" Enter a tidy header.
 func! Header()
 	exe "normal! i#\<Esc>82a-\<Esc>o"
 	exe "normal! i# Project Name      - \<CR>"
@@ -207,19 +270,19 @@ func! Header()
 	exe "normal! i#\<Esc>82a-\<Esc>0o"
 endfunc
 
+" Function to save the current file, but also update header.
 func! LastChange()
-	exe "normal! mcgg/# Last Change\<CR>f-c$- \<Esc>:r!date\<CR>i\<c-h>\<Esc>`c"
+	exe "normal! mcgg/^[#/\"]+ Last Change\<CR>f-c$- \<Esc>:r!date\<CR>i\<c-h>\<Esc>`c"
 	write
 endfunc
 
+" Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
 func! Setup()
 	exe "normal! 0iXERR(){ echo \"ERROR: $1\" 1>&2; exit 1; }\<CR>"
 	exe "normal! 0iERR(){ echo \"ERROR: $1\" 1>&2; }\<CR>\<CR>"
 
-	exe "normal! 0i[ $UID -eq 0 ] && XERR \"Root access isn't required.\"\<CR>\<CR>"
-
 	exe "normal! 0iDEPCOUNT=0\<CR>"
-	exe "normal! 0ifor DEP in /usr/bin/{} /bin/{cat} /sbin/{}\<CR>{\<CR>"
+	exe "normal! 0ifor DEP in /usr/bin/{} /bin/{} /sbin/{}\<CR>{\<CR>"
 	exe "normal! 0i\<Tab>if ! type -P \"$DEP\" &> /dev/null\<CR>\<Tab>then\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>ERR \"Dependency '$DEP' not met.\"\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>let DEPCOUNT++\<CR>\<Tab>fi\<CR>}\<CR>\<CR>"
@@ -227,7 +290,8 @@ func! Setup()
 
 	exe "normal! 0ishopt -s extglob\<CR>\<CR>"
 
-	exe "normal! 0iUSAGE()\<CR>{\<CR>\<Tab>/bin/cat <<-EOF\<CR>"
+	exe "normal! 0iUSAGE()\<CR>{\<CR>\<Tab>while IFS= read -r\<CR>"
+	exe "normal! 0i\<Tab>do\<CR>\<Tab>\<Tab>printf \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            Example (9th September 2017)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            Written by terminalforlife (terminalforlife@yahoo.com)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>\<CR>"
@@ -248,17 +312,16 @@ func! Setup()
 	exe "normal! 0i\<Tab>\<Tab>*)\<CR>\<Tab>\<Tab>\<Tab>XERR \"Incorrect argument(s) specified.\" ;;\<CR>"
 	exe "normal! 0i\<Tab>esac\<CR>}\<CR>\<CR>"
 
+	exe "normal! 0i[ $UID -eq 0 ] && XERR \"Root access isn't required.\"\<CR>\<CR>"
+
 	exe "normal! 0i[ \"$BEQUIET\" == \"true\" ] && exec 1> /dev/null\<CR>"
 
 	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -xeu\<CR>\<CR>\<CR>\<CR>"
 	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set +xeu\<Esc>kk"
 endfunc
 
-" Non-Set Settings
+" Enable syntax highlighting.
 syntax on
-
-" Command Substitutions
-"silent command! W :call CleanupThenSave()
 
 " Sets Insert Remappings
 inoremap <up> <Nop>
@@ -266,44 +329,82 @@ inoremap <down> <Nop>
 inoremap <left> <Nop>
 inoremap <right> <Nop>
 
-" Sets Normal Remappings
+" Press spacebar to clear search highlighting.
 noremap <silent> <SPACE> :noh<CR>
+
+" Disable the arrow keys.
 noremap <up> <Nop>
 noremap <down> <Nop>
 noremap <left> <Nop>
 noremap <right> <Nop>
 
-" Normal Leader Remappings
+" Switch to a different color preset.
 noremap <silent> <leader>color1 :call ColorPreset1()<CR>
 noremap <silent> <leader>color2 :call ColorPreset2()<CR>
-noremap <silent> <leader>pc :r !xclip -o -selection clipboard<CR>
+
+" Re-source the .vimrc file; can cause issues.
 noremap <silent> <leader>rc :source $HOME/.vimrc<CR>
+
+" Display helpful screen information; good for code.
 noremap <silent> <leader>more :call MoreMode()<CR>
+
+" Toggle the display of tabs and spaces.
 noremap <silent> <leader>list :call ListMode()<CR>
+
+" Work in progress. Toggles a stricter VIM.
 noremap <silent> <leader>hard :call HardMode()<CR>
+
+" Use VIM as a standard text editor, for non-code.
 noremap <silent> <leader>doc :call DocMode()<CR>
+
+" Toggle moving the cursor and the screen simultaneously.
 noremap <silent> <leader>scroll :call AutoScroll()<CR>
+
+" Toggle the ability to move the cursor anyway.
 noremap <silent> <leader>virt :call VirtualEdit()<CR>
+
+" Toggle the mouse support.
 noremap <silent> <leader>mouse :call MouseSupport()<CR>
+
+" Uses the header to update the modified date and save.
 noremap <silent> <leader>save :call LastChange()<CR>
+
+" Adds a lot of nice shell (bash) code in preperation.
 noremap <silent> <leader>setup :call Setup()<CR>
+
+" Enter hashbangs on the first line.
 noremap <silent> <leader>bash :call HashBang()<CR>
 noremap <silent> <leader>shell :call ShHashBang()<CR>
-noremap <silent> <leader>ps :r !xclip -o<CR>
+
+" Underline below the current; uses the same length.
 noremap <silent> <leader>ul mmyypVr-<Esc>`m
+
+" Comment out and undo said comment, using hash.
 noremap <silent> <leader>co mmI#<Esc>`m
 noremap <silent> <leader>uc mm0x`m
+
+" Add a header at the current position.
 noremap <silent> <leader>header :call Header()<CR>
+
+" Use VIM's window splitting and switching.
 noremap <silent> <leader>ws :split<CR>
 noremap <silent> <leader>wvs :vsplit<CR>
 noremap <silent> <leader>wc :close<CR>
 noremap <silent> <leader>ac :center<CR>
 noremap <silent> <leader>ar :right<CR>
 noremap <silent> <leader>al :left<CR>
-noremap <silent> <leader>next :next<CR>
-noremap <silent> <leader>previous :previous<CR>
+
+" Jump to the next or previous file.
+noremap <silent> <leader>nn :next<CR>
+noremap <silent> <leader>pp :prev<CR>
+
+" Toggle the spellchecking feature.
 noremap <leader>spell :set spell!<CR>
+
+" Toggle the search highlighting.
 noremap <leader>hl :set hlsearch!<CR>
+
+" Display a comment bar, using a hash.
 noremap <silent> <leader>bar 0i#<Esc>82a-<Esc>0
 
 " Sets Jump Points
