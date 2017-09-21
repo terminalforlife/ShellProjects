@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Thu 21 Sep 16:43:07 BST 2017
+" Last Change       - Thu 21 Sep 16:49:39 BST 2017
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -275,8 +275,7 @@ endfunc
 
 " Function to save the current file, but also update header.
 func! LastChange()
-	exe "normal! mcgg/^[#/\"]+ Last Change\<CR>f-c$- \<Esc>:r!date\<CR>i\<c-h>\<Esc>`c"
-	write
+	exe "normal! mcgg/^[#/\"]\\+ Last Change\<CR>f-c$- \<Esc>:r!date\<CR>i\<c-h>\<Esc>`c"
 endfunc
 
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
