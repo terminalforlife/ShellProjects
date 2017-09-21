@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - $HOME/bin/seewttr
+# Started On        - Thu 21 Sep 18:53:42 BST 2017
+# Last Change       - Thu 21 Sep 19:23:34 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
+ERR(){ echo "ERROR: $1" 1>&2; }
+
+DEPCOUNT=0
+for DEP in /usr/bin/wget /bin/{sed,grep}
+{
+	if ! type -P "$DEP" &> /dev/null
+	then
+		ERR "Dependency '$DEP' not met."
+		let DEPCOUNT++
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+LOCATION=""
+
+USAGE()
+{
+	while IFS= read -r
+	do
+		echo "$REPLY"
+	done <<-EOF
+		            SEEWTTR - WTTR Look (21th September 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Super-simple wrapper-like script to get your weather. Thanks entirely
+		            to igor_chubin for this script even being possible.
+
+		SYNTAX:     seewttr [--help|-h|-?] LOCATION
+		
+		SITE:       From whence thine weather cometh...
+
+		              http://wttr.in
+
+		            Source files found here...
+
+		              https://github.com/chubin/wttr.in
+
+		NOTE:       Format for LOCATION is, for example: town,country
+	EOF
+}
+
+for ARG in $@
+{
+	case "$ARG"
+	in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		*)
+			break ;;
+	esac
+
+	shift
+}
+
+if ! [ -z "$*" ]
+then
+	LOCATION="$*"
+else
+	XERR "Incorrect argument(s) specified."
+fi
+
+[ $UID -eq 0 ] && XERR "Root access is not recommended!"
+
+/usr/bin/wget -q http://wttr.in/"${LOCATION}" -O -\
+	| /bin/grep -v "^\(Weather\|New\|Follow\)"
