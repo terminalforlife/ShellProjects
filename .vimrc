@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Thu 21 Sep 16:40:33 BST 2017
+" Last Change       - Thu 21 Sep 16:43:07 BST 2017
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -86,8 +86,8 @@ set nomore
 " Enables live searching; search as you type.
 set incsearch
 
-" Superficially use 2-space tabs.
-set tabstop=2
+" Superficially use 8-space tabs; set this for reference.
+set tabstop=8
 
 " Just holds some extra color settings.
 func! ExtraColorSets()
