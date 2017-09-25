@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/bin/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Thu 21 Sep 19:23:34 BST 2017
+# Last Change       - Mon 25 Sep 11:13:57 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ LOCATION=""
 
 USAGE()
 {
-	while IFS= read -r
+	while read -r
 	do
 		echo "$REPLY"
 	done <<-EOF
