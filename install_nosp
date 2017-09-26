@@ -132,4 +132,4 @@ for FILENAME in\
 	fi
 }
 
-[ "$DEBUGME" == "true" ] && set +xeu
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
