@@ -12,7 +12,7 @@ How you install a cron job found here, depends on the task. If it's global (such
 
     wget -q https://raw.githubusercontent.com/terminalforlife/miscellaneous/master/Cron%20Tasks/NAME
     sudo chown 0:0 NAME
-    sudo chmod 500 NAME
+    sudo chmod 755 NAME
     sudo mv NAME /etc/WHEN
 
 Where NAME is the filename of the script, and WHEN is when the script is to be executed. Common available WHEN options:
