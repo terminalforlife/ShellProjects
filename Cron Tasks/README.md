@@ -8,6 +8,8 @@ INSTALLATION
 
 Installation should be pretty simple for these scripts. They will of course assume you have cron installed and set up. Some will have different requirements, per the task at hand, but they will all be primarily targeting GNU/Linux.
 
+How you install a cron job found here, depends on the task. If it's global (such as notify-upgrade) and needs root access, then you'll want to follow the instructions here:
+
 To set up a cron job which you see listed here in this directory under the miscellaneous repository, you can do the following to download and use it:
 
     wget -q https://raw.githubusercontent.com/terminalforlife/miscellaneous/master/Cron%20Tasks/NAME
@@ -21,3 +23,5 @@ Where NAME is the filename of the script, and WHEN is when the script is to be e
     cron.hourly/     # Every hour.
     cron.weekly/     # Every week.
     cron.monthly/    # Every month.
+
+If, however, the task is perhaps not so global and/or doesn't require root permissions, then you'll have to figure that out yourself, as I don't tend to use cron unless it's one of the /etc/cron.* directories, so I'm not too familiar with that process.
