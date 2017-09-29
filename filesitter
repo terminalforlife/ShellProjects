@@ -1,0 +1,106 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - filesitter
+# Started On        - Thu 28 Sep 23:58:07 BST 2017
+# Last Change       - Fri 29 Sep 11:40:47 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
+ERR(){ echo "ERROR: $1" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{tr,cut} /bin/{ls,systemctl,sleep}
+{
+	[ -x "$DEP" ] || {
+		ERR "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+shopt -s extglob
+
+USAGE()
+{
+	while read -r
+	do
+		echo "$REPLY"
+	done <<-EOF
+		            FILESITTER (29th September 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Watch for and act upon the completion of file size changes.
+
+		SYNTAX:     filesitter [OPTS] FILE1 FILE2 FILE3
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug                 - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --interval=n            - Where n is the check interval in seconds.
+		                                      Default is to check every 600 minutes.
+		            --shutdown              - Power system off instead of suspending.
+
+		NOTE:       Only up to three files can be watched at one time.
+	EOF
+}
+
+for ARG in $@
+{
+	case "$ARG"
+	in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--interval=@(+([0-9])|+([0-9]).+([0-9])))
+			INTERVAL="${ARG/*=}" ;;
+		--shutdown)
+			ACTION="poweroff" ;;
+		*)
+			break ;;
+	esac
+
+	shift
+}
+
+IFS=""; FILENAME1="$1"; FILENAME2="$2"; FILENAME3="$3"
+([ -z "$FILENAME1" ] && [ -z "$FILENAME2" ] && [ -z "$FILENAME3" ]) && {
+	XERR "At least one filename is required."
+}
+
+[ $UID -eq 0 ] && XERR "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+while :
+do
+	for FILE in\
+	\
+		"${FILENAME1:-NULL}" "${FILENAME2:-NULL}" "${FILENAME3:-NULL}"
+	{
+		[ "$FILE" == "NULL" ] && continue
+
+		([ -f "$FILE" ] || [ -r "$FILE" ]) || {
+			XERR "Cannot find or access: $FILE"
+		}
+
+		read <<< `/bin/ls -s "$FILE"`
+		NEW+="${REPLY%% *}"
+	}
+
+	[ ${OLD:-0} -eq $NEW ] && /bin/systemctl ${ACTION:-suspend}
+
+	OLD="$NEW"
+	unset NEW
+
+	/bin/sleep ${INTERVAL:-600}s
+done
+
+[ "$DEBUGME" == "true" ] && set +xeu
