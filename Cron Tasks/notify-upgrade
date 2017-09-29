@@ -1,0 +1,87 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - /etc/cron.hourly/notify-upgrade
+# Started On        - Sun 17 Sep 16:07:59 BST 2017
+# Last Change       - Fri 29 Sep 11:32:19 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+#TODO - Actually made this ages ago now; finally updating it. Still painful though.
+
+LOGFILE="/var/log/notify-upgrade.log"
+
+exec 2>> "$LOGFILE"
+
+ERR(){ echo "ERROR: $1" 1>&2; }
+
+DEPCOUNT=0
+for DEP in /usr/bin/{lsb_release,paplay,apt-get,awk} /bin/{date,grep,sleep}
+{
+	[ -x "$DEP" ] || {
+		ERR "Dependency '$DEP' not met."
+		let DEPCOUNT++
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 0
+
+/bin/date 1>&2 >> "$LOGFILE"
+
+LSB_RELEASE=`/usr/bin/lsb_release -is`
+declare -i NCOUNT=0
+
+case "$LSB_RELEASE"
+in
+	Ubuntu|LinuxMint|Debian)
+		;;
+	*)
+		ERR "Your LSB/Distro is not supported." ;;
+esac
+
+/usr/bin/apt-get update
+
+SUMMARY_OF_CHANGES=$(
+	/usr/bin/apt-get upgrade -ys\
+		| /bin/grep "[0-9].*, [0-9].*, [0-9].* [0-9].*\."
+)
+
+UPGRADE=$(
+	echo $SUMMARY_OF_CHANGES\
+		| /usr/bin/awk -S '{print $1,$2,$3}'\
+		| /usr/bin/tr -d ","\
+		| /usr/bin/awk -S '{print $1" package(s) to upgrade."}'
+)
+
+NEWLY_INSTALL=$(
+	echo $SUMMARY_OF_CHANGES\
+		| /usr/bin/awk -S '{print $4,$5,$6,$7}'\
+		| /usr/bin/tr -d ","\
+		| /usr/bin/awk -S '{print $1" new package(s) to install."}'
+)
+
+REMOVE=$(
+	echo $SUMMARY_OF_CHANGES\
+		| /usr/bin/awk -S '{print $8,$9,$10}'\
+		| /usr/bin/awk -S '{print $1" package(s) to remove."}'
+)
+
+NOT_UPGRADE=$(
+	echo $SUMMARY_OF_CHANGES\
+		| /usr/bin/awk -S '{print $12,$13,$14,$15}'\
+		| /usr/bin/tr -d ","\
+		| /usr/bin/awk -S '{print $1" ignored package upgrade(s)."}'
+)
+
+echo "$UPGRADE" >> "$LOGFILE"
+echo "$NEWLY_INSTALL" >> "$LOGFILE"
+echo "$REMOVE" >> "$LOGFILE"
+echo "$NOT_UPGRADE" >> "$LOGFILE"
+
+[ "$UPGRADE" == "0 package(s) to upgrade." ] || NCOUNT+=1
+[ "$NEWLY_INSTALL" == "0 new package(s) to install." ] || NCOUNT+=1
+[ "$REMOVE" == "0 package(s) to remove." ] || NCOUNT+=1
+[ "$NOT_UPGRADE" == "0 ignored package upgrade(s)." ] || NCOUNT+=1
+
+[ $NCOUNT -gt 0 ] && /usr/bin/paplay /home/ichy/dong.wav
