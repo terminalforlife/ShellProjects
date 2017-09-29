@@ -10,8 +10,6 @@ Installation should be pretty simple for these scripts. They will of course assu
 
 How you install a cron job found here, depends on the task. If it's global (such as notify-upgrade) and needs root access, then you'll want to follow the instructions here:
 
-To set up a cron job which you see listed here in this directory under the miscellaneous repository, you can do the following to download and use it:
-
     wget -q https://raw.githubusercontent.com/terminalforlife/miscellaneous/master/Cron%20Tasks/NAME
     sudo chown 0:0 NAME
     sudo chmod 500 NAME
