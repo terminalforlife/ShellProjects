@@ -13,11 +13,11 @@ To set up a cron job which you see listed here in this directory under the misce
     wget -q https://raw.githubusercontent.com/terminalforlife/miscellaneous/master/Cron%20Tasks/NAME
     sudo chown 0:0 NAME
     sudo chmod 500 NAME
-    sudo mv NAME /etc/cron.hourly/
+    sudo mv NAME /etc/WHEN
 
 Where NAME is the filename of the script, and WHEN is when the script is to be executed. Common available WHEN options:
 
-    /etc/cron.daily/      # Every day.
-    /etc/cron.hourly/     # Every hour.
-    /etc/cron.weekly/     # Every week.
-    /etc/cron.monthly/    # Every month.
+    cron.daily/      # Every day.
+    cron.hourly/     # Every hour.
+    cron.weekly/     # Every week.
+    cron.monthly/    # Every month.
