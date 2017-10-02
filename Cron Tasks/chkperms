@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - /etc/cron.hourly/chkperms
+# Started On        - Fri 29 Sep 17:00:00 BST 2017
+# Last Change       - Mon  2 Oct 01:31:57 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+LOGFILE="/var/log/chkperms.log"
+
+exec 2>> /var/log/chkperms.log
+
+ERR(){ echo "ERROR: $1" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/stat /bin/date
+{
+	[ -x "$DEP" ] || {
+		ERR "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+MSG="BadPerms: "
+DATE=`/bin/date +%F_%X`
+
+# Key:value array of the correct permissions, in octal:
+CORRECT=(
+	"/boot:600"
+	"/home/*:700"
+	"/swapfile:600"
+	"/etc/passwd:644"
+	"/etc/shadow:640"
+	"/etc/profile:644"
+	"/etc/bash.bashrc:644"
+)
+
+# For every file listed above.
+for FILE in ${CORRECT[@]}
+{
+	# If the file exists.
+	[ -f "${FILE%:*}" ] && {
+		# Log the date and time alongside the file with bad permissions.
+		printf "[%s]: BadPerms: %s\n" "$DATE" "${FILE%:*}" 1>&2
+
+		# Notify the user via notify-send, if available.
+		[ -x /usr/bin/notify-send ] && {
+			/usr/bin/notify-send "ERROR: /var/log/chkperms.log"
+		}
+	}
+}
+
+exit 0
