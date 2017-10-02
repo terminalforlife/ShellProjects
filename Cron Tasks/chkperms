@@ -3,13 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - /etc/cron.hourly/chkperms
 # Started On        - Fri 29 Sep 17:00:00 BST 2017
-# Last Change       - Mon  2 Oct 01:46:12 BST 2017
+# Last Change       - Mon  2 Oct 01:52:52 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
+# Choose alternative location if desired.
 LOGFILE="/var/log/chkperms.log"
 
+# Redirect and amend all STDERR to LOGFILE.
 exec 2>> /var/log/chkperms.log
 
 ERR(){ echo "ERROR: $1" 1>&2; }
@@ -25,9 +27,8 @@ for DEP in /usr/bin/stat /bin/date
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-MSG="BadPerms: "
-DATE=`/bin/date +%F_%X`
-
+# Syntax is FILE:PERM, where FILE is the path/file to be checked to match the PERM.
+# This is in a key:value style. Don't worry if your path contains a : (colon).
 CORRECT=(
 	"/boot:600"
 	"/home/*:700"
@@ -38,11 +39,18 @@ CORRECT=(
 	"/etc/bash.bashrc:644"
 )
 
+# For each file listed above.
 for FILE in ${CORRECT[@]}
 {
+	# Get the current date and time.
+	DATE=`/bin/date +%F_%X`
+
+	# If the file, directory, or whatever exists and isn't lost+found.
 	([ -e "${FILE%:*}" ] && ! [ "$FILE" == "lost+found" ]) && {
+		# Log the event. Includes date, time, and filename.
 		printf "[%s]: BadPerms: %s\n" "$DATE" "${FILE%:*}" 1>&2
 
+		# If notify-send is found, use it to notify the user.
 		[ -x /usr/bin/notify-send ] && {
 			/usr/bin/notify-send "ERROR: /var/log/chkperms.log"
 		}
