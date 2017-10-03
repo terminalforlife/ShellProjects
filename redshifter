@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Tue  3 Oct 21:47:08 BST 2017
+# Last Change       - Tue  3 Oct 21:48:53 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -22,6 +22,8 @@
 # --decrement|-d X           - Dcrement gamma by X integer.
 
 #------------------------------------------------------------------------------MAIN
+
+[ $UID -eq 0 ] && exit 1 # No sense in running as root, but remove if desired.
 
 # Current value is stored here. Value expected to reset upon reboot. This value
 # will be available outside of this script, allowing for use elsewhere.
