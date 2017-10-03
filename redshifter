@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/redshifter
+# Started On        - Tue  3 Oct 19:14:37 BST 2017
+# Last Change       - Tue  3 Oct 19:33:17 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# NOTE:
+#
+# This small script assumes you have redshift installed and available. Also assumed
+# is that you'll be using this script via keyboard shortcuts, not terminals.
+#
+# Current value is stored in /tmp/redshifter_$UID_$GID_$$.tmp
+#
+# Calling bash to avoid dependencies and to make use of bash syntax.
+
+
+# OPTS:
+#
+# --increment|-i X Y               - Increment by X and Y integer.
+# --decrement|-d X Y               - Dcrement by X and Y integer.
+#
+# In both cases, X resembles brightness, and Y the gamma.
+
+#----------------------------------------------------------------------------------
+
+BUFFER="/tmp/redshifter_$UID_$GID_$$.tmp"
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--increment|-i)
+			;;
+		--decrement|-d)
+			;;
+		*)
+			# Since non-interactive, no need to do anything special.
+			break
+	esac
+
+	shift
+done
