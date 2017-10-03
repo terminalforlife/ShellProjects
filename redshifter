@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Tue  3 Oct 21:57:57 BST 2017
+# Last Change       - Tue  3 Oct 22:10:49 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -46,13 +46,13 @@ while [ -n "$1" ]; do
 		--increment|-i)
 			shift
 			TEMP=$(( GAMMAS_NOW + $1 ))
-			[ $TEMP -ge 25000 ] && { printf "\a"; break; }
+			[ $TEMP -gt 25000 ] && break
 			echo "$TEMP" > "$BUFFER"
 			/usr/bin/redshift -o -O ${TEMP}K ;;
 		--decrement|-d)
 			shift
 			TEMP=$(( GAMMAS_NOW - $1 ))
-			[ $TEMP -le 1000 ] && { printf "\a"; break; }
+			[ $TEMP -lt 1000 ] && break
 			echo "$TEMP" > "$BUFFER"
 			/usr/bin/redshift -o -O ${TEMP}K ;;
 	esac
