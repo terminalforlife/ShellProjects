@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Tue  3 Oct 22:10:49 BST 2017
+# Last Change       - Tue  3 Oct 22:27:28 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,9 +17,10 @@
 
 # OPTS:
 #
-# --reset|-r                 - Reset to the default.
+# --limit|-l X               - Reduce changes by X milliseconds.
 # --increment|-i X           - Increment gamma by X integer.
-# --decrement|-d X           - Dcrement gamma by X integer.
+# --decrement|-d X           - Decrement gamma by X integer.
+# --reset|-r                 - Reset to the default.
 
 #------------------------------------------------------------------------------MAIN
 
@@ -40,6 +41,10 @@ BUFFER="/tmp/redshifter.tmp"
 
 while [ -n "$1" ]; do
 	case "$1" in
+		--limit|-l)
+			shift
+			([ $1 -lt 1 ] || [ $1 -gt 999 ]) && break
+			sleep 0.${1}s ;;
 		--reset|-r)
 			echo "6500" > "$BUFFER"
 			/usr/bin/redshift -o -O 6500K ;;
