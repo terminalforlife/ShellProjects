@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Tue  3 Oct 21:42:33 BST 2017
+# Last Change       - Tue  3 Oct 21:47:08 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,10 +14,6 @@
 # is that you'll be using this script via keyboard shortcuts, not terminals.
 #
 # Calling bash to avoid dependencies and to make use of bash syntax.
-#
-# Before you can use this, you must have this script launch at startup with NO
-# arguments given, in order to set the default and learn the current value, -
-# before anything can be *cremented.
 
 # OPTS:
 #
