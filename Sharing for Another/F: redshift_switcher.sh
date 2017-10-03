@@ -19,22 +19,22 @@ log_file="$HOME/.red_status.log"
 level_status=`< "$log_file"`
 
 set_level_four () {
-  redshift -o -l 0:0 -b 0.9 -t 4700:4700
+  redshift -o -b 0.9 -t 4700:4700
   echo "four" > "$log_file"
 }
 
 set_level_three () {
-  redshift -o -l 0:0 -b 0.8 -t 4700:4700
+  redshift -o -b 0.8 -t 4700:4700
   echo "three" > "$log_file"
 }
 
 set_level_two () {
-  redshift -o -l 0:0 -b 0.7 -t 3900:3900
+  redshift -o -b 0.7 -t 3900:3900
   echo "two" > "$log_file"
 }
 
 set_level_one () {
-  redshift -o -l 0:0 -b 0.6 -t 3200:3200
+  redshift -o -b 0.6 -t 3200:3200
   echo "one" > "$log_file"
 }
 
