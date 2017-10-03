@@ -3,42 +3,61 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Tue  3 Oct 19:33:17 BST 2017
+# Last Change       - Tue  3 Oct 21:42:33 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-# NOTE:
+# IMPORTANT:
 #
 # This small script assumes you have redshift installed and available. Also assumed
 # is that you'll be using this script via keyboard shortcuts, not terminals.
 #
-# Current value is stored in /tmp/redshifter_$UID_$GID_$$.tmp
-#
 # Calling bash to avoid dependencies and to make use of bash syntax.
-
+#
+# Before you can use this, you must have this script launch at startup with NO
+# arguments given, in order to set the default and learn the current value, -
+# before anything can be *cremented.
 
 # OPTS:
 #
-# --increment|-i X Y               - Increment by X and Y integer.
-# --decrement|-d X Y               - Dcrement by X and Y integer.
-#
-# In both cases, X resembles brightness, and Y the gamma.
+# --reset|-r                 - Reset to the default.
+# --increment|-i X           - Increment gamma by X integer.
+# --decrement|-d X           - Dcrement gamma by X integer.
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------MAIN
 
-BUFFER="/tmp/redshifter_$UID_$GID_$$.tmp"
+# Current value is stored here. Value expected to reset upon reboot. This value
+# will be available outside of this script, allowing for use elsewhere.
+BUFFER="/tmp/redshifter.tmp"
+
+# If no buffer or no read access, learn the default value.
+([ -f "$BUFFER" ] || [ -r "$BUFFER" ]) || {
+	GAMMAS_NOW=6500
+	echo "6500" > "$BUFFER"
+} && {
+	# Else just grab value from buffer.
+	GAMMAS_NOW=`< "$BUFFER"`
+}
 
 while [ -n "$1" ]; do
 	case "$1" in
+		--reset|-r)
+			echo "6500" > "$BUFFER"
+			/usr/bin/redshift -o -O 6500K ;;
 		--increment|-i)
-			;;
+			shift
+			TEMP=$(( GAMMAS_NOW + $1 ))
+			[ $TEMP -gt 25000 ] && { printf "\a"; break; }
+			echo "$TEMP" > "$BUFFER"
+			/usr/bin/redshift -o -O ${TEMP}K ;;
 		--decrement|-d)
-			;;
-		*)
-			# Since non-interactive, no need to do anything special.
-			break
+			shift
+			TEMP=$(( GAMMAS_NOW - $1 ))
+			[ $TEMP -lt 1000 ] && { printf "\a"; break; }
+			echo "$TEMP" > "$BUFFER"
+			/usr/bin/redshift -o -O ${TEMP}K ;;
 	esac
 
-	shift
+	break
 done
