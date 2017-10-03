@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Tue  3 Oct 22:27:28 BST 2017
+# Last Change       - Tue  3 Oct 22:30:15 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -62,5 +62,5 @@ while [ -n "$1" ]; do
 			/usr/bin/redshift -o -O ${TEMP}K ;;
 	esac
 
-	break
+	shift
 done
