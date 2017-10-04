@@ -1,18 +1,18 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - filesitter
+# Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Fri 29 Sep 11:40:47 BST 2017
+# Last Change       - Wed  4 Oct 21:02:46 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
-ERR(){ echo "ERROR: $1" 1>&2; }
+XERR(){ echo "[L${LINENO}]: ERROR: $1" 1>&2; exit 1; }
+ERR(){ echo "[L${LINENO}]: ERROR: $1" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{tr,cut} /bin/{ls,systemctl,sleep}
+for DEP in /usr/bin/{tr,cut,stat} /bin/{systemctl,sleep}
 {
 	[ -x "$DEP" ] || {
 		ERR "Dependency '$DEP' not met."
@@ -30,7 +30,7 @@ USAGE()
 	do
 		echo "$REPLY"
 	done <<-EOF
-		            FILESITTER (29th September 2017)
+		            FILESITTER (4th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Watch for and act upon the completion of file size changes.
@@ -45,6 +45,9 @@ USAGE()
 		            --shutdown              - Power system off instead of suspending.
 
 		NOTE:       Only up to three files can be watched at one time.
+
+		            Suspending the machine is the default action upon no detected file size
+		            change. The amount of minimum detected space change is 1 byte.
 	EOF
 }
 
@@ -91,11 +94,17 @@ do
 			XERR "Cannot find or access: $FILE"
 		}
 
-		read <<< `/bin/ls -s "$FILE"`
-		NEW+="${REPLY%% *}"
+		NEW+=`/usr/bin/stat --printf="%s" "$FILE"`
 	}
 
-	[ ${OLD:-0} -eq $NEW ] && /bin/systemctl ${ACTION:-suspend}
+	[ ${OLD:-0} -eq $NEW ] && {
+		# Use trap to avoid neverending loop with suspend.
+		[ -z "$ACTION" ] && ACTION="suspend"
+		trap "/bin/systemctl $ACTION" HUP
+
+		# Exit if kill succeeds, otherwise just exit with error.
+		kill -HUP $$ && exit 0 || XERR "Failed to $ACTION the system."
+	}
 
 	OLD="$NEW"
 	unset NEW
