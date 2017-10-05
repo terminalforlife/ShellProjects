@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/lnldl
 # Started On        - Fri  6 Oct 00:23:23 BST 2017
-# Last Change       - Fri  6 Oct 00:23:37 BST 2017
+# Last Change       - Fri  6 Oct 00:25:43 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -21,7 +21,9 @@ for DEP in /usr/bin/id /usr/bin/seq /usr/bin/wget; {
 	}
 }
 
-[ `/usr/bin/id -u` -eq 0 ] && { XERR "Don't run as root."; }
+[ $DEPCOUNT -gt 0 ] && exit 1
+
+[ `/usr/bin/id -u` -eq 0 ] && XERR "Don't run as root."
 
 LINK="http://podtrac.com/pts/redirect.mp3/latenightlinux.com/media"
 
