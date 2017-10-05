@@ -3,19 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Wed  4 Oct 21:02:46 BST 2017
+# Last Change       - Thu  5 Oct 18:43:12 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${LINENO}]: ERROR: $1" 1>&2; exit 1; }
-ERR(){ echo "[L${LINENO}]: ERROR: $1" 1>&2; }
+XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
+ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{tr,cut,stat} /bin/{systemctl,sleep}
-{
+for DEP in /usr/bin/{tr,cut,stat} /bin/{systemctl,sleep}; {
 	[ -x "$DEP" ] || {
-		ERR "Dependency '$DEP' not met."
+		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	}
 }
@@ -24,13 +23,11 @@ for DEP in /usr/bin/{tr,cut,stat} /bin/{systemctl,sleep}
 
 shopt -s extglob
 
-USAGE()
-{
-	while read -r
-	do
+USAGE(){
+	while read -r; do
 		echo "$REPLY"
 	done <<-EOF
-		            FILESITTER (4th October 2017)
+		            FILESITTER (5th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Watch for and act upon the completion of file size changes.
@@ -51,10 +48,8 @@ USAGE()
 	EOF
 }
 
-for ARG in $@
-{
-	case "$ARG"
-	in
+for ARG in $@; {
+	case "$ARG" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--debug)
@@ -74,16 +69,15 @@ for ARG in $@
 
 IFS=""; FILENAME1="$1"; FILENAME2="$2"; FILENAME3="$3"
 ([ -z "$FILENAME1" ] && [ -z "$FILENAME2" ] && [ -z "$FILENAME3" ]) && {
-	XERR "At least one filename is required."
+	XERR "$LINENO" "At least one filename is required."
 }
 
-[ $UID -eq 0 ] && XERR "Root access isn't required."
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
-while :
-do
+while :; do
 	for FILE in\
 	\
 		"${FILENAME1:-NULL}" "${FILENAME2:-NULL}" "${FILENAME3:-NULL}"
@@ -91,7 +85,7 @@ do
 		[ "$FILE" == "NULL" ] && continue
 
 		([ -f "$FILE" ] || [ -r "$FILE" ]) || {
-			XERR "Cannot find or access: $FILE"
+			XERR "$LINENO" "Cannot find or access: $FILE"
 		}
 
 		NEW+=`/usr/bin/stat --printf="%s" "$FILE"`
@@ -103,7 +97,7 @@ do
 		trap "/bin/systemctl $ACTION" HUP
 
 		# Exit if kill succeeds, otherwise just exit with error.
-		kill -HUP $$ && exit 0 || XERR "Failed to $ACTION the system."
+		kill -HUP $$ && exit 0 || XERR "$LINENO" "Failed to $ACTION the system."
 	}
 
 	OLD="$NEW"

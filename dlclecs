@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dlclecs
 # Started On        - Tue 19 Sep 13:00:16 BST 2017
-# Last Change       - Tue 19 Sep 13:28:43 BST 2017
+# Last Change       - Thu  5 Oct 18:58:17 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,13 +12,11 @@ XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
 ERR(){ echo "ERROR: $1" 1>&2; }
 
 DEPCOUNT=0
-for DEP in /usr/bin/id /usr/bin/basename /bin/grep /usr/bin/wget
-do
-	if ! type "$DEP" 2>&1 > /dev/null
-	then
+for DEP in /usr/bin/id /usr/bin/basename /bin/grep /usr/bin/wget; do
+	[ -x "$DEP" ] || {
 		ERR "Dependency '$DEP' not met."
 		DEPCOUNT=$(( DEPCOUNT + 1 ))
-	fi
+	}
 done
 
 [ $DEPCOUNT -eq 0 ] || exit 1
@@ -36,14 +34,12 @@ DLINKS=$(
 		| /bin/grep -o "${GREP_REGEX}[0-9]\+.pdf"
 )
 
-for FILE in $DLINKS
-do
+for FILE in $DLINKS; do
 	FILENAME=`/usr/bin/basename $FILE`
 
-	if /usr/bin/wget -q "${DOMAIN}${FILE}"
-	then
+	/usr/bin/wget -q "${DOMAIN}${FILE}" && {
 		echo "FILE: $FILENAME"
-	else
+	} || {
 		XERR "$FILENAME"
-	fi
+	}
 done
