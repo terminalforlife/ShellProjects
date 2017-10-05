@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Mon 25 Sep 09:50:58 BST 2017
+" Last Change       - Fri  6 Oct 00:41:31 BST 2017
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -280,21 +280,21 @@ endfunc
 
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
 func! Setup()
-	exe "normal! 0iXERR(){ echo \"ERROR: $1\" 1>&2; exit 1; }\<CR>"
-	exe "normal! 0iERR(){ echo \"ERROR: $1\" 1>&2; }\<CR>\<CR>"
+	exe "normal! 0iXERR(){ echo \"[L${1}] ERROR: $2\" 1>&2; exit 1; }\<CR>"
+	exe "normal! 0iERR(){ echo \"[L${1}] ERROR: $2\" 1>&2; }\<CR>\<CR>"
 
 	exe "normal! 0ideclare -i DEPCOUNT=0\<CR>"
 	exe "normal! 0ifor DEP in /usr/bin/{} /bin/{} /sbin/{}\<CR>{\<CR>"
-	exe "normal! 0i\<Tab>if ! type -P \"$DEP\" &> /dev/null\<CR>\<Tab>then\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>ERR \"Dependency '$DEP' not met.\"\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>DEPCOUNT+=1\<CR>\<Tab>fi\<CR>}\<CR>\<CR>"
+	exe "normal! 0i\<Tab>[ -x \"$DEP\" ] || {\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>ERR \"$LINENO\" \"Dependency '$DEP' not met.\"\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>DEPCOUNT+=1\<CR>\<Tab>}\<CR>}\<CR>\<CR>"
 	exe "normal! 0i[ $DEPCOUNT -eq 0 ] || exit 1\<CR>\<CR>"
 
 	exe "normal! 0ishopt -s extglob\<CR>\<CR>"
 
-	exe "normal! 0iUSAGE()\<CR>{\<CR>\<Tab>while read -r\<CR>"
-	exe "normal! 0i\<Tab>do\<CR>\<Tab>\<Tab>echo \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            EXAMPLE (25th September 2017)\<CR>"
+	exe "normal! 0iUSAGE(){\<CR>\<Tab>while read -r; do\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>echo \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>            EXAMPLE (5th October 2017)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            Written by terminalforlife (terminalforlife@yahoo.com)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            Description Here\<CR>\<CR>"
@@ -307,19 +307,19 @@ func! Setup()
 	exe "normal! 0i\<Tab>\<Tab>NOTE:       N/A\<CR>"
 	exe "normal! 0i\<Tab>EOF\<CR>}\<CR>\<CR>"
 
-	exe "normal! 0ifor ARG in $@\<CR>{\<CR>\<Tab>case \"$ARG\"\<CR>\<Tab>in\<CR>"
+	exe "normal! 0iwhile [ -n \"$1\" ]; do\<CR>\<Tab>case \"$1\" in\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--help|-h|-\\?)\<CR>\<Tab>\<Tab>\<Tab>USAGE; exit 0 ;;\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--debug)\<CR>\<Tab>\<Tab>\<Tab>DEBUGME=\"true\" ;;\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--quiet|-q)\<CR>\<Tab>\<Tab>\<Tab>BEQUIET=\"true\" ;;\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>*)\<CR>\<Tab>\<Tab>\<Tab>XERR \"Incorrect argument(s) specified.\" ;;\<CR>"
-	exe "normal! 0i\<Tab>esac\<CR>\<CR>\<Tab>shift\<CR>}\<CR>\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>*)\<CR>\<Tab>\<Tab>\<Tab>XERR \"$LINENO\" \"Incorrect argument(s) specified.\" ;;\<CR>"
+	exe "normal! 0i\<Tab>esac\<CR>\<CR>\<Tab>shift\<CR>done\<CR>\<CR>"
 
-	exe "normal! 0i[ $UID -eq 0 ] && XERR \"Root access isn't required.\"\<CR>\<CR>"
+	exe "normal! 0i[ $UID -eq 0 ] && XERR \"$LINENO\" \"Root access isn't required.\"\<CR>\<CR>"
 
 	exe "normal! 0i[ \"$BEQUIET\" == \"true\" ] && exec 1> /dev/null\<CR>"
 
 	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -xeu\<CR>\<CR>\<CR>\<CR>"
-	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set +xeu\<Esc>kk"
+	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set +xeu || exit 0\<Esc>kk"
 endfunc
 
 " Enable syntax highlighting.
