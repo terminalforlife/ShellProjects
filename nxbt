@@ -3,18 +3,16 @@
 #----------------------------------------------------------------------------------#
 # Project Name      - miscellaneous/nxbt
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Fri  6 Oct 17:53:06 BST 2017
+# Last Change       - Fri  6 Oct 18:52:44 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-# This is a fork of XBT by Joe Collins of ezeelinux:
+# This is somewhat of a fork of XBT, written by Joe Collins on October 4th, 2017:
 #
 # https://www.youtube.com/channel/UCTfabOKD7Yty6sDF4POBVqA
 # http://www.ezeelinux.com/bash-scripts/
-
-#----------------------------------------------------------------------------------
-
+#
 # NXBT (NEW XBT) IS A WORK IN PROGRESS.
 #
 # Please don't use this until I've declared here that I feel
@@ -23,71 +21,137 @@
 
 #----------------------------------------------------------------------------------
 
-# XBT — External Backup Tool — by Joe Collins (October 4th, 2017)
+# | Requirements:
+# |
+# | XBT should run on any currently supported Linux distribution with BASH. The
+# | dedicated USB drive must be formatted to a Linux native file system such as
+# | Ext4 to ensure that file permissions will be stored unchanged.
+# |
+# | …And away we go!
 #
-# A Script to create a snapshot backup of /etc and /home on a dedicated
-# external USB drive.
+#                         - Joe Collins
+
+#----------------------------------------------------------------------------------
+
+XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
+ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/rsync; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            NXBT - NEW XBT (6th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            A fork and improvement of the XBT program written by Joe Collins.
+
+		SYNTAX:     nxbt [OPTS] TARGET
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug                 - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --log|-l PATH           - Choose a different location for the logfile.
+		            --source|-s PATH        - Choose a different location to back up.
+		            --targz                 - Archive and compress with gzip TARGET.
+
+		NOTE:       Where TARGET is the location to store the backed up files. The files
+		            will be stored within a timestamped directory. An example TARGET:
+
+		              nxbt /media/\$USER/Backup_Drive/
+	EOF
+}
+
+LOGFILE="/tmp/nxbt_$USER_$$.log"
+exec 2> "$LOGFILE"
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--logfile)
+			shift
+
+			[ -d "${1%\/*}" ] && LOGFILE="$1" || {
+				XERR "$LINENO" "Logfile directory not found."
+			}
+		--source)
+			#TODO - Incorporate multiple optional sources.
+			shift
+
+			[ -d "${1%\/*}" ] && SOURCE="$1" || {
+				XERR "$LINENO" "Source directory not found."
+			}
+		*)
+			XERR "$LINENO" "Incorrect option(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+TARGET="$*"
+BACKNAME="BACKUP_$_`printf '%(%F_%X)T'`"
+
+[ -d "$TARGET" ] || XERR "Unable to find or access the TARGET directory."
+
+[ -z "$SOURCE" ] && {
+	echo "Backing up $HOME..."
+	/usr/bin/rsync -a –delete –info=progress2 "$HOME" "$TARGET/$BACKNAME"
+
+	echo "Backing up /etc..."
+	/usr/bin/rsync -a –delete –info=progress2 "/etc" "$TARGET/$BACKNAME"
+} || {
+	/usr/bin/rsync -a –delete –info=progress2 "$SOURCE" "$TARGET/$BACKNAME"
+}
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
+
+#----------------------------------------------------------------------------------
+
+#echo “Backup sent to XBT_Drive USB from $HOSTNAME by ‘$USER’ on:” > /tmp/backup.log
+#date >> /tmp/backup.log
+#echo “Errors:” >> /tmp/backup.log
 #
-# Description:
+## Begin backup operations using rsync:
+## (User will be prompted for sudo password if XBT was not started with sudo.)
 #
-# XBT will update files that have changed, remove
-# files that have been deleted and add any new files that have been created
-# since the last backup. The initial backup can take a lot of time if
-# you have a lot of data stored in your system’s /home directory. The
-# directory structure and all files are stored openly to allow users easy
-# access if they only need to retrieve a few files or directories.
-# Data can be restored with the rsync command or with Grsync, a graphical
-# application available in most Linux distribution’s repositories.
-# A simple logfile is added to the XBT_Drive that shows when each
-# backup is taken and any errors that might occur. This file is appended
-# every time XBT is run.
+#echo ”
+#Backing up /etc…”
+#sudo rsync -a –delete –info=progress2 /etc/ /media/”$USER”/XBT_Drive/Etc_Backup/ 2>> /tmp/backup.log
+#echo ”
+#Backing up /home…”
+#sudo rsync -a –delete –info=progress2 /home/ /media/”$USER”/XBT_Drive/Home_Backup/ 2>> /tmp/backup.log
 #
-# Requirements:
+#echo “——————–
+#– All backed up! –
+#——————–
+#” | tee -a /tmp/backup.log
 #
-# XBT should run on any currently supported Linux distribution with BASH.
-# The dedicated USB drive must be formatted to a Linux native file system
-# such as Ext4 to ensure that file permissions will be stored unchanged
-# The USB drive needs to have enough free capacity to store all data in
-# /home. The drive MUST be labeled as “XBT_Drive” for the script to run.
-# If XBT_Drive is not detected, the script exits with an error.
+## Log file is created or appended on XBT_Drive from /tmp:
+## (backup.log will be removed from /tmp on next reboot.)
 #
-# …And away we go!
+#cat /tmp/backup.log >> /media/”$USER”/XBT_Drive/backup.log
 #
-# XBT checks for backup media:
-
-#------------------------------------------------------------------------------CODE
-
-if [ ! -d /media/”$USER”/XBT_Drive ]; then
-echo “NO DRIVE FOUND! Please make sure XBT_Drive USB is connected.” ; exit 1
-fi
-
-# Log file is created in /tmp:
-
-echo “Backup sent to XBT_Drive USB from $HOSTNAME by ‘$USER’ on:” > /tmp/backup.log
-date >> /tmp/backup.log
-echo “Errors:” >> /tmp/backup.log
-
-# Begin backup operations using rsync:
-# (User will be prompted for sudo password if XBT was not started with sudo.)
-
-echo ”
-Backing up /etc…”
-sudo rsync -a –delete –info=progress2 /etc/ /media/”$USER”/XBT_Drive/Etc_Backup/ 2>> /tmp/backup.log
-echo ”
-Backing up /home…”
-sudo rsync -a –delete –info=progress2 /home/ /media/”$USER”/XBT_Drive/Home_Backup/ 2>> /tmp/backup.log
-
-echo “——————–
-– All backed up! –
-——————–
-” | tee -a /tmp/backup.log
-
-# Log file is created or appended on XBT_Drive from /tmp:
-# (backup.log will be removed from /tmp on next reboot.)
-
-cat /tmp/backup.log >> /media/”$USER”/XBT_Drive/backup.log
-
-# Writing all cached data to drives and exiting:
-
-sync
-exit
+## Writing all cached data to drives and exiting:
+#
+#sync
+#exit
+#
