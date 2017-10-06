@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------#
 # Project Name      - miscellaneous/nxbt
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Fri  6 Oct 20:37:09 BST 2017
+# Last Change       - Fri  6 Oct 21:06:39 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -33,12 +33,13 @@
 
 #----------------------------------------------------------------------------------
 
+declare -i SECONDS=0
+
 XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
 ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/rsync /bin/sync
-{
+for DEP in /usr/bin/rsync /bin/{mkdir,sync}; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -48,8 +49,6 @@ for DEP in /usr/bin/rsync /bin/sync
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 shopt -s extglob
-
-SECONDS=0
 
 USAGE(){
 	while read -r; do
@@ -112,51 +111,59 @@ done
 [ -d "$*" ] || XERR "$LINENO" "Unable to find or access the TARGET directory."
 
 TARGET="$*"
+[ -f "$TARGET" ] && XERR "Target is not a directory."
+[[ "$TARGET" == */ ]] || TARGET+="/"
+
 CURDATE=`printf '%(%F_%X)T'`
+#TODO - Make the logfile skip the whole /tmp part; redundant.
 LOGFILE="/tmp/nxbt_${USER}_${CURDATE}.log"
 BACKNAME="NXBT_${UID}_${CURDATE}"
+[ -d "$BACKNAME" ] || /bin/mkdir "${TARGET}${BACKNAME}"
 
+#TODO - Fix this not showing up in the logfile.
 printf "[+%0.7d] LOGGING: %s\n" "$SECONDS" "$LOGFILE"
-{
-	#TODO - Fix this not showing up in the logfile.
-	printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID:GID='%s:%s'\n"\
-		"${CURDATE:-???}" "${TARGET:-???}" "${HOSTNAME:-???}"\
-		"${USER:-???}" "${UID:-???}" "${GID:-???}"
-} > "$LOGFILE"
+printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID:GID='%s:%s'\n"\
+	"${CURDATE:-???}" "${TARGET:-???}" "${HOSTNAME:-???}"\
+	"${USER:-???}" "${UID:-???}" "${GID:-???}" > "$LOGFILE"
 
 #TODO - Add ability to back up usual sources plus the user's --source.
 [ -z "$SOURCE" ] && {
+	# Back up home files.
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$HOME"
-	/bin/mkdir "$TARGET/$BACKNAME/$USER/"
-	/usr/bin/rsync -a –info=progress2\
-		"$HOME" "$TARGET/$BACKNAME/$USER/" 2> "$LOGFILE"
+	TARGETPATH="${TARGET}${BACKNAME}/$USER/"
+	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
+	/usr/bin/rsync -a --info=progress2 "$HOME" "$TARGETPATH" 2> "$LOGFILE"
 
+	# Back up etc files.
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "/etc"
-	/bin/mkdir "$TARGET/$BACKNAME/etc"
-	/usr/bin/rsync -a –info=progress2\
-		"/etc" "$TARGET/$BACKNAME/etc/" 2> "$LOGFILE"
+	TARGETPATH="${TARGET}${BACKNAME}/etc/"
+	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
+	/usr/bin/rsync -a --info=progress2 "/etc" "$TARGETPATH" 2> "$LOGFILE"
 } || {
+	# Back up user-provided files.
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$SOURCE"
-	/bin/mkdir "$TARGET/$BACKNAME/${SOURCE//*\/}"
-	/usr/bin/rsync -a –info=progress2\
-		"$SOURCE" "$TARGET/$BACKNAME/${SOURCE//*\/}"/" 2> "$LOGFILE"
+	TARGETPATH="${TARGET}/${BACKNAME}/${SOURCE//*\/}"
+	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
+	/usr/bin/rsync -a --info=progress2 "$SOURCE" "$TARGETPATH"/ 2> "$LOGFILE"
 }
 
 printf "[+%0.7d] SYNCHRONIZING...\n" "$SECONDS"
-#/bin/sync 
+/bin/sync 
 
-([ -f "$LOGFILE" ] || ERR "Logfile not found.") || {
+([ -f "$LOGFILE" ] || ERR "$LINENO" "Logfile not found.") || {
 	readarray REPLY < "$LOGFILE"
 
 	[ -n "${REPLY[*]}" ] && {
 		printf "[+%0.7d] SAVING: %s\n" "$SECONDS"\
-			"$TARGET/$BACKNAME/${LOGFILE//*\/}"
+			"${TARGET}${BACKNAME}/${LOGFILE//*\/}"
 
-		< "$LOGFILE" > "$TARGET/$BACKNAME/${LOGFILE//*\/}"
+		< "$LOGFILE" > "${TARGET}${BACKNAME}/${LOGFILE//*\/}"
 	} || {
 		printf "[+%0.7d] CLEANING: %s\n" "$SECONDS" "$LOGFILE"
 	}
 }
+
+#TODO - Add feature to show the line count of the logfile.
 
 while read -r; do
 	echo "$REPLY"
@@ -169,7 +176,5 @@ done <<-EOF
 	TIME: ${SECONDS:-???}s
 	LINE: ${ERRCOUNT:-???}
 EOF
-
-#TODO - Add feature to show the line count of the logfile.
 
 [ "$DEBUGME" == "true" ] && set +xeu || exit 0
