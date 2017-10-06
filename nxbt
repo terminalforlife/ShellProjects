@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+# This is a fork of XBT by Joe Collins of ezeelinux:
+#
+# https://www.youtube.com/channel/UCTfabOKD7Yty6sDF4POBVqA
+# http://www.ezeelinux.com/bash-scripts/
+
+#----------------------------------------------------------------------------------
+
+# A WORK IN PROGRESS.
+#
+# Please don't use this until I've declared here that I feel
+# it's functional. Also, there will be one of my installit installers when it's
+# functional and I feel it's safe and tested enough.
+
+#----------------------------------------------------------------------------------
+
+# XBT — External Backup Tool — by Joe Collins (October 4th, 2017)
+#
+# A Script to create a snapshot backup of /etc and /home on a dedicated
+# external USB drive.
+#
+# Description:
+#
+# XBT will update files that have changed, remove
+# files that have been deleted and add any new files that have been created
+# since the last backup. The initial backup can take a lot of time if
+# you have a lot of data stored in your system’s /home directory. The
+# directory structure and all files are stored openly to allow users easy
+# access if they only need to retrieve a few files or directories.
+# Data can be restored with the rsync command or with Grsync, a graphical
+# application available in most Linux distribution’s repositories.
+# A simple logfile is added to the XBT_Drive that shows when each
+# backup is taken and any errors that might occur. This file is appended
+# every time XBT is run.
+#
+# Requirements:
+#
+# XBT should run on any currently supported Linux distribution with BASH.
+# The dedicated USB drive must be formatted to a Linux native file system
+# such as Ext4 to ensure that file permissions will be stored unchanged
+# The USB drive needs to have enough free capacity to store all data in
+# /home. The drive MUST be labeled as “XBT_Drive” for the script to run.
+# If XBT_Drive is not detected, the script exits with an error.
+#
+# …And away we go!
+#
+# XBT checks for backup media:
+
+#------------------------------------------------------------------------------CODE
+
+if [ ! -d /media/”$USER”/XBT_Drive ]; then
+echo “NO DRIVE FOUND! Please make sure XBT_Drive USB is connected.” ; exit 1
+fi
+
+# Log file is created in /tmp:
+
+echo “Backup sent to XBT_Drive USB from $HOSTNAME by ‘$USER’ on:” > /tmp/backup.log
+date >> /tmp/backup.log
+echo “Errors:” >> /tmp/backup.log
+
+# Begin backup operations using rsync:
+# (User will be prompted for sudo password if XBT was not started with sudo.)
+
+echo ”
+Backing up /etc…”
+sudo rsync -a –delete –info=progress2 /etc/ /media/”$USER”/XBT_Drive/Etc_Backup/ 2>> /tmp/backup.log
+echo ”
+Backing up /home…”
+sudo rsync -a –delete –info=progress2 /home/ /media/”$USER”/XBT_Drive/Home_Backup/ 2>> /tmp/backup.log
+
+echo “——————–
+– All backed up! –
+——————–
+” | tee -a /tmp/backup.log
+
+# Log file is created or appended on XBT_Drive from /tmp:
+# (backup.log will be removed from /tmp on next reboot.)
+
+cat /tmp/backup.log >> /media/”$USER”/XBT_Drive/backup.log
+
+# Writing all cached data to drives and exiting:
+
+sync
+exit
