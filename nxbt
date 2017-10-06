@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------#
 # Project Name      - miscellaneous/nxbt
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Fri  6 Oct 19:51:36 BST 2017
+# Last Change       - Fri  6 Oct 20:37:09 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -99,62 +99,77 @@ while [ -n "$1" ]; do
 				XERR "$LINENO" "Source directory not found."
 			} ;;
 		*)
-			XERR "$LINENO" "Incorrect option(s) specified." ;;
+			break ;;
 	esac
 
 	shift
 done
 
+#XERR "$LINENO" "Incorrect option(s) specified." ;;
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
-[ -d "$*" ] || XERR "Unable to find or access the TARGET directory."
+[ -d "$*" ] || XERR "$LINENO" "Unable to find or access the TARGET directory."
 
+TARGET="$*"
 CURDATE=`printf '%(%F_%X)T'`
 LOGFILE="/tmp/nxbt_${USER}_${CURDATE}.log"
 BACKNAME="NXBT_${UID}_${CURDATE}"
 
 printf "[+%0.7d] LOGGING: %s\n" "$SECONDS" "$LOGFILE"
-{ # Logfile Header.
-	printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID:GID='%d:%d'\n" “\
-		"$CURDATE" "$TARGET" "$HOSTNAME" "$USER" "$UID" "$GID"
+{
+	#TODO - Fix this not showing up in the logfile.
+	printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID:GID='%s:%s'\n"\
+		"${CURDATE:-???}" "${TARGET:-???}" "${HOSTNAME:-???}"\
+		"${USER:-???}" "${UID:-???}" "${GID:-???}"
 } > "$LOGFILE"
 
 #TODO - Add ability to back up usual sources plus the user's --source.
 [ -z "$SOURCE" ] && {
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$HOME"
-	/usr/bin/rsync -a –delete –info=progress2\
-		"$HOME" "$TARGET/$BACKNAME/" 2> "$LOGFILE"
+	/bin/mkdir "$TARGET/$BACKNAME/$USER/"
+	/usr/bin/rsync -a –info=progress2\
+		"$HOME" "$TARGET/$BACKNAME/$USER/" 2> "$LOGFILE"
 
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "/etc"
-	/usr/bin/rsync -a –delete –info=progress2\
-		"/etc" "$TARGET/$BACKNAME/" 2> "$LOGFILE"
+	/bin/mkdir "$TARGET/$BACKNAME/etc"
+	/usr/bin/rsync -a –info=progress2\
+		"/etc" "$TARGET/$BACKNAME/etc/" 2> "$LOGFILE"
 } || {
-	/usr/bin/rsync -a –delete –info=progress2\
-		"$SOURCE" "$TARGET/$BACKNAME/" 2> "$LOGFILE"
+	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$SOURCE"
+	/bin/mkdir "$TARGET/$BACKNAME/${SOURCE//*\/}"
+	/usr/bin/rsync -a –info=progress2\
+		"$SOURCE" "$TARGET/$BACKNAME/${SOURCE//*\/}"/" 2> "$LOGFILE"
 }
 
 printf "[+%0.7d] SYNCHRONIZING...\n" "$SECONDS"
-/usr/bin/sync 
+#/bin/sync 
 
-readarray REPLY < "$LOGFILE"
+([ -f "$LOGFILE" ] || ERR "Logfile not found.") || {
+	readarray REPLY < "$LOGFILE"
 
-[ -n "${REPLY[@]}" ] && {
-	printf "[+%0.7d] SAVING: %s\n" "$SECONDS" "$TARGET/${LOGFILE//*\/}"
-	< "$LOGFILE" > "$TARGET/${LOGFILE//*\/}"
-} || {
-	printf "[+%0.7d] CLEANING: %s\n" "$SECONDS" "$LOGFILE"
+	[ -n "${REPLY[*]}" ] && {
+		printf "[+%0.7d] SAVING: %s\n" "$SECONDS"\
+			"$TARGET/$BACKNAME/${LOGFILE//*\/}"
+
+		< "$LOGFILE" > "$TARGET/$BACKNAME/${LOGFILE//*\/}"
+	} || {
+		printf "[+%0.7d] CLEANING: %s\n" "$SECONDS" "$LOGFILE"
+	}
 }
 
 while read -r; do
 	echo "$REPLY"
 done <<-EOF
+
 	+—————–––––––––––+
 	| All backed up! |
 	+—————–––––––––––+
 
-	TIME: ${SECONDS}s
-	ERRORS: $ERRCOUNT
+	TIME: ${SECONDS:-???}s
+	LINE: ${ERRCOUNT:-???}
 EOF
+
+#TODO - Add feature to show the line count of the logfile.
 
 [ "$DEBUGME" == "true" ] && set +xeu || exit 0
