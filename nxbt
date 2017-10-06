@@ -1,5 +1,13 @@
 #!/bin/bash
-#
+
+#----------------------------------------------------------------------------------#
+# Project Name      - miscellaneous/nxbt
+# Started On        - Fri  6 Oct 17:52:55 BST 2017
+# Last Change       - Fri  6 Oct 17:53:06 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
 # This is a fork of XBT by Joe Collins of ezeelinux:
 #
 # https://www.youtube.com/channel/UCTfabOKD7Yty6sDF4POBVqA
@@ -7,7 +15,7 @@
 
 #----------------------------------------------------------------------------------
 
-# A WORK IN PROGRESS.
+# NXBT (NEW XBT) IS A WORK IN PROGRESS.
 #
 # Please don't use this until I've declared here that I feel
 # it's functional. Also, there will be one of my installit installers when it's
