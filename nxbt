@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------#
 # Project Name      - miscellaneous/nxbt
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Fri  6 Oct 18:52:44 BST 2017
+# Last Change       - Fri  6 Oct 19:22:52 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,15 +36,9 @@
 XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
 ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
 
-declare -i DEPCOUNT=0
-for DEP in /usr/bin/rsync; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
+[ -x /usr/bin/rsync ] || {
+	XERR "$LINENO" "Dependency '/usr/bin/rsync' not met."
 }
-
-[ $DEPCOUNT -eq 0 ] || exit 1
 
 shopt -s extglob
 
@@ -70,11 +64,10 @@ USAGE(){
 		            will be stored within a timestamped directory. An example TARGET:
 
 		              nxbt /media/\$USER/Backup_Drive/
+
+		FILE:       By default, errors are redirected to: /tmp/nxbt_\$USER_\$$.log
 	EOF
 }
-
-LOGFILE="/tmp/nxbt_$USER_$$.log"
-exec 2> "$LOGFILE"
 
 while [ -n "$1" ]; do
 	case "$1" in
@@ -89,14 +82,16 @@ while [ -n "$1" ]; do
 
 			[ -d "${1%\/*}" ] && LOGFILE="$1" || {
 				XERR "$LINENO" "Logfile directory not found."
-			}
+			} ;;
+		--targz)
+			TARGZ="true" ;;
 		--source)
 			#TODO - Incorporate multiple optional sources.
 			shift
 
 			[ -d "${1%\/*}" ] && SOURCE="$1" || {
 				XERR "$LINENO" "Source directory not found."
-			}
+			} ;;
 		*)
 			XERR "$LINENO" "Incorrect option(s) specified." ;;
 	esac
@@ -107,42 +102,52 @@ done
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
-TARGET="$*"
-BACKNAME="BACKUP_$_`printf '%(%F_%X)T'`"
+[ -d "$*" ] || XERR "Unable to find or access the TARGET directory."
 
-[ -d "$TARGET" ] || XERR "Unable to find or access the TARGET directory."
+CURDATE=`printf '%(%F_%X)T'`
+LOGFILE="/tmp/nxbt_${USER}_${CURDATE}.log"
+BACKNAME="NXBT_${UID}_${CURDATE}"
 
+echo "LOGGING: $LOGFILE"
+{ # Logfile Header.
+	printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID:GID='%d:%d'\n" “\
+		"$CURDATE" "$TARGET" "$HOSTNAME" "$USER" "$UID" "$GID"
+} > "$LOGFILE"
+
+exec 2> "$LOGFILE"
+
+#TODO - Add ability to back up usual sources plus the user's --source.
 [ -z "$SOURCE" ] && {
-	echo "Backing up $HOME..."
-	/usr/bin/rsync -a –delete –info=progress2 "$HOME" "$TARGET/$BACKNAME"
+	echo "PROCESSING: $HOME"
+	/usr/bin/rsync -a –delete –info=progress2 "$HOME" "$TARGET/$BACKNAME/"
 
-	echo "Backing up /etc..."
-	/usr/bin/rsync -a –delete –info=progress2 "/etc" "$TARGET/$BACKNAME"
+	echo "PROCESSING: /etc"
+	/usr/bin/rsync -a –delete –info=progress2 "/etc" "$TARGET/$BACKNAME/"
 } || {
-	/usr/bin/rsync -a –delete –info=progress2 "$SOURCE" "$TARGET/$BACKNAME"
+	/usr/bin/rsync -a –delete –info=progress2 "$SOURCE" "$TARGET/$BACKNAME/"
 }
+
+echo "SAVING: $LOGFILE > $TARGET/${LOGFILE//*\/}"
+< "$LOGFILE" > "$TARGET/${LOGFILE//*\/}"
+
+while read -r; do
+	echo "$REPLY"
+done <<-EOF
+	+—————–––––––––––+
+	| All backed up! |
+	+—————–––––––––––+
+EOF
 
 [ "$DEBUGME" == "true" ] && set +xeu || exit 0
 
 #----------------------------------------------------------------------------------
 
-#echo “Backup sent to XBT_Drive USB from $HOSTNAME by ‘$USER’ on:” > /tmp/backup.log
-#date >> /tmp/backup.log
-#echo “Errors:” >> /tmp/backup.log
-#
-## Begin backup operations using rsync:
-## (User will be prompted for sudo password if XBT was not started with sudo.)
-#
-#echo ”
 #Backing up /etc…”
 #sudo rsync -a –delete –info=progress2 /etc/ /media/”$USER”/XBT_Drive/Etc_Backup/ 2>> /tmp/backup.log
 #echo ”
 #Backing up /home…”
 #sudo rsync -a –delete –info=progress2 /home/ /media/”$USER”/XBT_Drive/Home_Backup/ 2>> /tmp/backup.log
 #
-#echo “——————–
-#– All backed up! –
-#——————–
 #” | tee -a /tmp/backup.log
 #
 ## Log file is created or appended on XBT_Drive from /tmp:
