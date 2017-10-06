@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------#
 # Project Name      - miscellaneous/nxbt
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Fri  6 Oct 19:22:52 BST 2017
+# Last Change       - Fri  6 Oct 19:51:36 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,9 +15,9 @@
 #
 # NXBT (NEW XBT) IS A WORK IN PROGRESS.
 #
-# Please don't use this until I've declared here that I feel
-# it's functional. Also, there will be one of my installit installers when it's
-# functional and I feel it's safe and tested enough.
+# Please don't use this until I've declared here that I feel it's functional.
+# Also, there will be one of my installit installers when it's functional and I
+# feel it's safe and tested enough.
 
 #----------------------------------------------------------------------------------
 
@@ -36,11 +36,20 @@
 XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
 ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
 
-[ -x /usr/bin/rsync ] || {
-	XERR "$LINENO" "Dependency '/usr/bin/rsync' not met."
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/rsync /bin/sync
+{
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
 }
 
+[ $DEPCOUNT -eq 0 ] || exit 1
+
 shopt -s extglob
+
+SECONDS=0
 
 USAGE(){
 	while read -r; do
@@ -58,7 +67,6 @@ USAGE(){
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --log|-l PATH           - Choose a different location for the logfile.
 		            --source|-s PATH        - Choose a different location to back up.
-		            --targz                 - Archive and compress with gzip TARGET.
 
 		NOTE:       Where TARGET is the location to store the backed up files. The files
 		            will be stored within a timestamped directory. An example TARGET:
@@ -83,8 +91,6 @@ while [ -n "$1" ]; do
 			[ -d "${1%\/*}" ] && LOGFILE="$1" || {
 				XERR "$LINENO" "Logfile directory not found."
 			} ;;
-		--targz)
-			TARGZ="true" ;;
 		--source)
 			#TODO - Incorporate multiple optional sources.
 			shift
@@ -108,27 +114,37 @@ CURDATE=`printf '%(%F_%X)T'`
 LOGFILE="/tmp/nxbt_${USER}_${CURDATE}.log"
 BACKNAME="NXBT_${UID}_${CURDATE}"
 
-echo "LOGGING: $LOGFILE"
+printf "[+%0.7d] LOGGING: %s\n" "$SECONDS" "$LOGFILE"
 { # Logfile Header.
 	printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID:GID='%d:%d'\n" “\
 		"$CURDATE" "$TARGET" "$HOSTNAME" "$USER" "$UID" "$GID"
 } > "$LOGFILE"
 
-exec 2> "$LOGFILE"
-
 #TODO - Add ability to back up usual sources plus the user's --source.
 [ -z "$SOURCE" ] && {
-	echo "PROCESSING: $HOME"
-	/usr/bin/rsync -a –delete –info=progress2 "$HOME" "$TARGET/$BACKNAME/"
+	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$HOME"
+	/usr/bin/rsync -a –delete –info=progress2\
+		"$HOME" "$TARGET/$BACKNAME/" 2> "$LOGFILE"
 
-	echo "PROCESSING: /etc"
-	/usr/bin/rsync -a –delete –info=progress2 "/etc" "$TARGET/$BACKNAME/"
+	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "/etc"
+	/usr/bin/rsync -a –delete –info=progress2\
+		"/etc" "$TARGET/$BACKNAME/" 2> "$LOGFILE"
 } || {
-	/usr/bin/rsync -a –delete –info=progress2 "$SOURCE" "$TARGET/$BACKNAME/"
+	/usr/bin/rsync -a –delete –info=progress2\
+		"$SOURCE" "$TARGET/$BACKNAME/" 2> "$LOGFILE"
 }
 
-echo "SAVING: $LOGFILE > $TARGET/${LOGFILE//*\/}"
-< "$LOGFILE" > "$TARGET/${LOGFILE//*\/}"
+printf "[+%0.7d] SYNCHRONIZING...\n" "$SECONDS"
+/usr/bin/sync 
+
+readarray REPLY < "$LOGFILE"
+
+[ -n "${REPLY[@]}" ] && {
+	printf "[+%0.7d] SAVING: %s\n" "$SECONDS" "$TARGET/${LOGFILE//*\/}"
+	< "$LOGFILE" > "$TARGET/${LOGFILE//*\/}"
+} || {
+	printf "[+%0.7d] CLEANING: %s\n" "$SECONDS" "$LOGFILE"
+}
 
 while read -r; do
 	echo "$REPLY"
@@ -136,27 +152,9 @@ done <<-EOF
 	+—————–––––––––––+
 	| All backed up! |
 	+—————–––––––––––+
+
+	TIME: ${SECONDS}s
+	ERRORS: $ERRCOUNT
 EOF
 
 [ "$DEBUGME" == "true" ] && set +xeu || exit 0
-
-#----------------------------------------------------------------------------------
-
-#Backing up /etc…”
-#sudo rsync -a –delete –info=progress2 /etc/ /media/”$USER”/XBT_Drive/Etc_Backup/ 2>> /tmp/backup.log
-#echo ”
-#Backing up /home…”
-#sudo rsync -a –delete –info=progress2 /home/ /media/”$USER”/XBT_Drive/Home_Backup/ 2>> /tmp/backup.log
-#
-#” | tee -a /tmp/backup.log
-#
-## Log file is created or appended on XBT_Drive from /tmp:
-## (backup.log will be removed from /tmp on next reboot.)
-#
-#cat /tmp/backup.log >> /media/”$USER”/XBT_Drive/backup.log
-#
-## Writing all cached data to drives and exiting:
-#
-#sync
-#exit
-#
