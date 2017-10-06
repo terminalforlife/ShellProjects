@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#----------------------------------------------------------------------------------#
+#----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nxbt
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Fri  6 Oct 21:06:39 BST 2017
+# Last Change       - Fri  6 Oct 21:24:14 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -19,6 +19,17 @@
 # Also, there will be one of my installit installers when it's functional and I
 # feel it's safe and tested enough.
 
+#----------------------------------------------------------------------------------
+#
+#                      mm   m  mmmm mmmmmmm mmmmmm   m   
+#                      #"m  # m"  "m   #    #        #   
+#                      # #m # #    #   #    #mmmmm   #   
+#                      #  # # #    #   #    #        "   
+#                      #   ##  #mm#    #    #mmmmm   #   
+#
+#              This program is growing too big for miscellaneous
+#            I'll be migrating it to a repository of its own soon.
+#
 #----------------------------------------------------------------------------------
 
 # | Requirements:
