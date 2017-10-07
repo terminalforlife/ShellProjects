@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nxbt
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Fri  6 Oct 21:24:14 BST 2017
+# Last Change       - Sat  7 Oct 16:05:33 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,9 +15,11 @@
 #
 # NXBT (NEW XBT) IS A WORK IN PROGRESS.
 #
-# Please don't use this until I've declared here that I feel it's functional.
-# Also, there will be one of my installit installers when it's functional and I
-# feel it's safe and tested enough.
+# I think this is now done. Feel free to use it. I'll tweak it here and there, -
+# adding features if I can think any up. If you'd like to make any suggestions, -
+# please feel free to E-Mail me at my E-Mail address mentioned above.
+#
+# Tested as working on Linux Mint 18.2 with the Mate desktop environment.
 
 #----------------------------------------------------------------------------------
 #
@@ -65,7 +67,7 @@ USAGE(){
 	while read -r; do
 		echo "$REPLY"
 	done <<-EOF
-		            NXBT - NEW XBT (6th October 2017)
+		            NXBT - NEW XBT (7th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            A fork and improvement of the XBT program written by Joe Collins.
@@ -143,19 +145,19 @@ printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID:GID='%s:%s'\n"\
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$HOME"
 	TARGETPATH="${TARGET}${BACKNAME}/$USER/"
 	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
-	/usr/bin/rsync -a --info=progress2 "$HOME" "$TARGETPATH" 2> "$LOGFILE"
+	/usr/bin/rsync -a --delete --info=progress2 "$HOME" "$TARGETPATH" 2> "$LOGFILE"
 
 	# Back up etc files.
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "/etc"
 	TARGETPATH="${TARGET}${BACKNAME}/etc/"
 	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
-	/usr/bin/rsync -a --info=progress2 "/etc" "$TARGETPATH" 2> "$LOGFILE"
+	/usr/bin/rsync -a --delete --info=progress2 "/etc" "$TARGETPATH" 2> "$LOGFILE"
 } || {
 	# Back up user-provided files.
 	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$SOURCE"
 	TARGETPATH="${TARGET}/${BACKNAME}/${SOURCE//*\/}"
 	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
-	/usr/bin/rsync -a --info=progress2 "$SOURCE" "$TARGETPATH"/ 2> "$LOGFILE"
+	/usr/bin/rsync -a --delete --info=progress2 "$SOURCE" "$TARGETPATH"/ 2> "$LOGFILE"
 }
 
 printf "[+%0.7d] SYNCHRONIZING...\n" "$SECONDS"
