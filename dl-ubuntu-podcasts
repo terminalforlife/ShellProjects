@@ -1,0 +1,120 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - dl-ubuntu-podcasts
+# Started On        - Sat  7 Oct 19:08:59 BST 2017
+# Last Change       - Sat  7 Oct 21:02:17 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
+ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /bin/grep /usr/bin/wget; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            DL-UBUNTU-PODCASTS (7th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Simple program to download all of the old Ubuntu Podcast episodes.
+
+		SYNTAX:     dl-ubuntu-podcasts [OPTS] PAGE PAGE PAGE . . .
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug                 - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --dest|-d PATH          - Where PATH is an alternative destination.
+
+		NOTE:       Files will by default be saved in OGG to the current directory.
+	EOF
+}
+
+ALTDEST=""
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--dest|-s)
+			shift
+
+			ALTDEST="$1"
+			[ -d "$ALTDEST" ] || {
+				XERR "Destination directory not found."
+			} ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+[ -n "$*" ] && {
+	USERPAGE="true"
+
+	while [ -n "$1" ]; do
+		[[ "$1" == +([0-9]) ]] || {
+			XERR "$LINENO" "Incorrect page number specified."
+		} && {
+			[ $1 -eq 2 ] || NUM+=" $1"
+
+			shift
+		}
+	done
+} || {
+	NUM=193
+}
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+while :; do
+	[ "$USERPAGE" == "true" ] || {
+		[ $NUM -le 2 ] && break || let NUM--
+	} && {
+		NUM="${NUM%% *}"
+	}
+
+	#TODO - Fix custom pages not working.
+
+	PAGE=`/usr/bin/wget -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
+	DL_LINK=`echo "$PAGE" | /bin/grep -m 1 -o "http://podcast\.ubuntu-uk\.org/download/.*\.ogg"`
+	OUTNAME=`echo "$PAGE" | /bin/grep -m 1 -o "[Ss][0-9]\+[Ee][0-9]\+\s\+–\s\+[[:space:][:alnum:]]\+"`
+
+	[ -z "$ALTDEST" ] && {
+		echo "NUM:         $NUM"
+		echo "OUTNAME:     $OUTNAME"
+		[ -z "$OUTNAME" ] && break
+	#	/usr/bin/wget -cq --show-progress\
+	#		"$DL_LINK" -O "./${OUTNAME}.ogg"
+	} || {
+		[ -z "$OUTNAME" ] && break
+	#	/usr/bin/wget -cq --show-progress\
+	#		"$DL_LINK" -O "${ALTDEST%\/}/${OUTNAME}.ogg"
+	}
+
+	[ "$USERPAGE" == "true" ] || NUM="${NUM/* }"
+	[ -z "$NUM" ] && break
+done
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
