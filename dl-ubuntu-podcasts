@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Sat  7 Oct 21:02:17 BST 2017
+# Last Change       - Sun  8 Oct 20:11:28 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -22,6 +22,8 @@ for DEP in /bin/grep /usr/bin/wget; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 shopt -s extglob
+
+#TODO - Currently won't download S01E01.
 
 USAGE(){
 	while read -r; do
@@ -75,9 +77,9 @@ done
 			XERR "$LINENO" "Incorrect page number specified."
 		} && {
 			[ $1 -eq 2 ] || NUM+=" $1"
-
-			shift
 		}
+
+		shift
 	done
 } || {
 	NUM=193
@@ -105,12 +107,12 @@ while :; do
 		echo "NUM:         $NUM"
 		echo "OUTNAME:     $OUTNAME"
 		[ -z "$OUTNAME" ] && break
-	#	/usr/bin/wget -cq --show-progress\
-	#		"$DL_LINK" -O "./${OUTNAME}.ogg"
+		/usr/bin/wget -cq --show-progress\
+			"$DL_LINK" -O "./${OUTNAME}.ogg"
 	} || {
 		[ -z "$OUTNAME" ] && break
-	#	/usr/bin/wget -cq --show-progress\
-	#		"$DL_LINK" -O "${ALTDEST%\/}/${OUTNAME}.ogg"
+		/usr/bin/wget -cq --show-progress\
+			"$DL_LINK" -O "${ALTDEST%\/}/${OUTNAME}.ogg"
 	}
 
 	[ "$USERPAGE" == "true" ] || NUM="${NUM/* }"
