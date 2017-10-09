@@ -24,6 +24,7 @@ for DEP in /bin/grep /usr/bin/wget; {
 shopt -s extglob
 
 #TODO - Currently won't download S01E01.
+#TODO - IMPORTANT: Fix filenames; they're a mess. :(
 
 USAGE(){
 	while read -r; do
