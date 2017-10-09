@@ -3,9 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dlclecs
 # Started On        - Tue 19 Sep 13:00:16 BST 2017
-# Last Change       - Thu  5 Oct 18:58:17 BST 2017
+# Last Change       - Sun  8 Oct 21:02:17 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# With this small shell program you can download some C programming teaching files.
+
 #----------------------------------------------------------------------------------
 
 XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
