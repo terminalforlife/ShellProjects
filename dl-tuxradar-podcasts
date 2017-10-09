@@ -1,0 +1,83 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - 
+# Started On        - Mon  9 Oct 19:08:27 BST 2017
+# Last Change       - Mon  9 Oct 19:30:55 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
+ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{xargs,uniq,sort,wget} /bin/grep; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            DL-TUXRADAR-PODCASTS (9th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Small shell program to download the TuxRadar podcasts.
+
+		SYNTAX:     dl-tuxradar-podcasts [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug                 - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		
+		NOTE:       All files (OGG) will be downloaded into the current directory.
+
+		SITE:       http://www.tuxradar.com
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+DOM="http://www.tuxradar.com"
+
+EPISODE_LIST(){
+	/usr/bin/wget -q "$DOM/podcast" -O -\
+		| /bin/grep -o "podcast-season-[0-9]\+-episode-[0-9]\+"\
+		| /usr/bin/uniq\
+		| /usr/bin/sort -t "-" -k 3 -k 5 -n
+}
+
+for EPISODE in `EPISODE_LIST`; {
+	/usr/bin/wget -q $DOM/content/"$EPISODE" -O -\
+		| /bin/grep -o "/files/podcast/tuxradar_s[0-9]\+e[0-9]\+\.ogg"\
+		| /usr/bin/uniq\
+		| /usr/bin/xargs -I{} /usr/bin/wget -qc --show-progress ${DOM}"{}"
+}
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
