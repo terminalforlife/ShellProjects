@@ -3,9 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - medlog
 # Started On        - Fri 18 Nov ??:??:?? BST 2016
-# Last Change       - Sat  7 Oct 14:01:03 BST 2017
+# Last Change       - Tue 10 Oct 23:13:39 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# Need help taking and logging when you've had your medication? Me too. That's why
+# I wrote this ages ago. It was my first "big" project; quite proud of it, even if
+# it's quite simple and I could certainly do a better job of it now. Hope it helps.
+
 #----------------------------------------------------------------------------------
 
 XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
