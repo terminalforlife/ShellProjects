@@ -1,0 +1,92 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/dl-smlr-podcasts
+# Started On        - Mon  9 Oct 22:38:03 BST 2017
+# Last Change       - Tue 10 Oct 22:59:14 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# This is unfinished; not ready for use and probably isn't even functional.
+
+#----------------------------------------------------------------------------------
+
+XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
+ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{wget,cut} /bin/grep
+{
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            DL-SMLR-PODCASTS (10th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Tool to download Sunday Morning Linux Review podcasts.
+
+		SYNTAX:     dl-smlr-podcasts [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug                 - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		
+		NOTE:       All podcasts are currently downloaded only in OGG, to the CWD.
+
+		SITE:       http://smlr.us
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+DOM="http://smlr.us"
+MAIN=`/usr/bin/wget -q "$DOM" -O -`
+DATES=`echo "$MAIN" | /bin/grep "$DOM/?m=201[3-7][0-9]\+"`
+DATES_PAGES=`echo "$DATES" | /usr/bin/cut -d "'" -f 2`
+
+for DATE in $DATES_PAGES; {
+	while read -r; do
+		[[ "$REPLY" == *\"shortlink\"* ]] && {
+			DATE_PAGE_LINK=`echo "$REPLY" | /bin/grep -o "$DOM/?p=[0-9]\+"`
+			DATE_PAGE_LINK_DLPAGE=`/usr/bin/wget -q "$DATE_PAGE_LINK"`
+
+			DATE_PAGE_LINK_DLPAGE_DL=$(
+				/usr/bin/wget -cq --show-progress "$DATE_PAGE_LINK_DLPAGE_DL"
+			)
+
+			break
+		}
+	done <<< "$(/usr/bin/wget -q "$DATE" -O -)"
+}
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
