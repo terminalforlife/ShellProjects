@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri 13 Oct 15:28:15 BST 2017
+# Last Change       - Fri 13 Oct 15:35:20 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ done
 
 declare -i LINE=0
 while read -r; do
-	{ [[ "$REPLY" == +(\#)* ]] && [ -z "$REPLY" ]; } && continue
+	{ [[ "$REPLY" == +(#)* ]] || [ -z "$REPLY" ]; } && continue
 
 	[ "$NOSTATUS" == "false" ] && {
 		if [ "$SEEN" == "false"  ]; then
