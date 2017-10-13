@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri 13 Oct 15:35:20 BST 2017
+# Last Change       - Fri 13 Oct 16:09:22 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
 ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
 
-shopt -s extglob
+shopt -s extglob globstar
 
 USAGE(){
 	while read -r; do
@@ -33,6 +33,7 @@ USAGE(){
 		            --all|-a                - Display all films; disregard filters.
 		            --total|-t              - Output the total number of matches.
 		            --no-status|-N          - Feature currently not functional.
+		            --mklist|-M             - Output a mif-usable movie list from CWD.
 
 		NOTE:       The file which mif parses must be in a strict layout in order mif
 		            to work correctly. An example of such a file's contents:
@@ -66,6 +67,19 @@ while [ -n "$1" ]; do
 			DEBUGME="true" ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--mklist|-M)
+			shift
+
+			for FILE in **; {
+				[ -f "$FILE" ] && {
+					echo "${FILE% (*}"\
+						| /bin/sed 's/\//[+]: /'
+						#TODO - Find pure shell approach.
+						#       Maybe use variable buffers.
+				}
+			}
+
+			exit 0 ;;
 		--file|-f)
 			shift; INDEX="$1" ;;
 		--all|-a)
