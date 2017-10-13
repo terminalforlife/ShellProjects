@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri 13 Oct 16:21:24 BST 2017
+# Last Change       - Fri 13 Oct 16:34:08 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ USAGE(){
 		            MIF - Movie Index Filter (13th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
-		            Pure BASH tool to filter films by year and whether seen or not.
+		            Shell program to filter films by year and whether seen or not.
 
 		SYNTAX:     mif [OPTS] YEAR
 		
@@ -33,7 +33,8 @@ USAGE(){
 		            --all|-a                - Display all films; disregard filters.
 		            --total|-t              - Output the total number of matches.
 		            --no-status|-N          - Feature currently not functional.
-		            --mklist|-M             - Output a mif-usable movie list from CWD.
+		            --mklist|-M[:N]         - Output a mif-usable movie list from CWD.
+		                                      If :N is appended, then omit [+] and [-].
 
 		NOTE:       The file which mif parses must be in a strict layout in order for
 		            mif to work correctly. An example of such a file's contents:
@@ -58,6 +59,18 @@ INDEX="$HOME/.mif"
 NOSTATUS="false"
 SEEN="false"
 TTL="false"
+STATUS=""
+
+MAKE_LIST(){
+	[ -x /bin/sed ] || XERR "$LINENO" "Dependency '/bin/sed' not met."
+
+	for FILE in **; {
+		[ -f "$FILE" ] && {
+			#TODO - Find pure shell approach. Use variable buffers?
+			echo "${FILE% (*}" | /bin/sed "s/\//${1}: /"
+		}
+	}
+}
 
 while [ -n "$1" ]; do
 	case "$1" in
@@ -68,18 +81,9 @@ while [ -n "$1" ]; do
 		--quiet|-q)
 			BEQUIET="true" ;;
 		--mklist|-M)
-			shift
-
-			for FILE in **; {
-				[ -f "$FILE" ] && {
-					echo "${FILE% (*}"\
-						| /bin/sed 's/\//[+]: /'
-						#TODO - Find pure shell approach.
-						#       Maybe use variable buffers.
-				}
-			}
-
-			exit 0 ;;
+			shift; MAKE_LIST "[+]"; exit 0 ;;
+		--mklist:N|-M:N)
+			shift; MAKE_LIST ""; exit 0 ;;
 		--file|-f)
 			shift; INDEX="$1" ;;
 		--all|-a)
