@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri 13 Oct 16:09:22 BST 2017
+# Last Change       - Fri 13 Oct 16:21:24 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -35,8 +35,8 @@ USAGE(){
 		            --no-status|-N          - Feature currently not functional.
 		            --mklist|-M             - Output a mif-usable movie list from CWD.
 
-		NOTE:       The file which mif parses must be in a strict layout in order mif
-		            to work correctly. An example of such a file's contents:
+		NOTE:       The file which mif parses must be in a strict layout in order for
+		            mif to work correctly. An example of such a file's contents:
 		
 		              # Comment lines will be ignored.
 		              1972[+]: The Godfather
