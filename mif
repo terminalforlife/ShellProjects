@@ -1,0 +1,117 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/mif (Movie Index Filter)
+# Started On        - Fri 13 Oct 13:21:13 BST 2017
+# Last Change       - Fri 13 Oct 15:03:25 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
+ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            MIF - Movie Index Filter (13th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Pure BASH tool to filter films by year and whether seen or not.
+
+		SYNTAX:     mif [OPTS] YEAR
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug                 - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --file|-f FILE          - Use FILE path instead of the saved path.
+		            --seen|-s               - Filter by movies marked as seen.
+		            --unseen|-u             - The default. Works opposite to the above.
+		            --all|-a                - Display all films; disregard filters.
+		            --total|-t              - Output the total number of matches.
+
+		NOTE:       The file which mif parses must be in a strict layout in order mif
+		            to work correctly. An example of such a file's contents:
+		
+		              # Comment lines will be ignored.
+		              1972[+]: The Godfather
+		              1974[+]: The Godfather - Part II
+		              1974[+]: Dog Day Afternoon
+		              1992[+]: Alien 3
+		              1993[+]: Carlito's Way
+		              1993[-]: The Fugitive
+		              1994[+]: Clear and Present Danger
+		              1994[+]: Jack Dee: Live at the London Palladium
+		
+		            Where + is unseen (new) and - is seen.
+
+		FILE:       Default is $HOME/.mif but use --file|-f FILE to specify your own.
+	EOF
+}
+
+INDEX="$HOME/.mif"
+SEEN="false"
+TTL="false"
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--file|-f)
+			shift; INDEX="$1" ;;
+		--seen|-s)
+			SEEN="true" ;;
+		--unseen|-u)
+			SEEN="false" ;;
+		--all|-a)
+			SEEN="all" ;;
+		--total|-t)
+			TTL="true" ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+[[ "$1" == +([0-9]) ]] && { YEAR="$1"; shift; } || {
+	XERR "$LINENO" "Invalid year specified."
+}
+
+[ -n "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access not required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+[ -f "$INDEX" ] || XERR "$LINENO" "Movie index file not found."
+
+declare -i LINE=0
+while read -r; do
+	{ [[ "$REPLY" == +(\#)* ]] && [ -z "$REPLY" ]; } && continue
+
+	if [ "$SEEN" == "false"  ]; then
+		[[ "$REPLY" == $YEAR\[\+\]:\ * ]] && {
+			echo "${REPLY/*: }"; LINE+=1
+		}
+	elif [ "$SEEN" == "true"  ]; then
+		[[ "$REPLY" == $YEAR\[\-\]:\ * ]] && {
+			echo "${REPLY/*: }"; LINE+=1
+		}
+	elif [ "$SEEN" == "all"  ]; then
+		echo "${REPLY/*: }"; LINE+=1
+	fi
+done < "$INDEX"
+
+[ $LINE -eq 0 ] && XERR "$LINENO" "Unable to find year $YEAR."
+[ "$TTL" == "true" ] && printf "\nTotal: %d\n" "$LINE"
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
