@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri 13 Oct 15:03:25 BST 2017
+# Last Change       - Fri 13 Oct 15:23:03 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -32,6 +32,7 @@ USAGE(){
 		            --unseen|-u             - The default. Works opposite to the above.
 		            --all|-a                - Display all films; disregard filters.
 		            --total|-t              - Output the total number of matches.
+		            --no-status|-N          - Feature currently not functional.
 
 		NOTE:       The file which mif parses must be in a strict layout in order mif
 		            to work correctly. An example of such a file's contents:
@@ -53,6 +54,7 @@ USAGE(){
 }
 
 INDEX="$HOME/.mif"
+NOSTATUS="false"
 SEEN="false"
 TTL="false"
 
@@ -66,14 +68,17 @@ while [ -n "$1" ]; do
 			BEQUIET="true" ;;
 		--file|-f)
 			shift; INDEX="$1" ;;
-		--seen|-s)
-			SEEN="true" ;;
-		--unseen|-u)
-			SEEN="false" ;;
 		--all|-a)
 			SEEN="all" ;;
 		--total|-t)
 			TTL="true" ;;
+		--no-status|-N)
+			#TODO - Finish this.
+			NOSTATUS="true" ;;
+		--seen|-s)
+			SEEN="true" ;;
+		--unseen|-u)
+			SEEN="false" ;;
 		*)
 			break ;;
 	esac
@@ -98,17 +103,23 @@ declare -i LINE=0
 while read -r; do
 	{ [[ "$REPLY" == +(\#)* ]] && [ -z "$REPLY" ]; } && continue
 
-	if [ "$SEEN" == "false"  ]; then
-		[[ "$REPLY" == $YEAR\[\+\]:\ * ]] && {
+	[ "$NOSTATUS" == "false" ] && {
+		if [ "$SEEN" == "false"  ]; then
+			[[ "$REPLY" == $YEAR\[\+\]:\ * ]] && {
+				echo "${REPLY/*: }"; LINE+=1
+			}
+		elif [ "$SEEN" == "true"  ]; then
+			[[ "$REPLY" == $YEAR\[\-\]:\ * ]] && {
+				echo "${REPLY/*: }"; LINE+=1
+			}
+		elif [ "$SEEN" == "all"  ]; then
+			echo "${REPLY/*: }"; LINE+=1
+		fi
+	} || {
+		[[ "$REPLY" == $YEAR:\ * ]] && {
 			echo "${REPLY/*: }"; LINE+=1
 		}
-	elif [ "$SEEN" == "true"  ]; then
-		[[ "$REPLY" == $YEAR\[\-\]:\ * ]] && {
-			echo "${REPLY/*: }"; LINE+=1
-		}
-	elif [ "$SEEN" == "all"  ]; then
-		echo "${REPLY/*: }"; LINE+=1
-	fi
+	}
 done < "$INDEX"
 
 [ $LINE -eq 0 ] && XERR "$LINENO" "Unable to find year $YEAR."
