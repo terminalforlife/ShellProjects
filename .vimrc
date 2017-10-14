@@ -280,11 +280,11 @@ endfunc
 
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
 func! Setup()
-	exe "normal! 0iXERR(){ echo \"[L${1}] ERROR: $2\" 1>&2; exit 1; }\<CR>"
-	exe "normal! 0iERR(){ echo \"[L${1}] ERROR: $2\" 1>&2; }\<CR>\<CR>"
+	exe "normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
+	exe "normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>\<CR>"
 
 	exe "normal! 0ideclare -i DEPCOUNT=0\<CR>"
-	exe "normal! 0ifor DEP in /usr/bin/{} /bin/{} /sbin/{}\<CR>{\<CR>"
+	exe "normal! 0ifor DEP in PATH; {\<CR>"
 	exe "normal! 0i\<Tab>[ -x \"$DEP\" ] || {\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>ERR \"$LINENO\" \"Dependency '$DEP' not met.\"\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>DEPCOUNT+=1\<CR>\<Tab>}\<CR>}\<CR>\<CR>"
@@ -301,15 +301,13 @@ func! Setup()
 	exe "normal! 0i\<Tab>\<Tab>SYNTAX:     example [OPTS]\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>OPTS:       --help|-h|-?            - Displays this help information.\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            --debug                 - Enables the built-in bash debugging.\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>            --debug|-D              - Enables the built-in bash debugging.\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            --quiet|-q              - Runs in quiet mode. Errors still output.\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>NOTE:       N/A\<CR>"
 	exe "normal! 0i\<Tab>EOF\<CR>}\<CR>\<CR>"
 
 	exe "normal! 0iwhile [ -n \"$1\" ]; do\<CR>\<Tab>case \"$1\" in\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--help|-h|-\\?)\<CR>\<Tab>\<Tab>\<Tab>USAGE; exit 0 ;;\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>--debug)\<CR>\<Tab>\<Tab>\<Tab>DEBUGME=\"true\" ;;\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>--debug|-D)\<CR>\<Tab>\<Tab>\<Tab>DEBUGME=\"true\" ;;\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--quiet|-q)\<CR>\<Tab>\<Tab>\<Tab>BEQUIET=\"true\" ;;\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>*)\<CR>\<Tab>\<Tab>\<Tab>XERR \"$LINENO\" \"Incorrect argument(s) specified.\" ;;\<CR>"
 	exe "normal! 0i\<Tab>esac\<CR>\<CR>\<Tab>shift\<CR>done\<CR>\<CR>"
