@@ -1,0 +1,75 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/forex
+# Started On        - Sun 15 Oct 16:25:38 BST 2017
+# Last Change       - Sun 15 Oct 16:33:24 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# This is a word to be in progress, at the moment. Will begin working on it soon.
+
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in PATH; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            FOREX (15th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Quick and easy way to convert currency values.
+
+		SYNTAX:     example [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+SITE="https://www.foreignexchange.org.uk/fx-rates/conversion/1200/DKK/GBP"
+#                                                              |   |   |
+#                                        Amount to Convert ----+   |   |
+#                                                                  |   |
+#                                          Source Currency --------+   |
+#                                                                      |
+#                                          Target Currency ------------+
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
