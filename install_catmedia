@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - installit (miscellaneous/concat-media)
+# Project Name      - installit (miscellaneous/catmedia)
 # Started On        - Thu 14 Sep 14:44:27 BST 2017
-# Last Change       - Sun 15 Oct 18:13:55 BST 2017
+# Last Change       - Sun 15 Oct 18:23:59 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ USAGE()
 		
 		            Installer for many shell programs from terminalforlife.
 
-		SYNTAX:     install_concat-media [OPTS]
+		SYNTAX:     install_catmedia [OPTS]
 		
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug                 - Enables the built-in bash debugging.
@@ -91,7 +91,7 @@ fi
 
 for FILENAME in\
 \
-	"/usr/bin/concat-media":"755"
+	"/usr/bin/catmedia":"755"
 {
 	if ! [ "$UNINSTALL" == "true" ]
 	then
@@ -108,7 +108,7 @@ for FILENAME in\
 		fi
 
 		NVB "$LINENO" "Downloading here: ${FILENAME%:*}"
-		/usr/bin/wget -q "$GITHUB_URL"/$PROJECT/master/concat-media\
+		/usr/bin/wget -q "$GITHUB_URL"/$PROJECT/master/catmedia\
 			-O "${FILENAME%:*}"
 
 		NVB "$LINENO" "Correcting attributes: ${FILENAME%:*}"
