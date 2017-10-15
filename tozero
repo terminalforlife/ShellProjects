@@ -1,0 +1,76 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/tozero
+# Started On        - Sun 15 Oct 23:29:20 BST 2017
+# Last Change       - Sun 15 Oct 23:41:40 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+[ -x /bin/date ] || XERR "$LINENO" "Dependency '/bin/date' not met."
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            TOZERO (15th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Simple program to display a countdown for a target date.
+
+		SYNTAX:     tozero [OPTS] TARGET
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		NOTE:       Behind the scenes, 'date' is used, so strings like "tomorrow", "next -
+		            month", and "yesterday" can be used instead of a YYYY-MM-DD format.
+
+		EXAMPLE:    Display countdown until December the 11th, 2017:
+
+		              $ tozero 2018-10-02
+		              SECONDS:    3893051
+		              MINUTES:    64884
+		              HOURS:      1081
+		              DAYS:       45
+		              WEEKS:      6
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		-*|--*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			DATE="$1" ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+[ -x /bin/date ] && {
+	TARGET="${DATE:-tomorrow}"
+	echo "SECONDS:    $((`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`))"
+	echo "MINUTES:    $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60))"
+	echo "HOURS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60))"
+	echo "DAYS:       $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24))"
+	echo "WEEKS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24 / 7))"
+}
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
