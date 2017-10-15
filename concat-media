@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/concat-media
 # Started On        - Sun 15 Oct 13:16:02 BST 2017
-# Last Change       - Sun 15 Oct 17:37:20 BST 2017
+# Last Change       - Sun 15 Oct 18:12:38 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -65,6 +65,7 @@ USAGE(){
 }
 
 TEMP="/tmp/filelist_$RANDOM.txt"
+OUTPUT=""
 INPUT=""
 
 # Process the OPTS.
@@ -93,40 +94,28 @@ done
 # Process the input files.
 declare -i INCOUNT=0
 while [ "$1" ]; do
-	INPUT+=`printf " %q " "$1"`
+	# Ensures it doesn't count the output file.
+	[ "$2" ] || break && shift
+
+	INPUT+=" ${1// /%20}"
 	INCOUNT+=1
-
-	shift
 done
 
-{ [ -z "$*" ] || [ $INCOUNT -eq 0 ]; } && {
-	XERR "$LINENO" "At least two inputs and an output is required."
-}
+OUTPUT="${1// /%20}"
 
-# Processing the output files.
-declare -i OUTCOUNT=0
-while [ "$1" ]; do
-	OUTUT=`printf " %q " "$1"`
-	OUTCOUNT+=1
-
-	shift
-done
-
-{ [ -z "$*" ] || [ $OUTCOUNT -gt 1 ]; } && {
-	XERR "$LINENO" "At least two inputs and an output is required."
-}
+[ $INCOUNT -eq 0 ] && XERR "$LINENO" "At least two inputs and an output is required."
+[ "$OUTPUT" ] || XERR "$LINENO" "At least two inputs and an output is required."
+[ -d /tmp ] || XERR "$LINENO" "Unable to access the /tmp directory."
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
-[ -d /tmp ] || XERR "$LINENO" "Unable to access the /tmp directory."
-
 # Creating the temporary file list for ffmpeg.
-for PART in $TEMP; {
-	echo "file '$PWD/$PART'"
+for PART in $INPUT; {
+	echo "file '$PWD/${PART//%20/ }'"
 } > "$TEMP"
 
 # Concatenation begins here.
-/usr/bin/ffmpeg -f concat -safe 0 -i "$TEMP" "$OUTPUT"
+/usr/bin/ffmpeg -v 0 -stats -f concat -safe 0 -i "$TEMP" "${OUTPUT//%20/ }"
 
 # Clean up after self.
 /bin/rm -f "$TEMP"
