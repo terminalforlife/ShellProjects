@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Sun 15 Oct 16:33:24 BST 2017
+# Last Change       - Sun 15 Oct 22:53:47 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-# This is a word to be in progress, at the moment. Will begin working on it soon.
+# NOTE: This is mostly a placeholder, at the moment. Unfinished.
 
 #----------------------------------------------------------------------------------
 
@@ -36,11 +36,13 @@ USAGE(){
 		
 		            Quick and easy way to convert currency values.
 
-		SYNTAX:     example [OPTS]
-		
+		SYNTAX:     example [OPTS] SOURCE TARGET
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		SITE:       https://www.foreignexchange.org.uk
 	EOF
 }
 
