@@ -1,0 +1,88 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/dlspwalls
+# Started On        - Sun 15 Oct 20:48:22 BST 2017
+# Last Change       - Sun 15 Oct 20:59:06 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{wget,uniq} /bin/grep; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            DLSPWALLS (15th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Download a collection of steampunk wallpapers.
+
+		SYNTAX:     dlspwalls [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		NOTE:       Files will be download to the current directory, as JPGs.
+
+		SITE:       https://wallpapercave.com
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+URL="https://wallpapercave.com/download/steampunk-wallpaper"
+HTML=`/usr/bin/wget -q "${URL%/down*}/steampunk-wallpaper-1920x1080" -O -`
+
+GETID=$(
+	X=$(
+		#TODO - Change this to shell-only syntax.
+		/bin/grep -o "/wp/[0-9A-Za-z]\+.jpg" <<< "$HTML" | /usr/bin/uniq
+	)
+
+	while IFS="/" read -a REPLY; do
+		echo "${REPLY[2]0:0:7}"
+	done <<< "$X"
+)
+
+declare -i N=0
+for ID in $GETID; {
+	N+=1
+
+	echo "DOWNLOADING: steampunk-wallpaper-1920x1080-${ID}.jpg"
+	/usr/bin/wget -qc "${URL}-1920x1080-${ID}"\
+		-O ./steampunk-wallpaper-1920x1080-`printf '%0.2d' ${N}`.jpg
+}
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
