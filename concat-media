@@ -1,0 +1,133 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/concat-media
+# Started On        - Sun 15 Oct 13:16:02 BST 2017
+# Last Change       - Sun 15 Oct 16:22:56 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/ffmpeg /bin/rm; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	} && {
+		[ "$DEP" == "/usr/bin/ffmpeg" ] && {
+			read -a REPLY <<< `/usr/bin/ffmpeg -version`
+			[[ "${REPLY[2]0:0:3}" == [0-9].[0-9] ]] || {
+				XERR "$LINENO" "Unable to determine required version of ffmpeg."
+			} 
+
+			{ [ "${REPLY[2]3:0:1}" -ge 1 ] && [ "${REPLY[2]0:2:1}" -ge 1 ]; } || {
+				XERR "$LINENO" "Version 1.1 or greater of ffmpeg required."
+			}
+		}
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+exit 0
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            CONCAT-MEDIA (15th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Concatenate media files originally separated in parts.
+
+		SYNTAX:     concat-media [OPTS] IN1 IN2 IN3 . . . OUT
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		NOTE:       Where INPUT is the file parts to be concatenated, and OUTPUT is the
+		            single file to be created from the INPUT files.
+
+		            The -- argument can be used to explicitly indicate the end of OPTS.
+
+		FILE:       A list of part files is temporarily stored in:
+
+		              /tmp/filelist_\$RANDOM.txt
+
+		            This file will be removed upon completion.
+	EOF
+}
+
+TEMP="/tmp/filelist_$RANDOM.txt"
+INPUT=""
+
+# Process the OPTS.
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--)
+			break ;;
+		-*|--*)
+			XERR "$LINENO" "Incorrect OPT specified. See: --help|-h|-?" ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+# Process the input files.
+declare -i INCOUNT=0
+while [ "$1" ]; do
+	INPUT+=`printf " %q " "$1"`
+	INCOUNT+=1
+
+	shift
+done
+
+{ [ -z "$*" ] || [ $INCOUNT -eq 0 ]; } && {
+	XERR "$LINENO" "At least two inputs and an output is required."
+}
+
+# Processing the output files.
+declare -i OUTCOUNT=0
+while [ "$1" ]; do
+	OUTUT=`printf " %q " "$1"`
+	OUTCOUNT+=1
+
+	shift
+done
+
+{ [ -z "$*" ] || [ $OUTCOUNT -gt 1 ]; } && {
+	XERR "$LINENO" "At least two inputs and an output is required."
+}
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ -d /tmp ] || XERR "$LINENO" "Unable to access the /tmp directory."
+
+# Creating the temporary file list for ffmpeg.
+for PART in $TEMP; {
+	echo "file '$PWD/$PART'"
+} > "$TEMP"
+
+# Concatenation begins here.
+/usr/bin/ffmpeg -f concat -safe 0 -i "$TEMP" "$OUTPUT"
+
+# Clean up after self.
+/bin/rm -f "$TEMP"
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
