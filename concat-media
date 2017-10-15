@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/concat-media
 # Started On        - Sun 15 Oct 13:16:02 BST 2017
-# Last Change       - Sun 15 Oct 16:22:56 BST 2017
+# Last Change       - Sun 15 Oct 17:37:20 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -32,7 +32,6 @@ for DEP in /usr/bin/ffmpeg /bin/rm; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-exit 0
 shopt -s extglob
 
 USAGE(){
@@ -49,6 +48,8 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		WARNING:    This only works if you're IN the directory with the media parts.
 
 		NOTE:       Where INPUT is the file parts to be concatenated, and OUTPUT is the
 		            single file to be created from the INPUT files.
