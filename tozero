@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Sun 15 Oct 23:41:40 BST 2017
+# Last Change       - Sun 15 Oct 23:43:48 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -30,6 +30,8 @@ USAGE(){
 
 		NOTE:       Behind the scenes, 'date' is used, so strings like "tomorrow", "next -
 		            month", and "yesterday" can be used instead of a YYYY-MM-DD format.
+
+		            The default TARGET is "tomorrow"; if not TARGET is given.
 
 		EXAMPLE:    Display countdown until December the 11th, 2017:
 
