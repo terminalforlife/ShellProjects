@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Sun 15 Oct 23:47:14 BST 2017
+# Last Change       - Mon 16 Oct 00:05:06 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,11 +27,16 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --only|-o TYPE          - Where TYPE is which to only show.
 
 		NOTE:       Behind the scenes, 'date' is used, so strings like "tomorrow", "next -
 		            month", and "yesterday" can be used instead of a YYYY-MM-DD format.
 
 		            The default TARGET is "tomorrow"; if not TARGET is given.
+
+		            Valid TYPEs are:
+
+		            seconds|s minutes|m hours|h days|d weeks|w
 
 		EXAMPLE:    Display countdown until December the 11th, 2017:
 
@@ -44,6 +49,8 @@ USAGE(){
 	EOF
 }
 
+TYPE=""
+
 while [ -n "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
@@ -52,6 +59,10 @@ while [ -n "$1" ]; do
 			DEBUGME="true" ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--only|-o)
+			shift
+
+			TYPE="$1" ;;
 		-*|--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -69,10 +80,34 @@ done
 /bin/date -d "$DATE" &> /dev/null || XERR "$LINENO" "Incorrect TARGET string."
 
 TARGET="${DATE:-tomorrow}"
-echo "SECONDS:    $((`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`))"
-echo "MINUTES:    $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60))"
-echo "HOURS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60))"
-echo "DAYS:       $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24))"
-echo "WEEKS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24 / 7))"
+
+SECONDS=$(( $(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s) ))
+MINUTES=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 ))
+HOURS=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 / 60 ))
+DAYS=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 / 60 / 24 ))
+WEEKS=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 / 60 / 24 / 7 ))
+
+case "$TYPE" in
+	seconds|s)
+		echo "SECONDS:   $SECONDS" ;;
+	minutes|m)
+		echo "MINUTES:   $MINUTES" ;;
+	hours|h)
+		echo "HOURS:     $HOURS" ;;
+	days|d)
+		echo "DAYS:      $DAYS" ;;
+	weeks|w)
+		echo "WEEKS:     $WEEKS" ;;
+	*)
+		for I in\
+			"SECONDS:   $SECONDS"\
+			"MINUTES:   $MINUTES"\
+			"HOURS:     $HOURS"\
+			"DAYS:      $DAYS"\
+			"WEEKS:     $WEEKS"
+		{
+			echo "$I"
+		} ;;
+esac
 
 [ "$DEBUGME" == "true" ] && set +xeu || exit 0
