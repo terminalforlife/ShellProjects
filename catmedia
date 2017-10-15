@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/catmedia
 # Started On        - Sun 15 Oct 13:16:02 BST 2017
-# Last Change       - Sun 15 Oct 18:23:28 BST 2017
+# Last Change       - Sun 15 Oct 18:37:00 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -115,7 +115,14 @@ for PART in $INPUT; {
 } > "$TEMP"
 
 # Concatenation begins here.
-/usr/bin/ffmpeg -v 0 -stats -f concat -safe 0 -i "$TEMP" "${OUTPUT//%20/ }"
+while read -a REPLY; do
+	[[ "$REPLY" == frame=* ]] && {
+		printf "\rPROGRESS: SIZE=\"${REPLY[5]/*=}\" TIME=\"${REPLY[6]/*=}\""
+	} || continue
+done <<< "$(
+	/usr/bin/ffmpeg -v 0 -stats -f concat\
+		-safe 0 -i "$TEMP" "${OUTPUT//%20/ }"
+)"
 
 # Clean up after self.
 /bin/rm -f "$TEMP"
