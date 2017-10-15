@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Sun 15 Oct 23:43:48 BST 2017
+# Last Change       - Sun 15 Oct 23:47:14 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -66,13 +66,13 @@ done
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
-[ -x /bin/date ] && {
-	TARGET="${DATE:-tomorrow}"
-	echo "SECONDS:    $((`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`))"
-	echo "MINUTES:    $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60))"
-	echo "HOURS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60))"
-	echo "DAYS:       $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24))"
-	echo "WEEKS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24 / 7))"
-}
+/bin/date -d "$DATE" &> /dev/null || XERR "$LINENO" "Incorrect TARGET string."
+
+TARGET="${DATE:-tomorrow}"
+echo "SECONDS:    $((`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`))"
+echo "MINUTES:    $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60))"
+echo "HOURS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60))"
+echo "DAYS:       $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24))"
+echo "WEEKS:      $(( (`/bin/date -d "$TARGET" +%s` - `/bin/date +%s`) / 60 / 60 / 24 / 7))"
 
 [ "$DEBUGME" == "true" ] && set +xeu || exit 0
