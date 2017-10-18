@@ -1,0 +1,99 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/pagewatch
+# Started On        - Wed 18 Oct 19:27:40 BST 2017
+# Last Change       - Wed 18 Oct 19:50:56 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# This came to be because I got excited and impatient waiting for Ubuntu 17.10 to
+# be released and therefor available on the Ubuntu website.
+#
+# I devised a simple way to quickly and automatically check for changes on a given
+# webpage, which for me was the download page, where I had hoped to see the new
+# 17.10 download link.
+
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /bin/sleep /usr/bin/{md5sum,wget}; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+shopt -s extglob
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            PAGEWATCH (18th October 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Watch a webpage for signs of change by checkings its md5sum.
+
+		SYNTAX:     pagewatch [OPTS] URL [OPTS2]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --interval N            - Check for changes every N seconds. The
+		                                      default is to check every 60 seconds.
+
+		NOTE:       Where OPTS2 are optional parameters passed straight to wget. The -q and
+		            -O flags are already used and essential for pagewatch to function.
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--interval)
+			shift; INTERVAL="$1" ;;
+		-*|--*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+URL="$1"
+
+shift
+
+OPTS2="$@"
+
+[ -z "$URL" ] && XERR "$LINENO" "A webpage address (URL) is required."
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+BUFFER="/tmp/pagewatch_`printf '%(%F_%X)T'`.md5"
+[ -d /tmp ] || XERR "$LINENO" "Directory /tmp is missing or inaccessible."
+
+	/usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER"
+
+while :; do
+	/usr/bin/wget -q "$URL" $OPTS2 -O - | /usr/bin/md5sum -c "$BUFFER"
+	/bin/sleep "${INTERVAL:-1m}"
+done
+
+[ "$DEBUGME" == "true" ] && set +xeu || exit 0
