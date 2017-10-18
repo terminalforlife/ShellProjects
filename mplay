@@ -27,7 +27,8 @@ THEME_DIR="/usr/share/moc/themes"
 [ -d $THEME_DIR ] || XERR "$LINENO" "Theme directory not found."
 
 # This is the selected theme which should be in the above directory.
-CHOSEN_THEME="transparent-background"
+CHOSEN_THEME="red-theme"
+#CHOSEN_THEME="transparent-background"
 
 # If the chosen theme doesn't exist as above, error and exit.
 [ -f "$THEME_DIR/$CHOSEN_THEME" ] || XERR "$LINENO" "Theme file not found."
