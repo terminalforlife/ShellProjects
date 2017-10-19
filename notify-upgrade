@@ -3,12 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/notify-upgrade
 # Started On        - Sun 17 Sep 16:07:59 BST 2017
-# Last Change       - Thu 19 Oct 18:44:07 BST 2017
+# Last Change       - Thu 19 Oct 18:52:55 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-#TODO - Actually made this ages ago now; finally updating it. Still painful though.
+# Actually made this ages ago now; finally updating it. Still painful though.
+
+#-----------------------------------------------------------------------MAIN CHECKS
 
 SOUNDFILE="/usr/share/sounds/Oxygen-Im-Nudge.ogg"
 LOGFILE="/var/log/notify-upgrade.log"
@@ -16,20 +18,24 @@ declare -i NCOUNT=0
 
 exec 2>> "$LOGFILE"
 
-ERR(){ echo "ERROR: $1" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{lsb_release,apt-get,mplayer,awk} /bin/{date,grep,sleep}
-{
+for DEP in /usr/bin/{apt-get,awk} /bin/{grep,sleep}; {
 	[ -x "$DEP" ] || {
-		ERR "Dependency '$DEP' not met."
+		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	}
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 0
 
-/bin/date 1>&2 >> "$LOGFILE"
+[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+
+printf "%(%F (%X))T\n" 1>&2 >> "$LOGFILE"
+
+#--------------------------------------------------------------------------THE LOOP
 
 while :; do
 	/usr/bin/apt-get update
@@ -76,11 +82,13 @@ while :; do
 	[ "$NEWLY_INSTALL" == "0 new package(s) to install." ] || NCOUNT+=1
 	[ "$REMOVE" == "0 package(s) to remove." ] || NCOUNT+=1
 	[ "$NOT_UPGRADE" == "0 ignored package upgrade(s)." ] || NCOUNT+=1
+
+        #----------------------------------------------------------------------BELL
 	
 	# If your bell sound is long and loud, this might be a bad idea, otherwise, if it's
 	# a standard short, subtle bell sound, it works well enough. Had issues getting
 	# pulseaudio to play audio due to the environment variables not being accessible.
-	([ -f "$SOUNDFILE" ] && [ -r "$SOUNDFILE" ]) && {
+	{ [ -f "$SOUNDFILE" ] && [ -r "$SOUNDFILE" ]; } && {
 		[ $NCOUNT -gt 0 ] && {
 			for X in {1..3}
 			{
