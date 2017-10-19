@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Thu 19 Oct 13:07:33 BST 2017
+# Last Change       - Thu 19 Oct 13:08:54 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ USAGE(){
 		            --interval|-i N         - Check for changes every N seconds. The
 		                                      default is to check every 60 seconds.
 
-		NOTE:       Where COMMANDS would be your comomand(s) to execute upon detection of
+		NOTE:       Where COMMANDS would be your command(s) to execute upon detection of
 		            any changes to the specified webpage. See below for examples.
 
 		EXAMPLE:
