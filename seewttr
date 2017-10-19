@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/bin/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Thu  5 Oct 18:50:59 BST 2017
+# Last Change       - Thu 19 Oct 15:58:48 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ USAGE(){
 	while read -r; do
 		echo "$REPLY"
 	done <<-EOF
-		            SEEWTTR - WTTR Look (5th October 2017)
+		            SEEWTTR - WTTR Look (19th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Super-simple wrapper-like script to get your weather. Thanks entirely
@@ -58,9 +58,7 @@ for ARG in $@; {
 	shift
 }
 
-[ -z "$*" ] || LOCATION="$*" && {
-	XERR "Incorrect argument(s) specified."
-}
+[ -n "$*" ] && LOCATION="$*" || XERR "Incorrect argument(s) specified."
 
 [ $UID -eq 0 ] && XERR "Root access is not recommended!"
 
