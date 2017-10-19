@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Thu 19 Oct 13:00:32 BST 2017
+# Last Change       - Thu 19 Oct 13:07:33 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -54,6 +54,9 @@ USAGE(){
 
 		EXAMPLE:
 		            pagewatch --interval 10m "https://www.ubuntu.com" notify-send "Ready!"
+
+		CAVEAT:     Some webpages update so frequently that pagewatch would for them be
+		            no use. Such pages tend to have content like counters or timers.
 	EOF
 }
 
@@ -92,11 +95,11 @@ COMMANDS="$@"
 BUFFER="/tmp/pagewatch_`printf '%(%F_%X)T'`.md5"
 [ -d /tmp ] || XERR "$LINENO" "Directory /tmp is missing or inaccessible."
 
-/usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER"
+/usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER" 2> /dev/null
 
 while :; do
 	/usr/bin/wget -q "$URL" -O -\
-		| /usr/bin/md5sum -c "$BUFFER" || ($COMMANDS)
+		| /usr/bin/md5sum -c "$BUFFER" &> /dev/null || ($COMMANDS)
 
 	/bin/sleep "${INTERVAL:-1m}"
 done
