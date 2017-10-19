@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Thu 19 Oct 13:29:22 BST 2017
+# Last Change       - Thu 19 Oct 15:54:20 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -103,6 +103,9 @@ while :; do
 		| /usr/bin/md5sum -c "$BUFFER" &> /dev/null || ($COMMANDS)
 
 	COUNT+=1
+
+	#TODO - Somewhere here is an error (incorrect number of options?) when
+	#       a change is detected with md5sum. COMMANDS also didn't happen.
 
 	printf "CHECK[#%0.4d]: %(%F (%X))T\n" "$COUNT"
 
