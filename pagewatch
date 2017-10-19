@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Thu 19 Oct 13:08:54 BST 2017
+# Last Change       - Thu 19 Oct 13:24:06 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -97,9 +97,14 @@ BUFFER="/tmp/pagewatch_`printf '%(%F_%X)T'`.md5"
 
 /usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER" 2> /dev/null
 
+declare -i COUNT=0
 while :; do
 	/usr/bin/wget -q "$URL" -O -\
 		| /usr/bin/md5sum -c "$BUFFER" &> /dev/null || ($COMMANDS)
+
+	COUNT+=1
+
+	printf "CHECK[#%0.4d]: %(%F_%X)T\n" "$COUNT"
 
 	/bin/sleep "${INTERVAL:-1m}"
 done
