@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/notify-upgrade
 # Started On        - Sun 17 Sep 16:07:59 BST 2017
-# Last Change       - Thu 19 Oct 18:55:43 BST 2017
+# Last Change       - Thu 19 Oct 19:10:43 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------MAIN CHECKS
 
 SOUNDFILE="/usr/share/sounds/Oxygen-Im-Nudge.ogg"
-LOGFILE="/var/log/notify-upgrade.log"
+LOGFILE="$HOME/.notify-upgrade.log"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -28,7 +28,7 @@ for DEP in /usr/bin/{apt-get,awk} /bin/{grep,sleep}; {
 
 [ $DEPCOUNT -eq 0 ] || exit 0
 
-[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
 
 #--------------------------------------------------------------------------THE LOOP
 
@@ -37,8 +37,6 @@ declare -i NCOUNT=0
 exec 2>> "$LOGFILE"
 
 while :; do
-	/usr/bin/apt-get update
-	
 	SUMMARY_OF_CHANGES=$(
 		/usr/bin/apt-get upgrade -ys\
 			| /bin/grep "[0-9].*, [0-9].*, [0-9].* [0-9].*\."
