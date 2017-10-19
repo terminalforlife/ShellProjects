@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri 13 Oct 16:34:08 BST 2017
+# Last Change       - Thu 19 Oct 18:36:50 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ USAGE(){
 	while read -r; do
 		echo "$REPLY"
 	done <<-EOF
-		            MIF - Movie Index Filter (13th October 2017)
+		            MIF - Movie Index Filter (19th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Shell program to filter films by year and whether seen or not.
