@@ -1,0 +1,44 @@
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/terminalrc
+# Started On        - Fri 20 Oct 00:37:52 BST 2017
+# Last Change       - Fri 20 Oct 00:41:21 BST 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+# This is just my xfce4-terminal settings file, in-case you wanted to use it. It's
+# a minimalistic, keyboard-focused setup. To use this file, save it in and as:
+#
+# $HOME/.config/xfce4/terminal/terminalrc
+
+#----------------------------------------------------------------------------------
+
+[Configuration]
+FontName=Oxygen Mono Bold 11
+MiscAlwaysShowTabs=FALSE
+MiscBell=TRUE
+MiscBordersDefault=FALSE
+MiscCursorBlinks=FALSE
+MiscCursorShape=TERMINAL_CURSOR_SHAPE_BLOCK
+MiscDefaultGeometry=140x50
+MiscInheritGeometry=FALSE
+MiscMenubarDefault=FALSE
+MiscMouseAutohide=TRUE
+MiscToolbarDefault=FALSE
+MiscConfirmClose=FALSE
+MiscCycleTabs=TRUE
+MiscTabCloseButtons=TRUE
+MiscTabCloseMiddleClick=TRUE
+MiscTabPosition=GTK_POS_TOP
+MiscHighlightUrls=TRUE
+MiscScrollAlternateScreen=TRUE
+ScrollingBar=TERMINAL_SCROLLBAR_NONE
+ScrollingLines=8192
+BackgroundImageFile=
+BackgroundImageStyle=TERMINAL_BACKGROUND_STYLE_STRETCHED
+ScrollingOnOutput=FALSE
+ColorCursor=#ffffff0
+BackgroundMode=TERMINAL_BACKGROUND_TRANSPARENT
+BackgroundDarkness=0.700000
+FontAllowBold=FALSE
+
