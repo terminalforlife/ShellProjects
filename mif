@@ -124,18 +124,18 @@ while read -r; do
 	[ "$NOSTATUS" == "false" ] && {
 		if [ "$SEEN" == "false"  ]; then
 			[[ "$REPLY" == $YEAR\[\+\]:\ * ]] && {
-				echo "${REPLY/*: }"; LINE+=1
+				echo "${REPLY/+([0-9])\[?\]: }"; LINE+=1
 			}
 		elif [ "$SEEN" == "true"  ]; then
 			[[ "$REPLY" == $YEAR\[\-\]:\ * ]] && {
-				echo "${REPLY/*: }"; LINE+=1
+				echo "${REPLY/+([0-9])\[?\]: }"; LINE+=1
 			}
 		elif [ "$SEEN" == "all"  ]; then
-			echo "${REPLY/*: }"; LINE+=1
+			echo "${REPLY/+([0-9])\[?\]: }"; LINE+=1
 		fi
 	} || {
 		[[ "$REPLY" == $YEAR:\ * ]] && {
-			echo "${REPLY/*: }"; LINE+=1
+			echo "${REPLY/+([0-9])\[?\]: }"; LINE+=1
 		}
 	}
 done < "$INDEX"
