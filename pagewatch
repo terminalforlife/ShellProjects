@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Thu 19 Oct 13:24:06 BST 2017
+# Last Change       - Thu 19 Oct 13:29:22 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ while :; do
 
 	COUNT+=1
 
-	printf "CHECK[#%0.4d]: %(%F_%X)T\n" "$COUNT"
+	printf "CHECK[#%0.4d]: %(%F (%X))T\n" "$COUNT"
 
 	/bin/sleep "${INTERVAL:-1m}"
 done
