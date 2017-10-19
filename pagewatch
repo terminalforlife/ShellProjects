@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Wed 18 Oct 19:50:56 BST 2017
+# Last Change       - Thu 19 Oct 13:00:32 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,21 +36,24 @@ USAGE(){
 	while read -r; do
 		echo "$REPLY"
 	done <<-EOF
-		            PAGEWATCH (18th October 2017)
+		            PAGEWATCH (19th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Watch a webpage for signs of change by checkings its md5sum.
 
-		SYNTAX:     pagewatch [OPTS] URL [OPTS2]
+		SYNTAX:     pagewatch [OPTS] URL COMMANDS
 		
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --interval N            - Check for changes every N seconds. The
+		            --interval|-i N         - Check for changes every N seconds. The
 		                                      default is to check every 60 seconds.
 
-		NOTE:       Where OPTS2 are optional parameters passed straight to wget. The -q and
-		            -O flags are already used and essential for pagewatch to function.
+		NOTE:       Where COMMANDS would be your comomand(s) to execute upon detection of
+		            any changes to the specified webpage. See below for examples.
+
+		EXAMPLE:
+		            pagewatch --interval 10m "https://www.ubuntu.com" notify-send "Ready!"
 	EOF
 }
 
@@ -62,7 +65,7 @@ while [ -n "$1" ]; do
 			DEBUGME="true" ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
-		--interval)
+		--interval|-i)
 			shift; INTERVAL="$1" ;;
 		-*|--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
@@ -77,7 +80,7 @@ URL="$1"
 
 shift
 
-OPTS2="$@"
+COMMANDS="$@"
 
 [ -z "$URL" ] && XERR "$LINENO" "A webpage address (URL) is required."
 
@@ -89,10 +92,12 @@ OPTS2="$@"
 BUFFER="/tmp/pagewatch_`printf '%(%F_%X)T'`.md5"
 [ -d /tmp ] || XERR "$LINENO" "Directory /tmp is missing or inaccessible."
 
-	/usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER"
+/usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER"
 
 while :; do
-	/usr/bin/wget -q "$URL" $OPTS2 -O - | /usr/bin/md5sum -c "$BUFFER"
+	/usr/bin/wget -q "$URL" -O -\
+		| /usr/bin/md5sum -c "$BUFFER" || ($COMMANDS)
+
 	/bin/sleep "${INTERVAL:-1m}"
 done
 
