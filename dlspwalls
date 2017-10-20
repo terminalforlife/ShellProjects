@@ -72,7 +72,7 @@ GETID=$(
 	)
 
 	while IFS="/" read -a REPLY; do
-		echo "${REPLY[2]:0:0:7}"
+		echo "${REPLY[2]:0:7}"
 	done <<< "$X"
 )
 
