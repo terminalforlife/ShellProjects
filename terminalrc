@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/terminalrc
 # Started On        - Fri 20 Oct 00:37:52 BST 2017
-# Last Change       - Fri 20 Oct 00:41:21 BST 2017
+# Last Change       - Fri 20 Oct 00:56:54 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,6 +15,7 @@
 
 [Configuration]
 FontName=Oxygen Mono Bold 11
+FontAllowBold=TRUE
 MiscAlwaysShowTabs=FALSE
 MiscBell=TRUE
 MiscBordersDefault=FALSE
@@ -26,9 +27,9 @@ MiscMenubarDefault=FALSE
 MiscMouseAutohide=TRUE
 MiscToolbarDefault=FALSE
 MiscConfirmClose=FALSE
-MiscCycleTabs=TRUE
-MiscTabCloseButtons=TRUE
-MiscTabCloseMiddleClick=TRUE
+MiscCycleTabs=FALSE
+MiscTabCloseButtons=FALSE
+MiscTabCloseMiddleClick=FALSE
 MiscTabPosition=GTK_POS_TOP
 MiscHighlightUrls=TRUE
 MiscScrollAlternateScreen=TRUE
@@ -40,5 +41,15 @@ ScrollingOnOutput=FALSE
 ColorCursor=#ffffff0
 BackgroundMode=TERMINAL_BACKGROUND_TRANSPARENT
 BackgroundDarkness=0.700000
-FontAllowBold=FALSE
+MiscBellUrgent=FALSE
+MiscMouseWheelZoom=TRUE
+MiscMiddleClickOpensUri=FALSE
+MiscCopyOnSelect=FALSE
+MiscDefaultWorkingDir=
+MiscRewrapOnResize=TRUE
+MiscUseShiftArrowsToScroll=TRUE
+MiscSlimTabs=FALSE
+ShortcutsNoHelpkey=TRUE
+ShortcutsNoMenukey=TRUE
+ShortcutsNoMnemonics=TRUE
 
