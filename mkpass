@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Sat 21 Oct 01:01:46 BST 2017
+# Last Change       - Sat 21 Oct 01:25:36 BST 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -30,36 +30,58 @@ USAGE(){
 		SYNTAX:     mkpass [OPTS] INT
 		
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --type|-t TYPE          - Where T is the type. See below.
 
 		NOTE:       This small program uses /dev/urandom to generate a wide range of
 		            characters, just as you would expect from genpass, but fuller and
 		            with extra features and choices for the user.
 
 		            Where INT is the number (integer) of characters to generate.
+
+		TYPES:      Available TYPEs for the --type or -t flags are as follows:
+
+		            +------------+----------------------+
+		            | VALID TYPE | WHAT IT INCLUDES     |
+		            +------------+----------------------+
+		            | alnum      | Letters and digits.  |
+		            | digit      | All digits.          |
+		            | alpha      | All letters.         |
+		            | punct      | Various punctuation. |
+		            | alphapunct | All of the above.    |
+		            +-----------------------------------+
 	EOF
 }
 
+#TODO - Any others which could be added?
 while [ -n "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			break ;;
 	esac
 
 	shift
 done
 
-[ -e /dev/urandom ] || XERR "$LINENO" "Unable to access /dev/urandom device."
-[ $# -eq 1 ] || XERR "$LINENO" "Only one argument is required."
+INT="$1"
 
-{ [[ "$*" =~ [0-9]+ ]] && [ "$*" -ge 1 ]; } || {
+[ $# -eq 1 ] || XERR "$LINENO" "Incorrect argument(s) specified."
+[ -e /dev/urandom ] || XERR "$LINENO" "Unable to access /dev/urandom device."
+[ -z "$INT" ] && XERR "$LINENO" "Missing INT -- how many characters do you want?"
+
+{ [[ "$*" =~ [0-9]+ ]] && [ "$INT" -ge 1 ]; } || {
 	XERR "$LINENO" "Requires an integer greater than or equal to 1."
 }
 
+#TODO - Add logic to switch between different CHARS variables.
+CHARS='[\`/\+\\\|0-9A-Za-z\_\,\.\?\!\"\\\/\$\%\^\&\*\(\)\{\}\]\[-\>\<\:\@\~]'
+
 declare -i A=0
 while read -a X; do
-	[[ "${X:0:1}" == [\`/\+\\\|0-9A-Za-z\_\,\.\?\!\"\\\/\$\%\^\&\*\(\)\{\}\]\[-\>\<\:\@\~] ]] && {
-		A+=1; printf "%s" "${X:0:1}"; [ $A -eq $* ] && break
+	[[ "${X:0:1}" == $CHARS ]] && {
+		A+=1
+		printf "%s" "${X:0:1}"
+		[ $A -eq $INT ] && break
 	}
 done < /dev/urandom
