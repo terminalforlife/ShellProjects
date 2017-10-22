@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Fri  6 Oct 00:41:31 BST 2017
+" Last Change       - Sun 22 Oct 19:05:18 BST 2017
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -37,6 +37,9 @@ set matchtime=0
 " Disable text wrapping.
 set nowrap
 
+" Allow 256 colors. Redundant?
+set t_Co=256
+
 " Make the ESC timeout sane.
 set ttimeout
 set ttimeoutlen=10
@@ -48,7 +51,7 @@ set viewoptions=folds,options,cursor,unix,slash
 set history=4000
 
 "set listchars=tab:-,trail:,extends:#,nbsp:.
-set listchars=tab:»→,trail:→,extends:#,nbsp:.
+set listchars=tab:»→,trail:␣,extends:#,nbsp:⊗
 
 " Disable the ruler.
 set noruler
@@ -94,11 +97,12 @@ func! ExtraColorSets()
 	hi SpecialKey     ctermfg=darkyellow   ctermbg=NONE
 	hi ColorColumn    ctermbg=235          ctermfg=250
 	hi CursorLine     ctermbg=237          cterm=bold
-	hi StatusLine     ctermfg=black        ctermbg=white
+	hi StatusLine     ctermbg=white        ctermfg=black
 	hi VertSplit      ctermbg=black        ctermfg=black
 	hi StatusLine     ctermbg=white        ctermfg=black
 	hi StatusLineNC   ctermbg=238          ctermfg=black
-	hi Comment        ctermfg=241
+	hi Comment        ctermbg=NONE         ctermfg=241
+	hi TabLineFill    ctermbg=0            ctermfg=0
 endfunc
 
 " Removing tailing spaces and tabs, then save.
@@ -125,6 +129,8 @@ endfunc
 
 " The function for toggling mouse support.
 func! MouseSupport()
+	set mousehide!
+
 	if(g:mousesupportstate == 0)
 		let g:mousesupportstate = 1
 		set mouse=a
@@ -390,6 +396,8 @@ noremap <silent> <leader>header :call Header()<CR>
 noremap <silent> <leader>ws :split<CR>
 noremap <silent> <leader>wvs :vsplit<CR>
 noremap <silent> <leader>wc :close<CR>
+
+" Current line text alignment.
 noremap <silent> <leader>ac :center<CR>
 noremap <silent> <leader>ar :right<CR>
 noremap <silent> <leader>al :left<CR>
