@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Sun 22 Oct 19:05:18 BST 2017
+" Last Change       - Sun 22 Oct 21:23:45 BST 2017
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -11,6 +11,10 @@ noremap j h
 noremap k j
 noremap l k
 noremap ; l
+
+" Useful in DocMode(). Traverse lines normally.
+noremap k gj
+noremap l gk
 
 " Set variables used within this file.
 let g:autoscrollstate=0
