@@ -7,7 +7,7 @@ check_interval=3
 
 while true; do
   # Percentage of disk space used
-  used_space=$(read <<< `df -H --output=pcent /`; echo ${REPLY/* })
+  used_space=$(read -a X <<< `/bin/df /`; echo ${X[11]})
 
   if [ $used_space -ge $warning_level ]
   then
