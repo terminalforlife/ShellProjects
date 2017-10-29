@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Sun 29 Oct 23:40:17 GMT 2017
+# Last Change       - Sun 29 Oct 23:41:38 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -80,9 +80,10 @@ CHARS='[\`/\+\\\|0-9A-Za-z\_\,\.\?\!\"\\\/\$\%\^\&\*\(\)\{\}\]\[-\>\<\:\@\~]'
 declare -i A=0
 while read -a X; do
 	[[ "${X:0:1}" == $CHARS ]] && {
-		A+=1; Z+="${X:0:1}"
+		A+=1
+		printf "%s" "${X:0:1}"
 		[ $A -eq $INT ] && break
 	}
 done < /dev/urandom
 
-printf "%s\n" "$Z"
+echo
