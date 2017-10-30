@@ -1,0 +1,35 @@
+#----------------------------------------------------------------------------------
+# Project Name      - $HOME/.keynavrc
+# Started On        - Mon 30 Oct 12:51:29 GMT 2017
+# Last Change       - Mon 30 Oct 13:17:29 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+# Keynav URL:       - http://www.semicomplete.com/projects/keynav
+#----------------------------------------------------------------------------------
+
+clear
+#daemonize
+ctrl+semicolon start
+Escape end
+j move-left
+k move-down
+l move-up
+semicolon move-right
+i move-left,move-up
+o move-right,move-up
+n move-left,move-down
+m move-right,move-down
+space warp,click 1,end
+Return warp,end
+1 click 1
+2 click 2
+ctrl+2 click 2 ctrl
+ctrl+shift+2 click 2 ctrl+shift
+3 click 3
+w windowzoom
+d cursorzoom 10 10
+f cursorzoom 25 25
+c cursorzoom 50 50
+q drag 1
+e drag 1 ctrl+shift
+s cut-left .75,cut-down .75,cut-up .75,cut-right .75
