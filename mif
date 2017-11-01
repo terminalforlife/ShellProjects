@@ -3,13 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Thu 19 Oct 18:36:50 BST 2017
+# Last Change       - Wed  1 Nov 17:08:15 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 shopt -s extglob globstar
 
@@ -17,12 +17,12 @@ USAGE(){
 	while read -r; do
 		echo "$REPLY"
 	done <<-EOF
-		            MIF - Movie Index Filter (19th October 2017)
+		            MIF - Movie Index Filter (1st November 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Shell program to filter films by year and whether seen or not.
 
-		SYNTAX:     mif [OPTS] YEAR
+		SYNTAX:     mif [OPTS] [YEAR]
 		
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug                 - Enables the built-in bash debugging.
@@ -33,6 +33,8 @@ USAGE(){
 		            --all|-a                - Display all films; disregard filters.
 		            --total|-t              - Output the total number of matches.
 		            --no-status|-N          - Feature currently not functional.
+		            --organize|-O           - Organise files in the CWD by year. This
+		                                      This has the potential to be destructive!
 		            --mklist|-M[:N]         - Output a mif-usable movie list from CWD.
 		                                      If :N is appended, then omit [+] and [-].
 
@@ -88,6 +90,8 @@ while [ -n "$1" ]; do
 			shift; INDEX="$1" ;;
 		--all|-a)
 			SEEN="all" ;;
+		--organize|-O)
+			ORGANIZE="true" ;;
 		--total|-t)
 			TTL="true" ;;
 		--no-status|-N)
@@ -104,8 +108,15 @@ while [ -n "$1" ]; do
 	shift
 done
 
-[[ "$1" == +([0-9]) ]] && { YEAR="$1"; shift; } || {
-	[ "$SEEN" == "all" ] || XERR "$LINENO" "Invalid year specified."
+[ "$ORGANIZE" == "true" ] || {
+	if [[ "$1" == +([0-9]) ]]; then
+		YEAR="$1"
+		shift
+	else
+		[ "$SEEN" == "all" ] || {
+			XERR "$LINENO" "Invalid year specified."
+		}
+	fi
 }
 
 [ -n "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
@@ -114,6 +125,28 @@ done
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
+
+[ "$ORGANIZE" == "true" ] && {
+	[ -e /dev/null ] || XERR "$LINENO" "Unable to find: /dev/null"
+
+	[ -x /bin/mkdir -a -x /bin/mv ] || {
+		XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
+	}
+
+	for X in *; {
+		Y="${X//*\(}"
+
+		if /bin/mkdir "${Y%\)*}"; then
+			echo "CREATED: ${Y%\)*}"
+		else
+			echo "FAILED: ${Y%\)*}"
+		fi
+
+		/bin/mv -i "$X" ${Y%\)*}/
+	} &> /dev/null
+
+	exit 0
+}
 
 [ -f "$INDEX" ] || XERR "$LINENO" "Movie index file not found."
 
