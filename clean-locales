@@ -1,0 +1,79 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - $HOME/ShellPlugins/Clean_Unused_Locales
+# Started On        - Wed  1 Nov 11:29:18 GMT 2017
+# Last Change       - Wed  1 Nov 12:02:52 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read -r; do
+		echo "$REPLY"
+	done <<-EOF
+		            CLEAN-LOCALES (1st November 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Remove some unnecessary non-English localizations.
+
+		SYNTAX:     clean-locales [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		FILES:      Files in /usr/share/locale will be deleted, except:
+
+		            en_GB
+		            en_US
+		            locale.alias
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+if [ -x /bin/rm ]; then
+	[ -d /usr/share/locale ] || {
+		XERR "$LINENO" "Directory missing: /usr/share/locale"
+	}
+
+	for DIR in /usr/share/locale/*; {
+		if ! [[ "$DIR" =~ (en_GB|en_US|locale\.alias) ]]; then
+			printf "DELETING: $DIR "
+
+			if [ -e /dev/null ]; then
+				/bin/rm -rf "$DIR" &> /dev/null && {
+					echo "[OK]"
+				} || echo "[ERROR]"
+			else
+				XERR "$LINENO" "Unable to find: /dev/null"
+			fi
+		else
+			echo "SKIPPING: $DIR"
+		fi
+	}
+else
+	XERR "$LINENO" "Dependency '/bin/rm' not met."
+fi
