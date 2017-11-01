@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/ShellPlugins/Clean_Unused_Locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Wed  1 Nov 12:02:52 GMT 2017
+# Last Change       - Wed  1 Nov 12:15:31 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -48,8 +48,6 @@ while [ -n "$1" ]; do
 
 	shift
 done
-
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
