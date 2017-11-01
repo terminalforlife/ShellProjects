@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Wed  1 Nov 17:08:15 GMT 2017
+# Last Change       - Wed  1 Nov 17:28:11 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -136,14 +136,16 @@ done
 	for X in *; {
 		Y="${X//*\(}"
 
-		if /bin/mkdir "${Y%\)*}"; then
-			echo "CREATED: ${Y%\)*}"
-		else
-			echo "FAILED: ${Y%\)*}"
-		fi
+		[[ "${Y%\)*}" == +([0-9]) ]] || continue
 
-		/bin/mv -i "$X" ${Y%\)*}/
-	} &> /dev/null
+		/bin/mkdir "${Y%\)*}" && {
+			echo "MAKE: ${Y%\)*}"
+		} || echo "FAIL: ${Y%\)*}"
+
+		/bin/mv "$X" ${Y%\)*}/ && {
+			echo "MOVE: ${Y%\)*}/${X//*\/}"
+		} || echo "FAIL: ${Y%\)*}/${X//*\/}"
+	} # 2> /dev/null
 
 	exit 0
 }
