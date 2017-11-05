@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/install\ 4.13.5_64-bit\ \(Ubuntu\)
 # Started On        - Sun  5 Nov 20:46:28 GMT 2017
-# Last Change       - Sun  5 Nov 23:15:22 GMT 2017
+# Last Change       - Sun  5 Nov 23:19:53 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -67,6 +67,7 @@ while read X; do
 	printf "%s\n" "$X"
 done <<-EOF
 
+	---------------------------------------------------------------------------
 	!! WARNING !! Kernel version not officially supported. !! WARNING !!
 
 	Version to Install:
@@ -82,6 +83,7 @@ done <<-EOF
 
 	Will you continue with the installation of this kernel version? If you are
 	sure, then enter "Yes, install!" exactly like that, by the prompt below...
+	---------------------------------------------------------------------------
 
 EOF
 
@@ -123,22 +125,25 @@ DONE(){
 	while read X; do
 		printf "%s\n" "$X"
 	done <<-EOF
+
+        	---------------------------------------------------------------------------
 		Kernel '$VER' was downloaded and installed.
 
 		NOTE:
 
-		  If you have any issues booting back into your Linux machine, -
-		  you can choose an earlier kernel (one which works) from within
-		  the GRUB menu before Linux Mint 18.2 loads up.
+		  If you have any issues booting back into your Linux machine, you can
+		  choose an earlier kernel (one which works) from within the GRUB menu
+		  before Linux Mint 18.2 loads up.
 
 		UNINSTALL:
 
-		  To remove this kernel version, run the following commands from
-		  within a terminal using the BASH shell...
+		  To remove this kernel version, run the following commands from within a
+		  terminal using the BASH shell...
 
 		    sudo apt-get purge --autoremove linux-{image-4.13.5\*}
 
 		Would you like to restart the machine now?
+		---------------------------------------------------------------------------
 	
 	EOF
 
