@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/install\ 4.13.14_64-bit\ \(Ubuntu\)
+# Project Name      - miscellaneous/install\ 4.13.5_64-bit\ \(Ubuntu\)
 # Started On        - Sun  5 Nov 20:46:28 GMT 2017
-# Last Change       - Sun  5 Nov 22:15:48 GMT 2017
+# Last Change       - Sun  5 Nov 22:18:32 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ DONE(){
 	while read X; do
 		printf "%s\n" "$X"
 	done <<-EOF
-		Kernel version '$VER' was downloaded and installed.
+		Kernel '$VER' was downloaded and installed.
 
 		NOTE:
 
