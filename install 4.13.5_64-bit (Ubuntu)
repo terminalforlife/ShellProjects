@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/install\ 4.13.5_64-bit\ \(Ubuntu\)
 # Started On        - Sun  5 Nov 20:46:28 GMT 2017
-# Last Change       - Sun  5 Nov 23:01:39 GMT 2017
+# Last Change       - Sun  5 Nov 23:12:41 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ OS_CHECK_FUNC(){
 	mapfile Y < /etc/os-release
 	printf -v LSB "%s" "${Y[2]/*=}"
 	
-	[ "$LSB" == "linuxmint" ] || {
+	[ "${LSB%?}" == "linuxmint" ] || {
 		ERR "$LINENO" "This script was written for Linux Mint 18.2."
 	}
 }
@@ -66,6 +66,7 @@ done
 while read X; do
 	printf "%s\n" "$X"
 done <<-EOF
+
 	!! WARNING !! Kernel version not officially supported. !! WARNING !!
 
 	Version to Install:
