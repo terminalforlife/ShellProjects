@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/install\ 4.13.5_64-bit\ \(Ubuntu\)
 # Started On        - Sun  5 Nov 20:46:28 GMT 2017
-# Last Change       - Sun  5 Nov 23:12:41 GMT 2017
+# Last Change       - Sun  5 Nov 23:15:22 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ MAIN(){
 		/bin/sync
 
 		printf "CLEANUP: %s\n" "$F"
-		/bin/rm -i /tmp/"$F"
+		/bin/rm /tmp/"$F"
 	}
 }
 
