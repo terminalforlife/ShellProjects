@@ -3,39 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Mon 23 Oct 04:15:31 BST 2017
+# Last Change       - Sun  5 Nov 18:29:17 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-#My mocp (moc) settings. Simple script to allow me to quickly load mocp how I like.
+# My mocp settings. Simple script to allow me to quickly load mocp how I like.
 
-# Load error functions.
+#----------------------------------------------------------------------------------
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-# Check for root access.
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
-
-# Check for zero arguments.
 [ $# -eq 0 ] || XERR "$LINENO" "No arguments required."
 
-# The directory where all the mocp themes are stored.
 THEME_DIR="/usr/share/moc/themes"
-
-# If the directory doesn't exist, as above, the error and exit.
-[ -d $THEME_DIR ] || XERR "$LINENO" "Theme directory not found."
-
-# This is the selected theme which should be in the above directory.
 CHOSEN_THEME="red_theme"
 #CHOSEN_THEME="transparent-background"
 
-# If the chosen theme doesn't exist as above, error and exit.
+[ -d $THEME_DIR ] || XERR "$LINENO" "Theme directory not found."
 [ -f "$THEME_DIR/$CHOSEN_THEME" ] || XERR "$LINENO" "Theme file not found."
 
- # If mocp and alsa are found, ...
 { [ -x /usr/bin/mocp ] && [ -x /sbin/alsa ]; } && {
-	# Actually launch mocp, using the flags and above chosen theme.
 	/usr/bin/mocp -T $THEME_DIR/$CHOSEN_THEME        \
 		-O ShowFormat=yes                        \
 		-O ShowTime=no                           \
@@ -57,11 +47,5 @@ CHOSEN_THEME="red_theme"
 		-O InputBuffer=512                       \
 		-O OutputBuffer=512                      \
 		-O Prebuffering=256                      \
-	|| {
-		# If MOC fails to launch, error and exit.
-		XERR "$LINENO" "Unable to start the MOC player."
-	}
-} || {
-	# If alsa and/or mocp aren't found, error and exit.
-	XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
-}
+	|| XERR "$LINENO" "Unable to start the MOC player."
+} || XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
