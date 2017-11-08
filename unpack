@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/unpack
 # Started On        - Wed  8 Nov 15:41:30 GMT 2017
-# Last Change       - Wed  8 Nov 16:27:42 GMT 2017
+# Last Change       - Wed  8 Nov 17:51:26 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,14 +15,16 @@ ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 [ $# -eq 0 ] && XERR "$LINENO" "Specify at least one archive."
 
 CMD(){
-	[ -x "${1%% *}" ] && {
+	if [ -x "${1%% *}" ]; then
 		$1 "$2"
-	} || ERR "$LINENO" "Dependency '$1' not met."
-
-	break
+		break
+	fi
 }
 
-for FILE in $@; {
+SPACE="${RANDOM}${RANDOM}"
+for FILE in ${@// /$SPACE}; {
+	FILE="${FILE//$SPACE/ }"
+
 	while read -a X; do
 		case "${X[@]}" in
 			Tar\ archive)
@@ -30,6 +32,9 @@ for FILE in $@; {
 			Tar\ archive\ \(gzip-compressed\))
 				CMD "/bin/tar -xzvf" "$FILE" ;;
 			Zip\ archive)
+				#TODO - Fix or work around EOF error which seems to
+				#       happen because of the overwrite prompt gets
+				#       ignored. Could overwrite by default?
 				CMD "/usr/bin/unzip" "$FILE" ;;
 			RAR\ archive)
 				CMD "/usr/bin/rar xv" "$FILE" ;;
