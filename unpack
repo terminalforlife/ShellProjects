@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/unpack
 # Started On        - Wed  8 Nov 15:41:30 GMT 2017
-# Last Change       - Wed  8 Nov 16:22:37 GMT 2017
+# Last Change       - Wed  8 Nov 16:27:42 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 [ -x /usr/bin/mimetype ] || XERR "$LINENO" "Dependency '/usr/bin/mimetype' not met."
-[ $# -eq 0 ] && XERR "$LINENO" "At least one file must be specified."
+[ $# -eq 0 ] && XERR "$LINENO" "Specify at least one archive."
 
 CMD(){
 	[ -x "${1%% *}" ] && {
@@ -39,6 +39,8 @@ for FILE in $@; {
 				CMD "/bin/tar -xJvf" "$FILE" ;;
 			Debian\ package)
 				CMD "/usr/bin/dpkg-deb -xv" "$FILE" ;;
+			7-zip\ archive)
+				CMD "/usr/bin/7zr x" "$FILE" ;;
 		esac
 	done <<< "$(/usr/bin/mimetype -db "$FILE")"
 }
