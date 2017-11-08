@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/archiver-cli
+# Started On        - Wed  8 Nov 15:41:30 GMT 2017
+# Last Change       - Wed  8 Nov 16:18:45 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+[ -x /usr/bin/mimetype ] || XERR "$LINENO" "Dependency '/usr/bin/mimetype' not met."
+[ $# -eq 0 ] && XERR "$LINENO" "At least one file must be specified."
+
+CMD(){
+	[ -x "${1%% *}" ] && {
+		$1 "$2"
+	} || ERR "$LINENO" "Dependency '$1' not met."
+
+	break
+}
+
+for FILE in $@; {
+	while read -a X; do
+		case "${X[@]}" in
+			Tar\ archive)
+				CMD "/bin/tar -xvf" "$FILE" ;;
+			Tar\ archive\ \(gzip-compressed\))
+				CMD "/bin/tar -xzvf" "$FILE" ;;
+			Zip\ archive)
+				CMD "/usr/bin/unzip" "$FILE" ;;
+			RAR\ archive)
+				CMD "/usr/bin/rar xv" "$FILE" ;;
+			Bzip\ archive)
+				CMD "/bin/bunzip2" "$FILE" ;;
+			XZ\ archive)
+				CMD "/bin/tar -xJvf" "$FILE" ;;
+			Debian\ package)
+				CMD "/usr/bin/dpkg-deb -xv" "$FILE" ;;
+		esac
+	done <<< "$(/usr/bin/mimetype -db "$FILE")"
+}
