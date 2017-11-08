@@ -3,20 +3,21 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Tue  7 Nov 22:24:01 GMT 2017
+# Last Change       - Tue  7 Nov 22:58:19 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-#declare -i DEPCOUNT=0
-#for DEP in /bin/tar /usr/bin/udisksctl; {
-#	[ -x "$DEP" ] || {
-#		ERR "$LINENO" "Dependency '$DEP' not met."
-#		DEPCOUNT+=1
-#	}
-#}
+declare -i DEPCOUNT=0
+for DEP in /bin/{gzip,tar,mv,sync}; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
@@ -24,13 +25,21 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 [ $# -eq 0 ] || XERR "$LINENO" "No arguments are required."
 [ -e /proc/mounts ] || XERR "$LINENO" "Unable to find file: /proc/mounts"
 
-printf -v BACKNAME "BMU_%(%F_%H%M)T.tgz" "-1"
-printf -v STORE "/media/%s/%s" "$USER" "1TB Internal HDD"
+printf -v LABEL "1TB Internal HDD"
+printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
+printf -v STORE "/media/%s/%s" "$USER" "$LABEL"
 
 while read -a X; do
-	if [[ "${X[1]}" =~ "${STORE// /040}" ]]; then
-		/bin/tar -czvpf "$STORE/$BAKNAME" "$HOME"
-	else
-		XERR "$LINENO" "The backup target is not available."
+	if [[ "${X[1]}" =~ "${LABEL// /040}" ]]; then
+		/bin/tar\
+			--exclude="${HOME/\/}/.cache/*"\
+			--exclude="${HOME/\/}/.thumbnails/*"\
+			-cvpf "$STORE/$ARCHIVE" "$HOME"
+
+		/bin/gzip -v --best --suffix ".tgz" "$STORE/$ARCHIVE"
+		/bin/sync "$STORE/$ARCHIVE.tgz"
+		exit 0
 	fi
 done < /proc/mounts
+
+XERR "$LINENO" "The backup target is not available."
