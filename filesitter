@@ -3,13 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Thu  5 Oct 18:43:12 BST 2017
+# Last Change       - Thu  9 Nov 11:56:12 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/{tr,cut,stat} /bin/{systemctl,sleep}; {
@@ -25,9 +25,9 @@ shopt -s extglob
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FILESITTER (5th October 2017)
+		            FILESITTER (9th November 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Watch for and act upon the completion of file size changes.
@@ -68,7 +68,7 @@ for ARG in $@; {
 }
 
 IFS=""; FILENAME1="$1"; FILENAME2="$2"; FILENAME3="$3"
-([ -z "$FILENAME1" ] && [ -z "$FILENAME2" ] && [ -z "$FILENAME3" ]) && {
+[ -z "$FILENAME1" -a -z "$FILENAME2" -a -z "$FILENAME3" ] && {
 	XERR "$LINENO" "At least one filename is required."
 }
 
@@ -84,7 +84,7 @@ while :; do
 	{
 		[ "$FILE" == "NULL" ] && continue
 
-		([ -f "$FILE" ] || [ -r "$FILE" ]) || {
+		[ -f "$FILE" -o -r "$FILE" ] || {
 			XERR "$LINENO" "Cannot find or access: $FILE"
 		}
 
@@ -97,7 +97,9 @@ while :; do
 		trap "/bin/systemctl $ACTION" HUP
 
 		# Exit if kill succeeds, otherwise just exit with error.
-		kill -HUP $$ && exit 0 || XERR "$LINENO" "Failed to $ACTION the system."
+		kill -HUP $$ && exit 0 || {
+			XERR "$LINENO" "Failed to $ACTION the system."
+		}
 	}
 
 	OLD="$NEW"
@@ -105,5 +107,3 @@ while :; do
 
 	/bin/sleep ${INTERVAL:-600}s
 done
-
-[ "$DEBUGME" == "true" ] && set +xeu
