@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Tue  7 Nov 20:22:16 GMT 2017
+# Last Change       - Thu  9 Nov 00:56:33 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -40,3 +40,6 @@ for DEP in /bin/{ln,rm}; {
 
 /bin/rm $HOME/.vimrc 2> /dev/null
 /bin/ln .vimrc $HOME/ 2> /dev/null
+
+/bin/rm $HOME/.config/dunst/dunstrc 2> /dev/null
+/bin/ln dunstrc $HOME/.config/dunst/ 2> /dev/null
