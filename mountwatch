@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mountwatch
 # Started On        - Thu  9 Nov 14:33:34 GMT 2017
-# Last Change       - Thu  9 Nov 15:25:56 GMT 2017
+# Last Change       - Thu  9 Nov 15:41:24 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -20,19 +20,23 @@
 
 #TODO - Ignore the entries already there on log-in.
 while :; do
-	[ -x /usr/bin/notify-send -a -x /bin/dmesg ] || exit 1
+	[ -x /usr/bin/notify-send -a -x /bin/dmesg -a -x /bin/grep ] || exit 1
 
-	while read X; do
-		[[ "$X" =~ (mount|unmount|disconnect|detected) ]] && LAST="$X"
-	done <<< "$(/bin/dmesg -tl 6)"
+	LAST(){
+		/bin/dmesg -tl 6\
+			| /bin/grep -E "(mount|unmount|disconnect|detected)"\
+			| tail -n 1
+	}
 
-	if ! [ "$LAST" == "$LAST_BUFFER" ]; then
-		printf -v NS "[%(%F_%X)T]: %s" "-1" "$LAST"
+	if ! [ "$(LAST)" == "$LAST_BUFFER" ]; then
+		printf -v NS "[%(%F_%X)T]: %s" "-1" "$(LAST)"
 
 		if ! [ "$BUF" == "$NS" ]; then
 			/usr/bin/notify-send --urgency=critical "$NS"
 		fi
 	fi
 
-	LAST_BUFFER="$LAST"
+	LAST_BUFFER="$(LAST)"
+
+	sleep 0.1s
 done
