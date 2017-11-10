@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/dunst/dunstrc
 # Started On        - Thu  9 Nov 00:34:20 GMT 2017
-# Last Change       - Thu  9 Nov 12:06:24 GMT 2017
+# Last Change       - Fri 10 Nov 02:00:44 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 #----------------------------------------------------------------------------------
 
 [global]
-    font = Oxygen Bold 14
+    font = Oxygen Bold 9
     allow_markup = yes
     format = "<b>%s</b>\n%b"
     sort = yes
