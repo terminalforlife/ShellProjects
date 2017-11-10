@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/mountwatch
+# Project Name      - miscellaneous/syswatch
 # Started On        - Thu  9 Nov 14:33:34 GMT 2017
-# Last Change       - Fri 10 Nov 02:14:13 GMT 2017
+# Last Change       - Fri 10 Nov 15:56:04 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ for DEP in /bin/{dmesg,grep,sleep} /usr/bin/{tail,notify-send}; {
 while :; do
 	LAST(){
 		/bin/dmesg -tl 6\
-			| /bin/grep -E "(mount|unmount|disconnect|detected)"\
+			| /bin/grep -E "(link (down|up)$|mount|unmount|disconnect|detected)"\
 			| /usr/bin/tail -n 1
 	}
 
