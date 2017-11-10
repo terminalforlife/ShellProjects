@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mountwatch
 # Started On        - Thu  9 Nov 14:33:34 GMT 2017
-# Last Change       - Thu  9 Nov 15:41:24 GMT 2017
+# Last Change       - Fri 10 Nov 02:14:13 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,14 +18,17 @@
 
 #trap "" HUP TERM INT
 
+declare -i DEPCOUNT=0
+for DEP in /bin/{dmesg,grep,sleep} /usr/bin/{tail,notify-send}; {
+	[ -x "$DEP" ] || exit 1
+}
+
 #TODO - Ignore the entries already there on log-in.
 while :; do
-	[ -x /usr/bin/notify-send -a -x /bin/dmesg -a -x /bin/grep ] || exit 1
-
 	LAST(){
 		/bin/dmesg -tl 6\
 			| /bin/grep -E "(mount|unmount|disconnect|detected)"\
-			| tail -n 1
+			| /usr/bin/tail -n 1
 	}
 
 	if ! [ "$(LAST)" == "$LAST_BUFFER" ]; then
@@ -38,5 +41,5 @@ while :; do
 
 	LAST_BUFFER="$(LAST)"
 
-	sleep 0.1s
+	/bin/sleep 0.1s
 done
