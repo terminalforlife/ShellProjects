@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Mon 13 Nov 13:14:27 GMT 2017
+# Last Change       - Mon 13 Nov 13:16:28 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -20,9 +20,12 @@ ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 MUSIC_DIR="$HOME/Music"
 THEME_DIR="/usr/share/moc/themes"
-COMMAND="/bin/bash $HOME/.i3a/track_notify"
 CHOSEN_THEME="red_theme"
 #CHOSEN_THEME="transparent-background"
+
+# This uses a small script from my i3config repository; you can use that even if
+# you don't use i3-wm! Just point this path to the script, whereever you want it.
+COMMAND="/bin/bash $HOME/.i3a/track_notify"
 
 [ -d $THEME_DIR ] || XERR "$LINENO" "Theme directory not found."
 [ -f "$THEME_DIR/$CHOSEN_THEME" ] || XERR "$LINENO" "Theme file not found."
