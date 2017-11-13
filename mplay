@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - mplay
+# Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Sun  5 Nov 18:29:17 GMT 2017
+# Last Change       - Mon 13 Nov 11:46:02 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ CHOSEN_THEME="red_theme"
 [ -d $THEME_DIR ] || XERR "$LINENO" "Theme directory not found."
 [ -f "$THEME_DIR/$CHOSEN_THEME" ] || XERR "$LINENO" "Theme file not found."
 
-{ [ -x /usr/bin/mocp ] && [ -x /sbin/alsa ]; } && {
+[ -x /usr/bin/mocp -a -x /sbin/alsa ] && {
 	/usr/bin/mocp -T $THEME_DIR/$CHOSEN_THEME        \
 		-O ShowFormat=yes                        \
 		-O ShowTime=no                           \
