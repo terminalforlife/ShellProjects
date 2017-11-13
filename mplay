@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Mon 13 Nov 11:46:02 GMT 2017
+# Last Change       - Mon 13 Nov 13:14:27 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,7 +18,9 @@ ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
 [ $# -eq 0 ] || XERR "$LINENO" "No arguments required."
 
+MUSIC_DIR="$HOME/Music"
 THEME_DIR="/usr/share/moc/themes"
+COMMAND="/bin/bash $HOME/.i3a/track_notify"
 CHOSEN_THEME="red_theme"
 #CHOSEN_THEME="transparent-background"
 
@@ -38,7 +40,7 @@ CHOSEN_THEME="red_theme"
 		-O FollowPlayedFile=yes                  \
 		-O ModPlug_NoiseReduction=yes            \
 		-O ModPlug_ResamplingMode=FIR            \
-		-O OnSongChange="notify-send '%t'"       \
+		-O OnSongChange="$COMMAND"               \
 		-O CanStartInPlaylist=yes                \
 		-O ResampleMethod=SincMediumQuality      \
 		-O UseMimeMagic=no                       \
@@ -47,5 +49,6 @@ CHOSEN_THEME="red_theme"
 		-O InputBuffer=512                       \
 		-O OutputBuffer=512                      \
 		-O Prebuffering=256                      \
+		"$MUSIC_DIR"                             \
 	|| XERR "$LINENO" "Unable to start the MOC player."
 } || XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
