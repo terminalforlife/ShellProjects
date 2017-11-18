@@ -3,43 +3,31 @@
 #----------------------------------------------------------------------------------
 # Project Name      - nosp
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Thu  5 Oct 18:49:25 BST 2017
+# Last Change       - Sat 18 Nov 23:36:48 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-# Load error functions.
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-# Check for root access.
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
-
-# Check for zero arguments.
 [ $# -eq 0 ] || XERR "$LINENO" "No arguments are required."
 
-# Check for dependencies.
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/xfconf-query /bin/sleep
-{
+for DEP in /usr/bin/xfconf-query /bin/sleep; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	}
 }
 
-# If any unmet dependencies, exit.
 [ $DEPCOUNT -gt 0 ] && exit 1
 
-# Set the variable for the XML file to edit. Global is there just in-case.
-#GLOBAL_XML_FILE="/etc/xdg/xdg-xubuntu/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
 LOCAL_XML_FILE="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
-
-# Set the variable to the current value of Smart Placement.
 CURRENT_VALUE=`/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
 
-# If the local XML file is exists, is a file, and has write access...
-([ -f "$LOCAL_XML_FILE" ] && [ -w "$LOCAL_XML_FILE" ]) && {
+[ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ] && {
 	# This command group waits, sets value to 90, waits, then sets back to 100.
 	{
 		/bin/sleep 3s
@@ -47,7 +35,4 @@ CURRENT_VALUE=`/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -t int
 		/bin/sleep 0.3 # Removing wait time results in this fix not working.
 		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
 	} &
-} || {
-	# Error and exit if the XML file is inaccessible.
-	XERR "$LINENO" "Unable to fix Smart Placement."
-}
+} || XERR "$LINENO" "Unable to fix Smart Placement."
