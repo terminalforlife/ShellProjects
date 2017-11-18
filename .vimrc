@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Sun 22 Oct 21:23:45 BST 2017
+" Last Change       - Sat 18 Nov 15:23:45 GMT 2017
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -409,6 +409,11 @@ noremap <silent> <leader>al :left<CR>
 " Jump to the next or previous file.
 noremap <silent> <leader>nn :next<CR>
 noremap <silent> <leader>pp :prev<CR>
+
+" Execute current file with...
+noremap <silent> <leader>rp :!/usr/bin/python3.5 %<CR>
+noremap <silent> <leader>rb :!/bin/bash %<CR>
+noremap <silent> <leader>rs :!/bin/sh %<CR>
 
 " Toggle the spellchecking feature.
 noremap <leader>spell :set spell!<CR>
