@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/bin/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Sun 19 Nov 13:39:09 GMT 2017
+# Last Change       - Sun 19 Nov 13:44:04 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -68,6 +68,14 @@ done
 
 declare -i LINECOUNT=0
 while IFS="" read -r X; do
-	[ $LINECOUNT -le 6 ] && LINECOUNT+=1 || { echo; break; }
+	if [ "$CURRENT" == "true" ]; then
+		if [ $LINECOUNT -le 6 ]; then
+			LINECOUNT+=1
+		else
+			echo
+			break
+		fi
+	fi
+
 	[[ "$X" =~ ^(Weather|New|Follow) ]] || printf "%s\n" "$X"
 done <<< "$(/usr/bin/wget -q http://wttr.in/"${LOCATION}" -O -)"
