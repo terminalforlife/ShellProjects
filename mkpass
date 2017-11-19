@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Sat 18 Nov 23:39:20 GMT 2017
+# Last Change       - Sun 19 Nov 13:52:33 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 USAGE(){
-	while read X; do
+	while IFS="" read X; do
 		printf "%s\n" "$X"
 	done <<-EOF
 		            MKPASS (18th November 2017)
@@ -40,15 +40,15 @@ USAGE(){
 
 		TYPES:      Available TYPEs for the --type or -t flags are as follows:
 
-		            +------------+----------------------+
-		            | VALID TYPE | WHAT IT INCLUDES     |
-		            +------------+----------------------+
-		            | alnum      | Letters and digits.  |
-		            | digit      | All digits.          |
-		            | alpha      | All letters.         |
-		            | punct      | Various punctuation. |
-		            | alphapunct | All of the above.    |
-		            +-----------------------------------+
+		            +------------+----------------------+------------------+
+		            | VALID TYPE | WHAT IT INCLUDES     | REGEX FORM       |
+		            +------------+----------------------+------------------+
+		            | alnum      | Letters and digits.  | [[:alnum:]]      |
+		            | digit      | All digits.          | [[:digit:]]      |
+		            | alpha      | All letters.         | [[:alpha:]]      |
+		            | punct      | Various punctuation. | [[:punct:]]      |
+		            | alphapunct | All of the above.    | [[:alphapunct:]] |
+		            +-----------------------------------+------------------+
 	EOF
 }
 
