@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/barred
+# Started On        - Sun 19 Nov 13:56:45 GMT 2017
+# Last Change       - Sun 19 Nov 14:22:24 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This small file was written to be executed within a shell script. Make sure your
+# script can handle this output properly, such as muting its own output while in
+# the bar sections. This is a rudimentary, small progress bar.
+#
+# SYNTAX: barred B[[0|25|50|75|100]|P]
+#----------------------------------------------------------------------------------
+
+B=(𝍥:0 𝍦:25 𝍧:50 𝍨:75 𝍤:100 )
+
+case "$1" in
+	B0) printf "\r%s" "${B[0]%:*}" ;;
+	B0P) printf "\r%s %d%%" "${B[0]%:*}" "${B[0]/*:}" ;;
+	B25) printf "\r%s" "${B[1]%:*}" ;;
+	B25P) printf "\r%s %d%%" "${B[1]%:*}" "${B[1]/*:}" ;;
+	B50) printf "\r%s" "${B[2]%:*}" ;;
+	B50P) printf "\r%s %d%%" "${B[2]%:*}" "${B[2]/*:}" ;;
+	B75) printf "\r%s" "${B[3]%:*}" ;;
+	B75P) printf "\r%s %d%%" "${B[3]%:*}" "${B[3]/*:}" ;;
+	B100) printf "\r%s" "${B[4]%:*}" ;;
+	B100P) printf "\r%s %d%%" "${B[4]%:*}" "${B[4]/*:}" ;;
+esac
+
+unset BARS ARG
