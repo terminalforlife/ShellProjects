@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Tue  7 Nov 22:58:19 GMT 2017
+# Last Change       - Sun 19 Nov 16:38:41 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ while read -a X; do
 		/bin/tar\
 			--exclude="${HOME/\/}/.cache/*"\
 			--exclude="${HOME/\/}/.thumbnails/*"\
-			-cvpf "$STORE/$ARCHIVE" "$HOME"
+			-cvpf --xattrs "$STORE/$ARCHIVE" "$HOME"
 
 		/bin/gzip -v --best --suffix ".tgz" "$STORE/$ARCHIVE"
 		/bin/sync "$STORE/$ARCHIVE.tgz"
