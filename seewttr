@@ -3,37 +3,38 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/bin/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Thu 19 Oct 15:58:48 BST 2017
+# Last Change       - Sun 19 Nov 13:39:09 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "ERROR: $1" 1>&2; exit 1; }
-ERR(){ echo "ERROR: $1" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/wget /bin/{sed,grep}; {
 	[ -x "$DEP" ] || {
-		ERR "Dependency '$DEP' not met."
+		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	}
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-LOCATION=""
-
 USAGE(){
-	while read -r; do
-		echo "$REPLY"
+	while read X; do
+		printf "%s\n" "$X"
 	done <<-EOF
-		            SEEWTTR - WTTR Look (19th October 2017)
+		            SEEWTTR - WTTR Look (19th November 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Super-simple wrapper-like script to get your weather. Thanks entirely
 		            to igor_chubin for this script even being possible.
 
-		SYNTAX:     seewttr [--help|-h|-?] LOCATION
+		SYNTAX:     seewttr [OPTS] LOCATION
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --current|-c            - Show only the current weather.
 		
 		SITE:       From whence thine weather cometh...
 
@@ -47,20 +48,26 @@ USAGE(){
 	EOF
 }
 
-for ARG in $@; {
-	case "$ARG" in
+LOCATION=""
+
+while [ -n "$1" ]; do
+	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--current|-c)
+			CURRENT="true" ;;
 		*)
 			break ;;
 	esac
 
 	shift
-}
+done
 
-[ -n "$*" ] && LOCATION="$*" || XERR "Incorrect argument(s) specified."
+[ -n "$*" ] && LOCATION="$*" || XERR "$LINENO" "Incorrect argument(s) specified."
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not recommended!"
 
-[ $UID -eq 0 ] && XERR "Root access is not recommended!"
-
-/usr/bin/wget -q http://wttr.in/"${LOCATION}" -O -\
-	| /bin/grep -v "^\(Weather\|New\|Follow\)"
+declare -i LINECOUNT=0
+while IFS="" read -r X; do
+	[ $LINECOUNT -le 6 ] && LINECOUNT+=1 || { echo; break; }
+	[[ "$X" =~ ^(Weather|New|Follow) ]] || printf "%s\n" "$X"
+done <<< "$(/usr/bin/wget -q http://wttr.in/"${LOCATION}" -O -)"
