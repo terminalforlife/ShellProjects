@@ -22,7 +22,7 @@ for DEP in /usr/bin/wget /bin/{sed,grep}; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 USAGE(){
-	while read X; do
+	while IFS= read X; do
 		printf "%s\n" "$X"
 	done <<-EOF
 		            SEEWTTR - WTTR Look (19th November 2017)
