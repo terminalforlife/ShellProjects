@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Sat 18 Nov 23:33:43 GMT 2017
+" Last Change       - Tue 21 Nov 18:08:59 GMT 2017
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -411,11 +411,13 @@ noremap <silent> <leader>nn :next<CR>
 noremap <silent> <leader>pp :prev<CR>
 
 " Execute current file with...
+noremap <silent> <leader>rwP :w<CR>:!/usr/bin/python %<CR>
 noremap <silent> <leader>rwp :w<CR>:!/usr/bin/python3.5 %<CR>
 noremap <silent> <leader>rwb :w<CR>:!/bin/bash %<CR>
 noremap <silent> <leader>rws :w<CR>:!/bin/sh %<CR>
 
 " Write file and then execute current file with...
+noremap <silent> <leader>rP :!/usr/bin/python %<CR>
 noremap <silent> <leader>rp :!/usr/bin/python3.5 %<CR>
 noremap <silent> <leader>rb :!/bin/bash %<CR>
 noremap <silent> <leader>rs :!/bin/sh %<CR>
