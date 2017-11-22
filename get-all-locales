@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/get-all-locales
 # Started On        - Wed 22 Nov 16:23:38 GMT 2017
-# Last Change       - Wed 22 Nov 16:54:13 GMT 2017
+# Last Change       - Wed 22 Nov 17:01:17 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -29,4 +29,4 @@ PKGS=$(
 	done <<< "$(/usr/bin/apt-cache search "^language-pack")"
 )
 
-/usr/bin/apt-get -s install -qq --show-progress $PKGS
+/usr/bin/apt-get install -qq --show-progress $PKGS
