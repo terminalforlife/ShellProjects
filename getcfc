@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/getcfc
+# Started On        - Thu 23 Nov 14:44:50 GMT 2017
+# Last Change       - Thu 23 Nov 15:13:05 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            GETCFC (23rd November 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Download many classic ISO images contained a bundle of PC games.
+
+		SYNTAX:     getcfc [OPTS] DISC_NUMBER
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		NOTE:       Where DISC_NUMBER is a zero-padded number between 01 and 60. Sadly, -
+		            discs 17 and 47 are missing.
+
+		SITE:       https://archive.org
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+[ "$*" ] || XERR "$LINENO" "Specifiy at least one CD to download."
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required nor recommended."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+DOM="https://archive.org/"
+URL="download/cdrom-classic-fond"
+
+for NUM in {01..16} {18..46} {48..60}; {
+	for SELECTED in $@; {
+		if ! [ "$SELECTED" == $NUM ]; then
+			XERR "$LINENO" "Unable to find ISO number ${SELECTED}."
+			continue 2
+		elif ! [[ "$SELECTED" == [0-9][0-9] ]]; then
+			XERR "$LINENO" "Specified ISO '$SELECTED' is invalid."
+			continue 2
+		fi
+	}
+
+	/usr/bin/wget -qc --show-progress\
+		"$DOM${URL}-${NUM}/ClassicFond${NUM}.iso"
+}
