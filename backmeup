@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun 19 Nov 16:38:41 GMT 2017
+# Last Change       - Thu 23 Nov 18:12:57 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -31,10 +31,9 @@ printf -v STORE "/media/%s/%s" "$USER" "$LABEL"
 
 while read -a X; do
 	if [[ "${X[1]}" =~ "${LABEL// /040}" ]]; then
-		/bin/tar\
-			--exclude="${HOME/\/}/.cache/*"\
+		/bin/tar --xattrs --exclude="${HOME/\/}/.cache/*"\
 			--exclude="${HOME/\/}/.thumbnails/*"\
-			-cvpf --xattrs "$STORE/$ARCHIVE" "$HOME"
+			-cvpf "$STORE/$ARCHIVE" "$HOME"
 
 		/bin/gzip -v --best --suffix ".tgz" "$STORE/$ARCHIVE"
 		/bin/sync "$STORE/$ARCHIVE.tgz"
