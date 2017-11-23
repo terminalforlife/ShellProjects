@@ -3,11 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dcl (dos-cdrom-lib)
 # Started On        - Thu 23 Nov 16:47:50 GMT 2017
-# Last Change       - Thu 23 Nov 22:16:08 GMT 2017
+# Last Change       - Thu 23 Nov 22:24:52 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# Placeholder for upcoming project.
+# Work in progress. An interactive shell program to browse and download files.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -118,20 +118,74 @@ SELECT_OPTION_ONE(){
 				ERR "Invalid option selected." ;;
 		esac
 
-		sleep 0.001
+		sleep 0.01
 	done
 }
 
 SELECT_OPTION_TWO(){
-	/usr/bin/tput clear
+	while :; do
+		/usr/bin/tput clear
 
+		while read -r; do
+			printf "%s\n" "$REPLY"
+		done <<-EOF
+		
+			         ╭ Change Settings ╮
+			         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
+		
+			  Enter a menu option at the prompt.
+		
+			  1) ???
+			  2) Back to the Main Menu
+		
+		EOF
 
+		read -en 1 -p "  ▸ "
+
+		case "$REPLY" in
+			1)
+				;;
+			2)
+				break ;;
+			*)
+				ERR "Invalid option selected." ;;
+		esac
+
+		sleep 0.01
+	done
 }
 
 SELECT_OPTION_THREE(){
-	/usr/bin/tput clear
+	while :; do
+		/usr/bin/tput clear
 
+		while read -r; do
+			printf "%s\n" "$REPLY"
+		done <<-EOF
+		
+			         ╭ Help & Support ╮
+			         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
+		
+			  Enter a menu option at the prompt.
+		
+			  1) ???
+			  2) Back to the Main Menu
+		
+		EOF
 
+		read -en 1 -p "  ▸ "
+
+		case "$REPLY" in
+			1)
+				;;
+			2)
+				break ;;
+			*)
+				ERR "Invalid option selected." ;;
+		esac
+
+		sleep 0.01
+	done
 }
 
 /usr/bin/tput smcup
@@ -173,7 +227,7 @@ while :; do
 			ERR "Invalid option selected." ;;
 	esac
 
-	sleep 0.001
+	sleep 0.01
 done
 
 #------------------------------------------------------------------------------DONE
