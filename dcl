@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dcl (dos-cdrom-lib)
 # Started On        - Thu 23 Nov 16:47:50 GMT 2017
-# Last Change       - Thu 23 Nov 22:24:52 GMT 2017
+# Last Change       - Fri 24 Nov 02:33:59 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ URL="/details/cdromsoftware"
 AND1="?and[]=languageSorter%3A%22English%22"
 AND2="&and[]=mediatype%3A%22software%22"
 AND3="&and[]=subject%3A%22MS-DOS+CD-ROM%22&sort="
-CATLNK="$DOMAIN$URL$AND1$AND2$AND3"
+CATL="$DOMAIN$URL$AND1$AND2$AND3"
 
 PRESS_TO_CONTINUE(){
 	printf "\n  Press any key to continue... "
@@ -86,6 +86,51 @@ ERR(){
 #----------------------------------------------------------------------MENU OPTIONS
 
 SELECT_OPTION_ONE(){
+	SHOW_PAGE(){
+		[ -z "$1" ] && CURRENT_PAGE=1 || CURRENT_PAGE=$1
+
+		if ! [ -f "$CACHEDIR/Page_${1}" ]; then
+			/usr/bin/wget -q "${CATL}&page=$1"\
+				-O "$CACHEDIR/Page_${1}"
+		fi
+
+		while :; do
+			/usr/bin/tput clear
+
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+
+				         ╭ Displaying Page ╮
+				         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
+			
+				  Enter a menu option at the prompt.
+			
+				  1) Go to the Previous Page
+				  2) Go to the Next Page
+				  3) Back to the Last Menu
+
+				  Current Page: $CURRENT_PAGE
+			
+			EOF
+
+			read -en 1 -p "  ▸ "
+
+			case "$REPLY" in
+				1)
+					let CURRENT_PAGE-- ;;
+				2)
+					let CURRENT_PAGE++ ;;
+				3)
+					break ;;
+				*)
+					ERR "Invalid option selected." ;;
+			esac
+
+			/bin/sleep 0.01
+		done
+	}
+
 	while :; do
 		/usr/bin/tput clear
 
@@ -99,13 +144,10 @@ SELECT_OPTION_ONE(){
 			  Enter a menu option at the prompt.
 		
 			  1) Select Page Number
-			  2) Back to the Main Menu
+			  2) Browse Sequentially
+			  3) Back to the Main Menu
 		
 		EOF
-
-		if ! [ -f "$CACHEDIR/P0001" ]; then
-			/usr/bin/wget -q "${CATLNK}&page=1" -O "$CACHEDIR/P0001"
-		fi
 
 		read -en 1 -p "  ▸ "
 
@@ -113,12 +155,14 @@ SELECT_OPTION_ONE(){
 			1)
 				;;
 			2)
+				SHOW_PAGE 1 ;;
+			3)
 				break ;;
 			*)
 				ERR "Invalid option selected." ;;
 		esac
 
-		sleep 0.01
+		/bin/sleep 0.01
 	done
 }
 
@@ -151,7 +195,7 @@ SELECT_OPTION_TWO(){
 				ERR "Invalid option selected." ;;
 		esac
 
-		sleep 0.01
+		/bin/sleep 0.01
 	done
 }
 
@@ -184,7 +228,7 @@ SELECT_OPTION_THREE(){
 				ERR "Invalid option selected." ;;
 		esac
 
-		sleep 0.01
+		/bin/sleep 0.01
 	done
 }
 
@@ -227,7 +271,7 @@ while :; do
 			ERR "Invalid option selected." ;;
 	esac
 
-	sleep 0.01
+	/bin/sleep 0.01
 done
 
 #------------------------------------------------------------------------------DONE
