@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dcl (dos-cdrom-lib)
 # Started On        - Thu 23 Nov 16:47:50 GMT 2017
-# Last Change       - Fri 24 Nov 02:33:59 GMT 2017
+# Last Change       - Fri 24 Nov 03:18:02 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -29,14 +29,16 @@ USAGE(){
 	done <<-EOF
 		            DCL (DOS-CDROM-LIB) (23rd November 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
-		            Description Here
+
+		            Interactively browse and download MS-DOS optical media.
 
 		SYNTAX:     dcl [OPTS]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		NOTE:       Entries are unfortunately not guaranteed to be applicable, per whatever
+		            is available on the website which dcl heavily parses.
 	EOF
 }
 
@@ -46,8 +48,6 @@ while [ -n "$1" ]; do
 			USAGE; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--quiet|-q)
-			BEQUIET="true" ;;
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -57,7 +57,6 @@ done
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
 MAINDIR="$HOME/.config/dcl"
@@ -87,48 +86,22 @@ ERR(){
 
 SELECT_OPTION_ONE(){
 	SHOW_PAGE(){
-		[ -z "$1" ] && CURRENT_PAGE=1 || CURRENT_PAGE=$1
-
 		if ! [ -f "$CACHEDIR/Page_${1}" ]; then
 			/usr/bin/wget -q "${CATL}&page=$1"\
 				-O "$CACHEDIR/Page_${1}"
 		fi
 
-		while :; do
-			/usr/bin/tput clear
+		declare -i COUNT=0
+		while read X; do
+			if [[ "$X" =~ title=\".*\" ]]; then
+				[ $COUNT -eq 10 ] && break || COUNT+=1
+				IFS="\"" read -a Y <<< "$X"
+				printf -v NAME "%s\n" "${Y[3]}"
+				#TODO - Finish this.
+			fi
+		done < "$CACHEDIR/Page_${1}"
 
-			while read -r; do
-				printf "%s\n" "$REPLY"
-			done <<-EOF
-
-				         ╭ Displaying Page ╮
-				         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
-			
-				  Enter a menu option at the prompt.
-			
-				  1) Go to the Previous Page
-				  2) Go to the Next Page
-				  3) Back to the Last Menu
-
-				  Current Page: $CURRENT_PAGE
-			
-			EOF
-
-			read -en 1 -p "  ▸ "
-
-			case "$REPLY" in
-				1)
-					let CURRENT_PAGE-- ;;
-				2)
-					let CURRENT_PAGE++ ;;
-				3)
-					break ;;
-				*)
-					ERR "Invalid option selected." ;;
-			esac
-
-			/bin/sleep 0.01
-		done
+		PRESS_TO_CONTINUE
 	}
 
 	while :; do
@@ -143,9 +116,11 @@ SELECT_OPTION_ONE(){
 		
 			  Enter a menu option at the prompt.
 		
-			  1) Select Page Number
-			  2) Browse Sequentially
-			  3) Back to the Main Menu
+			  1) View Page Number 1
+			  2) View Page Number 2
+			  3) View Page Number 3
+			  4) View Page Number 4
+			  5) Back to the Main Menu
 		
 		EOF
 
@@ -153,10 +128,14 @@ SELECT_OPTION_ONE(){
 
 		case "$REPLY" in
 			1)
-				;;
-			2)
 				SHOW_PAGE 1 ;;
+			2)
+				SHOW_PAGE 2 ;;
 			3)
+				SHOW_PAGE 3 ;;
+			4)
+				SHOW_PAGE 4 ;;
+			5)
 				break ;;
 			*)
 				ERR "Invalid option selected." ;;
