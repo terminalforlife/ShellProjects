@@ -3,13 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Sun  8 Oct 20:11:28 BST 2017
+# Last Change       - Sat 25 Nov 00:14:46 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
 for DEP in /bin/grep /usr/bin/wget; {
@@ -28,9 +28,9 @@ shopt -s extglob
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DL-UBUNTU-PODCASTS (7th October 2017)
+		            DL-UBUNTU-PODCASTS (24th November 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Simple program to download all of the old Ubuntu Podcast episodes.
@@ -41,12 +41,30 @@ USAGE(){
 		            --debug                 - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --dest|-d PATH          - Where PATH is an alternative destination.
+		            --get-season-eight      - Grab the newer episodes from season eight.
+		            --get-season-nine       - Grab the newer episodes from season nine.
+		            --get-season-ten        - Grab the newer episodes from season ten.
 
 		NOTE:       Files will by default be saved in OGG to the current directory.
+
+		            Using one of the extra season flags will download all of the available
+		            podcasts in that given season.
+
+		SITES:      Seasons 1-7:     http://podcast.ubuntu-uk.org
+		            Seasons 8-10:    http://static.ubuntupodcast.org
 	EOF
 }
 
 ALTDEST=""
+
+EXTRA_SEASON(){
+	URL="http://static.ubuntupodcast.org/ubuntupodcast"
+
+	for E in /usr/bin/seq $2 $3; {
+		/usr/bin/wget -qc --show-progress\
+			"$URL/s${1}/e${E}/ubuntupodcast_s${1}e${E}.mp3"
+	}
+}
 
 while [ -n "$1" ]; do
 	case "$1" in
@@ -63,6 +81,12 @@ while [ -n "$1" ]; do
 			[ -d "$ALTDEST" ] || {
 				XERR "Destination directory not found."
 			} ;;
+		--get-season-eight)
+			EXTRA_SEASON 08 01 42 ;;
+		--get-season-nine)
+			EXTRA_SEASON 09 01 44 ;;
+		--get-season-ten)
+			EXTRA_SEASON 10 01 02 ;;
 		*)
 			break ;;
 	esac
@@ -70,21 +94,21 @@ while [ -n "$1" ]; do
 	shift
 done
 
-[ -n "$*" ] && {
+if [ -n "$*" ]; then
 	USERPAGE="true"
 
 	while [ -n "$1" ]; do
-		[[ "$1" == +([0-9]) ]] || {
+		if ! [[ "$1" =~ [0-9]+ ]]; then
 			XERR "$LINENO" "Incorrect page number specified."
-		} && {
+		else
 			[ $1 -eq 2 ] || NUM+=" $1"
-		}
+		fi
 
 		shift
 	done
-} || {
+else
 	NUM=193
-}
+fi
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
@@ -92,11 +116,11 @@ done
 [ "$DEBUGME" == "true" ] && set -xeu
 
 while :; do
-	[ "$USERPAGE" == "true" ] || {
+	if ! [ "$USERPAGE" == "true" ]; then
 		[ $NUM -le 2 ] && break || let NUM--
-	} && {
+	else
 		NUM="${NUM%% *}"
-	}
+	fi
 
 	#TODO - Fix custom pages not working.
 
@@ -104,20 +128,18 @@ while :; do
 	DL_LINK=`echo "$PAGE" | /bin/grep -m 1 -o "http://podcast\.ubuntu-uk\.org/download/.*\.ogg"`
 	OUTNAME=`echo "$PAGE" | /bin/grep -m 1 -o "[Ss][0-9]\+[Ee][0-9]\+\s\+–\s\+[[:space:][:alnum:]]\+"`
 
-	[ -z "$ALTDEST" ] && {
+	if [ -z "$ALTDEST" ]; then
 		echo "NUM:         $NUM"
 		echo "OUTNAME:     $OUTNAME"
 		[ -z "$OUTNAME" ] && break
 		/usr/bin/wget -cq --show-progress\
 			"$DL_LINK" -O "./${OUTNAME}.ogg"
-	} || {
+	else
 		[ -z "$OUTNAME" ] && break
 		/usr/bin/wget -cq --show-progress\
 			"$DL_LINK" -O "${ALTDEST%\/}/${OUTNAME}.ogg"
-	}
+	fi
 
 	[ "$USERPAGE" == "true" ] || NUM="${NUM/* }"
 	[ -z "$NUM" ] && break
 done
-
-[ "$DEBUGME" == "true" ] && set +xeu || exit 0
