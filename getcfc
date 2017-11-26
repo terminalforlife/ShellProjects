@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017
-# Last Change       - Thu 23 Nov 15:13:05 GMT 2017
+# Last Change       - Fri 24 Nov 04:19:07 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            GETCFC (23rd November 2017)
+		            GETCFC (24th November 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Download many classic ISO images contained a bundle of PC games.
@@ -61,17 +61,12 @@ done
 DOM="https://archive.org/"
 URL="download/cdrom-classic-fond"
 
-for NUM in {01..16} {18..46} {48..60}; {
-	for SELECTED in $@; {
-		if ! [ "$SELECTED" == $NUM ]; then
-			XERR "$LINENO" "Unable to find ISO number ${SELECTED}."
-			continue 2
-		elif ! [[ "$SELECTED" == [0-9][0-9] ]]; then
-			XERR "$LINENO" "Specified ISO '$SELECTED' is invalid."
-			continue 2
-		fi
-	}
+for SEL in $@; {
+	if ! [[ "$SEL" == [0-9][0-9] ]]; then
+		ERR "$LINENO" "Specified ISO '$SEL' is invalid."
+		continue
+	fi
 
 	/usr/bin/wget -qc --show-progress\
-		"$DOM${URL}-${NUM}/ClassicFond${NUM}.iso"
+		"$DOM${URL}-${SEL}/ClassicFond${SEL}.iso"
 }
