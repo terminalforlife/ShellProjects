@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Sat 25 Nov 00:14:46 GMT 2017
+# Last Change       - Sat 25 Nov 00:29:34 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ while [ -n "$1" ]; do
 		--get-season-nine)
 			EXTRA_SEASON 09 01 44 ;;
 		--get-season-ten)
-			EXTRA_SEASON 10 01 02 ;;
+			EXTRA_SEASON 10 01 38 ;;
 		*)
 			break ;;
 	esac
