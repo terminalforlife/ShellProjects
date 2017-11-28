@@ -1,0 +1,67 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/dlfcmags
+# Started On        - Tue 28 Nov 00:02:33 GMT 2017
+# Last Change       - Tue 28 Nov 00:25:46 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Download the entire collection of the Full Circle magazine for Ubuntu Linux.
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            DLFCMAGS (28th November 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Download issues of the Full Circle magazine PDFs.
+
+		SYNTAX:     dlfcmags [OPTS] ISSUE1 ISSUE2 ISSUE3 . . .
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		EXAMPLE:    dlfcmags 7
+		            dlfcmags -q {20..76}
+		            dlfcmags 1 8 9 22 {24..27}
+
+		SITE:       https://fullcirclemagazine.org
+
+		NOTE:       There are currently versions 1-127 available.
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+[ "$*" ] || printf -v ISSUE_LIST " %d" {1..127}
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+
+DOMAIN="http://dl.fullcirclemagazine.org"
+DL="/issue127_en.pdf"
+
+for ISSUE in $ISSUE_LIST; {
+	printf -v PRETTY_ISSUE "%0.3d" "$ISSUE"
+	/usr/bin/wget -qc --show-progress "$DOMAIN/issue${ISSUE}_en.pdf"\
+		-O "$PRETTY_ISSUE - Full Circle.pdf"
+}
