@@ -53,7 +53,7 @@ while [ -n "$1" ]; do
 	shift
 done
 
-[ "$*" ] || printf -v ISSUE_LIST " %d" {1..127}
+[ "$*" ] || printf -v ISSUE_LIST " %d" {1..127} && ISSUE_LIST="$@"
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 
