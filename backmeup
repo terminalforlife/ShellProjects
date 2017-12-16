@@ -3,9 +3,16 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Thu 23 Nov 18:12:57 GMT 2017
+# Last Change       - Sat 16 Dec 09:50:25 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# A small, personal-ish tool I use to quickly and easily back up my HOME from a
+# terminal into a (compressed with gzip) tar archive.
+#
+# NOTE: If you use this, keep first in mind that it will exclude your Videos, -
+#       Music, .thumbnails, Downloads, and .cache directories. You must also choose
+#       the label which applies to you, by editing line 20 below.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -33,6 +40,9 @@ while read -a X; do
 	if [[ "${X[1]}" =~ "${LABEL// /040}" ]]; then
 		/bin/tar --xattrs --exclude="${HOME/\/}/.cache/*"\
 			--exclude="${HOME/\/}/.thumbnails/*"\
+			--exclude="${HOME/\/}/Music/*"\
+			--exclude="${HOME/\/}/Videos/*"\
+			--exclude="${HOME/\/}/Downloads/*"\
 			-cvpf "$STORE/$ARCHIVE" "$HOME"
 
 		/bin/gzip -v --best --suffix ".tgz" "$STORE/$ARCHIVE"

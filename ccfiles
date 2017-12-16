@@ -1,0 +1,87 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/ccfiles (Cross-Check Files)
+# Started On        - Wed 13 Dec 13:45:22 GMT 2017
+# Last Change       - Wed 13 Dec 14:29:09 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+if ! [ -x /bin/readlink ]; then
+	XERR "$LINENO" "Dependency '/bin/readlink' not met."
+fi
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            CCFILES (13th December 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Cross-check files installed by dpkg.
+
+		SYNTAX:     ccfiles [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --nopause|-P            - Do not pause upon WARNING discovery.
+		            --nobell|-B             - Do not sound a bell upon WARNING discovery.
+
+		FILES:      /var/lib/dpkg/info/*.list
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--nopause|-N)
+			NOPAUSE="true" ;;
+		--nobell|-B)
+			NOBELL="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+#TODO - Check for Debian/Ubuntu base.
+
+[ -d /var/lib/dpkg/info/ ] || XERR "$LINENO" "Missing required directory."
+
+for FILE in /var/lib/dpkg/info/*.list; {
+	while read -r; do
+		for EXE in /proc/*/exe; {
+			RESOLVED=`/bin/readlink --quiet "$EXE"`
+
+			if ! [ -x "$RESOLVED" ]; then
+				if ! [ "$NOBELL" == "true" ]; then
+					printf "WARNING: %s\n" "$RESOLVED"
+				else
+					printf "\aWARNING: %s\n" "$RESOLVED"
+				fi
+
+				if ! [ "$NOPAUSE" == "true" ]; then
+					read -n 1 -s -p "Press any key to continue... "
+				fi
+			else
+				printf "CHECKING: %s\n" "$RESOLVED"
+			fi
+		}
+	done < "$FILE"
+}
