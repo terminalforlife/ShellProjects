@@ -3,23 +3,28 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ccfiles (Cross-Check Files)
 # Started On        - Wed 13 Dec 13:45:22 GMT 2017
-# Last Change       - Wed 13 Dec 14:29:09 GMT 2017
+# Last Change       - Sat 16 Dec 09:57:29 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# An idea which I'm hoping will successfully turn into a useful yet simple tool.
+#
+# NOTE: The original plan was to have a tool to check the files installed by
+#       packages which use dpkg (or apt/apt-get?), in an attempt to see if any
+#       executables are loaded (via /proc) and thus potentially unwanted, but it
+#       seems to have gone a different direction.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-if ! [ -x /bin/readlink ]; then
-	XERR "$LINENO" "Dependency '/bin/readlink' not met."
-fi
+[ -x /bin/readlink ] || XERR "$LINENO" "Dependency '/bin/readlink' not met."
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            CCFILES (13th December 2017)
+		            CCFILES (16th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Cross-check files installed by dpkg.
