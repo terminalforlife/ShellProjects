@@ -3,9 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - nosp
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Sat 18 Nov 23:36:48 GMT 2017
+# Last Change       - Sun 17 Dec 00:54:12 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# A workaround for the issue in XFCE wherein Smart Placement refuses to go away.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }

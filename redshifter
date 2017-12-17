@@ -3,25 +3,25 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Mon 30 Oct 20:09:17 GMT 2017
+# Last Change       - Sun 17 Dec 00:52:49 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
+# Effective and simple tool to manually adjust the gamma via Redshift.
+#
 # IMPORTANT:
 #
 # This small script assumes you have redshift installed and available. Also assumed
 # is that you'll be using this script via keyboard shortcuts, not terminals.
 #
 # Calling bash to avoid dependencies and to make use of bash syntax.
-
+#
 # OPTS:
 #
 # --increment|-i X           - Increment gamma by X integer.
 # --decrement|-d X           - Decrement gamma by X integer.
 # --reset|-r                 - Reset to the default.
-
-#------------------------------------------------------------------------------MAIN
+#----------------------------------------------------------------------------------
 
 [ $UID -eq 0 ] && exit 1 # No sense in running as root, but remove if desired.
 
