@@ -15,9 +15,9 @@ ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            TOZERO (15th October 2017)
+		            TOZERO (19th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Simple program to display a countdown for a target date.
@@ -51,7 +51,7 @@ USAGE(){
 
 TYPE=""
 
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
@@ -81,6 +81,7 @@ done
 
 TARGET="${DATE:-tomorrow}"
 
+#TODO - This is a mess. Clean it up!
 SECONDS=$(( $(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s) ))
 MINUTES=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 ))
 HOURS=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 / 60 ))
@@ -109,5 +110,3 @@ case "$TYPE" in
 			echo "$I"
 		} ;;
 esac
-
-[ "$DEBUGME" == "true" ] && set +xeu || exit 0
