@@ -21,8 +21,6 @@ for DEP in /usr/bin/{xargs,uniq,sort,wget} /bin/grep; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-shopt -s extglob
-
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
