@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/barred
 # Started On        - Sun 19 Nov 13:56:45 GMT 2017
-# Last Change       - Sun 19 Nov 14:24:23 GMT 2017
+# Last Change       - Tue 19 Dec 12:02:15 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ case "$1" in
 	B75P) printf "\r%s %d%%" "${B[3]%:*}" "${B[3]/*:}" ;;
 	B100) printf "\r%s" "${B[4]%:*}" ;;
 	B100P) printf "\r%s %d%%" "${B[4]%:*}" "${B[4]/*:}" ;;
-	*) echo "SYNTAX: barred B[[0|25|50|75|100]|P]" ;;
+	*) printf "SYNTAX: barred B[[0|25|50|75|100]|P]\n" ;;
 esac
 
-unset BARS ARG
+unset B
