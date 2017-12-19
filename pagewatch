@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Thu 19 Oct 15:54:20 BST 2017
+# Last Change       - Tue 19 Dec 12:08:49 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ USAGE(){
 	while read -r; do
 		echo "$REPLY"
 	done <<-EOF
-		            PAGEWATCH (19th October 2017)
+		            PAGEWATCH (19th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Watch a webpage for signs of change by checkings its md5sum.
@@ -92,7 +92,7 @@ COMMANDS="$@"
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
-BUFFER="/tmp/pagewatch_`printf '%(%F_%X)T'`.md5"
+printf -v BUFFER "/tmp/pagewatch_%(%F_%X)T.md5" "-1"
 [ -d /tmp ] || XERR "$LINENO" "Directory /tmp is missing or inaccessible."
 
 /usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER" 2> /dev/null
@@ -111,5 +111,3 @@ while :; do
 
 	/bin/sleep "${INTERVAL:-1m}"
 done
-
-[ "$DEBUGME" == "true" ] && set +xeu || exit 0
