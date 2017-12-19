@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Sat 25 Nov 00:29:34 GMT 2017
+# Last Change       - Tue 19 Dec 12:28:53 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -21,8 +21,6 @@ for DEP in /bin/grep /usr/bin/wget; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-shopt -s extglob
-
 #TODO - Currently won't download S01E01.
 #TODO - IMPORTANT: Fix filenames; they're a mess. :(
 
@@ -30,7 +28,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DL-UBUNTU-PODCASTS (24th November 2017)
+		            DL-UBUNTU-PODCASTS (19th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Simple program to download all of the old Ubuntu Podcast episodes.
@@ -125,12 +123,12 @@ while :; do
 	#TODO - Fix custom pages not working.
 
 	PAGE=`/usr/bin/wget -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
-	DL_LINK=`echo "$PAGE" | /bin/grep -m 1 -o "http://podcast\.ubuntu-uk\.org/download/.*\.ogg"`
-	OUTNAME=`echo "$PAGE" | /bin/grep -m 1 -o "[Ss][0-9]\+[Ee][0-9]\+\s\+–\s\+[[:space:][:alnum:]]\+"`
+	DL_LINK=`printf "%s\n" "$PAGE" | /bin/grep -m 1 -o "http://podcast\.ubuntu-uk\.org/download/.*\.ogg"`
+	OUTNAME=`printf "%s\n" "$PAGE" | /bin/grep -m 1 -o "[Ss][0-9]\+[Ee][0-9]\+\s\+–\s\+[[:space:][:alnum:]]\+"`
 
 	if [ -z "$ALTDEST" ]; then
-		echo "NUM:         $NUM"
-		echo "OUTNAME:     $OUTNAME"
+		printf "NUM:         %s\n" "$NUM"
+		printf "OUTNAME:     %s\n" "$OUTNAME"
 		[ -z "$OUTNAME" ] && break
 		/usr/bin/wget -cq --show-progress\
 			"$DL_LINK" -O "./${OUTNAME}.ogg"
