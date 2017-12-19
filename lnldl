@@ -3,18 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/lnldl
 # Started On        - Fri  6 Oct 00:23:23 BST 2017
-# Last Change       - Fri  6 Oct 00:25:43 BST 2017
+# Last Change       - Tue 19 Dec 12:17:00 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # Quickly and easily download Late Night Linux podcasts.
+#----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+XERR(){ printf "ERROR: %s\n" "$2" 1>&2; exit 1; }
+ERR(){ printf "ERROR: %s\n" "$2" 1>&2; }
 
 DEPCOUNT=0
-for DEP in /usr/bin/id /usr/bin/seq /usr/bin/wget; {
+for DEP in /usr/bin/id /usr/bin/wget; {
 	[ -x "$DEP" ] || {
 		ERR "Dependency '$DEP' not met."
 		DEPCOUNT=$(( DEPCOUNT + 1 ))
@@ -23,13 +23,19 @@ for DEP in /usr/bin/id /usr/bin/seq /usr/bin/wget; {
 
 [ $DEPCOUNT -gt 0 ] && exit 1
 
-[ `/usr/bin/id -u` -eq 0 ] && XERR "Don't run as root."
+[ `/usr/bin/id -u` -eq 0 ] && XERR "Root access is not required."
 
 LINK="http://podtrac.com/pts/redirect.mp3/latenightlinux.com/media"
 
-for OGG in `/usr/bin/seq -w 1 21`; {
-	/usr/bin/wget --continue --quiet --show-progress\
-		"$LINK/LNL${OGG}.ogg" -O ./Episode_${OGG}.ogg || {
-		XERR "Non-zero exit status: $OGG"
-	}
-}
+COUNT=1
+until [ $COUNT -eq 21 ]; do
+	[ "$COUNT" -lt 10 ] && PADCOUNT="0${COUNT}"
+
+	if ! /usr/bin/wget --continue --quiet --show-progress\
+		"$LINK/LNL${PADCOUNT}.ogg" -O ./Episode_${PADCOUNT}.ogg
+	then
+		ERR "Non-zero exit status for podcast #${PADCOUNT}."
+	fi
+
+	COUNT=$((COUNT+1))
+done
