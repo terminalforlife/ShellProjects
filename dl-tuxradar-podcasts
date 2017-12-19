@@ -3,13 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dl-tuxradar-podcasts
 # Started On        - Mon  9 Oct 19:08:27 BST 2017
-# Last Change       - Mon  9 Oct 19:36:30 BST 2017
+# Last Change       - Tue 19 Dec 12:04:18 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/{xargs,uniq,sort,wget} /bin/grep; {
@@ -25,9 +25,9 @@ shopt -s extglob
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DL-TUXRADAR-PODCASTS (9th October 2017)
+		            DL-TUXRADAR-PODCASTS (19th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Small shell program to download the TuxRadar podcasts.
@@ -44,7 +44,7 @@ USAGE(){
 	EOF
 }
 
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
@@ -79,5 +79,3 @@ for EPISODE in `EPISODE_LIST`; {
 		| /usr/bin/uniq\
 		| /usr/bin/xargs -I{} /usr/bin/wget -qc --show-progress ${DOM}"{}"
 }
-
-[ "$DEBUGME" == "true" ] && set +xeu || exit 0
