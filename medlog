@@ -1,24 +1,22 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - medlog
+# Project Name      - miscellaneous/medlog
 # Started On        - Fri 18 Nov ??:??:?? BST 2016
-# Last Change       - Tue 10 Oct 23:13:39 BST 2017
+# Last Change       - Thu 21 Dec 10:13:44 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # Need help taking and logging when you've had your medication? Me too. That's why
 # I wrote this ages ago. It was my first "big" project; quite proud of it, even if
 # it's quite simple and I could certainly do a better job of it now. Hope it helps.
-
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{xmessage,paplay,cut,tr,tail,notify-send} /bin/mkdir; {
+for DEP in /usr/bin/{xmessage,paplay,notify-send} /bin/mkdir; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -36,19 +34,18 @@ LOGFILE="$MAINDIR/medlog.log"
 [ -w "$LOGFILE" ] || XERR "$LINENO" "File '${LOGFILE//*\/}' has no write access."
 NOTIFILE="$MAINDIR/notify.ogg"
 
-LAST_LOG=$(
-	/usr/bin/tail -n 1 "$LOGFILE"\
-		| /usr/bin/tr -s " "\
-		| /usr/bin/cut -d " " -f 1-3
-)
+#TODO - Is there a more efficient way to do this? (pure-shell)
+while read -a X; do
+	printf -v LAST_LOG "%s\n" "${X[0]}"
+done < "$LOGFILE"
 
-TODAY_DATE=`printf '%(%a %d %b)T'`
+printf -v TODAY_DATE "%(%F (%X))T" "-1"
 MSG="Medication taken today, $USER?"
 MSG_NO="Take medication, then reload medlog."
 
-[ "${TODAY_DATE// /}" == "${LAST_LOG// /}" ] && {
+if [ "${TODAY_DATE%/*}" == "${LAST_LOG%/*}" ]; then
 	/usr/bin/notify-send "Medication already taken today."
-} || {
+else
 	/usr/bin/paplay "$NOTIFILE"
 	
 	ANSWER=$(/usr/bin/xmessage -buttons yes,no -center "$MSG" -print)
@@ -58,6 +55,6 @@ MSG_NO="Take medication, then reload medlog."
 			/usr/bin/notify-send "$MSG_NO"
 			exit 1 ;;
 		yes)
-			/bin/date "+%a %d %b %X %Z %Y" >> "$LOGFILE" ;;
+			printf "%(%F (%X))T\n" "-1" >> "$LOGFILE" ;;
 	esac
-}
+fi
