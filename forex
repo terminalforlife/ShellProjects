@@ -3,75 +3,96 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Sun 15 Oct 22:53:47 BST 2017
+# Last Change       - Thu 21 Dec 11:22:48 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # NOTE: This is mostly a placeholder, at the moment. Unfinished.
-
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-declare -i DEPCOUNT=0
-for DEP in PATH; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
-
-shopt -s extglob
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FOREX (15th October 2017)
+		            FOREX (21th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Quick and easy way to convert currency values.
 
-		SYNTAX:     example [OPTS] SOURCE TARGET
+		SYNTAX:     forex [OPTS] SOURCE AMOUNT TARGET
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		EXAMPLE:    $ forex GBP 5 USD
+		            0.7471
 
 		SITE:       https://www.foreignexchange.org.uk
 	EOF
 }
 
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--quiet|-q)
-			BEQUIET="true" ;;
-		*)
+		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
 	esac
 
 	shift
 done
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+SOURCE="$1"
+AMOUNT="$2"
+TARGET="$3"
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
-SITE="https://www.foreignexchange.org.uk/fx-rates/conversion/1200/DKK/GBP"
-#                                                              |   |   |
-#                                        Amount to Convert ----+   |   |
-#                                                                  |   |
-#                                          Source Currency --------+   |
-#                                                                      |
-#                                          Target Currency ------------+
+# Curent and historical currency abbreviations. Taken from: http://www.xe.com
+declare -a VALID=(
+	USD EUR GBP INR AUD CAD SGD CHF MYR JPY CNY NZD THB HUF AED HKD MXN ZAR PHP
+	SEK IDR SAR BRL TRY KES KRW EGP IQD NOK KWD RUB DKK PKR ILS PLN QAR XAU OMR
+	COP CLP TWD ARS CZK VND MAD JOD BHD XOF LKR UAH NGN TND UGX RON BDT PEN GEL
+	XAF FJD VEF BYN HRK UZS BGN DZD IRR DOP ISK XAG CRC SYP LYD JMD MUR GHS AOA
+	UYU AFN LBP XPF TTD TZS ALL XCD GTQ NPR BOB ZWD BBD CUC LAK BND BWP HNL PYG
+	ETB NAD PGK SDG MOP NIO BMD KZT PAB BAM GYD YER MGA KYD MZN RSD SCR AMD SBD
+	AZN SLL TOP BZD MWK GMD BIF SOS HTG GNF MVR MNT CDF STD TJS KPW MMK LSL LRD
+	KGS GIP XPT MDL CUP KHR MKD VUV MRO ANG SZL CVE SRD XPD SVC BSD XDR RWF AWG
+	DJF BTN KMF WST SPL ERN FKP SHP JEP TMT TVD IMP GGP ZMW
+)
 
-[ "$DEBUGME" == "true" ] && set +xeu || exit 0
+for TYPE in ${VALID[@]}; {
+	[ "$TYPE" == "$SOURCE" ] && SOURCE_YES="true"
+	[ "$TYPE" == "$TARGET" ] && TARGET_YES="true"
+}
+
+if ! [ "$SOURCE_YES" == "true" ]; then
+	XERR "$LINENO" "Currency SOURCE '$SOURCE' not recognised."
+elif ! [ "$TARGET_YES" == "true" ]; then
+	XERR "$LINENO" "Currency TARGET '$TARGET' not recognised."
+fi
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+DOM="https://www.foreignexchange.org.uk"
+SITE="$DOM/fx-rates/conversion/$AMOUNT/$SOURCE/$TARGET"
+
+while read -a X; do
+	if [[ "${X[*]}" =~ name=\"answer\" ]]; then
+		RESULT="${X[3]//[!0-9.]}"
+	fi
+done <<< "$(/usr/bin/wget -q "$SITE" -O -)"
+
+if [[ "$RESULT" =~ ^[0-9.]+$ ]]; then
+	printf "%.4f\n" "$RESULT"
+else
+	XERR "$LINENO" "Unable to determine the correct result."
+fi
