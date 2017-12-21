@@ -3,11 +3,9 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Thu 21 Dec 11:25:11 GMT 2017
+# Last Change       - Thu 21 Dec 11:29:58 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# NOTE: This is mostly a placeholder, at the moment. Unfinished.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -21,7 +19,7 @@ USAGE(){
 		            FOREX (21th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Quick and easy way to convert currency values.
+		            Easily convert various currency rates straight from the terminal.
 
 		SYNTAX:     forex [OPTS] SOURCE AMOUNT TARGET
 
