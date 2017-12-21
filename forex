@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Thu 21 Dec 11:22:48 GMT 2017
+# Last Change       - Thu 21 Dec 11:25:11 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,6 +27,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
+		            --rounded|-R            - Do not display as a floating point.
 
 		EXAMPLE:    $ forex GBP 5 USD
 		            0.7471
@@ -41,6 +42,8 @@ while [ "$1" ]; do
 			USAGE; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
+		--rounded|-R)
+			ROUNDED="true" ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -92,7 +95,11 @@ while read -a X; do
 done <<< "$(/usr/bin/wget -q "$SITE" -O -)"
 
 if [[ "$RESULT" =~ ^[0-9.]+$ ]]; then
-	printf "%.4f\n" "$RESULT"
+	if [ "$ROUNDED" == "true" ]; then
+		printf "%s\n" "${RESULT%.*}"
+	else
+		printf "%.4f\n" "$RESULT"
+	fi
 else
 	XERR "$LINENO" "Unable to determine the correct result."
 fi
