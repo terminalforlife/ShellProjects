@@ -3,25 +3,23 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Tue 26 Dec 20:36:55 GMT 2017
+# Last Change       - Tue 26 Dec 22:19:36 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # A small, personal-ish tool I use to quickly and easily back up my HOME from a
 # terminal into a (compressed with gzip) tar archive.
 #
-# NOTE: If you use this, keep first in mind that it will exclude your Videos, -
-#       Music, .thumbnails, Downloads, and .cache directories. You must also choose
-#       the LABEL variable declared within the one of the below printf commands.
-#
-#       This also assumes you're mounting the filesystem to: /media/$USER/$LABEL
+# NOTE: I'm currently in the process of converting this tool to one aimed at a
+#       general user, rather than more just myself. As it stands, this isn't
+#       user-friendly or especially rich in features.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /bin/{gzip,tar,mv,sync}; {
+for DEP in /bin/{gzip,tar,sync,mkdir}; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -30,25 +28,122 @@ for DEP in /bin/{gzip,tar,mv,sync}; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
-[ $# -eq 0 ] || XERR "$LINENO" "No arguments are required."
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            BACKMEUP (26th December 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            A simple tool to quickly and easily back up your HOME.
+
+		SYNTAX:     backmeup [OPTS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		FILE:       User settings saved in and read from: \$HOME/.backmeup/settings
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+MAIN_DIR="$HOME/.backmeup"
+SETTINGS="$MAIN_DIR/settings"
+
 [ -e /proc/mounts ] || XERR "$LINENO" "Unable to find file: /proc/mounts"
+[ -d "$MAIN_DIR" ] || /bin/mkdir "$MAIN_DIR"
 
-printf -v LABEL "1TB Internal HDD"
-printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
-printf -v STORE "/media/%s/%s" "$USER" "$LABEL"
+if ! [ -f "$SETTINGS" ]; then
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
 
+		Before you can continue, you must first enter some information, which will be saved
+		in ~/.backmeup/settings; this is to ensure the correct operation of backmeup.
+
+	EOF
+
+	read -ep "What is the label of the partition to which your archives will be saved? " LABEL
+	[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: LABEL"
+
+	read -ep "Now enter the mountpoint of the aforementioned partition: " STORE
+	[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: STORE"
+
+	read -n 1 -e -p "Will you proceed with the provided settings? " YN
+	[[ "$YN" =~ [Nn] ]] && { printf "\nSettings creation cancelled - Quitting."; exit 2; }
+
+	printf "\n"
+	printf -v DATETIME "%(%F_%H%M)T" "-1"
+
+	{
+		while read -r; do
+			printf "%s\n" "$REPLY"
+		done <<-EOF
+			# User settings file for and parsed by backmeup.
+			# Created:   $DATETIME
+			# User:      $USER
+			# UID:       $UID
+
+			LABEL="$LABEL"
+			STORE="${STORE%/$LABEL}/$LABEL"
+
+			EXCLUDE="$HOME/.cache/*"
+			EXCLUDE="$HOME/.thumbnails/*"
+		EOF
+	} > "$SETTINGS"
+elif ! [ -r "$SETTINGS" ]; then
+	XERR "$LINENO" "Unable to access: $SETTINGS"
+fi
+
+declare -i LINE=0
 while read -a X; do
-	if [[ "${X[1]}" =~ "${LABEL// /040}" ]]; then
-		/bin/tar --xattrs --exclude="${HOME/\/}/.cache/*"\
-			--exclude="${HOME/\/}/.thumbnails/*"\
-			--exclude="${HOME/\/}/Music/*"\
-			--exclude="${HOME/\/}/Videos/*"\
-			--exclude="${HOME/\/}/Downloads/*"\
-			-cvpf "$STORE/$ARCHIVE" "$HOME"
+	LINE+=1
 
-		/bin/gzip -v --best --suffix ".tgz" "$STORE/$ARCHIVE"
-		/bin/sync "$STORE/$ARCHIVE.tgz"
+	[ "${X[0]:0:1}" == "#" ] && continue
+	IFS="=" read -a Y <<< "${X[@]}"
+
+	case "${Y[0]:-EMPTY}" in
+		LABEL)
+			LABEL="${Y[1]//\"}" ;;
+		STORE)
+			STORE="${Y[1]//\"}" ;;
+		EXCLUDE)
+			EXCLUDE+=" --exclude=\"${Y[1]//\"}\"" ;;
+		EMPTY)
+			;;
+		*)
+			XERR "$LINENO" "Invalid parameter '${Y[0]}' on line #$LINE." ;;
+	esac
+done < "$SETTINGS"
+
+printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
+
+declare -i SECONDS=0
+while read -a X; do
+	if [ "${X[1]}" == ${STORE// /040} ]; then
+		/bin/tar --xattrs $EXCLUDE -cvpf "${STORE%/}/$ARCHIVE" "$HOME"
+		/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE"
+		/bin/sync "${STORE%/}/$ARCHIVE.tgz"
+
+		printf "Backup created in %d seconds.\n" "$SECONDS"
 		exit 0
 	fi
 done < /proc/mounts
