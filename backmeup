@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sat 16 Dec 09:50:25 GMT 2017
+# Last Change       - Tue 26 Dec 20:36:55 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,7 +12,9 @@
 #
 # NOTE: If you use this, keep first in mind that it will exclude your Videos, -
 #       Music, .thumbnails, Downloads, and .cache directories. You must also choose
-#       the label which applies to you, by editing line 20 below.
+#       the LABEL variable declared within the one of the below printf commands.
+#
+#       This also assumes you're mounting the filesystem to: /media/$USER/$LABEL
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
