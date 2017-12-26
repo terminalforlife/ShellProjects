@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Tue 26 Dec 22:43:01 GMT 2017
+# Last Change       - Tue 26 Dec 23:16:32 GMT 2017
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -111,8 +111,8 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 			LABEL="$LABEL"
 			STORE="${STORE%/$LABEL}/$LABEL"
 
-			EXCLUDE="$HOME/.cache/*"
-			EXCLUDE="$HOME/.thumbnails/*"
+			EXCLUDE="${HOME/\/}/.cache"
+			EXCLUDE="${HOME/\/}/.thumbnails"
 		EOF
 	} > "$SETTINGS"
 
@@ -135,7 +135,7 @@ while read -a X; do
 		STORE)
 			STORE="${Y[1]//\"}" ;;
 		EXCLUDE)
-			EXCLUDE+=" --exclude=\"${Y[1]//\"}\"" ;;
+			EXCLUDE+=" --exclude=${Y[1]%/}" ;;
 		EMPTY)
 			;;
 		*)
@@ -145,9 +145,13 @@ done < "$SETTINGS"
 
 printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
 
+#echo /bin/tar --xattrs $EXCLUDE -cvpf "${STORE%/}/$ARCHIVE" "$HOME"
+#exit
+
 declare -i SECONDS=0
 while read -a X; do
 	if [[ "${X[1]}" =~ "${LABEL// /040}" ]]; then
+		#TODO - Why aren't exclusions working as they should?
 		/bin/tar --xattrs $EXCLUDE -cvpf "${STORE%/}/$ARCHIVE" "$HOME"
 		/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE"
 		/bin/sync "${STORE%/}/$ARCHIVE.tgz"
