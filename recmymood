@@ -1,0 +1,75 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/gemymood
+# Started On        - Thu 28 Dec 12:20:40 GMT 2017
+# Last Change       - Fri 29 Dec 14:01:41 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            RECMYMOOD (29th December 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		SYNTAX:     recmymood [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+	EOF
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+while read -r; do
+	printf "%s\n" "$REPLY"
+done <<-EOF
+	How are you feeling today?
+
+	10 + really good    :D
+	 9 |
+	 8 |
+	 7 |
+	 6 |
+	 5 + okay           :|
+	 4 |
+	 3 |
+	 2 |
+	 1 |
+	 0 + really bad     :(
+
+	Enter a number which fits your mood for today. You can use a decimal point.
+	If you use a decimal point, be sure to go up to .9 and no higher. For
+	example, you could enter 7.8 or just 4 as a mood rating.
+
+EOF
+
+read -e -p "MOOD: " GETMOOD
+
+if ! [[ "$GETMOOD" == @(+([0-9])|+([0-9].[0-9])) ]]; then
+	printf "%(%F_%X)T %s\n" "$GETMOOD" >> $HOME/recmymood.log
+fi
