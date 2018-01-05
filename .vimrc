@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Tue 21 Nov 18:08:59 GMT 2017
+" Last Change       - Fri  5 Jan 10:20:19 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -288,6 +288,13 @@ func! LastChange()
 	exe "normal! mcgg/^[#/\"]\\+ Last Change\<CR>f-c$- \<Esc>:r!date\<CR>i\<c-h>\<Esc>`c"
 endfunc
 
+" Function to insert just the XERR and ERR functions into a shell script.
+func! Err()
+	exe "normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
+	exe "normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>"
+endfunc
+
+
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
 func! Setup()
 	exe "normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
@@ -300,14 +307,12 @@ func! Setup()
 	exe "normal! 0i\<Tab>\<Tab>DEPCOUNT+=1\<CR>\<Tab>}\<CR>}\<CR>\<CR>"
 	exe "normal! 0i[ $DEPCOUNT -eq 0 ] || exit 1\<CR>\<CR>"
 
-	exe "normal! 0ishopt -s extglob\<CR>\<CR>"
-
 	exe "normal! 0iUSAGE(){\<CR>\<Tab>while read -r; do\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>echo \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>printf \"%s\\n\" \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            EXAMPLE (5th October 2017)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            Written by terminalforlife (terminalforlife@yahoo.com)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            Description Here\<CR>\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>            Dummy description for this template.\<CR>\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>SYNTAX:     example [OPTS]\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>OPTS:       --help|-h|-?            - Displays this help information.\<CR>"
@@ -315,7 +320,7 @@ func! Setup()
 	exe "normal! 0i\<Tab>\<Tab>            --quiet|-q              - Runs in quiet mode. Errors still output.\<CR>"
 	exe "normal! 0i\<Tab>EOF\<CR>}\<CR>\<CR>"
 
-	exe "normal! 0iwhile [ -n \"$1\" ]; do\<CR>\<Tab>case \"$1\" in\<CR>"
+	exe "normal! 0iwhile [ \"$1\" ]; do\<CR>\<Tab>case \"$1\" in\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--help|-h|-\\?)\<CR>\<Tab>\<Tab>\<Tab>USAGE; exit 0 ;;\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--debug|-D)\<CR>\<Tab>\<Tab>\<Tab>DEBUGME=\"true\" ;;\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>--quiet|-q)\<CR>\<Tab>\<Tab>\<Tab>BEQUIET=\"true\" ;;\<CR>"
@@ -326,8 +331,7 @@ func! Setup()
 
 	exe "normal! 0i[ \"$BEQUIET\" == \"true\" ] && exec 1> /dev/null\<CR>"
 
-	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -xeu\<CR>\<CR>\<CR>\<CR>"
-	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set +xeu || exit 0\<Esc>kk"
+	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -xeu\<CR>\<CR>"
 endfunc
 
 " Enable syntax highlighting.
@@ -381,6 +385,9 @@ noremap <silent> <leader>save :call LastChange()<CR>
 
 " Adds a lot of nice shell (bash) code in preperation.
 noremap <silent> <leader>setup :call Setup()<CR>
+
+" Add just the XERR and ERR functions.
+noremap <silent> <leader>err :call Err()<CR>
 
 " Enter hashbangs on the first line.
 noremap <silent> <leader>bash :call HashBang()<CR>
