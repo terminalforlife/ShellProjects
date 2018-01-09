@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - nosp
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Sun 17 Dec 00:54:12 GMT 2017
+# Last Change       - Tue  9 Jan 18:53:07 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ for DEP in /usr/bin/xfconf-query /bin/sleep; {
 LOCAL_XML_FILE="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
 CURRENT_VALUE=`/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
 
-[ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ] && {
+if [ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ]; then
 	# This command group waits, sets value to 90, waits, then sets back to 100.
 	{
 		/bin/sleep 3s
@@ -37,4 +37,6 @@ CURRENT_VALUE=`/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -t int
 		/bin/sleep 0.3 # Removing wait time results in this fix not working.
 		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
 	} &
-} || XERR "$LINENO" "Unable to fix Smart Placement."
+else
+	XERR "$LINENO" "Unable to fix Smart Placement."
+fi
