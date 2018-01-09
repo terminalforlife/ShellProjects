@@ -3,13 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rssg (RSS Guardian)
 # Started On        - Sun 22 Oct 23:18:41 BST 2017
-# Last Change       - Mon 23 Oct 01:25:25 BST 2017
+# Last Change       - Tue  9 Jan 18:57:34 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # This is a work in progress. Not ready to be used!
-
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -25,13 +23,11 @@ for DEP in /usr/bin/wget /bin/sed; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-shopt -s extglob
-
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            RSSG - RSS Guardian (22nd October 2017)
+		            RSSG - RSS Guardian (9nd January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Read RSS titles and follow their links from The Guardian.
@@ -75,7 +71,5 @@ TL_LIST=$(
 )
 
 for ITEM in `printf "%q\n" "${TL_LIST// /%20}"`; {
-	
+	:
 }
-
-[ "$DEBUGME" == "true" ] && set +xeu || exit 0
