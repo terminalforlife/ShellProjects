@@ -3,13 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Sun 17 Dec 00:50:56 GMT 2017
+# Last Change       - Tue  9 Jan 19:02:28 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # My mocp settings. Simple script to allow me to quickly load mocp how I like.
-
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -21,7 +19,7 @@ USAGE(){
 	while read -r X; do
 		printf "%s\n" "$X"
 	done <<-EOF
-		            MPLAY (22nd November 2017)
+		            MPLAY (9th January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Simple script to allow me to quickly load mocp how I like.
@@ -68,7 +66,7 @@ COMMAND="/bin/bash $HOME/.i3a/track_notify"
 [ -d $THEMEDIR ] || XERR "$LINENO" "Theme directory not found."
 [ -f "$THEMEDIR/${THEME:-red_theme}" ] || XERR "$LINENO" "Theme file not found."
 
-[ -x /usr/bin/mocp -a -x /sbin/alsa ] && {
+if [ -x /usr/bin/mocp -a -x /sbin/alsa ]; then
 	/usr/bin/mocp -T $THEMEDIR/${THEME:-red_theme}   \
 		-O ShowFormat=yes                        \
 		-O ShowTime=no                           \
@@ -92,4 +90,6 @@ COMMAND="/bin/bash $HOME/.i3a/track_notify"
 		-O Prebuffering=256                      \
 		"${1:-$HOME/Music}"                      \
 	|| XERR "$LINENO" "Unable to start the MOC player."
-} || XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
+else
+	XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
+fi
