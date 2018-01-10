@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/get-all-locales
 # Started On        - Wed 22 Nov 16:23:38 GMT 2017
-# Last Change       - Wed 22 Nov 17:01:17 GMT 2017
+# Last Change       - Wed 10 Jan 21:00:25 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,14 +17,11 @@ PKGS=$(
 	while read -a X; do
 		for C in\
 		\
-			ast b{g,s} c{a,s} d{a,e} e{l,n,s,u}\
-			f{i,r} g{d,l} h{e,r,u} i{d,t} ja ko\
-			l{t,v} ms n{b,l} oc p{a,l,t} r{o,u}\
+			ast b{g,s} c{a,s} d{a,e} e{l,n,s,u} f{i,r} g{d,l} h{e,r,u}\
+			i{d,t} ja ko\h l{t,v} ms n{b,l} oc p{a,l,t} r{o,u}\
 			s{k,l,r,v} tr u{g,k}
 		{
-			if [ "${X[0]}" == "language-pack-$C" ]; then
-				printf "${X[0]} "
-			fi
+			[ "${X[0]}" == "language-pack-$C" ] && printf "${X[0]} "
 		}
 	done <<< "$(/usr/bin/apt-cache search "^language-pack")"
 )
