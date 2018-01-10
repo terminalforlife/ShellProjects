@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/ShellPlugins/Clean_Unused_Locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Wed  1 Nov 12:15:31 GMT 2017
+# Last Change       - Wed 10 Jan 20:54:41 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,9 +13,9 @@ ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            CLEAN-LOCALES (1st November 2017)
+		            CLEAN-LOCALES (10st January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Remove some unnecessary non-English localizations.
@@ -34,7 +34,7 @@ USAGE(){
 	EOF
 }
 
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
@@ -63,13 +63,13 @@ if [ -x /bin/rm ]; then
 
 			if [ -e /dev/null ]; then
 				/bin/rm -rf "$DIR" &> /dev/null && {
-					echo "[OK]"
-				} || echo "[ERROR]"
+					printf "[OK]\n"
+				} || printf "[ERROR]\n"
 			else
 				XERR "$LINENO" "Unable to find: /dev/null"
 			fi
 		else
-			echo "SKIPPING: $DIR"
+			printf "SKIPPING: %s\n" "$DIR"
 		fi
 	}
 else
