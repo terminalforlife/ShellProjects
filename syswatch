@@ -3,13 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/syswatch
 # Started On        - Thu  9 Nov 14:33:34 GMT 2017
-# Last Change       - Tue  9 Jan 15:28:21 GMT 2018
+# Last Change       - Wed 10 Jan 20:51:18 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # This is a somewhat rudimentary script to watch for and notify when a device is
 # connected, disconnected, or mounted. Sadly no unmount notifications, yet. Run
-# this at startup. It works a bit like a daemon.
+# this at startup. It works a bit like a daemon. Also notifies when the "link" is
+# up or down, which can be useful for troubleshooting.
 #
 # Wrote this specifically for use with dunst.
 #----------------------------------------------------------------------------------
@@ -23,9 +24,9 @@ for DEP in /bin/{dmesg,grep,sleep} /usr/bin/{tail,notify-send}; {
 while :; do
 	LAST(){
 		# Not using pure-shell approach here, due to performance issues.
-		/bin/dmesg -tl 6\
-			| /bin/grep -E "(link (down|up)$|mount|unmount|disconnect|detected)"\
-			| /usr/bin/tail -n 1
+		#TODO - The mount and unmount notifications aren't showing.
+		ERE='(link (down|up)$|mount|unmount|disconnect|detected)'
+		/bin/dmesg -tl 6 | /bin/grep -E "$ERE" | /usr/bin/tail -n 1
 	}
 
 	if ! [ "$(LAST)" == "$LAST_BUFFER" ]; then
