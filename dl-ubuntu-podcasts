@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Tue 19 Dec 12:28:53 GMT 2017
+# Last Change       - Wed 10 Jan 21:33:33 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /bin/grep /usr/bin/wget; {
+for DEP in /bin/grep /usr/bin/{wget,seq}; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -58,7 +58,8 @@ ALTDEST=""
 EXTRA_SEASON(){
 	URL="http://static.ubuntupodcast.org/ubuntupodcast"
 
-	for E in /usr/bin/seq $2 $3; {
+	#TODO - Use eval with brace expansion to avoid needing seq.
+	for E in `/usr/bin/seq $2 $3`; {
 		/usr/bin/wget -qc --show-progress\
 			"$URL/s${1}/e${E}/ubuntupodcast_s${1}e${E}.mp3"
 	}
@@ -123,6 +124,8 @@ while :; do
 	#TODO - Fix custom pages not working.
 
 	PAGE=`/usr/bin/wget -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
+
+	#TODO - These two could be done with a pure-shell approach?
 	DL_LINK=`printf "%s\n" "$PAGE" | /bin/grep -m 1 -o "http://podcast\.ubuntu-uk\.org/download/.*\.ogg"`
 	OUTNAME=`printf "%s\n" "$PAGE" | /bin/grep -m 1 -o "[Ss][0-9]\+[Ee][0-9]\+\s\+–\s\+[[:space:][:alnum:]]\+"`
 
