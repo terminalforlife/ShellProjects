@@ -3,9 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/unpack
 # Started On        - Wed  8 Nov 15:41:30 GMT 2017
-# Last Change       - Wed  8 Nov 17:51:26 GMT 2017
+# Last Change       - Wed 10 Jan 14:11:43 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This is functional, but buggy as it is a work in progress. The idea here is to
+# rewrite the oft-seen function similar to this, but more reliable. The issue with
+# the usual one, is that the file name isn't reliable, whereas the mime info is.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
