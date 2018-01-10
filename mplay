@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Wed 10 Jan 21:52:35 GMT 2018
+# Last Change       - Wed 10 Jan 21:57:10 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -28,6 +28,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --theme-path|-T         - Set a custom theme directory path.
+		            --notify|-N             - Send track info notifications.
 
 		NOTE:       Where PATH is the location in which music is found.
 	EOF
@@ -46,6 +47,8 @@ while [ -n "$1" ]; do
 			if ! [ -d "$THEMEDIR" ]; then
 				XERR "$LINENO" "Theme directory not found."
 			fi ;;
+		--notify|-N)
+			NOTIFY="true" ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -59,12 +62,13 @@ if [ -n "$1" ]; then
 	[ -d "$1" ] || XERR "$LINENO" "Unable to find the given music directory."
 fi
 
-# Does nothing. For use if you're not using the below COMMAND.
-COMMAND=":"
-
-# This uses a small script from my i3config repository; you can use that even if
-# you don't use i3-wm! Just point this path to the script, whereever you want it.
-#COMMAND="/bin/bash $HOME/.i3a/track_notify"
+if [ "$NOTIFY" == "true" ]; then
+	# This uses a small script from my i3config repository; you can use that even if
+	# you don't use i3-wm! Just point this path to the script, whereever you want it.
+	COMMAND="/bin/bash $HOME/.i3a/track_notify"
+else
+	COMMAND=":"
+fi
 
 [ -d $THEMEDIR ] || XERR "$LINENO" "Theme directory not found."
 [ -f "$THEMEDIR/${THEME:-red_theme}" ] || XERR "$LINENO" "Theme file not found."
