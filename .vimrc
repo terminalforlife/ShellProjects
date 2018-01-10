@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Fri  5 Jan 10:20:19 GMT 2018
+" Last Change       - Wed 10 Jan 21:23:15 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -437,6 +437,12 @@ noremap <leader>hl :set hlsearch!<CR>
 
 " Display a comment bar, using a hash.
 noremap <silent> <leader>bar 0i#<Esc>82a-<Esc>0
+
+" Remove the single quotes, double quotes, parens, and graves. (left to right)
+noremap <silent> <leader>rdq mmF"xf"x`m
+noremap <silent> <leader>rsq mmF'xf'x`m
+noremap <silent> <leader>rg mmF`xf`x`m
+noremap <silent> <leader>rp mmF(xf)x`m
 
 " Sets Jump Points
 noremap <silent> K 10j
