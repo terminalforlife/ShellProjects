@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dlfallwalls
 # Started On        - Sun 15 Oct 20:48:22 BST 2017
-# Last Change       - Tue 17 Oct 21:07:03 BST 2017
+# Last Change       - Wed 10 Jan 21:29:35 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,21 +11,13 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-declare -i DEPCOUNT=0
-for DEP in /usr/bin/{wget,uniq} /bin/grep; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
+[ -x /usr/bin/wget ] || ERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DLFALLWALLS (17th October 2017)
+		            DLFALLWALLS (10th January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Download a collection of Autumn/Fall wallpapers.
@@ -42,7 +34,7 @@ USAGE(){
 	EOF
 }
 
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
@@ -65,24 +57,26 @@ done
 URL="https://wallpapercave.com/download/fall-wallpapers"
 HTML=`/usr/bin/wget -q "${URL%/down*}/fall-wallpapers" -O -`
 
-GETID=$(
-	X=$(
-		#TODO - Change this to shell-only syntax.
-		/bin/grep -o "/wp/[0-9A-Za-z]\+.jpg" <<< "$HTML" | /usr/bin/uniq
-	)
+declare -a GETID=()
+while read -a Y; do
+	for FIELD in ${Y[@]/src=\"\/wp}; {
+		[ "$FIELD" == "$OLD" ] && continue
 
-	while IFS="/" read -a REPLY; do
-		echo "${REPLY[2]0:0:7}"
-	done <<< "$X"
-)
+		[[ "$FIELD" == /* ]] && {
+			[[ "$FIELD" =~ [0-9A-Za-z]+.jpg ]] && {
+				GETID+=("${FIELD%.jpg\"}")
+			}
+		} || continue
+
+		OLD="$FIELD"
+	}
+done <<< "$HTML"
 
 declare -i N=0
-for ID in $GETID; {
+for ID in ${GETID[@]//\/}; {
 	N+=1
 
-	echo "DOWNLOADING: fall-wallpapers-${ID}.jpg"
-	/usr/bin/wget -qc "${URL}-${ID}"\
-		-O ./fall-wallpapers-`printf '%0.2d' ${N}`.jpg
+	printf "%s\n" "DOWNLOADING: fall-wallpapers-${ID}.jpg"
+	printf -v FNAME "./fall-wallpapers-%0.2d.jpg" "${N}"
+	/usr/bin/wget -qc "${URL}-1920x1080-${ID}" -O "$FNAME"
 }
-
-[ "$DEBUGME" == "true" ] && set +xeu || exit 0
