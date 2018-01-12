@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/ShellPlugins/Clean_Unused_Locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Wed 10 Jan 20:54:41 GMT 2018
+# Last Change       - Fri 12 Jan 06:33:04 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            CLEAN-LOCALES (10st January 2018)
+		            CLEAN-LOCALES (11th January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Remove some unnecessary non-English localizations.
