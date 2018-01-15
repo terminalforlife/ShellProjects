@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Tue 26 Dec 23:16:32 GMT 2017
+# Last Change       - Sat 13 Jan 21:58:25 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,6 +14,8 @@
 #       general user, rather than more just myself. As it stands, this isn't
 #       user-friendly or especially rich in features.
 #----------------------------------------------------------------------------------
+
+#TODO - Consider adding a notify-send feature for when it has completed.
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
