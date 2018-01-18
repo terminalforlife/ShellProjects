@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Tue  9 Jan 18:51:34 GMT 2018
+# Last Change       - Thu 18 Jan 18:52:45 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,13 +11,17 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
+if ! [ -x /bin/mkdir -a -x /bin/mv ]; then
+	XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
+fi
+
 shopt -s extglob globstar
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MIF - Movie Index Filter (9th January 2018)
+		            MIF - Movie Index Filter (18th January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Shell program to filter films by year and whether seen or not.
@@ -61,7 +65,6 @@ INDEX="$HOME/.mif"
 NOSTATUS="false"
 SEEN="false"
 TTL="false"
-STATUS=""
 
 MAKE_LIST(){
 	[ -x /bin/sed ] || XERR "$LINENO" "Dependency '/bin/sed' not met."
@@ -108,16 +111,14 @@ while [ "$1" ]; do
 	shift
 done
 
-[ "$ORGANIZE" == "true" ] || {
+if ! [ "$ORGANIZE" == "true" ]; then
 	if [[ "$1" =~ ^[0-9]+$ ]]; then
 		YEAR="$1"
 		shift
 	else
-		[ "$SEEN" == "all" ] || {
-			XERR "$LINENO" "Invalid year specified."
-		}
+		[ "$SEEN" == "all" ] || XERR "$LINENO" "Invalid year specified."
 	fi
-}
+fi
 
 [ -n "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
 
@@ -128,10 +129,6 @@ done
 
 [ "$ORGANIZE" == "true" ] && {
 	[ -e /dev/null ] || XERR "$LINENO" "Unable to find: /dev/null"
-
-	if ! [ -x /bin/mkdir -a -x /bin/mv ]; then
-		XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
-	fi
 
 	for X in *; {
 		Y="${X//*\(}"
@@ -162,19 +159,23 @@ while read -r; do
 
 	if [ "$NOSTATUS" == "false" ]; then
 		if [ "$SEEN" == "false"  ]; then
-			[[ "$REPLY" == $YEAR\[\+\]:\ * ]] && {
-				printf "%s\n" "${REPLY/+([0-9])\[?\]: }"; LINE+=1
-			}
+			if [[ "$REPLY" == $YEAR\[\+\]:\ * ]]; then
+				printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+				LINE+=1
+			fi
 		elif [ "$SEEN" == "true"  ]; then
-			[[ "$REPLY" == $YEAR\[\-\]:\ * ]] && {
-				printf "%s\n" "${REPLY/+([0-9])\[?\]: }"; LINE+=1
-			}
+			if [[ "$REPLY" == $YEAR\[\-\]:\ * ]]; then
+				printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+				LINE+=1
+			fi
 		elif [ "$SEEN" == "all"  ]; then
-			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"; LINE+=1
+			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+			LINE+=1
 		fi
 	else
 		if [[ "$REPLY" == $YEAR:\ * ]]; then
-			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"; LINE+=1
+			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+			LINE+=1
 		fi
 	fi
 done < "$INDEX"
