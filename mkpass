@@ -3,32 +3,27 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Sun 19 Nov 13:52:33 GMT 2017
+# Last Change       - Thu 18 Jan 20:26:48 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # Originally a ShellPlugin, called with shellpass, but has since been improved.
-#
-# This is a work in progress. More features to be added. Currently just basic
-# functionality, which is in itself very useful.
-
 #------------------------------------------------------------------------------MAIN
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 USAGE(){
-	while IFS="" read X; do
-		printf "%s\n" "$X"
+	while read -r REPLY; do
+		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MKPASS (18th November 2017)
+		            MKPASS (18th January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Pure Bourne Again Shell approach to complex password generation.
 
 		SYNTAX:     mkpass [OPTS] INT
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --type|-t TYPE          - Where T is the type. See below.
 
@@ -38,25 +33,26 @@ USAGE(){
 
 		            Where INT is the number (integer) of characters to generate.
 
-		TYPES:      Available TYPEs for the --type or -t flags are as follows:
+		TYPES:      Available TYPEs:
 
 		            +------------+----------------------+------------------+
 		            | VALID TYPE | WHAT IT INCLUDES     | REGEX FORM       |
 		            +------------+----------------------+------------------+
-		            | alnum      | Letters and digits.  | [[:alnum:]]      |
-		            | digit      | All digits.          | [[:digit:]]      |
-		            | alpha      | All letters.         | [[:alpha:]]      |
-		            | punct      | Various punctuation. | [[:punct:]]      |
+		            | punct      | Punctuation          | [[:punct:]]      |
+		            | digit      | Digits               | [[:digit:]]      |
+		            | alpha      | Letters              | [[:alpha:]]      |
+		            | alnum      | Letters and Digits   | [[:alnum:]]      |
 		            | alphapunct | All of the above.    | [[:alphapunct:]] |
 		            +-----------------------------------+------------------+
 	EOF
 }
 
-#TODO - Any others which could be added?
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--type|-t)
+			shift; TYPE="$1" ;;
 		*)
 			break ;;
 	esac
@@ -70,20 +66,32 @@ INT="$1"
 [ -e /dev/urandom ] || XERR "$LINENO" "Unable to access /dev/urandom device."
 [ -z "$INT" ] && XERR "$LINENO" "Missing INT -- how many characters do you want?"
 
-{ [[ "$*" =~ [0-9]+ ]] && [ "$INT" -ge 1 ]; } || {
+if ! [[ "$*" =~ [0-9]+ ]] && [ "$INT" -ge 1 ]; then
 	XERR "$LINENO" "Requires an integer greater than or equal to 1."
-}
+fi
 
-#TODO - Add logic to switch between different CHARS variables.
-CHARS='[\`/\+\\\|0-9A-Za-z\_\,\.\?\!\"\\\/\$\%\^\&\*\(\)\{\}\]\[-\>\<\:\@\~]'
+case "${TYPE:-EMPTY}" in
+	punct)
+		CHARS='[\`/\+\\\|\_\,\.\?\!\"\\\/\$\%\^\&\*\(\)\{\}\]\[-\>\<\:\@\~]' ;;
+	digit)
+		CHARS='[0-9]' ;;
+	alpha)
+		CHARS='[A-Za-z]' ;;
+	alnum)
+		CHARS='[0-9A-Za-z]' ;;
+	alphapunct|EMPTY)
+		CHARS='[\`/\+\\\|0-9A-Za-z\_\,\.\?\!\"\\\/\$\%\^\&\*\(\)\{\}\]\[-\>\<\:\@\~]' ;;
+	*)
+		XERR "$LINENO" "Invalid TYPE selected." ;;
+esac
 
 declare -i A=0
 while read -a X; do
-	[[ "${X:0:1}" == $CHARS ]] && {
+	if [[ "${X:0:1}" == $CHARS ]]; then
 		A+=1
 		printf "%s" "${X:0:1}"
 		[ $A -eq $INT ] && break
-	}
+	fi
 done < /dev/urandom
 
 echo
