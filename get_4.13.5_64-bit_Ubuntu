@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/install\ 4.13.5_64-bit\ \(Ubuntu\)
 # Started On        - Sun  5 Nov 20:46:28 GMT 2017
-# Last Change       - Wed 10 Jan 21:35:44 GMT 2018
+# Last Change       - Fri 19 Jan 11:52:48 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,9 +17,12 @@
 #
 # NOTE Wed 10 Jan 21:35:05 GMT 2018:
 #
-#   This is now pretty much pointless. Perhaps somebody could use it as reference
-#   or as some sort of proof of concept.
+# This is now pretty much pointless. Perhaps somebody could use it as reference or
+# as some sort of proof of concept.
 #----------------------------------------------------------------------------------
+
+#TODO - Rework this script as a kernel installer for many versions, per what's
+#       available online, whether in the standard Ubuntu repositories or not.
 
 USAGE(){ printf "OPTS: --help|-h|-?, --no-check|-N, --version|-V DEB\n"; }
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -39,11 +42,18 @@ URL="http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.13.5"
 VER="4.13.5-041305-generic"
 
 OS_CHECK_FUNC(){
-	[ -f /etc/os-release ] || ERR "$LINENO" "Cannot determine your LSB."
-	mapfile Y < /etc/os-release
-	printf -v LSB "%s" "${Y[2]/*=}"
+	if [ -f /etc/os-release -a -r /etc/os-release ]; then
+		while read -a X; do
+			if [[ "${X[0]}" == ID=* ]]; then
+				printf -v LSB "%s" "${X[0]/*=}"
+				break
+			fi
+		done < /etc/os-release
+	else
+		XERR "$LINENO" "Unable to determine the distribution ID."
+	fi
 	
-	[ "${LSB%?}" == "linuxmint" ] || {
+	[ "$LSB" == "linuxmint" ] || {
 		ERR "$LINENO" "This script was written for Linux Mint 18.2."
 	}
 }
