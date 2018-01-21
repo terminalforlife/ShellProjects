@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sat 13 Jan 21:58:25 GMT 2018
+# Last Change       - Sun 21 Jan 00:45:10 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,6 +16,7 @@
 #----------------------------------------------------------------------------------
 
 #TODO - Consider adding a notify-send feature for when it has completed.
+#TODO - Despite reading the settings file, the EXCLUDE entries don't work.
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -34,7 +35,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            BACKMEUP (26th December 2017)
+		            BACKMEUP (20th January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            A simple tool to quickly and easily back up your HOME.
