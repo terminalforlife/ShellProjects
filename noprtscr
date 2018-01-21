@@ -17,7 +17,7 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 
 SCHEMA="org.gnome.settings-daemon.plugins.media-keys"
 for KEY in {{window,area}-screenshot,screenshot}{,-clip}; {
-	if ! /usr/bin/gsettings "$SCHEMA" "$KEY" Null; then
+	if ! /usr/bin/gsettings set "$SCHEMA" "$KEY" Null; then
 		XERR "$LINENO" "Unable to clear: $KEY"
 	fi
 }
