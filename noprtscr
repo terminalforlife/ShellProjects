@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/noprtscr (No Print Screen)
 # Started On        - Sun 21 Jan 18:30:36 GMT 2018
-# Last Change       - Sun 21 Jan 22:19:38 GMT 2018
+# Last Change       - Sun 21 Jan 22:21:03 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# A small script to remedy this issue:
+# A small script to remedy this issue in Linux Mint 18.3 with Cinnamon:
 #
 #   https://forums.linuxmint.com/viewtopic.php?f=90&t=152887
 #
-# Enable the exra feature (launch the Menu with PrtSc) with:
+# Also enable the exra feature (launch the Menu with PrtSc) with:
 #
 #   noprtscr --prtsc-is-menu
 #----------------------------------------------------------------------------------
