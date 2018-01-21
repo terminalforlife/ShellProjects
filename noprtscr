@@ -3,11 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/noprtscr (No Print Screen)
 # Started On        - Sun 21 Jan 18:30:36 GMT 2018
-# Last Change       - Sun 21 Jan 19:05:06 GMT 2018
+# Last Change       - Sun 21 Jan 19:17:37 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# A small script to hopefully remedy this issue:
+# A small script to remedy this issue:
 #
 #   https://forums.linuxmint.com/viewtopic.php?f=90&t=152887
 #----------------------------------------------------------------------------------
@@ -15,16 +15,9 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 [ -x /usr/bin/gsettings ] || XERR "$LINENO" "Dependency '/usr/bin/gsettings' not met."
 
-#SCHEMA="org.gnome.settings-daemon.plugins.media-keys"
-#for KEY in {{window,area}-screenshot,screenshot}{,-clip}; {
-
 SCHEMA="org.cinnamon.desktop.keybindings.media-keys"
 
-for KEY in\
-\
-	screenshot-clip area-screenshot-clip window-screenshot-clip\
-	screenshot area-screenshot window-screenshot
-{
+for KEY in {area,window}-screenshot{,-clip} screenshot{,-clip}; {
 	if ! /usr/bin/gsettings set "$SCHEMA" "$KEY" "[]"; then
 		XERR "$LINENO" "Unable to clear: $KEY"
 	fi
