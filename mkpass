@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Tue 23 Jan 22:13:23 GMT 2018
+# Last Change       - Tue 23 Jan 22:19:50 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -53,6 +53,8 @@ while [ "$1" ]; do
 			USAGE; exit 0 ;;
 		--type|-t)
 			shift; TYPE="$1" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -60,11 +62,10 @@ while [ "$1" ]; do
 	shift
 done
 
-INT="$1"
+[[ "$1" =~ [0-9]+ ]] && INT=$1
+[ -z "$INT" ] && XERR "$LINENO" "Invalid or missing INT."
 
-[ $# -eq 1 ] || XERR "$LINENO" "Incorrect argument(s) specified."
 [ -e /dev/urandom ] || XERR "$LINENO" "Unable to access /dev/urandom device."
-[ -z "$INT" ] && XERR "$LINENO" "Missing INT -- how many characters do you want?"
 
 if ! [[ "$*" =~ [0-9]+ ]] && [ "$INT" -ge 1 ]; then
 	XERR "$LINENO" "Requires an integer greater than or equal to 1."
