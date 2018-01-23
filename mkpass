@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Thu 18 Jan 20:26:48 GMT 2018
+# Last Change       - Tue 23 Jan 22:13:23 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,10 +14,10 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 USAGE(){
-	while read -r REPLY; do
+	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MKPASS (18th January 2018)
+		            MKPASS (23rd January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Pure Bourne Again Shell approach to complex password generation.
