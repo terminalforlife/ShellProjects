@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Sat 27 Jan 12:35:50 GMT 2018
+# Last Change       - Sat 27 Jan 13:21:41 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /bin/{cp,chown,chmod,sed,dd} /sbin/mkswap; {
+for DEP in /bin/{sync,grep,cp,chown,chmod,sed,dd} /sbin/{swap{on,off},mkswap}; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -30,34 +30,34 @@ USAGE(){
 
 		            A simple, small tool to easily create and set up a swap file.
 
-		SYNTAX:     swap-file [--help|-h|-?] [PATH] [SIZE]
+		SYNTAX:     swap-file [--help|-h|-?] [NAME] [SIZE]
 
-		FILE:       The '/etc/fstab' file is by default edited.
-
-		NOTE:       Where PATH is the location and file name of the swap file. The file
-		            name must be alphanumeric and without spaces.
+		NOTE:       Where NAME is the swap file name to be created in /; the file name must
+		            be alphanumeric and without any spaces.
 
 		            Where SIZE is the size of the swap file to create, in MB.
+
+		FILE:       The '/etc/fstab' file is by default edited.
 	EOF
 }
 
 for ARG in $@; {
-	if [[ "$ARG" =~ (--help|-h|-?) ]]; then
+	if [[ "$ARG" =~ ^(--help|-h|-?)$ ]]; then
 		USAGE; exit 0
 	fi
 }
 
-NAME="${1//[![:alnum:]]}"
+FST="/etc/fstab"
+NAME="/${1//[![:alnum:]]}"
 SIZE="${2//[!0-9]}"
 
 [ $# -eq 2 ] || XERR "$LINENO" "Incorrect argument(s) specified."
 [[ "$SIZE" =~ [0-9]+ ]] || XERR "$LINENO" "Incorrect swap file size specified."
-[ -d "${NAME%/*}" ] || XERR "$LINENO" "Directory for the swap file not found."
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Setting up a swap file requires root access."
+[ $UID -eq 0 ] || XERR "$LINENO" "Setting up a swap file requires root access."
 
 if [ -f "$NAME" ]; then
-	while read -n 1 -e -p "File '$NAME' already exists -- replace? "; do
+	while read -e -p "File '$NAME' already exists -- replace? "; do
 		case "$REPLY" in
 			[Yy])
 				break ;;
@@ -69,17 +69,30 @@ if [ -f "$NAME" ]; then
 	done
 fi
 
+printf "Creating %dMB swap file: %s\n" "$SIZE" "$NAME"
 /bin/dd if=/dev/zero of="$NAME" bs=1024K count="$SIZE"
+/bin/sync "$NAME"
 
-/bin/chown 0:0 "$NAME"
-/bin/chmod 600 "$NAME"
-/sbin/mkswap "$NAME"
+/bin/chown -v 0:0 "$NAME"
+/bin/chmod -v 600 "$NAME"
+LIBBLKID_DEBUG=all /sbin/mkswap -v "$NAME"
+#TODO - Why does mkswap fail here, saying it can't read the swap header? Yet when
+#       I run the command separately on the terminal, all is fine.
 
-/bin/cp /etc/fstab{,bak}
-/bin/sed -i '/^UUID=.*\s.*\sswap/s/^/#/' /etc/fstab
+/bin/cp -iv "$FST"{,.bak}
 
-if [ -f /etc/fstab ]; then
-	printf "/%s none swap sw 0 0\n" "$NAME" >> /etc/fstab 1> /dev/null
+printf "Updating the file system table: %s\n" "$FST"
+/bin/sed -i '/^UUID=.*\s.*\sswap/s/^/#/' "$FST"
+
+if [ -f "$FST" ]; then
+	if ! /bin/grep -q "/$NAME none swap sw 0 0" "$FST"; then
+		printf "/%s none swap sw 0 0\n" "$NAME" >> "$FST" 1> /dev/null
+	else
+		XERR "$LINENO" "Current entry already present in: $FST"
+	fi
 else
-	XERR "$LINENO" "Unable to find or access: /etc/fstab"
+	XERR "$LINENO" "Unable to find or access: $FST"
 fi
+
+LIBBLKID_DEBUG=all /sbin/swapoff -va
+LIBBLKID_DEBUG=all /sbin/swapon -v "$NAME"
