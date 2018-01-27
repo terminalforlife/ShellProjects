@@ -3,9 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Sat 27 Jan 13:21:41 GMT 2018
+# Last Change       - Sat 27 Jan 13:23:07 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This is an early work in progress; don't yet run on your production machines!
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
