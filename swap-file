@@ -1,0 +1,104 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/swap-file
+# Started On        - Sat 27 Jan 11:49:19 GMT 2018
+# Last Change       - Sat 27 Jan 12:30:08 GMT 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /bin/{cp,chown,chmod,sed,dd} /sbin/mkswap; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            SWAP-FILE (27th January 2018)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            A simple, small tool to easily create and set up a swap file.
+
+		SYNTAX:     swap-file [OPTS] PATH SIZE
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+
+		FILE:       The '/etc/fstab' file is by default edited.
+
+		NOTE:       Where PATH is the location and file name of the swap file. The file
+		            name must be alphanumeric and without spaces.
+
+		            Where SIZE is the size of the swap file to create, in MB.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+NAME="${1//[![:alnum:]]}"
+SIZE="${2//[!0-9]}"
+
+[ $# -gt 2 ] && XERR "$LINENO" "Incorrect argument(s) specified."
+[[ "$SIZE" =~ [0-9]+ ]] || XERR "$LINENO" "Incorrect swap file size specified."
+[ -d "${NAME%/*}" ] || XERR "$LINENO" "Directory for the swap file not found."
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Setting up a swap file requires root access."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+if [ -f "$NAME" ]; then
+	while read -n 1 -e -p "File '$NAME' already exists -- replace? "; do
+		case "$REPLY" in
+			[Yy])
+				;;
+			[Nn])
+				exit 1 ;;
+			*)
+				XERR "$LINENO" "Invalid response. Enter 'Y' or 'N' to continue." ;;
+		esac
+	done
+fi
+
+/bin/dd if=/dev/zero of="$NAME" bs=1024K count="$SIZE"
+
+/bin/chown 0:0 "$NAME"
+/bin/chmod 600 "$NAME"
+/sbin/mkswap "$NAME"
+
+/bin/cp /etc/fstab{,bak}
+/bin/sed -i '/^UUID=.*\s.*\sswap/s/^/#/' /etc/fstab
+
+if [ -f /etc/fstab ]; then
+	printf "/%s none swap sw 0 0\n" "$NAME" >> /etc/fstab 1> /dev/null
+else
+	XERR "$LINENO" "Unable to find or access: /etc/fstab"
+fi
+
