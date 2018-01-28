@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Wed 10 Jan 21:23:15 GMT 2018
+" Last Change       - Sun 28 Jan 14:08:14 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -417,13 +417,13 @@ noremap <silent> <leader>al :left<CR>
 noremap <silent> <leader>nn :next<CR>
 noremap <silent> <leader>pp :prev<CR>
 
-" Execute current file with...
+" Write file and then execute current file with...
 noremap <silent> <leader>rwP :w<CR>:!/usr/bin/python %<CR>
 noremap <silent> <leader>rwp :w<CR>:!/usr/bin/python3.5 %<CR>
 noremap <silent> <leader>rwb :w<CR>:!/bin/bash %<CR>
 noremap <silent> <leader>rws :w<CR>:!/bin/sh %<CR>
 
-" Write file and then execute current file with...
+" Execute current file with...
 noremap <silent> <leader>rP :!/usr/bin/python %<CR>
 noremap <silent> <leader>rp :!/usr/bin/python3.5 %<CR>
 noremap <silent> <leader>rb :!/bin/bash %<CR>
@@ -442,7 +442,7 @@ noremap <silent> <leader>bar 0i#<Esc>82a-<Esc>0
 noremap <silent> <leader>rdq mmF"xf"x`m
 noremap <silent> <leader>rsq mmF'xf'x`m
 noremap <silent> <leader>rg mmF`xf`x`m
-noremap <silent> <leader>rp mmF(xf)x`m
+"noremap <silent> <leader>rp mmF(xf)x`m
 
 " Sets Jump Points
 noremap <silent> K 10j
