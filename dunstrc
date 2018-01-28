@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/dunst/dunstrc
 # Started On        - Thu  9 Nov 00:34:20 GMT 2017
-# Last Change       - Fri 26 Jan 13:53:56 GMT 2018
+# Last Change       - Sun 28 Jan 02:21:18 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #----------------------------------------------------------------------------------
 
 [global]
-    font = Monospace Bold 17
+    font = Nimbus Mono L Bold 16
     allow_markup = yes
     format = "<b>%s</b>\n%b"
     sort = yes
@@ -50,18 +50,18 @@
     color = "#000000"
 
 [urgency_low]
-    background = "#ffffff"
-    foreground = "#000000"
+    background = "#000000"
+    foreground = "#ffffff"
     timeout = 3
 
 [urgency_normal]
-    background = "#ffffff"
-    foreground = "#000000"
+    background = "#000000"
+    foreground = "#ffffff"
     timeout = 6
 
 [urgency_critical]
-    background = "#bbffff"
-    foreground = "#000000"
+    background = "#000000"
+    foreground = "#ff0000"
     timeout = 9
 
 #[shortcuts]
