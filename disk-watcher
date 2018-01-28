@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/disk-watcher
+# Started On        - Sun 28 Jan 00:56:24 GMT 2018
+# Last Change       - Sun 28 Jan 00:58:10 GMT 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+#TODO - Use pure shell only! Parse /sys, /proc, and/or /dev.
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            DISK-WATCHER (28th January 2018)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Background utility which watches for low storage space.
+
+		SYNTAX:     disk-watcher [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -xeu
+
+
