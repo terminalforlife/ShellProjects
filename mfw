@@ -3,23 +3,22 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mfw (Mint Forum Watch)
 # Started On        - Sun 21 Jan 14:15:13 GMT 2018
-# Last Change       - Mon 22 Jan 11:40:08 GMT 2018
+# Last Change       - Wed 31 Jan 12:46:40 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # As I frequent the Mint forums so often, in an effort to help people, it'd be
-# helpful to me if I can be apprised of no-reply thread posts in the Newbie
-# Questions forums. This small program does just that; designed to run in the
-# background.
+# helpful to me if I can be apprised of thread posts in the Newbie Questions
+# forums. This small program does just that; designed to run in the background.
 #
-# Run with "mfw N", where N is the number of minutes in which to check.
+# At some point, I may introduce the ability to watch different forums.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{notify-send,wget}; {
+for DEP in /bin/sleep /usr/bin/{notify-send,wget}; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -28,12 +27,61 @@ for DEP in /usr/bin/{notify-send,wget}; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $# -ne 1 ] && XERR "$LINENO" "Only one argument is valid."
-[ "$1" ] || XERR "$LINENO" "No interval time was given."
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            MFW - Mint Forum Watch (31st January 2018)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Notifier for page-one threads on the Newbie Questions Linux Mint forum.
+
+		SYNTAX:     mfw [OPTS] [INTERVAL]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --filter|-F ID          - Omit threads by their ID number. (See URL)
+		            --no-notify-wait        - Display all notifications at once.
+		            --run-once|-O           - Don't run in the background; run only once.
+
+		EXAMPLE:    mfw -F 12345 -F 54321 --no-notify-wait 30
+
+		NOTE:       Where INTERVAL is the time between each check, in minutes.
+
+		SITE:       https://forums.linuxmint.com
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--filter|-F)
+			shift; ID="$1" ;;
+		--no-notify-wait)
+			NO_NOTIFY_WAIT="true" ;;
+		--run-once|-O)
+			RUN_ONCE="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+INTERVAL="$1"
+
+[ "$DEBUGME" == "true" ] && set -xeu
 
 URL='https://forums.linuxmint.com/viewforum.php?f=90'
 REGEX='\?f=90\&amp\;t=[0-9]+\&amp;sid=[0-9a-z]+\"\sclass=\"topictitle\">.*<'
-FILTER=(83444 83314 81997 97158 245700 230142 219089 224270)
+
+# Filter out the old standard, stickied threads, plus user specified threads.
+FILTER=(83444 83314 81997 97158 245700 230142 219089 224270 $FILTER_ADD)
 
 while :; do
 	PARSE(){
@@ -58,10 +106,17 @@ while :; do
 	while read -a R; do
 		BUF="${R/???????}"
 
-		if [ "${BUF:0:2}" == 00 ]; then
-			/usr/bin/notify-send "${R[*]}"
+		if ! [ "$NO_NOTIFY_WAIT" == "true" ]; then
+			printf -v SECS "%0.5d" "$RANDOM"
+			/bin/sleep ${SECS%???}s
 		fi
+
+		/usr/bin/notify-send "${R[*]}"
 	done <<< "$(PARSE)"
 
-	/bin/sleep ${1}m
-done
+	if ! [ "$RUN_ONCE" == "true" ]; then
+		/bin/sleep ${INTERVAL}m
+	else
+		break
+	fi
+done &
