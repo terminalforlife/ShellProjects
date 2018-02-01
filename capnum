@@ -1,0 +1,62 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/capnum
+# Started On        - Wed 31 Jan 23:35:19 GMT 2018
+# Last Change       - Thu  1 Feb 00:02:42 GMT 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Small tool which simply notifies you quickly if you have NumLock or CapsLock on.
+# This will notify you every N number of 0. seconds, per the 1st positional
+# parameter. Only numbers will be recognised, and they are in 0.N seconds.
+#
+# SYNTAX:     capnum N
+#
+# NOTE:       You may wish to make the number higher (3 works well) if you are on
+#             a slower machine that gets visibly slower with too frequent a ping.
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /bin/sleep /usr/bin/{xset,notify-send}; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ $# -eq 1 ] || XERR "$LINENO" "Number of seconds in which to notify is required."
+NOTIFY(){ /usr/bin/notify-send --urgency=low --expire-time=20 "$1"; }
+
+while :; do
+	while read -a X; do
+		if [ "${X[0]}" == "00:" -a "${X[1]}" == "Caps" ]; then
+			printf -v S "%s:%s" "${X[3]}" "${X[7]}"
+	
+			if [ "${S/*:}" == "on" -a ! "$NL" == "true" ]; then
+				NOTIFY "NumLock enabled."
+				NL="true"
+			elif [ "${S/*:}" == "off" -a ! "$NL" == "false" ]; then
+				NOTIFY "NumLock disabled."
+				NL="false"
+			fi
+	
+			if [ "${S%:*}" == "on" -a ! "$CL" == "true" ]; then
+				NOTIFY "CapsLock enabled."
+				CL="true"
+			elif [ "${S%:*}" == "off" -a ! "$CL" == "false" ]; then
+				NOTIFY "CapsLock disabled."
+				CL="false"
+			fi
+	
+			break
+		fi
+	done <<< "$(/usr/bin/xset q)"
+
+	/bin/sleep 0.${1//[!0-9]}s
+done
