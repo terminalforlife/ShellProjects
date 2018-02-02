@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - lsbins
+# Started On        - Sat 16 Sep 21:34:24 BST 2017
+# Last Change       - Sun 28 Jan 18:49:36 GMT 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{man,sort,uniq,find} /bin/sed; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+USAGE(){
+        while read; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            LSBINS (28th January 2018)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Simple shell program to list and describe the PATH executables.
+
+		SYNTAX:     lsbins [OPT]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --force-all             - Disregard whether man can be descriptive.
+
+		NOTE:       Parses man(1) for the descriptions.
+	EOF
+}
+
+case "$*" in
+	--help|-h|-\?)
+		USAGE; exit 0 ;;
+	--force-all)
+		DEVNULL="false" ;;
+	"")
+		;;
+	*)
+		XERR "$LINENO" "Incorrect argument(s)." ;;
+esac
+
+MAIN(){
+	BUFFER=$(
+		/usr/bin/find ${PATH//:/ } -maxdepth 1 -type f -executable\
+			-exec /usr/bin/man -f "{}" \+\
+	)
+	
+	printf "%s\n" "$BUFFER"\
+		| /bin/sed 's/^\(.*\)\s([1-8])\s\+-\s\+\(.*\)$/\1 - \2/'\
+		| /usr/bin/uniq -f 2\
+		| /usr/bin/sort -k 1
+}
+
+case "$DEVNULL" in
+	false)
+		MAIN ;;
+	*)
+		MAIN 2> /dev/null; exit 0 ;;
+esac
