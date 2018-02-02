@@ -1,10 +1,8 @@
-CONTENTS
---------
+## CONTENTS
 
 Here you'll find scripts to automatically run at given intervals, using cron. These can however be used on their own, perhaps as a keyboard shortcut, or a startup item.
 
-INSTALLATION
-------------
+## INSTALLATION
 
 Installation should be pretty simple for these scripts. They will of course assume you have cron installed and set up. Some will have different requirements, per the task at hand, but they will all be primarily targeting GNU/Linux.
 
