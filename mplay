@@ -3,11 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Wed 10 Jan 21:57:10 GMT 2018
+# Last Change       - Fri  2 Feb 19:05:36 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# My mocp settings. Simple script to allow me to quickly load mocp how I like.
+# My mocp settings. Simple script to allow me to quickly load MOC how I like.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -19,10 +19,10 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MPLAY (10th January 2018)
+		            MPLAY (2nd February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Simple script to allow me to quickly load mocp how I like.
+		            Simple script to allow me to quickly load MOC how I like.
 
 		SYNTAX:     mplay [OPTS] PATH
 
