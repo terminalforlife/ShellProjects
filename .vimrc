@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Sun 28 Jan 14:08:14 GMT 2018
+" Last Change       - Tue  6 Feb 14:33:50 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -428,6 +428,9 @@ noremap <silent> <leader>rP :!/usr/bin/python %<CR>
 noremap <silent> <leader>rp :!/usr/bin/python3.5 %<CR>
 noremap <silent> <leader>rb :!/bin/bash %<CR>
 noremap <silent> <leader>rs :!/bin/sh %<CR>
+
+" Because I keep forgetting to sudo rvim FILE.
+noremap <silent> <leader>sudosave :w !/usr/bin/sudo /usr/bin/tee %<CR>
 
 " Toggle the spellchecking feature.
 noremap <leader>spell :set spell!<CR>
