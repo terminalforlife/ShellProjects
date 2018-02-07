@@ -11,7 +11,8 @@
 /usr/bin/apt-get update 2>&1 > /var/log/APT_Update_Cron.log
 
 if [ -x /usr/bin/notify-send ]; then
-	DISPLAY=:0 /usr/bin/notify-send --urgency=low "APT package database has been updated."
+	MESSAGE="APT package database has been updated."
+	DISPLAY=:0 /usr/bin/notify-send --urgency=low "$MESSAGE"
 fi
 
 exit 0
