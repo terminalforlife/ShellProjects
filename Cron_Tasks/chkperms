@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - /etc/cron.hourly/chkperms
 # Started On        - Fri 29 Sep 17:00:00 BST 2017
-# Last Change       - Mon  2 Oct 01:52:52 BST 2017
+# Last Change       - Wed  7 Feb 01:34:20 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,13 +14,12 @@ LOGFILE="/var/log/chkperms.log"
 # Redirect and amend all STDERR to LOGFILE.
 exec 2>> /var/log/chkperms.log
 
-ERR(){ echo "ERROR: $1" 1>&2; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/stat /bin/date
-{
+for DEP in /bin/date /usr/bin/stat; {
 	[ -x "$DEP" ] || {
-		ERR "Dependency '$DEP' not met."
+		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	}
 }
@@ -40,21 +39,20 @@ CORRECT=(
 )
 
 # For each file listed above.
-for FILE in ${CORRECT[@]}
-{
+for FILE in ${CORRECT[@]}; {
 	# Get the current date and time.
-	DATE=`/bin/date +%F_%X`
+	printf -v DATE "%(%F_%X)T" -1
 
 	# If the file, directory, or whatever exists and isn't lost+found.
-	([ -e "${FILE%:*}" ] && ! [ "$FILE" == "lost+found" ]) && {
+	if [ -e "${FILE%:*}" -a ! "$FILE" == "lost+found" ]; then
 		# Log the event. Includes date, time, and filename.
 		printf "[%s]: BadPerms: %s\n" "$DATE" "${FILE%:*}" 1>&2
 
 		# If notify-send is found, use it to notify the user.
-		[ -x /usr/bin/notify-send ] && {
+		if [ -x /usr/bin/notify-send ]; then
 			/usr/bin/notify-send "ERROR: /var/log/chkperms.log"
-		}
-	}
+		fi
+	fi
 }
 
 exit 0
