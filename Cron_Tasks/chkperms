@@ -3,9 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - /etc/cron.hourly/chkperms
 # Started On        - Fri 29 Sep 17:00:00 BST 2017
-# Last Change       - Wed  7 Feb 01:34:20 GMT 2018
+# Last Change       - Wed  7 Feb 01:34:55 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This is a work in progress.
 #----------------------------------------------------------------------------------
 
 # Choose alternative location if desired.
