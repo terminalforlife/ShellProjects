@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Fri  2 Feb 19:05:36 GMT 2018
+# Last Change       - Thu  8 Feb 22:12:28 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ fi
 [ -d $THEMEDIR ] || XERR "$LINENO" "Theme directory not found."
 [ -f "$THEMEDIR/${THEME:-red_theme}" ] || XERR "$LINENO" "Theme file not found."
 
-if [ -x /usr/bin/mocp -a -x /sbin/alsa ]; then
+if [ -x /usr/bin/mocp ]; then
 	/usr/bin/mocp -T $THEMEDIR/${THEME:-red_theme}   \
 		-O ShowFormat=yes                        \
 		-O ShowTime=no                           \
@@ -91,7 +91,6 @@ if [ -x /usr/bin/mocp -a -x /sbin/alsa ]; then
 		-O ResampleMethod=SincMediumQuality      \
 		-O UseMimeMagic=no                       \
 		-O ShowHiddenFiles=no                    \
-		-O SoundDriver=ALSA                      \
 		-O InputBuffer=512                       \
 		-O OutputBuffer=512                      \
 		-O Prebuffering=256                      \
