@@ -3,9 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/disk-watcher
 # Started On        - Sun 28 Jan 00:56:24 GMT 2018
-# Last Change       - Sun 28 Jan 00:58:10 GMT 2018
+# Last Change       - Thu  8 Feb 23:52:47 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Placeholder for a handy-dandy project idea.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -17,7 +19,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DISK-WATCHER (28th January 2018)
+		            DISK-WATCHER (8th February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Background utility which watches for low storage space.
