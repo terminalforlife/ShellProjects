@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/ubusecrss
+# Started On        - Fri  9 Feb 19:48:37 GMT 2018
+# Last Change       - Fri  9 Feb 19:58:42 GMT 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Not entirely sure where I'm going with this, but it'll output the titles and HTTP
+# URLs for them, of the Ubuntu security RSS feed, by parsing the initial page. I
+# had in mind a notifier for when RSS feeds arrive and are new.
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+
+URL="https://usn.ubuntu.com/usn/rss.xml"
+
+while IFS=">" read -a X; do
+	if [[ "${X[0]}" =~ ^\</description ]]; then
+		[ "${X[6]}" -a "${X[2]%<*}" ] || continue
+		printf "%s\n%s\n\n" "${X[6]}" "${X[2]%<*}"
+	fi
+done <<< "$(/usr/bin/wget -q "$URL" -O -)"
