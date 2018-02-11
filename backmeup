@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun 21 Jan 00:45:10 GMT 2018
+# Last Change       - Sun 11 Feb 13:37:32 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,6 @@
 #       user-friendly or especially rich in features.
 #----------------------------------------------------------------------------------
 
-#TODO - Consider adding a notify-send feature for when it has completed.
 #TODO - Despite reading the settings file, the EXCLUDE entries don't work.
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -35,7 +34,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            BACKMEUP (20th January 2018)
+		            BACKMEUP (11th February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            A simple tool to quickly and easily back up your HOME.
@@ -46,6 +45,7 @@ USAGE(){
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --reset|-R              - Re-run the initial setting prompts.
+		            --notify|-N             - Notify after completion, via notify-send.
 
 		FILE:       User settings saved in and read from: \$HOME/.backmeup/settings
 
@@ -63,6 +63,8 @@ while [ "$1" ]; do
 			BEQUIET="true" ;;
 		--reset|-R)
 			RESET="true" ;;
+		--notify|-N)
+			NOTIFY="true" ;;
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -160,6 +162,15 @@ while read -a X; do
 		/bin/sync "${STORE%/}/$ARCHIVE.tgz"
 
 		printf "Backup created in %d seconds.\n" "$SECONDS"
+
+		if [ "$NOTIFY" == "true" ]; then
+			if [ -x /usr/bin/notify-send ]; then
+				/usr/bin/notify-send "Your backmeup execution is finished."
+			else
+				XERR "$LINENO" "Dependency '/usr/bin/notify-send' not met."
+			fi
+		fi
+
 		exit 0
 	fi
 done < /proc/mounts
