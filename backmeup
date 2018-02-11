@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun 11 Feb 13:53:43 GMT 2018
+# Last Change       - Sun 11 Feb 14:12:37 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,8 +14,6 @@
 #       general user, rather than more just myself. As it stands, this isn't
 #       user-friendly or especially rich in features.
 #----------------------------------------------------------------------------------
-
-#TODO - Despite reading the settings file, the EXCLUDE entries don't work.
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -98,13 +96,14 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 		fi
 	done <<< "$(/bin/lsblk -no mountpoint)"
 
+	read -ep "What is the label of the partition to which your archives will be saved? " LABEL
+	[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: LABEL"
+
 	if [ "$HOME_PART" == "true" ]; then
 		printf "NOTE: Separate /home partition detected.\n"
-		read -ep "What is the label of the partition to which your archives will be saved? " LABEL
-		[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: LABEL"
 
 		#TODO - Make this accept variables, like $USER.
-		read -ep "Now enter the mountpoint of the aforementioned partition: " STORE
+		read -ep "Enter the mountpoint of the aforementioned partition: " STORE
 		[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: STORE"
 	else
 		read -ep "Enter the mountpoint of the aforementioned partition: " STORE
@@ -143,7 +142,9 @@ elif ! [ -r "$SETTINGS" ]; then
 	XERR "$LINENO" "Unable to access: $SETTINGS"
 fi
 
+declare -a EXCLUDE
 declare -i LINE=0
+
 while read -a X; do
 	LINE+=1
 
@@ -152,11 +153,14 @@ while read -a X; do
 
 	case "${Y[0]:-EMPTY}" in
 		LABEL)
+			printf "LABEL: %s\n" "${Y[1]//\"}"
 			LABEL="${Y[1]//\"}" ;;
 		STORE)
+			printf "STORE: %s\n" "${Y[1]//\"}"
 			STORE="${Y[1]//\"}" ;;
 		EXCLUDE)
-			EXCLUDE+=" --exclude=${Y[1]%/}" ;;
+			printf "EXCLUDING: %s\n" "${Y[1]//\"}"
+			EXCLUDE+=("--exclude=${Y[1]%/}") ;;
 		EMPTY)
 			;;
 		*)
@@ -173,7 +177,9 @@ declare -i SECONDS=0
 while read -a X; do
 	if [[ "${X[1]}" =~ "${LABEL// /040}" ]]; then
 		#TODO - Why aren't exclusions working as they should?
-		/bin/tar --xattrs $EXCLUDE -cvpf "${STORE%/}/$ARCHIVE" "$HOME"
+		/bin/tar --xattrs `eval printf "%s\\\\\n" ${EXCLUDE[@]}`\
+			-cvpf "${STORE%/}/$ARCHIVE" "$HOME"
+
 		/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE"
 		/bin/sync "${STORE%/}/$ARCHIVE.tgz"
 
