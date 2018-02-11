@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun 11 Feb 13:37:32 GMT 2018
+# Last Change       - Sun 11 Feb 13:53:43 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ USAGE(){
 	done <<-EOF
 		            BACKMEUP (11th February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            A simple tool to quickly and easily back up your HOME.
 
 		SYNTAX:     backmeup [OPTS]
@@ -91,15 +91,31 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 
 	EOF
 
-	read -ep "What is the label of the partition to which your archives will be saved? " LABEL
-	[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: LABEL"
+	while read LINE; do
+		if [ "$LINE" == "/home" ]; then
+			HOME_PART="true"
+			break
+		fi
+	done <<< "$(/bin/lsblk -no mountpoint)"
 
-	#TODO - Make this accept variables, like $USER.
-	read -ep "Now enter the mountpoint of the aforementioned partition: " STORE
-	[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: STORE"
+	if [ "$HOME_PART" == "true" ]; then
+		printf "NOTE: Separate /home partition detected.\n"
+		read -ep "What is the label of the partition to which your archives will be saved? " LABEL
+		[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: LABEL"
+
+		#TODO - Make this accept variables, like $USER.
+		read -ep "Now enter the mountpoint of the aforementioned partition: " STORE
+		[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: STORE"
+	else
+		read -ep "Enter the mountpoint of the aforementioned partition: " STORE
+		[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: STORE"
+	fi
 
 	read -n 1 -ep "Will you proceed with the provided settings? " YN
-	[[ "$YN" =~ [Nn] ]] && { printf "\nSettings creation cancelled - Quitting."; exit 2; }
+	if [[ "$YN" == [Nn] ]]; then
+		printf "\nSettings creation cancelled - Quitting."
+		exit 2
+	fi
 
 	printf "\n"
 	printf -v DATETIME "%(%F_%H%M)T" "-1"
