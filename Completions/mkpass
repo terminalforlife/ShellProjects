@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - mkpass/completion
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
-# Last Change       - Mon 12 Feb 03:46:51 GMT 2018
+# Last Change       - Mon 12 Feb 03:53:13 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -31,8 +31,20 @@ _arg_list_mkpass(){
 	done <<< "$(/usr/bin/mkpass -h)"
 }
 
+_types_mkpass(){
+	while read -a X; do
+		if [ "${X[0]}" == "|" ]; then
+			printf "%s\n" "${X[1]/VALID}"
+		fi
+	done <<< "$(/usr/bin/mkpass -h)"
+}
+
 _option_mkpass(){
-	COMPREPLY=($(compgen -W "$(_arg_list_mkpass)" -- "$2"))
+	if [[ "$3" =~ ^(--type|-t)$ ]]; then
+		COMPREPLY=($(compgen -W "$(_types_mkpass)" -- "$2"))
+	else
+		COMPREPLY=($(compgen -W "$(_arg_list_mkpass)" -- "$2"))
+	fi
 }
 
 complete -F _option_mkpass mkpass
