@@ -3,16 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun 11 Feb 14:12:37 GMT 2018
+# Last Change       - Mon 12 Feb 02:51:48 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # A small, personal-ish tool I use to quickly and easily back up my HOME from a
 # terminal into a (compressed with gzip) tar archive.
 #
-# NOTE: I'm currently in the process of converting this tool to one aimed at a
-#       general user, rather than more just myself. As it stands, this isn't
-#       user-friendly or especially rich in features.
+# NOTE: I'm currently in the process of making this more user-friendly.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -32,7 +30,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            BACKMEUP (11th February 2018)
+		            BACKMEUP (12th February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            A simple tool to quickly and easily back up your HOME.
@@ -44,6 +42,8 @@ USAGE(){
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --reset|-R              - Re-run the initial setting prompts.
 		            --notify|-N             - Notify after completion, via notify-send.
+
+		EXAMPLE:    backmeup --notify -Q
 
 		FILE:       User settings saved in and read from: \$HOME/.backmeup/settings
 
@@ -76,47 +76,20 @@ done
 MAIN_DIR="$HOME/.backmeup"
 SETTINGS="$MAIN_DIR/settings"
 
-[ -e /proc/mounts ] || XERR "$LINENO" "Unable to find file: /proc/mounts"
 [ -d "$MAIN_DIR" ] || /bin/mkdir "$MAIN_DIR"
 
 if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
-	while read -r; do
-		printf "%s\n" "$REPLY"
-	done <<-EOF
+	read -ep "Directory for backmeup archives: " STORE
 
-		Before you can continue, you must first enter some information, which will be saved
-		in ~/.backmeup/settings; this is to ensure the correct operation of backmeup.
+	case "$REPLY" in
+		*)
+			if ! [ -d "$STORE" ]; then
+				XERR "$LINENO" "Directory not found or inaccessible."
+			fi ;;
+		"")
+			XERR "$LINENO" "You must enter a valid path." ;;
+	esac
 
-	EOF
-
-	while read LINE; do
-		if [ "$LINE" == "/home" ]; then
-			HOME_PART="true"
-			break
-		fi
-	done <<< "$(/bin/lsblk -no mountpoint)"
-
-	read -ep "What is the label of the partition to which your archives will be saved? " LABEL
-	[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: LABEL"
-
-	if [ "$HOME_PART" == "true" ]; then
-		printf "NOTE: Separate /home partition detected.\n"
-
-		#TODO - Make this accept variables, like $USER.
-		read -ep "Enter the mountpoint of the aforementioned partition: " STORE
-		[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: STORE"
-	else
-		read -ep "Enter the mountpoint of the aforementioned partition: " STORE
-		[ -z "$LABEL" ] && XERR "$LINENO" "Empty value provided for settings parameter: STORE"
-	fi
-
-	read -n 1 -ep "Will you proceed with the provided settings? " YN
-	if [[ "$YN" == [Nn] ]]; then
-		printf "\nSettings creation cancelled - Quitting."
-		exit 2
-	fi
-
-	printf "\n"
 	printf -v DATETIME "%(%F_%H%M)T" "-1"
 
 	{
@@ -128,23 +101,23 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 			# User:      $USER
 			# UID:       $UID
 
-			LABEL="$LABEL"
-			STORE="${STORE%/$LABEL}/$LABEL"
+			# The path to the target file system. (mountpoint)
+			STORE="$STORE"
 
-			EXCLUDE="${HOME/\/}/.cache"
-			EXCLUDE="${HOME/\/}/.thumbnails"
+			# Exclude directories or files here.
+			EXCLUDE="$HOME/.cache"
+			EXCLUDE="$HOME/.thumbnails"
 		EOF
 	} > "$SETTINGS"
 
 	printf "Settings saved - Please relaunch backmeup.\n"
 	exit 0
 elif ! [ -r "$SETTINGS" ]; then
-	XERR "$LINENO" "Unable to access: $SETTINGS"
+	XERR "$LINENO" "File '$SETTINGS' inaccessible."
 fi
 
 declare -a EXCLUDE
 declare -i LINE=0
-
 while read -a X; do
 	LINE+=1
 
@@ -152,9 +125,6 @@ while read -a X; do
 	IFS="=" read -ra Y <<< "${X[@]}"
 
 	case "${Y[0]:-EMPTY}" in
-		LABEL)
-			printf "LABEL: %s\n" "${Y[1]//\"}"
-			LABEL="${Y[1]//\"}" ;;
 		STORE)
 			printf "STORE: %s\n" "${Y[1]//\"}"
 			STORE="${Y[1]//\"}" ;;
@@ -168,33 +138,23 @@ while read -a X; do
 	esac
 done < "$SETTINGS"
 
+[ -d "$STORE" ] || XERR "$LINENO" "Target '$STORE' not found."
+
 printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
-
-#echo /bin/tar --xattrs $EXCLUDE -cvpf "${STORE%/}/$ARCHIVE" "$HOME"
-#exit
-
 declare -i SECONDS=0
-while read -a X; do
-	if [[ "${X[1]}" =~ "${LABEL// /040}" ]]; then
-		#TODO - Why aren't exclusions working as they should?
-		/bin/tar --xattrs `eval printf "%s\\\\\n" ${EXCLUDE[@]}`\
-			-cvpf "${STORE%/}/$ARCHIVE" "$HOME"
 
-		/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE"
-		/bin/sync "${STORE%/}/$ARCHIVE.tgz"
+/bin/tar --xattrs --ignore-failed-read `eval printf "%s\\\\\n" ${EXCLUDE[@]}`\
+	--totals -cvpf "${STORE%/}/$ARCHIVE" "$HOME"
 
-		printf "Backup created in %d seconds.\n" "$SECONDS"
+/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE"
+/bin/sync "${STORE%/}/$ARCHIVE.tgz"
 
-		if [ "$NOTIFY" == "true" ]; then
-			if [ -x /usr/bin/notify-send ]; then
-				/usr/bin/notify-send "Your backmeup execution is finished."
-			else
-				XERR "$LINENO" "Dependency '/usr/bin/notify-send' not met."
-			fi
-		fi
+printf "Backup created in %d seconds.\n" "$SECONDS"
 
-		exit 0
+if [ "$NOTIFY" == "true" ]; then
+	if [ -x /usr/bin/notify-send ]; then
+		/usr/bin/notify-send "Your backmeup execution is finished."
+	else
+		XERR "$LINENO" "Dependency '/usr/bin/notify-send' not met."
 	fi
-done < /proc/mounts
-
-XERR "$LINENO" "The backup target is not available."
+fi
