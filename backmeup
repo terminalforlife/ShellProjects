@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Mon 12 Feb 02:51:48 GMT 2018
+# Last Change       - Mon 12 Feb 02:56:00 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -144,12 +144,16 @@ printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
 declare -i SECONDS=0
 
 /bin/tar --xattrs --ignore-failed-read `eval printf "%s\\\\\n" ${EXCLUDE[@]}`\
-	--totals -cvpf "${STORE%/}/$ARCHIVE" "$HOME"
+	--totals -cvpf "${STORE%/}/$ARCHIVE" "$HOME" || FAIL="true"
 
-/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE"
-/bin/sync "${STORE%/}/$ARCHIVE.tgz"
+/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE" || FAIL="true"
+/bin/sync "${STORE%/}/$ARCHIVE.tgz" || FAIL="true"
 
-printf "Backup created in %d seconds.\n" "$SECONDS"
+if ! [ "$FAIL" == "true" ]; then
+	printf "Backup created in %d seconds.\n" "$SECONDS"
+else
+	ERR "$LINENO" "One or more errors detected during backup."
+fi
 
 if [ "$NOTIFY" == "true" ]; then
 	if [ -x /usr/bin/notify-send ]; then
