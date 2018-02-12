@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/syswatch
 # Started On        - Thu  9 Nov 14:33:34 GMT 2017
-# Last Change       - Wed 10 Jan 20:51:18 GMT 2018
+# Last Change       - Mon 12 Feb 20:40:41 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 # this at startup. It works a bit like a daemon. Also notifies when the "link" is
 # up or down, which can be useful for troubleshooting.
 #
-# Wrote this specifically for use with dunst.
+# Wrote this for use with dunst, but could work well with other daemons.
 #----------------------------------------------------------------------------------
 
 declare -i DEPCOUNT=0
@@ -25,7 +25,7 @@ while :; do
 	LAST(){
 		# Not using pure-shell approach here, due to performance issues.
 		#TODO - The mount and unmount notifications aren't showing.
-		ERE='(link (down|up)$|mount|unmount|disconnect|detected)'
+		ERE='(link (down|up)$|disconnect|detected)'
 		/bin/dmesg -tl 6 | /bin/grep -E "$ERE" | /usr/bin/tail -n 1
 	}
 
