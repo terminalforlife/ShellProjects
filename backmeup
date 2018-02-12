@@ -3,14 +3,9 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Mon 12 Feb 02:56:00 GMT 2018
+# Last Change       - Mon 12 Feb 03:00:35 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# A small, personal-ish tool I use to quickly and easily back up my HOME from a
-# terminal into a (compressed with gzip) tar archive.
-#
-# NOTE: I'm currently in the process of making this more user-friendly.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
