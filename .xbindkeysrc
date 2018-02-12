@@ -1,13 +1,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.xbindkeysrc
 # Started On        - Wed  8 Nov 02:05:52 GMT 2017
-# Last Change       - Wed  8 Nov 02:36:31 GMT 2017
+# Last Change       - Mon 12 Feb 03:38:01 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # When I experimented with openbox, I used xbindkeys for keyboard shortcuts.
-
 #----------------------------------------------------------------------------------
 
 "xbindkeys_show" 
