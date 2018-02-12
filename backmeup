@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Mon 12 Feb 03:00:35 GMT 2018
+# Last Change       - Mon 12 Feb 03:03:39 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ declare -i SECONDS=0
 /bin/sync "${STORE%/}/$ARCHIVE.tgz" || FAIL="true"
 
 if ! [ "$FAIL" == "true" ]; then
-	printf "Backup created in %d seconds.\n" "$SECONDS"
+	printf "Backup successfully created in %d seconds.\n" "$SECONDS"
 else
 	ERR "$LINENO" "One or more errors detected during backup."
 fi
