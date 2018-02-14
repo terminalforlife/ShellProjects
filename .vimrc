@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Tue  6 Feb 14:33:50 GMT 2018
+" Last Change       - Wed 14 Feb 20:49:43 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ let g:hardmodestate=0
 let g:docmodestate=1
 let g:mousesupportstate=0
 let g:virtualeditstate=0
+let g:textwidthmode=0
 let mapleader=","
 
 " Allow recursive fuzzy finding.
@@ -238,6 +239,19 @@ func! HardMode()
 	endif
 endfunc
 
+" Set textwidth to 84.
+func! TextWidth()
+	if(g:textwidthmode == 0)
+		let g:textwidthmode = 1
+		set textwidth=84
+		echo "TextWidth() is enabled."
+	elseif(g:textwidthmode == 1)
+		let g:textwidthmode = 0
+		set textwidth=0
+		echo "TextWidth() is disabled."
+	endif
+endfunc
+
 " Set colors depending on terminal type.
 if(&ttytype == "xterm-256color")
 	colorscheme tfl
@@ -361,6 +375,9 @@ noremap <silent> <leader>rc :source $HOME/.vimrc<CR>
 
 " Display helpful screen information; good for code.
 noremap <silent> <leader>more :call MoreMode()<CR>
+
+" Toggle between textwidth 84 and textwidth 0.
+noremap <silent> <leader>tw :call TextWidth()<CR>
 
 " Toggle the display of tabs and spaces.
 noremap <silent> <leader>list :call ListMode()<CR>
