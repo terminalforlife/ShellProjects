@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Wed 14 Feb 20:49:43 GMT 2018
+" Last Change       - Wed 14 Feb 20:51:14 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -478,6 +478,7 @@ vnoremap <right> <Nop>
 silent call AutoScroll()
 silent call ExtraColorSets()
 silent call MoreMode()
+silent call TextWidth()
 
 " Adds security.
 set secure
