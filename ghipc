@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ghipc (GitHub IP Check)
 # Started On        - Wed 14 Feb 18:30:38 GMT 2018
-# Last Change       - Wed 14 Feb 18:52:38 GMT 2018
+# Last Change       - Wed 14 Feb 21:11:52 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -43,6 +43,8 @@ while [ "$1" ]; do
 done
 
 IP_LIST="$@"
+
+[ "$IP_LIST" ] || XERR "$LINENO" "No IP addresses were provided."
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
