@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Thu  9 Nov 00:56:33 GMT 2017
+# Last Change       - Wed 14 Feb 21:12:51 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -29,17 +29,17 @@ for DEP in /bin/{ln,rm}; {
 	XERR "$LINENO" "Not in the repository's root directory."
 }
 
-/bin/rm $HOME/.config/compton.conf 2> /dev/null
-/bin/ln compton.conf $HOME/.config/ 2> /dev/null
+/bin/rm -v $HOME/.config/compton.conf 2> /dev/null
+/bin/ln -v compton.conf $HOME/.config/ 2> /dev/null
 
-/bin/rm $HOME/.keynavrc 2> /dev/null
-/bin/ln .keynavrc $HOME/ 2> /dev/null
+/bin/rm -v $HOME/.keynavrc 2> /dev/null
+/bin/ln -v .keynavrc $HOME/ 2> /dev/null
 
-/bin/rm $HOME/.vim/colors/tfl.vim 2> /dev/null
-/bin/ln tfl.vim $HOME/.vim/colors/ 2> /dev/null
+/bin/rm -v $HOME/.vim/colors/tfl.vim 2> /dev/null
+/bin/ln -v tfl.vim $HOME/.vim/colors/ 2> /dev/null
 
-/bin/rm $HOME/.vimrc 2> /dev/null
-/bin/ln .vimrc $HOME/ 2> /dev/null
+/bin/rm -v $HOME/.vimrc 2> /dev/null
+/bin/ln -v .vimrc $HOME/ 2> /dev/null
 
-/bin/rm $HOME/.config/dunst/dunstrc 2> /dev/null
-/bin/ln dunstrc $HOME/.config/dunst/ 2> /dev/null
+/bin/rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
+/bin/ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
