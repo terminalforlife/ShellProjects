@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Wed 10 Jan 14:04:51 GMT 2018
+# Last Change       - Thu 15 Feb 22:48:24 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,14 +16,12 @@
 #
 # Calling bash to avoid dependencies and to make use of bash syntax.
 #
-# OPTS:
+# SYNTAX:     redshifter [OPT]
 #
-# --increment|-i X           - Increment gamma by X integer.
-# --decrement|-d X           - Decrement gamma by X integer.
-# --reset|-r                 - Reset to the default.
+# OPT:        --increment|-i N        - Increment gamma by N integer.
+#             --decrement|-d N        - Decrement gamma by N integer.
+#             --reset|-r              - Reset to the default.
 #----------------------------------------------------------------------------------
-
-[ $UID -eq 0 ] && exit 1 # No sense in running as root, but remove if desired.
 
 BUFFER="/tmp/redshifter.tmp"
 
@@ -32,24 +30,20 @@ BUFFER="/tmp/redshifter.tmp"
 	printf "%d\n" "6500" > "$BUFFER"
 } && GAMMAS_NOW=`< "$BUFFER"`
 
-while [ "$1" ]; do
-	case "$1" in
-		--reset|-r)
-			printf "%d\n" "6500" > "$BUFFER"
-			/usr/bin/redshift -o -O 6500K ;;
-		--increment|-i)
-			shift
-			TEMP=$(( GAMMAS_NOW + $1 ))
-			[ $TEMP -gt 25000 ] && break
-			printf "%d\n" "$TEMP" > "$BUFFER"
-			/usr/bin/redshift -o -O ${TEMP}K ;;
-		--decrement|-d)
-			shift
-			TEMP=$(( GAMMAS_NOW - $1 ))
-			[ $TEMP -lt 1000 ] && break
-			printf "%d\n" "$TEMP" > "$BUFFER"
-			/usr/bin/redshift -o -O ${TEMP}K ;;
-	esac
+case "$1" in
+	--reset|-r)
+		printf "%d\n" "6500" > "$BUFFER"
+		/usr/bin/redshift -o -O 6500K ;;
+	--increment|-i)
+		TEMP=$(( GAMMAS_NOW + $2 ))
+		[ $TEMP -gt 25000 ] && break
+		printf "%d\n" "$TEMP" > "$BUFFER"
+		/usr/bin/redshift -o -O ${TEMP}K ;;
+	--decrement|-d)
+		TEMP=$(( GAMMAS_NOW - $2 ))
+		[ $TEMP -lt 1000 ] && break
+		printf "%d\n" "$TEMP" > "$BUFFER"
+		/usr/bin/redshift -o -O ${TEMP}K ;;
+esac
 
-	shift
-done
+# vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup
