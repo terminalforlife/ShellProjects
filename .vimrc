@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Wed 14 Feb 20:51:14 GMT 2018
+" Last Change       - Thu 15 Feb 05:01:12 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -308,6 +308,10 @@ func! Err()
 	exe "normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>"
 endfunc
 
+" ???
+func! ML()
+	exe "normal! mmG0i# vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup\<Esc>`m0"
+endfunc
 
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
 func! Setup()
@@ -346,6 +350,7 @@ func! Setup()
 	exe "normal! 0i[ \"$BEQUIET\" == \"true\" ] && exec 1> /dev/null\<CR>"
 
 	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -xeu\<CR>\<CR>"
+	exe "normal! 0i\<CR>\<CR># vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup\<Esc>kk"
 endfunc
 
 " Enable syntax highlighting.
@@ -402,6 +407,9 @@ noremap <silent> <leader>save :call LastChange()<CR>
 
 " Adds a lot of nice shell (bash) code in preperation.
 noremap <silent> <leader>setup :call Setup()<CR>
+
+" ???
+noremap <silent> <leader>modeline :call ML()<CR>
 
 " Add just the XERR and ERR functions.
 noremap <silent> <leader>err :call Err()<CR>
