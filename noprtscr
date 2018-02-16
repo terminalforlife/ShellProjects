@@ -39,3 +39,5 @@ for KEY in {area,window}-screenshot{,-clip} screenshot{,-clip}; {
 		XERR "$LINENO" "Unable to clear: $KEY"
 	fi
 }
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

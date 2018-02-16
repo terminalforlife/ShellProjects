@@ -111,3 +111,5 @@ while :; do
 
 	/bin/sleep "${INTERVAL:-1m}"
 done
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

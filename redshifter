@@ -47,3 +47,5 @@ case "$1" in
 esac
 
 # vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

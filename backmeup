@@ -157,3 +157,5 @@ if [ "$NOTIFY" == "true" ]; then
 		XERR "$LINENO" "Dependency '/usr/bin/notify-send' not met."
 	fi
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

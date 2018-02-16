@@ -23,3 +23,5 @@ while IFS=">" read -a X; do
 		printf "%s\n%s\n\n" "${X[6]}" "${X[2]%<*}"
 	fi
 done <<< "$(/usr/bin/wget -q "$URL" -O -)"
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

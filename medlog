@@ -58,3 +58,5 @@ else
 			printf "%(%F (%X))T\n" "-1" >> "$LOGFILE" ;;
 	esac
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

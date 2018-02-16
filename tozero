@@ -110,3 +110,5 @@ case "$TYPE" in
 			echo "$I"
 		} ;;
 esac
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

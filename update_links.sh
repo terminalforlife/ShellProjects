@@ -43,3 +43,5 @@ for DEP in /bin/{ln,rm}; {
 
 /bin/rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
 /bin/ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

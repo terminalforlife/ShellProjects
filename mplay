@@ -99,3 +99,5 @@ if [ -x /usr/bin/mocp ]; then
 else
 	XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

@@ -43,3 +43,5 @@ while :; do
 	# on older and/or otherwise slower machines.
 	/bin/sleep 0.1s
 done
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

@@ -40,3 +40,5 @@ if [ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ]; then
 else
 	XERR "$LINENO" "Unable to fix Smart Placement."
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

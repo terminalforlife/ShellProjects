@@ -74,3 +74,5 @@ while read -a LINE; do
 		fi
 	fi
 done < "$FILE"
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

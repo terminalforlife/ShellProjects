@@ -98,3 +98,5 @@ fi
 
 LIBBLKID_DEBUG=all /sbin/swapoff -va
 LIBBLKID_DEBUG=all /sbin/swapon -v "$NAME"
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

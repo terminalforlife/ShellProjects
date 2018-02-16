@@ -65,3 +65,5 @@ while read LINE; do
 		fi
 	}
 done <<< "$(/usr/bin/wget -q "$URL" -O -)"
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

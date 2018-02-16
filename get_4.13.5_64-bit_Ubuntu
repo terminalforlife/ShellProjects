@@ -177,3 +177,5 @@ case "$ANSWER" in
 	*)
 		printf "Installation cancelled.\n" ;;
 esac
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

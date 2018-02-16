@@ -75,3 +75,5 @@ if [ -x /bin/rm ]; then
 else
 	XERR "$LINENO" "Dependency '/bin/rm' not met."
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

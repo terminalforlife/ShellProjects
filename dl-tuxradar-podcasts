@@ -77,3 +77,5 @@ for EPISODE in `EPISODE_LIST`; {
 		| /usr/bin/uniq\
 		| /usr/bin/xargs -I{} /usr/bin/wget -qc --show-progress ${DOM}"{}"
 }
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

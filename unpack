@@ -53,3 +53,5 @@ for FILE in ${@// /$SPACE}; {
 		esac
 	done <<< "$(/usr/bin/mimetype -db "$FILE")"
 }
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

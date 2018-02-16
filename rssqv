@@ -73,3 +73,5 @@ TL_LIST=$(
 for ITEM in `printf "%q\n" "${TL_LIST// /%20}"`; {
 	:
 }
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

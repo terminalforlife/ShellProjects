@@ -182,3 +182,5 @@ done < "$INDEX"
 
 [ $LINE -eq 0 ] && XERR "$LINENO" "Unable to find year $YEAR."
 [ "$TTL" == "true" ] && printf "\nTotal: %d\n" "$LINE"
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

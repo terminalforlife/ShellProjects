@@ -90,3 +90,5 @@ for DATE in $DATES_PAGES; {
 }
 
 [ "$DEBUGME" == "true" ] && set +xeu || exit 0
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

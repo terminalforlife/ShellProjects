@@ -39,3 +39,5 @@ until [ $COUNT -eq 21 ]; do
 
 	COUNT=$((COUNT+1))
 done
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup

@@ -120,3 +120,5 @@ while :; do
 		break
 	fi
 done &
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
