@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Thu 15 Feb 05:01:12 GMT 2018
+" Last Change       - Thu 15 Feb 23:39:19 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ endfunc
 
 " ???
 func! ML()
-	exe "normal! mmG0i# vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup\<Esc>`m0"
+	exe "normal! mmG0i# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup\<Esc>`m0"
 endfunc
 
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
