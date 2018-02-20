@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/bios-info
 # Started On        - Tue 20 Feb 07:47:12 GMT 2018
-# Last Change       - Tue 20 Feb 07:53:48 GMT 2018
+# Last Change       - Tue 20 Feb 07:54:58 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -48,4 +48,4 @@ for FILE in $MAIN/{sys_vendor,board_{name,version},bios_{date,version}}; {
 	fi
 }
 
-# vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
