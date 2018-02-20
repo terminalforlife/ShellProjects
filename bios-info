@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/bios-info
 # Started On        - Tue 20 Feb 07:47:12 GMT 2018
-# Last Change       - Tue 20 Feb 07:54:58 GMT 2018
+# Last Change       - Tue 20 Feb 07:58:50 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ USAGE(){
 		            BIOS-INFO (20th February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
-		            Show basic BIOS keys and their values.
+		            Simple tool to show basic BIOS keys and their values.
 
 		SYNTAX:     bios-info [OPT]
 		
