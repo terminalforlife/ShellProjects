@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/bios-info
+# Started On        - Tue 20 Feb 07:47:12 GMT 2018
+# Last Change       - Tue 20 Feb 07:53:48 GMT 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This may be expanded in the future.
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            BIOS-INFO (20th February 2018)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Show basic BIOS keys and their values.
+
+		SYNTAX:     bios-info [OPT]
+		
+		OPT:        --help|-h|-?            - Displays this help information.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+
+	shift
+done
+
+MAIN='/sys/devices/virtual/dmi/id'
+printf "%-13s %16s\n" "KEY" "VALUE"
+for FILE in $MAIN/{sys_vendor,board_{name,version},bios_{date,version}}; {
+	if [ -f "$FILE" -a -r "$FILE" ]; then
+		printf "%-13s %16s\n" "${FILE//*\/}" "$(< $FILE)"
+	fi
+}
+
+# vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup
