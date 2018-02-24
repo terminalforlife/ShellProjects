@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Thu 15 Feb 22:48:24 GMT 2018
+# Last Change       - Thu 22 Feb 13:44:30 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -45,7 +45,5 @@ case "$1" in
 		printf "%d\n" "$TEMP" > "$BUFFER"
 		/usr/bin/redshift -o -O ${TEMP}K ;;
 esac
-
-# vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
