@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Thu 15 Feb 23:39:19 GMT 2018
+" Last Change       - Sat 24 Feb 18:20:43 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -327,7 +327,7 @@ func! Setup()
 
 	exe "normal! 0iUSAGE(){\<CR>\<Tab>while read -r; do\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>printf \"%s\\n\" \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            EXAMPLE (5th October 2017)\<CR>"
+	exe "normal! 0i\<Tab>\<Tab>            EXAMPLE (24th February 2018)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            Written by terminalforlife (terminalforlife@yahoo.com)\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>\<CR>"
 	exe "normal! 0i\<Tab>\<Tab>            Dummy description for this template.\<CR>\<CR>"
@@ -350,7 +350,7 @@ func! Setup()
 	exe "normal! 0i[ \"$BEQUIET\" == \"true\" ] && exec 1> /dev/null\<CR>"
 
 	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -xeu\<CR>\<CR>"
-	exe "normal! 0i\<CR>\<CR># vim: noexpandtab colorcolumn=80 tabstop=8 noswapfile nobackup\<Esc>kk"
+	exe "normal! 0i\<CR>\<CR># vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup\<Esc>kk"
 endfunc
 
 " Enable syntax highlighting.
@@ -486,7 +486,6 @@ vnoremap <right> <Nop>
 silent call AutoScroll()
 silent call ExtraColorSets()
 silent call MoreMode()
-silent call TextWidth()
 
 " Adds security.
 set secure
