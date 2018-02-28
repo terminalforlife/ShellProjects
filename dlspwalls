@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dlspwalls
 # Started On        - Sun 15 Oct 20:48:22 BST 2017
-# Last Change       - Wed 10 Jan 14:09:48 GMT 2018
+# Last Change       - Wed 28 Feb 22:00:55 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DLSPWALLS (10th January 2018)
+		            DLSPWALLS (28th February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Download a collection of steampunk wallpapers.
@@ -51,6 +51,10 @@ done
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
+# Newer versions of wget by default request unwanted server-side compression.
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
@@ -78,7 +82,7 @@ for ID in ${GETID[@]//\/}; {
 
 	printf "%s\n" "DOWNLOADING: steampunk-wallpaper-1920x1080-${ID}.jpg"
 	printf -v FNAME "./steampunk-wallpaper-1920x1080-%0.2d.jpg" "${N}"
-	/usr/bin/wget -qc "${URL}-1920x1080-${ID}" -O "$FNAME"
+	/usr/bin/wget -qc $NOWARC "${URL}-1920x1080-${ID}" -O "$FNAME"
 }
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
