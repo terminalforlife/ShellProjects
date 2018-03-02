@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  2 Mar 20:08:18 GMT 2018
+# Last Change       - Fri  2 Mar 20:14:09 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -75,21 +75,18 @@ fi
 if ! [ -f "$FILE" -a -r "$FILE" ]; then
 	XERR "$LINENO" "Notes file inaccessible or not found."
 else
-	if [ x"$1" == "x" ]; then
-		MATCH='^(|#.*)$'
-	else
-		MATCH="$1"
-	fi
-
+	MATCH="$1"
 	declare -i LINE_COUNT=0
-	while read -a LINE; do
+	while read LINE; do
 		LINE_COUNT+=1
-		[ "${LINE[0]}" == "#END" ] && break
-		if [[ "${LINE[0]}" =~ $MATCH ]]; then
+		[ "$LINE" == "#END" ] && break
+		if [[ "$LINE" =~ ^(|#.*)$ ]]; then
+			continue
+		elif [[ "$LINE" =~ $MATCH ]]; then
 			if [ "$LINE_NUMBERS" == "true" ]; then
-				printf "%4d  %s\n" "$LINE_COUNT" "${LINE[*]}"
+				printf "%4d  %s\n" "$LINE_COUNT" "$LINE"
 			else
-				printf "%s\n" "${LINE[*]}"
+				printf "%s\n" "$LINE"
 			fi
 		fi
 	done < "$FILE"
