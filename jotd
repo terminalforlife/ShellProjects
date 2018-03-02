@@ -1,9 +1,10 @@
 #!/bin/bash
+clear
 
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Fri  2 Mar 13:29:31 GMT 2018
+# Last Change       - Fri  2 Mar 13:52:02 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,15 +12,9 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-declare -i DEPCOUNT=0
-for DEP in PATH; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
-}
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
-[ $DEPCOUNT -eq 0 ] || exit 1
+DOM="http://jokes.cc.com"
 
 USAGE(){
 	while read -r; do
@@ -30,12 +25,12 @@ USAGE(){
 		
 		            Display a Joke of the Day on your terminal.
 
-		SYNTAX:     example [OPTS]
+		SYNTAX:     jotd [OPTS]
 		
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 
-		SITE:       http://jokes.cc.com
+		SITE:       $DOM
 	EOF
 }
 
@@ -56,8 +51,16 @@ done
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
+# Newer versions of wget by default request unwanted server-side compression.
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+
 [ "$DEBUGME" == "true" ] && set -xeu
 
-
+while IFS=">" read -a X; do
+	if [ "${X[1]}" == '<div class="module_content"' ]; then
+		printf "%s\n" ${X[@]}
+	fi
+done < $HOME/Desktop/testdata #<<< "$(/usr/bin/wget -q $NOWARC -t 1 $DOM -O -)"
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
