@@ -3,21 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  2 Mar 20:24:19 GMT 2018
+# Last Change       - Fri  2 Mar 20:29:51 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# This is a personal script I use to parse my shell notes. If you wished to use
-# for your own nefarious gains, you must have a command(s) one per line. The end of
-# where this file will process must have "#END", on its own, on a line. You can
-# then quickly search your notes for a command you jotted down previously. This is
-# a lot more useful than it sounds!
-#
-# Work in progress! Unfinished!
+# To use your own comment character, change the COM variable. This feature will
+# eventually be included into snotes properly.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+COM="#"
 
 USAGE(){
 	while read -r; do
@@ -38,7 +35,7 @@ USAGE(){
 		            snotes when you wish to stop searching for the MATCH, have a line in
 		            the notes file which contains only:
 		
-		              #END
+		              ${COM}END
 	EOF
 }
 
@@ -99,8 +96,8 @@ MATCH="$1"
 declare -i LINE_COUNT=0
 while read LINE; do
 	LINE_COUNT+=1
-	[ "$LINE" == "#END" ] && break
-	if [[ "$LINE" =~ ^(|#.*)$ ]]; then
+	[ "$LINE" == "${COM}END" ] && break
+	if [[ "$LINE" =~ ^(|${COM}.*)$ ]]; then
 		continue
 	elif [[ "$LINE" =~ $MATCH ]]; then
 		if [ "$LINE_NUMBERS" == "true" ]; then
