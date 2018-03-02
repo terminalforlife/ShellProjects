@@ -4,7 +4,7 @@ clear
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Fri  2 Mar 13:52:02 GMT 2018
+# Last Change       - Fri  2 Mar 14:26:20 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,7 +12,15 @@ clear
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{wget,fold,tput}; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
 
 DOM="http://jokes.cc.com"
 
@@ -30,6 +38,8 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 
+		NOTE:       These jokes may or may not be tasteful!
+
 		SITE:       $DOM
 	EOF
 }
@@ -40,8 +50,6 @@ while [ "$1" ]; do
 			USAGE; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--quiet|-q)
-			BEQUIET="true" ;;
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -57,10 +65,15 @@ read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 
 [ "$DEBUGME" == "true" ] && set -xeu
 
-while IFS=">" read -a X; do
-	if [ "${X[1]}" == '<div class="module_content"' ]; then
-		printf "%s\n" ${X[@]}
+while read X; do
+	#TODO - Fix possible issue with joke containing a '>' character.
+	if [[ "$X" =~ ^\<div\ class\=\"module_content\"\> ]]; then
+		B="${X%</span>*}"
+		B="${B/*>}"
+		COLS=`/usr/bin/tput cols`
+		/usr/bin/fold -sw ${COLS} <<< "$(printf "%s\n" "$B")"
+		break
 	fi
-done < $HOME/Desktop/testdata #<<< "$(/usr/bin/wget -q $NOWARC -t 1 $DOM -O -)"
+done <<< "$(/usr/bin/wget -q $NOWARC -t 1 $DOM -O -)"
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
