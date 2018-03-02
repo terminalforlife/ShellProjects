@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  9 Feb 00:40:17 GMT 2018
+# Last Change       - Fri  2 Mar 20:08:18 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -23,14 +23,14 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            SNOTES - SEARCH NOTES (9th February 2018)
+		            SNOTES - SEARCH NOTES (2nd March 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		SYNTAX:     snotes [OPTS] MATCH
 		
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --file|-f PATH          - Specify the notes file PATH to parse.
+		            --file|-f PATH          - Specify and remember the notes file.
 	EOF
 }
 
@@ -51,28 +51,48 @@ while [ "$1" ]; do
 	shift
 done
 
-#TODO - Clumsy. Sort out a feature which reads a small configuration file which the
-#       user first sets to point to the notes file to parse.
-if ! [ -f "$FILE" -a -r "$FILE" ]; then
-	XERR "$LINENO" "Notes file inaccessible or not found."
+if [ "$2" ]; then
+	XERR "$LINENO" "Argument error -- is your match correct?"
 fi
 
-#TODO - This doesn't work properly. Sort it.
-[ x"$*" == "x" ] && MATCH='^(|#.*)$' || MATCH="$*"
-
-declare -i LINE_COUNT=0
-while read -a LINE; do
-	LINE_COUNT+=1
-
-	if [ "${LINE[0]}" == "#END" ]; then
-		break
-	elif ! [[ "${LINE[0]}" =~ $MATCH ]]; then
-		if [ "$LINE_NUMBERS" == "true" ]; then
-			printf "%4d  %s\n" "$LINE_COUNT" "${LINE[*]}"
+if [ -f $HOME/.config/snotes.conf ]; then
+	if [ "$FILE" ]; then
+		read -n 1 -e -p "Notes file already exists -- replace? "
+		if ! [[ "$REPLY" == [Yy] ]]; then
+			printf "No action taken -- quitting.\n"
+			exit 0
 		else
-			printf "%s\n" "${LINE[*]}"
+			[ -d $HOME/.config ] || /bin/mkdir $HOME/.config
+			printf "%q\n" "$FILE" > $HOME/.config/snotes.conf
 		fi
+	else
+		FILE="$(< $HOME/.config/snotes.conf)"
 	fi
-done < "$FILE"
+else
+	printf "$FILE\n" > $HOME/.config/snotes.conf
+fi
+
+if ! [ -f "$FILE" -a -r "$FILE" ]; then
+	XERR "$LINENO" "Notes file inaccessible or not found."
+else
+	if [ x"$1" == "x" ]; then
+		MATCH='^(|#.*)$'
+	else
+		MATCH="$1"
+	fi
+
+	declare -i LINE_COUNT=0
+	while read -a LINE; do
+		LINE_COUNT+=1
+		[ "${LINE[0]}" == "#END" ] && break
+		if [[ "${LINE[0]}" =~ $MATCH ]]; then
+			if [ "$LINE_NUMBERS" == "true" ]; then
+				printf "%4d  %s\n" "$LINE_COUNT" "${LINE[*]}"
+			else
+				printf "%s\n" "${LINE[*]}"
+			fi
+		fi
+	done < "$FILE"
+fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
