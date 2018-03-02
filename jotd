@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Fri  2 Mar 14:27:35 GMT 2018
+# Last Change       - Fri  2 Mar 14:28:56 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -74,5 +74,7 @@ while read X; do
 		break
 	fi
 done <<< "$(/usr/bin/wget -q $NOWARC -t 1 $DOM -O -)"
+#TODO - If it's already known what today's joke is, why contact the servers to
+#       check for a new one? Fix this using a /tmp file, at the very least.
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
