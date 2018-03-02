@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  2 Mar 20:14:09 GMT 2018
+# Last Change       - Fri  2 Mar 20:16:13 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -55,8 +55,15 @@ if [ "$2" ]; then
 	XERR "$LINENO" "Argument error -- is your match correct?"
 fi
 
+SNOTESCHK(){
+	if ! [ -f "$FILE" -a -r "$FILE" ]; then
+		XERR "$LINENO" "Notes file inaccessible or not found."
+	fi
+}
+
 if [ -f $HOME/.config/snotes.conf ]; then
 	if [ "$FILE" ]; then
+		SNOTESCHK
 		read -n 1 -e -p "Notes file already exists -- replace? "
 		if ! [[ "$REPLY" == [Yy] ]]; then
 			printf "No action taken -- quitting.\n"
@@ -72,24 +79,21 @@ else
 	printf "$FILE\n" > $HOME/.config/snotes.conf
 fi
 
-if ! [ -f "$FILE" -a -r "$FILE" ]; then
-	XERR "$LINENO" "Notes file inaccessible or not found."
-else
-	MATCH="$1"
-	declare -i LINE_COUNT=0
-	while read LINE; do
-		LINE_COUNT+=1
-		[ "$LINE" == "#END" ] && break
-		if [[ "$LINE" =~ ^(|#.*)$ ]]; then
-			continue
-		elif [[ "$LINE" =~ $MATCH ]]; then
-			if [ "$LINE_NUMBERS" == "true" ]; then
-				printf "%4d  %s\n" "$LINE_COUNT" "$LINE"
-			else
-				printf "%s\n" "$LINE"
-			fi
+SNOTESCHK
+MATCH="$1"
+declare -i LINE_COUNT=0
+while read LINE; do
+	LINE_COUNT+=1
+	[ "$LINE" == "#END" ] && break
+	if [[ "$LINE" =~ ^(|#.*)$ ]]; then
+		continue
+	elif [[ "$LINE" =~ $MATCH ]]; then
+		if [ "$LINE_NUMBERS" == "true" ]; then
+			printf "%4d  %s\n" "$LINE_COUNT" "$LINE"
+		else
+			printf "%s\n" "$LINE"
 		fi
-	done < "$FILE"
-fi
+	fi
+done < "$FILE"
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
