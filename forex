@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Thu 21 Dec 11:29:58 GMT 2017
+# Last Change       - Fri  2 Mar 19:48:44 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FOREX (21th December 2017)
+		            FOREX (2nd March 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Easily convert various currency rates straight from the terminal.
@@ -27,8 +27,8 @@ USAGE(){
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --rounded|-R            - Do not display as a floating point.
 
-		EXAMPLE:    $ forex GBP 5 USD
-		            0.7471
+		EXAMPLE:    $ forex USD 5 GBP
+		            0.7254
 
 		SITE:       https://www.foreignexchange.org.uk
 	EOF
@@ -54,6 +54,10 @@ done
 SOURCE="$1"
 AMOUNT="$2"
 TARGET="$3"
+
+# Newer versions of wget by default request unwanted server-side compression.
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
 [ "$DEBUGME" == "true" ] && set -xeu
 
@@ -90,7 +94,7 @@ while read -a X; do
 	if [[ "${X[*]}" =~ name=\"answer\" ]]; then
 		RESULT="${X[3]//[!0-9.]}"
 	fi
-done <<< "$(/usr/bin/wget -q "$SITE" -O -)"
+done <<< "$(/usr/bin/wget -q -t 1 $NOWARC "$SITE" -O -)"
 
 if [[ "$RESULT" =~ ^[0-9.]+$ ]]; then
 	if [ "$ROUNDED" == "true" ]; then
