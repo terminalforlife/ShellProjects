@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ghipc (GitHub IP Check)
 # Started On        - Wed 14 Feb 18:30:38 GMT 2018
-# Last Change       - Wed 14 Feb 21:11:52 GMT 2018
+# Last Change       - Sat  3 Mar 22:32:10 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            GHIPC - GitHub IP Check (14th February 2018)
+		            GHIPC - GitHub IP Check (3rd March 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Check the validity of IP addresses of GitHub servers.
@@ -38,7 +38,6 @@ while [ "$1" ]; do
 		*)
 			break ;;
 	esac
-
 	shift
 done
 
@@ -49,21 +48,17 @@ IP_LIST="$@"
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
 # Newer versions of wget by default request unwanted server-side compression.
-read -a WGET_VERSION_LINE <<< "$(/usr/bin/wget --version)"
-if [ 0${WGET_VERSION_LINE[2]//[!0-9]} -ge 01192 ]; then
-	XERR "$LINENO" "Your version of wget is currently unsupported."
-fi
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
 URL='https://api.github.com/meta'
-
 while read LINE; do
 	BUFFER="${LINE//[!0-9.\/]}"
-
 	for IP in $IP_LIST; {
 		if [ "${BUFFER%\/*}" == "$IP" ]; then
 			printf "MATCH: %s\n" "${BUFFER%\/*}"
 		fi
 	}
-done <<< "$(/usr/bin/wget -q "$URL" -O -)"
+done <<< "$(/usr/bin/wget $NOWARC -q "$URL" -O -)"
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
