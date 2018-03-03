@@ -3,9 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/medlog
 # Started On        - Fri 18 Nov ??:??:?? BST 2016
-# Last Change       - Sat  3 Mar 22:54:38 GMT 2018
+# Last Change       - Sat  3 Mar 22:57:30 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# WARNING: This program (older one, compared to the GUI, medlogip) logs in the
+#          opposite direction to medlogip. When I wrote medlogip, I realised it was
+#          silly having the latest entries at the bottom. An easy fix in medlog, -
+#          so I may include that at some point.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
