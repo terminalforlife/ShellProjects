@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Thu  9 Nov 11:56:12 GMT 2017
+# Last Change       - Sat  3 Mar 23:14:01 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -21,13 +21,11 @@ for DEP in /usr/bin/{tr,cut,stat} /bin/{systemctl,sleep}; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-shopt -s extglob
-
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FILESITTER (9th November 2017)
+		            FILESITTER (3rd March 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Watch for and act upon the completion of file size changes.
@@ -37,7 +35,7 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug                 - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --interval=n            - Where n is the check interval in seconds.
+		            --interval N            - Where N is the check interval in seconds.
 		                                      Default is to check every 600 minutes.
 		            --shutdown              - Power system off instead of suspending.
 
@@ -48,29 +46,40 @@ USAGE(){
 	EOF
 }
 
-for ARG in $@; {
-	case "$ARG" in
+while [ "$1" ]; do
+	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--debug)
 			DEBUGME="true" ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
-		--interval=@(+([0-9])|+([0-9]).+([0-9])))
-			INTERVAL="${ARG/*=}" ;;
+		--interval)
+			shift
+			if [[ "$1" =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
+				INTERVAL="$1"
+			else
+				XERR "$LINENO" "Invalid interval specified."
+			fi ;;
 		--shutdown)
 			ACTION="poweroff" ;;
 		*)
 			break ;;
 	esac
-
 	shift
-}
+done
 
-IFS=""; FILENAME1="$1"; FILENAME2="$2"; FILENAME3="$3"
-[ -z "$FILENAME1" -a -z "$FILENAME2" -a -z "$FILENAME3" ] && {
+#TODO - Why is this here? Explore and optimize.
+IFS=""
+
+if ! [ "$1" -a "$2" -a "$3" ]; then
 	XERR "$LINENO" "At least one filename is required."
-}
+else
+	#TODO - More than 3 file shouldn't be an issue -- fix.
+	FILENAME1="$1"
+	FILENAME2="$2"
+	FILENAME3="$3"
+fi
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
@@ -83,24 +92,22 @@ while :; do
 		"${FILENAME1:-NULL}" "${FILENAME2:-NULL}" "${FILENAME3:-NULL}"
 	{
 		[ "$FILE" == "NULL" ] && continue
-
-		[ -f "$FILE" -o -r "$FILE" ] || {
+		if ! [ -f "$FILE" -o -r "$FILE" ]; then
 			XERR "$LINENO" "Cannot find or access: $FILE"
-		}
-
-		NEW+=`/usr/bin/stat --printf="%s" "$FILE"`
+		else
+			NEW+=`/usr/bin/stat --printf="%s" "$FILE"`
+		fi
 	}
 
-	[ ${OLD:-0} -eq $NEW ] && {
+	if [ ${OLD:-0} -eq $NEW ]; then
 		# Use trap to avoid neverending loop with suspend.
 		[ -z "$ACTION" ] && ACTION="suspend"
 		trap "/bin/systemctl $ACTION" HUP
 
-		# Exit if kill succeeds, otherwise just exit with error.
 		kill -HUP $$ && exit 0 || {
 			XERR "$LINENO" "Failed to $ACTION the system."
 		}
-	}
+	fi
 
 	OLD="$NEW"
 	unset NEW
