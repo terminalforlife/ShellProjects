@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Fri  2 Mar 19:48:44 GMT 2018
+# Last Change       - Sat  3 Mar 22:34:19 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,11 +12,13 @@ XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 
 [ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
+DOM="https://www.foreignexchange.org.uk"
+
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FOREX (2nd March 2018)
+		            FOREX (3rd March 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Easily convert various currency rates straight from the terminal.
@@ -30,7 +32,7 @@ USAGE(){
 		EXAMPLE:    $ forex USD 5 GBP
 		            0.7254
 
-		SITE:       https://www.foreignexchange.org.uk
+		SITE:       $DOM
 	EOF
 }
 
@@ -87,9 +89,7 @@ fi
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
-DOM="https://www.foreignexchange.org.uk"
 SITE="$DOM/fx-rates/conversion/$AMOUNT/$SOURCE/$TARGET"
-
 while read -a X; do
 	if [[ "${X[*]}" =~ name=\"answer\" ]]; then
 		RESULT="${X[3]//[!0-9.]}"
