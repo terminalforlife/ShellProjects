@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Mon 16 Oct 00:05:06 BST 2017
+# Last Change       - Sat  3 Mar 23:18:55 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            TOZERO (19th December 2017)
+		            TOZERO (3rd March 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		            Simple program to display a countdown for a target date.
@@ -26,7 +26,6 @@ USAGE(){
 		
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --only|-o TYPE          - Where TYPE is which to only show.
 
 		NOTE:       Behind the scenes, 'date' is used, so strings like "tomorrow", "next -
@@ -49,32 +48,26 @@ USAGE(){
 	EOF
 }
 
-TYPE=""
-
 while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--quiet|-q)
-			BEQUIET="true" ;;
 		--only|-o)
-			shift
-
-			TYPE="$1" ;;
-		-*|--*)
+			shift; TYPE="$1" ;;
+		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
-			DATE="$1" ;;
+			break ;;
 	esac
-
 	shift
 done
 
+DATE="$1"
+
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
 /bin/date -d "$DATE" &> /dev/null || XERR "$LINENO" "Incorrect TARGET string."
