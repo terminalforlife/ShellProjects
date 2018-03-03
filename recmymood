@@ -1,21 +1,25 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/gemymood
+# Project Name      - miscellaneous/recmymood
 # Started On        - Thu 28 Dec 12:20:40 GMT 2017
-# Last Change       - Thu  8 Feb 23:50:20 GMT 2018
+# Last Change       - Sat  3 Mar 22:40:59 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Incomplete. The general idea is to record your mood and manipulate the results.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
+[ -x /bin/mkdir ] || XERR "$LINENO" "Dependency '/bin/mkdir' not met."
+
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            RECMYMOOD (8th February 2018)
+		            RECMYMOOD (3rd March 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 		
 		SYNTAX:     recmymood [OPTS]
@@ -34,7 +38,6 @@ while [ "$1" ]; do
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
-
 	shift
 done
 
@@ -45,7 +48,7 @@ done
 while read -r; do
 	printf "%s\n" "$REPLY"
 done <<-EOF
-	How are you feeling today?
+	How are you feeling today, $USER?
 
 	10 + really good    :D
 	 9 |
@@ -65,10 +68,13 @@ done <<-EOF
 
 EOF
 
-read -e -p "MOOD: " GETMOOD
+MAIN_DIR="$HOME/.config"
+[ -d "$MAIN_DIR" ] || /bin/mkdir "$MAIN_DIR"
+LOG="$MAIN_DIR/recmymood.log"
 
+read -e -p "MOOD: " GETMOOD
 if [[ "$GETMOOD" =~ ^([0-9]+|[0-9]+\.[0-9]+)$ ]]; then
-	printf "%(%F_%X)T %s\n" -1 "$GETMOOD" >> $HOME/recmymood.log
+	printf "%(%F_%X)T %s\n" -1 "$GETMOOD" >> "$LOG"
 fi
 
 #TODO - Add feature to average out the day's total entries, ignoring duplicates.
