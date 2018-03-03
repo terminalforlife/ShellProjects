@@ -3,20 +3,16 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/medlog
 # Started On        - Fri 18 Nov ??:??:?? BST 2016
-# Last Change       - Thu 21 Dec 10:13:44 GMT 2017
+# Last Change       - Sat  3 Mar 22:54:38 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# Need help taking and logging when you've had your medication? Me too. That's why
-# I wrote this ages ago. It was my first "big" project; quite proud of it, even if
-# it's quite simple and I could certainly do a better job of it now. Hope it helps.
 #----------------------------------------------------------------------------------
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{xmessage,paplay,notify-send} /bin/mkdir; {
+for DEP in /usr/bin/{xmessage,notify-send} /bin/mkdir; {
 	[ -x "$DEP" ] || {
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -25,38 +21,64 @@ for DEP in /usr/bin/{xmessage,paplay,notify-send} /bin/mkdir; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access not required."
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            MEDLOG (3rd March 2018)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Need help logging when you've taken your daily medication?
+
+		SYNTAX:     medlog [OPTS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --debug|-D              - Enables the built-in bash debugging.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+
+[ "$DEBUGME" == "true" ] && set -xeu
 
 MAINDIR="$HOME/.medlog"
-[ -d "$MAINDIR" ] || /bin/mkdir --parents "$MAINDIR"
 LOGFILE="$MAINDIR/medlog.log"
+[ -d "$MAINDIR" ] || /bin/mkdir -p "$MAINDIR"
 [ -f "$LOGFILE" ] || > "$LOGFILE"
 [ -w "$LOGFILE" ] || XERR "$LINENO" "File '${LOGFILE//*\/}' has no write access."
-NOTIFILE="$MAINDIR/notify.ogg"
 
-#TODO - Is there a more efficient way to do this? (pure-shell)
+#TODO - Make this a readarray and use the index count to parse it.
 while read -a X; do
 	printf -v LAST_LOG "%s\n" "${X[0]}"
 done < "$LOGFILE"
 
-printf -v TODAY_DATE "%(%F (%X))T" "-1"
+printf -v TODAY_DATE "%(%F (%X))T" -1
 MSG="Medication taken today, $USER?"
 MSG_NO="Take medication, then reload medlog."
-
 if [ "${TODAY_DATE%/*}" == "${LAST_LOG%/*}" ]; then
 	/usr/bin/notify-send "Medication already taken today."
 else
-	/usr/bin/paplay "$NOTIFILE"
-	
-	ANSWER=$(/usr/bin/xmessage -buttons yes,no -center "$MSG" -print)
-	
-	case "$ANSWER" in
-		no)
-			/usr/bin/notify-send "$MSG_NO"
-			exit 1 ;;
-		yes)
-			printf "%(%F (%X))T\n" "-1" >> "$LOGFILE" ;;
-	esac
+	if ! /usr/bin/xmessage -buttons yes,no -center "$MSG"; then
+		#TODO - Loop a reminder notification every X minutes.
+		/usr/bin/notify-send "$MSG_NO"
+		exit 1
+	else
+		printf "%(%F (%X))T\n" -1 >> "$LOGFILE"
+	fi
 fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
