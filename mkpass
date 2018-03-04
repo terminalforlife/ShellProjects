@@ -3,12 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Tue 23 Jan 22:19:50 GMT 2018
+# Last Change       - Sun  4 Mar 20:38:53 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Originally a ShellPlugin, called with shellpass, but has since been improved.
 #------------------------------------------------------------------------------MAIN
+
+_VERSION_="2018-03-04"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -17,7 +19,7 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MKPASS (23rd January 2018)
+		            MKPASS ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Pure Bourne Again Shell approach to complex password generation.
@@ -25,6 +27,7 @@ USAGE(){
 		SYNTAX:     mkpass [OPTS] INT
 
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --type|-t TYPE          - Where T is the type. See below.
 
 		NOTE:       This small program uses /dev/urandom to generate a wide range of
@@ -51,6 +54,9 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--type|-t)
 			shift; TYPE="$1" ;;
 		-*)
