@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Thu 22 Feb 13:44:30 GMT 2018
+# Last Change       - Sun  4 Mar 20:36:39 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,10 +18,13 @@
 #
 # SYNTAX:     redshifter [OPT]
 #
-# OPT:        --increment|-i N        - Increment gamma by N integer.
+# OPT:        --version|-v            - Output only the version datestamp.
+#             --increment|-i N        - Increment gamma by N integer.
 #             --decrement|-d N        - Decrement gamma by N integer.
 #             --reset|-r              - Reset to the default.
 #----------------------------------------------------------------------------------
+
+_VERSION_="2018-03-04"
 
 BUFFER="/tmp/redshifter.tmp"
 
@@ -31,6 +34,9 @@ BUFFER="/tmp/redshifter.tmp"
 } && GAMMAS_NOW=`< "$BUFFER"`
 
 case "$1" in
+	--version|-v)
+		printf "%s\n" "$_VERSION_"
+		exit 0 ;;
 	--reset|-r)
 		printf "%d\n" "6500" > "$BUFFER"
 		/usr/bin/redshift -o -O 6500K ;;
