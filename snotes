@@ -3,13 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  2 Mar 20:29:51 GMT 2018
+# Last Change       - Sun  4 Mar 20:41:21 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # To use your own comment character, change the COM variable. This feature will
 # eventually be included into snotes properly.
 #----------------------------------------------------------------------------------
+
+_VERSION_="2018-03-04"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -20,21 +22,22 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            SNOTES - SEARCH NOTES (2nd March 2018)
+		            SNOTES - SEARCH NOTES ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Search your programming notes on-the-fly with this simple tool.
-		
+
 		SYNTAX:     snotes [OPTS] MATCH
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --file|-f PATH          - Specify and remember the notes file to use.
 
 		NOTE:       Uses regular expressions for MATCH. Comment lines are ignored. To tell
 		            snotes when you wish to stop searching for the MATCH, have a line in
 		            the notes file which contains only:
-		
+
 		              ${COM}END
 	EOF
 }
@@ -43,6 +46,9 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--file|-f)
