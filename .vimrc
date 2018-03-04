@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Sat 24 Feb 18:20:43 GMT 2018
+" Last Change       - Sun  4 Mar 19:15:03 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -97,6 +97,12 @@ set incsearch
 " Superficially use 8-space tabs; set this for reference.
 set tabstop=8
 
+" A function responsible for both un- and commenting lines of text, depending on
+" the laguage the currently edited file is using or marked as. In progress.
+"func! Comment()
+"
+"endfunc
+
 " Just holds some extra color settings.
 func! ExtraColorSets()
 	hi SpecialKey     ctermfg=darkyellow   ctermbg=NONE
@@ -108,13 +114,6 @@ func! ExtraColorSets()
 	hi StatusLineNC   ctermbg=238          ctermfg=black
 	hi Comment        ctermbg=NONE         ctermfg=241
 	hi TabLineFill    ctermbg=0            ctermfg=0
-endfunc
-
-" Removing tailing spaces and tabs, then save.
-func! CleanupThenSave()
-	exe "normal! :%s/\\s\\+$//\<CR>"
-	exe "normal! :%s/\\t\\+$//\<CR>"
-	write
 endfunc
 
 " Function deals with autoscrolling.
@@ -288,69 +287,88 @@ endfunc
 
 " Enter a tidy header.
 func! Header()
-	exe "normal! i#\<Esc>82a-\<Esc>o"
-	exe "normal! i# Project Name      - \<CR>"
-	exe "normal! i# Started On        - \<Esc>:r!date\<CR>i\<c-h>\<Esc>A\<CR>"
-	exe "normal! i# Last Change       - \<CR>"
-	exe "normal! i# Author E-Mail     - terminalforlife@yahoo.com\<CR>"
-	exe "normal! i# Author GitHub     - https://github.com/terminalforlife\<CR>"
-	exe "normal! i#\<Esc>82a-\<Esc>0o"
+	exe "silent normal! i#\<Esc>82a-\<Esc>o"
+	exe "silent normal! i# Project Name      - \<CR>"
+	exe "silent normal! i# Started On        - \<Esc>:r!date\<CR>i\<c-h>\<Esc>A\<CR>"
+	exe "silent normal! i# Last Change       - \<CR>"
+	exe "silent normal! i# Author E-Mail     - terminalforlife@yahoo.com\<CR>"
+	exe "silent normal! i# Author GitHub     - https://github.com/terminalforlife\<CR>"
+	exe "silent normal! i#\<Esc>82a-\<Esc>0o"
 endfunc
 
-" Function to save the current file, but also update header.
+" Function to update header's timestamp and the _VERSION_ variable datestamp in
+" shell scripts/programs, if this variable is found. Also cleans up spacing.
 func! LastChange()
-	exe "normal! mcgg/^[#/\"]\\+ Last Change\<CR>f-c$- \<Esc>:r!date\<CR>i\<c-h>\<Esc>`c"
+	exe "mark c"
+
+	if(search("^[#/\"]* Last Change\\s*- ", "ep") > 0)
+		exe "silent normal! ld$:r !date\<CR>i\<c-h>\<Esc>"
+		if(search("^_VERSION_=", "p") > 0)
+			exe "silent normal! f\"da\":r !printf '\"\\%(\\%F)T\"'\<CR>i\<c-h>\<Esc>"
+		endif
+	endif
+
+	exe "silent normal! :%s/\\s*$//\<CR>"
+	exe "silent normal! :%s/\\t*$//\<CR>`c"
 endfunc
 
 " Function to insert just the XERR and ERR functions into a shell script.
 func! Err()
-	exe "normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
-	exe "normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>"
+	exe "silent normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
+	exe "silent normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>"
 endfunc
 
 " ???
 func! ML()
-	exe "normal! mmG0i# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup\<Esc>`m0"
+	exe "mark c"
+	if(search("^[#/\"]* vim: ", "p") == 0)
+		exe "silent normal! G0i# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup\<Esc>`c"
+	else
+		echo "VIM Modeline already present."
+	endif
 endfunc
 
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
 func! Setup()
-	exe "normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
-	exe "normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>\<CR>"
+	exe "silent normal! 0i_VERSION_=\"2018-03-04\"\<CR>\<CR>"
+	exe "silent normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
+	exe "silent normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>\<CR>"
 
-	exe "normal! 0ideclare -i DEPCOUNT=0\<CR>"
-	exe "normal! 0ifor DEP in PATH; {\<CR>"
-	exe "normal! 0i\<Tab>[ -x \"$DEP\" ] || {\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>ERR \"$LINENO\" \"Dependency '$DEP' not met.\"\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>DEPCOUNT+=1\<CR>\<Tab>}\<CR>}\<CR>\<CR>"
-	exe "normal! 0i[ $DEPCOUNT -eq 0 ] || exit 1\<CR>\<CR>"
+	exe "silent normal! 0ideclare -i DEPCOUNT=0\<CR>"
+	exe "silent normal! 0ifor DEP in PATH; {\<CR>"
+	exe "silent normal! 0i\<Tab>[ -x \"$DEP\" ] || {\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>ERR \"$LINENO\" \"Dependency '$DEP' not met.\"\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>DEPCOUNT+=1\<CR>\<Tab>}\<CR>}\<CR>\<CR>"
+	exe "silent normal! 0i[ $DEPCOUNT -eq 0 ] || exit 1\<CR>\<CR>"
 
-	exe "normal! 0iUSAGE(){\<CR>\<Tab>while read -r; do\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>printf \"%s\\n\" \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            EXAMPLE (24th February 2018)\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            Written by terminalforlife (terminalforlife@yahoo.com)\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            Dummy description for this template.\<CR>\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>SYNTAX:     example [OPTS]\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>OPTS:       --help|-h|-?            - Displays this help information.\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            --debug|-D              - Enables the built-in bash debugging.\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>            --quiet|-q              - Runs in quiet mode. Errors still output.\<CR>"
-	exe "normal! 0i\<Tab>EOF\<CR>}\<CR>\<CR>"
+	exe "silent normal! 0iUSAGE(){\<CR>\<Tab>while read -r; do\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>printf \"%s\\n\" \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            EXAMPLE ($VERSION)\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            Written by terminalforlife (terminalforlife@yahoo.com)\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            Dummy description for this template.\<CR>\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>SYNTAX:     example [OPTS]\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>OPTS:       --help|-h|-?            - Displays this help information.\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            --debug|-D              - Enables the built-in bash debugging.\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            --quiet|-q              - Runs in quiet mode. Errors still output.\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            --version|-v            - Output only the version datestamp.\<CR>"
+	exe "silent normal! 0i\<Tab>EOF\<CR>}\<CR>\<CR>"
 
-	exe "normal! 0iwhile [ \"$1\" ]; do\<CR>\<Tab>case \"$1\" in\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>--help|-h|-\\?)\<CR>\<Tab>\<Tab>\<Tab>USAGE; exit 0 ;;\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>--debug|-D)\<CR>\<Tab>\<Tab>\<Tab>DEBUGME=\"true\" ;;\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>--quiet|-q)\<CR>\<Tab>\<Tab>\<Tab>BEQUIET=\"true\" ;;\<CR>"
-	exe "normal! 0i\<Tab>\<Tab>*)\<CR>\<Tab>\<Tab>\<Tab>XERR \"$LINENO\" \"Incorrect argument(s) specified.\" ;;\<CR>"
-	exe "normal! 0i\<Tab>esac\<CR>\<CR>\<Tab>shift\<CR>done\<CR>\<CR>"
+	exe "silent normal! 0iwhile [ \"$1\" ]; do\<CR>\<Tab>case \"$1\" in\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>--help|-h|-\\?)\<CR>\<Tab>\<Tab>\<Tab>USAGE; exit 0 ;;\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>--debug|-D)\<CR>\<Tab>\<Tab>\<Tab>DEBUGME=\"true\" ;;\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>--quiet|-q)\<CR>\<Tab>\<Tab>\<Tab>BEQUIET=\"true\" ;;\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>--version|-v)\<CR>\<Tab>\<Tab>\<Tab>printf \"%s\\n\" \"$VERSION\" ;;\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>*)\<CR>\<Tab>\<Tab>\<Tab>XERR \"$LINENO\" \"Incorrect argument(s) specified.\" ;;\<CR>"
+	exe "silent normal! 0i\<Tab>esac\<CR>\<CR>\<Tab>shift\<CR>done\<CR>\<CR>"
 
-	exe "normal! 0i[ $UID -eq 0 ] && XERR \"$LINENO\" \"Root access isn't required.\"\<CR>\<CR>"
+	exe "silent normal! 0i[ $UID -eq 0 ] && XERR \"$LINENO\" \"Root access isn't required.\"\<CR>\<CR>"
 
-	exe "normal! 0i[ \"$BEQUIET\" == \"true\" ] && exec 1> /dev/null\<CR>"
+	exe "silent normal! 0i[ \"$BEQUIET\" == \"true\" ] && exec 1> /dev/null\<CR>"
 
-	exe "normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -xeu\<CR>\<CR>"
-	exe "normal! 0i\<CR>\<CR># vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup\<Esc>kk"
+	exe "silent normal! 0i[ \"$DEBUGME\" == \"true\" ] && set -x\<CR>\<CR>"
+	exe "silent normal! 0i\<CR>\<CR># vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup\<Esc>kk"
 endfunc
 
 " Enable syntax highlighting.
