@@ -564,7 +564,6 @@ vnoremap <right> <Nop>
 silent call AutoScroll()
 silent call ExtraColorSets()
 silent call MoreMode()
-silent call LineNumAlt()
 
 " Correct stupid typo.
 ab teh the
