@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Mon  5 Mar 01:02:25 GMT 2018
+" Last Change       - Mon  5 Mar 01:38:21 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -310,27 +310,39 @@ else
 	set nottyfast
 endif
 
-" A color preset.
-func! ColorPreset1()
-	colorscheme default
-	set background=dark
+" Select different color presets.
+func! ColorPreset(preset)
+	if(a:preset == "default")
+		colorscheme default
+		set background=dark
+	elseif(a:preset == "tfl")
+		colorscheme tfl
+		set background=dark
+		silent call ExtraColorSets()
+	else
+		echo "ERROR: Invalid color preset selected."
+	endif
 endfunc
 
-" Another color preset.
-func! ColorPreset2()
-	colorscheme tfl
-	set background=dark
-	silent call ExtraColorSets()
-endfunc
-
-" Enter a shell (bash) hashbang.
-func! HashBang()
-	exe "normal! ggi#!/bin/bash\<CR>\<CR>\<Esc>G"
-endfunc
-
-" Enter a shell (sh) hashbang.
-func! ShHashBang()
-	exe "normal! ggi#!/bin/sh\<CR>\<CR>\<Esc>G"
+" Enter a shell user-specified (position 1) shebang, of method (position 2).
+func! Bang(shell, method)
+	if(a:method == "default")
+		if(a:shell == "bash")
+			exe "normal! ggi#!/bin/bash\<CR>\<CR>\<Esc>G"
+		elseif(a:shell == "sh")
+			exe "normal! ggi#!/bin/sh\<CR>\<CR>\<Esc>G"
+		else
+			echo "ERROR: Invalid shell type."
+		endif
+	elseif(a:method == "env")
+		if(a:shell == "bash")
+			exe "normal! ggi#!/usr/bin/env bash<CR>\<CR>\<Esc>G"
+		elseif(a:shell == "sh")
+			exe "normal! ggi#!/usr/bin/env sh\<CR>\<CR>\<Esc>G"
+		else
+			echo "ERROR: Invalid shell environment type."
+		endif
+	endif
 endfunc
 
 " Enter a tidy header.
@@ -438,8 +450,8 @@ noremap <left> <Nop>
 noremap <right> <Nop>
 
 " Switch to a different color preset.
-noremap <silent> <leader>color1 :call ColorPreset1()<CR>
-noremap <silent> <leader>color2 :call ColorPreset2()<CR>
+noremap <silent> <leader>color1 :call ColorPreset("default")<CR>
+noremap <silent> <leader>color2 :call ColorPreset("tfl")<CR>
 
 " Re-source the .vimrc file; can cause issues.
 noremap <silent> <leader>rc :source $HOME/.vimrc<CR>
@@ -481,8 +493,8 @@ noremap <silent> <leader>modeline :call ML()<CR>
 noremap <silent> <leader>err :call Err()<CR>
 
 " Enter hashbangs on the first line.
-noremap <silent> <leader>bash :call HashBang()<CR>
-noremap <silent> <leader>shell :call ShHashBang()<CR>
+noremap <silent> <leader>bash :call Bang("bash")<CR>
+noremap <silent> <leader>shell :call Bang("sh")<CR>
 
 " Underline below the current; uses the same length.
 noremap <silent> <leader>ul mmyypVr-<Esc>`m
