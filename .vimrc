@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Mon  5 Mar 01:38:21 GMT 2018
+" Last Change       - Mon  5 Mar 01:46:35 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -161,16 +161,20 @@ endfunc
 
 " The function for toggling mouse support.
 func! MouseSupport()
-	set mousehide!
+	if(len($DISPLAY) > 0 )
+		set mousehide!
 
-	if(g:mousesupportstate == "false")
-		let g:mousesupportstate="true"
-		set mouse=a
-		echo "Mouse support enabled."
-	elseif(g:mousesupportstate == "true")
-		let g:mousesupportstate="false"
-		set mouse=
-		echo "Mouse support disabled."
+		if(g:mousesupportstate == "false")
+			let g:mousesupportstate="true"
+			set mouse=a
+			echo "Mouse support enabled."
+		elseif(g:mousesupportstate == "true")
+			let g:mousesupportstate="false"
+			set mouse=
+			echo "Mouse support disabled."
+		endif
+	else
+		echo "ERROR: Uknown display -- are you in a TTY?"
 	endif
 endfunc
 
