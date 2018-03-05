@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Mon  5 Mar 01:46:35 GMT 2018
+" Last Change       - Mon  5 Mar 02:01:27 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ func! MouseSupport()
 	endif
 endfunc
 
-" The function for toggle virtual editing.
+" The function for toggling virtual editing.
 func! VirtualEdit()
 	if(g:virtualeditstate == "true")
 		let g:virtualeditstate="false"
