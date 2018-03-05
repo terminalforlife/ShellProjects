@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Mon  5 Mar 02:01:27 GMT 2018
+" Last Change       - Mon  5 Mar 15:39:25 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -340,7 +340,7 @@ func! Bang(shell, method)
 		endif
 	elseif(a:method == "env")
 		if(a:shell == "bash")
-			exe "normal! ggi#!/usr/bin/env bash<CR>\<CR>\<Esc>G"
+			exe "normal! ggi#!/usr/bin/env bash\<CR>\<CR>\<Esc>G"
 		elseif(a:shell == "sh")
 			exe "normal! ggi#!/usr/bin/env sh\<CR>\<CR>\<Esc>G"
 		else
@@ -384,11 +384,12 @@ endfunc
 
 " ???
 func! ML()
-	exe "mark c"
+	exe "silent normal! mc"
+
 	if(search("^[#/\"]* vim: ", "p") == 0)
 		exe "silent normal! G0i# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup\<Esc>`c"
 	else
-		echo "VIM Modeline already present."
+		echo "ERROR: VIM Modeline already present."
 	endif
 endfunc
 
@@ -497,8 +498,8 @@ noremap <silent> <leader>modeline :call ML()<CR>
 noremap <silent> <leader>err :call Err()<CR>
 
 " Enter hashbangs on the first line.
-noremap <silent> <leader>bash :call Bang("bash")<CR>
-noremap <silent> <leader>shell :call Bang("sh")<CR>
+noremap <silent> <leader>bash :call Bang("bash", "default")<CR>
+noremap <silent> <leader>shell :call Bang("sh", "default")<CR>
 
 " Underline below the current; uses the same length.
 noremap <silent> <leader>ul mmyypVr-<Esc>`m
@@ -566,9 +567,9 @@ noremap <silent> <leader>rg mmF`xf`x`m
 noremap <silent> K 10j
 noremap <silent> L 10k
 
-" Sets Jump Points (smooth, 41 lines)
-"noremap <silent> K jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
-"noremap <silent> L kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+" Sets Jump Points (smooth)
+"noremap <silent> K jjjjjjjjjj
+"noremap <silent> L kkkkkkkkkk
 
 " Sets Visual Remappings
 vnoremap <up> <Nop>
@@ -583,6 +584,9 @@ silent call MoreMode()
 
 " Correct stupid typo.
 ab teh the
+
+" Source $HOME/VimPlugins
+source $HOME/VimPlugins/datepaste.vim
 
 " Adds security.
 set secure
