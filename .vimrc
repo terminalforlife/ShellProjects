@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Sun  4 Mar 23:59:55 GMT 2018
+" Last Change       - Mon  5 Mar 01:02:25 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -16,14 +16,14 @@ noremap ; l
 noremap k gj
 noremap l gk
 
-" Set variables used within this file.
-let g:autoscrollstate=0
-let g:moremodestate=0
-let g:hardmodestate=0
-let g:docmodestate=1
-let g:mousesupportstate=0
-let g:virtualeditstate=0
-let g:textwidthmode=0
+" Set the initial variable values, prior to further processing.
+let g:autoscrollstate="false"
+let g:moremodestate="false"
+let g:hardmodestate="false"
+let g:docmodestate="false"
+let g:mousesupportstate="false"
+let g:virtualeditstate="false"
+let g:textwidthmode="false"
 let mapleader=","
 
 " Allow recursive fuzzy finding.
@@ -98,33 +98,61 @@ set incsearch
 set tabstop=8
 
 " A function responsible for both un- and commenting lines of text, depending on
-" the laguage the currently edited file is using or marked as. In progress.
-"func! Comment()
-"
-"endfunc
+" the laguage the currently edited file is using or marked as.
+func! ComTog(action)
+	exe "silent normal! mc"
 
-" Just holds some extra color settings.
+	if(a:action == "comment")
+		if(&filetype == "python" || &filetype == "sh")
+			exe "silent normal! 0i#\<Esc>"
+		elseif(&filetype == "vim")
+			exe "silent normal! 0i\"\<Esc>"
+		elseif(len(&filetype) == 0)
+			echo "ERROR: Cannot comment -- missing file type."
+		else
+			echo "ERROR: Cannot comment -- unknown file type."
+		endif
+	elseif(a:action == "uncomment")
+		if(len(&filetype) > 0)
+			exe "silent normal! 0x"
+		elseif(len(&filetype) == 0)
+			echo "ERROR: Cannot comment -- missing file type."
+		else
+			echo "ERROR: Cannot comment -- unknown file type."
+		endif
+	else
+		echo "ERROR: Invalid action at position 1."
+	endif
+
+	exe "silent normal! `c"
+endfunc
+
+" Just holds some extra color settings for tfl.
 func! ExtraColorSets()
-	hi SpecialKey     ctermfg=darkyellow   ctermbg=NONE
-	hi ColorColumn    ctermbg=235          ctermfg=250
-	hi CursorLine     ctermbg=237          cterm=bold
-	hi StatusLine     ctermbg=white        ctermfg=black
-	hi VertSplit      ctermbg=black        ctermfg=black
-	hi StatusLine     ctermbg=white        ctermfg=black
-	hi StatusLineNC   ctermbg=238          ctermfg=black
-	hi Comment        ctermbg=NONE         ctermfg=241
-	hi TabLineFill    ctermbg=0            ctermfg=0
+	if(g:colors_name == "tfl")
+		hi SpecialKey     ctermfg=darkyellow   ctermbg=NONE
+		hi ColorColumn    ctermbg=235          ctermfg=250
+		hi CursorLine     ctermbg=237          cterm=bold
+		hi StatusLine     ctermbg=white        ctermfg=black
+		hi VertSplit      ctermbg=black        ctermfg=black
+		hi StatusLine     ctermbg=white        ctermfg=black
+		hi StatusLineNC   ctermbg=238          ctermfg=black
+		hi Comment        ctermbg=NONE         ctermfg=241
+		hi TabLineFill    ctermbg=0            ctermfg=0
+	else
+		echo "ERROR: Wrong colorscheme selected -- use tfl."
+	endif
 endfunc
 
 " Function deals with autoscrolling.
 func! AutoScroll()
-	if(g:autoscrollstate == 0)
-		let g:autoscrollstate = 1
+	if(g:autoscrollstate == "false")
+		let g:autoscrollstate="true"
 		set sidescrolloff=999
 		set scrolloff=999
 		echo "Automatic scrolling is enabled."
-	elseif(g:autoscrollstate == 1)
-		let g:autoscrollstate = 0
+	elseif(g:autoscrollstate == "true")
+		let g:autoscrollstate="false"
 		set sidescrolloff=0
 		set scrolloff=0
 		echo "Automatic scrolling is disabled."
@@ -135,12 +163,12 @@ endfunc
 func! MouseSupport()
 	set mousehide!
 
-	if(g:mousesupportstate == 0)
-		let g:mousesupportstate = 1
+	if(g:mousesupportstate == "false")
+		let g:mousesupportstate="true"
 		set mouse=a
 		echo "Mouse support enabled."
-	elseif(g:mousesupportstate == 1)
-		let g:mousesupportstate = 0
+	elseif(g:mousesupportstate == "true")
+		let g:mousesupportstate="false"
 		set mouse=
 		echo "Mouse support disabled."
 	endif
@@ -148,12 +176,12 @@ endfunc
 
 " The function for toggle virtual editing.
 func! VirtualEdit()
-	if(g:virtualeditstate == 1)
-		let g:virtualeditstate = 0
+	if(g:virtualeditstate == "true")
+		let g:virtualeditstate="false"
 		set virtualedit=
 		echo "Virtual editing is disabled."
-	elseif(g:virtualeditstate == 0)
-		let g:virtualeditstate = 1
+	elseif(g:virtualeditstate == "false")
+		let g:virtualeditstate="true"
 		set virtualedit=all
 		echo "Virtual editing is enabled."
 	endif
@@ -164,13 +192,13 @@ func! DocMode()
 	set linebreak!
 	set wrap!
 
-	if(g:docmodestate == 0)
-		let g:docmodestate = 1
+	if(g:docmodestate == "false")
+		let g:docmodestate="true"
 		echo "Document Mode is disabled."
 		syntax on
 		silent call ExtraColorSets()
-	elseif(g:docmodestate == 1)
-		let g:docmodestate = 0
+	elseif(g:docmodestate == "true")
+		let g:docmodestate="false"
 		syntax off
 		silent call ExtraColorSets()
 
@@ -178,10 +206,10 @@ func! DocMode()
 			set nolist
 		endif
 
-		if(g:moremodestate == 1)
+		if(g:moremodestate == "true")
 			echo "Document Mode is enabled and More Mode is disabled."
 			silent call MoreMode()
-		elseif(g:moremodestate == 0)
+		elseif(g:moremodestate == "false")
 			echo "Document Mode is enabled."
 		endif
 	endif
@@ -218,16 +246,21 @@ func! MoreMode()
 	set showmatch!
 	set ruler!
 	set cursorline!
-	set relativenumber!
-	"set number!
 
-	if(g:moremodestate == 0)
-		let g:moremodestate = 1
+	if(&relativenumber == 1 || &number == 1)
+		set norelativenumber
+		set nonumber
+	elseif(&relativenumber == 0 && &number == 0)
+		silent call LineNumAlt()
+	endif
+
+	if(g:moremodestate == "false")
+		let g:moremodestate="true"
 		set colorcolumn=84
 		set laststatus=2
 		echo "More mode is enabled."
-	elseif(g:moremodestate == 1)
-		let g:moremodestate = 0
+	elseif(g:moremodestate == "true")
+		let g:moremodestate="false"
 		set colorcolumn=0
 		set laststatus=1
 		echo "More mode is disabled."
@@ -236,15 +269,15 @@ endfunc
 
 " The function for toggling HardMode. Incomplete.
 func! HardMode()
-	if(g:hardmodestate == 0)
-		let g:hardmodestate = 1
+	if(g:hardmodestate == "false")
+		let g:hardmodestate="true"
 		noremap j <Nop>
 		noremap k <Nop>
 		noremap l <Nop>
 		noremap ; <Nop>
 		echo "Hard mode is enabled."
-	elseif(g:hardmodestate == 1)
-		let g:hardmodestate = 0
+	elseif(g:hardmodestate == "true")
+		let g:hardmodestate="false"
 		noremap ; l
 		noremap l k
 		noremap k j
@@ -255,12 +288,12 @@ endfunc
 
 " Set textwidth to 84.
 func! TextWidth()
-	if(g:textwidthmode == 0)
-		let g:textwidthmode = 1
+	if(g:textwidthmode == "false")
+		let g:textwidthmode="true""
 		set textwidth=84
 		echo "TextWidth() is enabled."
-	elseif(g:textwidthmode == 1)
-		let g:textwidthmode = 0
+	elseif(g:textwidthmode == "true")
+		let g:textwidthmode="false"
 		set textwidth=0
 		echo "TextWidth() is disabled."
 	endif
@@ -314,7 +347,7 @@ endfunc
 " Function to update header's timestamp and the _VERSION_ variable datestamp in
 " shell scripts/programs, if this variable is found. Also cleans up spacing.
 func! LastChange()
-	exe "mark c"
+	exe "silent normal! mc"
 
 	if(search("^[#/\"]* Last Change\\s*- ", "ep") > 0)
 		exe "silent normal! ld$\"_\"=strftime(\"%a %_d %b %T %Z %Y\")\<CR>p"
@@ -454,15 +487,15 @@ noremap <silent> <leader>shell :call ShHashBang()<CR>
 " Underline below the current; uses the same length.
 noremap <silent> <leader>ul mmyypVr-<Esc>`m
 
-" Comment out and undo said comment, using hash.
-noremap <silent> <leader>co mmI#<Esc>`m
-noremap <silent> <leader>uc mm0x`m
-
 " Add a header at the current position.
 noremap <silent> <leader>header :call Header()<CR>
 
 " Add a header at the current position.
 noremap <silent> <leader>lines :call LineNumAlt()<CR>
+
+" Toggle comments, depending on the file type.
+noremap <silent> <leader>co :call ComTog("comment")<CR>
+noremap <silent> <leader>uc :call ComTog("uncomment")<CR>
 
 " Use VIM's window splitting and switching.
 noremap <silent> <leader>ws :split<CR>
