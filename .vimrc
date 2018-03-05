@@ -1,7 +1,7 @@
 "----------------------------------------------------------------------------------
 " Project Name      - $HOME/.vimrc
 " Started On        - Wed 20 Sep 09:36:54 BST 2017
-" Last Change       - Sun  4 Mar 19:15:03 GMT 2018
+" Last Change       - Sun  4 Mar 23:59:55 GMT 2018
 " Author E-Mail     - terminalforlife@yahoo.com
 " Author GitHub     - https://github.com/terminalforlife
 "----------------------------------------------------------------------------------
@@ -198,6 +198,21 @@ func! ListMode()
 	endif
 endfunc
 
+" Alternate between relative and standard line numbers. If both are enabled, then
+" fix this by toggling number, which results in either just the number setting, or
+" only the relativenumber setting.
+func! LineNumAlt()
+	if(&relativenumber == 1 && &number == 0)
+		set relativenumber!
+		set number
+	elseif(&relativenumber == 0 && &number == 1)
+		set number!
+		set relativenumber
+	else
+		set nonumber!
+	endif
+endfunc
+
 " The function for toggling MoreMode.
 func! MoreMode()
 	set showmatch!
@@ -289,8 +304,8 @@ endfunc
 func! Header()
 	exe "silent normal! i#\<Esc>82a-\<Esc>o"
 	exe "silent normal! i# Project Name      - \<CR>"
-	exe "silent normal! i# Started On        - \<Esc>:r!date\<CR>i\<c-h>\<Esc>A\<CR>"
-	exe "silent normal! i# Last Change       - \<CR>"
+	exe "silent normal! i# Started On        - \<Esc>\"_\"=strftime(\"%a %_d %b %T %Z %Y\")\<CR>po"
+	exe "silent normal! i# Last Change       - \<Esc>\"_\"=strftime(\"%a %_d %b %T %Z %Y\")\<CR>po"
 	exe "silent normal! i# Author E-Mail     - terminalforlife@yahoo.com\<CR>"
 	exe "silent normal! i# Author GitHub     - https://github.com/terminalforlife\<CR>"
 	exe "silent normal! i#\<Esc>82a-\<Esc>0o"
@@ -302,9 +317,9 @@ func! LastChange()
 	exe "mark c"
 
 	if(search("^[#/\"]* Last Change\\s*- ", "ep") > 0)
-		exe "silent normal! ld$:r !date\<CR>i\<c-h>\<Esc>"
-		if(search("^_VERSION_=", "p") > 0)
-			exe "silent normal! f\"da\":r !printf '\"\\%(\\%F)T\"'\<CR>i\<c-h>\<Esc>"
+		exe "silent normal! ld$\"_\"=strftime(\"%a %_d %b %T %Z %Y\")\<CR>p"
+		if(search("^_VERSION_=\"", "ep") > 0)
+			exe "silent normal! da\"\"_\"=strftime(\"\\\"%F\\\"\")\<CR>p"
 		endif
 	endif
 
@@ -330,7 +345,7 @@ endfunc
 
 " Lol. Why didn't I use a snippet file? Oh well, very useful for shell (bash).
 func! Setup()
-	exe "silent normal! 0i_VERSION_=\"2018-03-04\"\<CR>\<CR>"
+	exe "silent normal! 0i_VERSION_=\"\<ESC>\"_\"=strftime(\"%F\")\<CR>pa\"\<CR>\<CR>"
 	exe "silent normal! 0iXERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; exit 1; }\<CR>"
 	exe "silent normal! 0iERR(){ printf \"[L%0.4d] ERROR: %s\\n\" \"$1\" \"$2\" 1>&2; }\<CR>\<CR>"
 
@@ -343,23 +358,23 @@ func! Setup()
 
 	exe "silent normal! 0iUSAGE(){\<CR>\<Tab>while read -r; do\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>printf \"%s\\n\" \"$REPLY\"\<CR>\<Tab>done <<-EOF\<CR>"
-	exe "silent normal! 0i\<Tab>\<Tab>            EXAMPLE ($VERSION)\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            EXAMPLE ($_VERSION_)\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>            Written by terminalforlife (terminalforlife@yahoo.com)\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>            Dummy description for this template.\<CR>\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>SYNTAX:     example [OPTS]\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>OPTS:       --help|-h|-?            - Displays this help information.\<CR>"
-	exe "silent normal! 0i\<Tab>\<Tab>            --debug|-D              - Enables the built-in bash debugging.\<CR>"
-	exe "silent normal! 0i\<Tab>\<Tab>            --quiet|-q              - Runs in quiet mode. Errors still output.\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>            --version|-v            - Output only the version datestamp.\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            --quiet|-q              - Runs in quiet mode. Errors still output.\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>            --debug|-D              - Enables the built-in bash debugging.\<CR>"
 	exe "silent normal! 0i\<Tab>EOF\<CR>}\<CR>\<CR>"
 
 	exe "silent normal! 0iwhile [ \"$1\" ]; do\<CR>\<Tab>case \"$1\" in\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>--help|-h|-\\?)\<CR>\<Tab>\<Tab>\<Tab>USAGE; exit 0 ;;\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>--debug|-D)\<CR>\<Tab>\<Tab>\<Tab>DEBUGME=\"true\" ;;\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>--quiet|-q)\<CR>\<Tab>\<Tab>\<Tab>BEQUIET=\"true\" ;;\<CR>"
-	exe "silent normal! 0i\<Tab>\<Tab>--version|-v)\<CR>\<Tab>\<Tab>\<Tab>printf \"%s\\n\" \"$VERSION\" ;;\<CR>"
+	exe "silent normal! 0i\<Tab>\<Tab>--version|-v)\<CR>\<Tab>\<Tab>\<Tab>printf \"%s\\n\" \"$_VERSION_\" ;;\<CR>"
 	exe "silent normal! 0i\<Tab>\<Tab>*)\<CR>\<Tab>\<Tab>\<Tab>XERR \"$LINENO\" \"Incorrect argument(s) specified.\" ;;\<CR>"
 	exe "silent normal! 0i\<Tab>esac\<CR>\<CR>\<Tab>shift\<CR>done\<CR>\<CR>"
 
@@ -446,6 +461,9 @@ noremap <silent> <leader>uc mm0x`m
 " Add a header at the current position.
 noremap <silent> <leader>header :call Header()<CR>
 
+" Add a header at the current position.
+noremap <silent> <leader>lines :call LineNumAlt()<CR>
+
 " Use VIM's window splitting and switching.
 noremap <silent> <leader>ws :split<CR>
 noremap <silent> <leader>wvs :vsplit<CR>
@@ -490,9 +508,18 @@ noremap <silent> <leader>rsq mmF'xf'x`m
 noremap <silent> <leader>rg mmF`xf`x`m
 "noremap <silent> <leader>rp mmF(xf)x`m
 
-" Sets Jump Points
+"TODO - Fix. Seems to just stop after the first key.
+" Easy insert scrolling.
+"inoremap <C-L> <C-X><C-E>
+"inoremap <C-K> <C-X><C-Y>
+
+" Sets Jump Points (rough)
 noremap <silent> K 10j
 noremap <silent> L 10k
+
+" Sets Jump Points (smooth, 41 lines)
+"noremap <silent> K jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+"noremap <silent> L kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 
 " Sets Visual Remappings
 vnoremap <up> <Nop>
@@ -504,6 +531,10 @@ vnoremap <right> <Nop>
 silent call AutoScroll()
 silent call ExtraColorSets()
 silent call MoreMode()
+silent call LineNumAlt()
+
+" Correct stupid typo.
+ab teh the
 
 " Adds security.
 set secure
