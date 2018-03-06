@@ -35,12 +35,6 @@ for DEP in /bin/{ln,rm}; {
 /bin/rm -v $HOME/.keynavrc 2> /dev/null
 /bin/ln -v .keynavrc $HOME/ 2> /dev/null
 
-/bin/rm -v $HOME/.vim/colors/tfl.vim 2> /dev/null
-/bin/ln -v tfl.vim $HOME/.vim/colors/ 2> /dev/null
-
-/bin/rm -v $HOME/.vimrc 2> /dev/null
-/bin/ln -v .vimrc $HOME/ 2> /dev/null
-
 /bin/rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
 /bin/ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
 
