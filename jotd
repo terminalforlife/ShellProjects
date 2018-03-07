@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Wed  7 Mar 21:52:05 GMT 2018
+# Last Change       - Wed  7 Mar 21:54:30 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -87,6 +87,7 @@ while read X; do
 			fi
 		}
 
+		printf "\n"
 		break
 	fi
 done <<< "$(/usr/bin/wget "$NOWARC" -q -t 1 "$URL" -O -)"\
