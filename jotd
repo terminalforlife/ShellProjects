@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Mon  5 Mar 02:06:09 GMT 2018
+# Last Change       - Wed  7 Mar 21:52:05 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-05"
+_VERSION_="2018-03-07"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-DOM="http://jokes.cc.com"
+DOM="http://www.laughfactory.com"
 
 USAGE(){
 	while read -r; do
@@ -69,19 +69,28 @@ read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 
 [ "$DEBUGME" == "true" ] && set -xeu
 
-#TODO - For some reason, this is just getting the same joke every time. Fix.
+URL="$DOM/jokes/joke-of-the-day"
 
+declare -i C=1
 while read X; do
-	#TODO - Fix possible issue with joke containing a '>' character.
-	if [[ "$X" =~ ^\<div\ class\=\"module_content\"\> ]]; then
-		B="${X%</span>*}"
-		B="${B/*>}"
-		COLS=`/usr/bin/tput cols`
-		/usr/bin/fold -sw ${COLS} <<< "$(printf "%s\n" "$B")"
+	if [[ "$X" =~ \<p\ id\=\"joke_[0-9]+\"\> ]]; then
+		printf -v JID "%d" "${X//[!0-9]}"
+		[[ "$JID" =~ ^[0-9]+$ ]] && C+=1
+	elif [ $C -eq 2 ]; then
+		for F in $X; {
+			if [[ "$F" == *\<br\>* ]]; then
+				printf "${F//<br>/$'\n'} "
+			elif [[ "$F" == *\</p\>* ]]; then
+				break
+			else
+				printf "%s " "$F"
+			fi
+		}
+
 		break
 	fi
-done <<< "$(/usr/bin/wget -q $NOWARC -t 1 $DOM -O -)"
+done <<< "$(/usr/bin/wget "$NOWARC" -q -t 1 "$URL" -O -)"\
+	| /usr/bin/fold --width=${COL:-`/usr/bin/tput cols`}
+
 #TODO - If it's already known what today's joke is, why contact the servers to
 #       check for a new one? Fix this using a /tmp file, at the very least.
-
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
