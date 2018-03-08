@@ -3,62 +3,71 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017
-# Last Change       - Fri 24 Nov 04:19:07 GMT 2017
+# Last Change       - Thu  8 Mar 06:44:48 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
+_VERSION_="2018-03-08"
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+DOM="https://archive.org/"
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            GETCFC (24th November 2017)
+		            GETCFC ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Download many classic ISO images contained a bundle of PC games.
 
 		SYNTAX:     getcfc [OPTS] DISC_NUMBER
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug|-D              - Enables the built-in bash debugging.
+		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 
 		NOTE:       Where DISC_NUMBER is a zero-padded number between 01 and 60. Sadly, -
 		            discs 17 and 47 are missing.
 
-		SITE:       https://archive.org
+		SITE:       ${DOM%\/}
 	EOF
 }
 
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--debug|-D)
-			DEBUGME="true" ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
-
 	shift
 done
 
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+
+# Newer versions of wget by default request unwanted server-side compression.
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+
 [ "$*" ] || XERR "$LINENO" "Specifiy at least one CD to download."
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required nor recommended."
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
-DOM="https://archive.org/"
 URL="download/cdrom-classic-fond"
 
 for SEL in $@; {
@@ -67,7 +76,7 @@ for SEL in $@; {
 		continue
 	fi
 
-	/usr/bin/wget -qc --show-progress\
+	/usr/bin/wget -qc --show-progress $NOWARC\
 		"$DOM${URL}-${SEL}/ClassicFond${SEL}.iso"
 }
 
