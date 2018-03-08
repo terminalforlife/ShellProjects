@@ -3,14 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Sun  4 Mar 20:38:53 GMT 2018
+# Last Change       - Thu  8 Mar 06:41:59 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Originally a ShellPlugin, called with shellpass, but has since been improved.
 #------------------------------------------------------------------------------MAIN
 
-_VERSION_="2018-03-04"
+_VERSION_="2018-03-08"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -68,12 +68,13 @@ while [ "$1" ]; do
 	shift
 done
 
-[[ "$1" =~ [0-9]+ ]] && INT=$1
-[ -z "$INT" ] && XERR "$LINENO" "Invalid or missing INT."
-
-[ -e /dev/urandom ] || XERR "$LINENO" "Unable to access /dev/urandom device."
-
-if ! [[ "$*" =~ [0-9]+ ]] && [ "$INT" -ge 1 ]; then
+if [[ "$1" =~ [0-9]+ ]]; then
+	INT=$1
+elif [ -z "$INT" ]; then
+	XERR "$LINENO" "Invalid or missing INT."
+elif ! [ -e /dev/urandom ]; then
+	XERR "$LINENO" "Unable to access /dev/urandom device."
+elif ! [[ "$*" =~ [0-9]+ ]] && [ "$INT" -ge 1 ]; then
 	XERR "$LINENO" "Requires an integer greater than or equal to 1."
 fi
 
@@ -101,6 +102,6 @@ while read -a X; do
 	fi
 done < /dev/urandom
 
-echo
+printf "\n"
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
