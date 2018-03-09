@@ -3,27 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ghipc (GitHub IP Check)
 # Started On        - Wed 14 Feb 18:30:38 GMT 2018
-# Last Change       - Sat  3 Mar 22:32:10 GMT 2018
+# Last Change       - Fri  9 Mar 15:11:34 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+_VERSION_="2018-03-09"
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            GHIPC - GitHub IP Check (3rd March 2018)
+		            GHIPC - GitHub IP Check ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Check the validity of IP addresses of GitHub servers.
 
 		SYNTAX:     ghipc [OPT] IP1 IP2 IP3 ...
-		
+
 		OPT:        --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output o ly the version datestamp.
+		            --debug|-D              - Enables the built-in bash debugging.
 
 		SITE:       https://api.github.com/meta
 	EOF
@@ -33,6 +35,11 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
+			DEBUG="true" ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -45,7 +52,9 @@ IP_LIST="$@"
 
 [ "$IP_LIST" ] || XERR "$LINENO" "No IP addresses were provided."
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+[ "$DEBUG" == "true" ] && set -x
+
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
 # Newer versions of wget by default request unwanted server-side compression.
 read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
