@@ -3,13 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Wed 14 Feb 21:12:51 GMT 2018
+# Last Change       - Fri  9 Mar 15:13:04 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # Just a simple, quick script to update the hard links when changing branches.
-
 #------------------------------------------------------------------------------MAIN
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -32,8 +30,8 @@ for DEP in /bin/{ln,rm}; {
 /bin/rm -v $HOME/.config/compton.conf 2> /dev/null
 /bin/ln -v compton.conf $HOME/.config/ 2> /dev/null
 
-/bin/rm -v $HOME/.keynavrc 2> /dev/null
-/bin/ln -v .keynavrc $HOME/ 2> /dev/null
+#/bin/rm -v $HOME/.keynavrc 2> /dev/null
+#/bin/ln -v .keynavrc $HOME/ 2> /dev/null
 
 /bin/rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
 /bin/ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
