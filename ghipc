@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ghipc (GitHub IP Check)
 # Started On        - Wed 14 Feb 18:30:38 GMT 2018
-# Last Change       - Fri  9 Mar 15:11:34 GMT 2018
+# Last Change       - Fri  9 Mar 15:30:26 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUG="true" ;;
+			DEBUGME="true" ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -52,7 +52,7 @@ IP_LIST="$@"
 
 [ "$IP_LIST" ] || XERR "$LINENO" "No IP addresses were provided."
 
-[ "$DEBUG" == "true" ] && set -x
+[ "$DEBUGME" == "true" ] && set -x
 
 [ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
