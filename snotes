@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  9 Mar 15:27:31 GMT 2018
+# Last Change       - Sun 11 Mar 08:54:42 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 # eventually be included into snotes properly.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-09"
+_VERSION_="2018-03-11"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -41,8 +41,8 @@ USAGE(){
 		            snotes when you wish to stop searching for the MATCH, have a line in
 		            the notes file which contains only:
 
-            When using --edit|-e for editing a file, the editor used will be the
-            one pointed to within the
+		            When using --edit|-e for editing a file, the editor used will be the
+		            one pointed to within the
 
 		              ${COM}END
 	EOF
