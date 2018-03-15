@@ -1,0 +1,57 @@
+--[[
+[----------------------------------------------------------------------------------
+[ Project Name      - $HOME/.conkyrc
+[ Started On        - Thu 15 Mar 00:19:05 GMT 2018
+[ Last Change       - Thu 15 Mar 00:20:50 GMT 2018
+[ Author E-Mail     - terminalforlife@yahoo.com
+[ Author GitHub     - https://github.com/terminalforlife
+[----------------------------------------------------------------------------------
+--]]
+
+conky.config = {
+	alignment = 'top_right',
+	background = true,
+	border_width = 0,
+	cpu_avg_samples = 2,
+	default_color = 'grey',
+	default_outline_color = 'black',
+	default_shade_color = 'black',
+	draw_borders = true,
+	draw_outline = true,
+	draw_shades = true,
+	font = '-bitstream-courier 10 pitch-normal-r',
+	gap_x = 210,
+	gap_y = 200,
+	minimum_height = 5,
+	minimum_width = 5,
+	net_avg_samples = 2,
+	double_buffer = true,
+	no_buffers = true,
+	text_buffer_size = 2048,
+	out_to_console = false,
+	out_to_stderr = false,
+	extra_newline = false,
+	own_window = true,
+	own_window_class = 'Conky',
+	own_window_type = 'override',
+	own_window_transparent = true,
+	stippled_borders = 0,
+	short_units = true,
+	update_interval = 0.1,
+	uppercase = false,
+	use_spacer = 'none',
+	draw_graph_borders = false,
+	show_graph_scale = false,
+	show_graph_range = false
+}
+
+conky.text = [[
+${color}${time %A %F %X}         ${alignr 1}${exec /usr/bin/lsb_release -ds} ${color eeeeee}[${color}$kernel${color eeeeee}]
+${color 666666}${hr 1}
+${color}CPU:    ${color 000000}${cpubar 9}
+${color}RAM:    ${color 000000}${membar 9,290}${alignr}${color}$mem / $memmax
+${color}SWAP:   ${color 000000}${swapbar 9,290}${alignr}${color}$swap / $swapmax
+${color 666666}${hr 1}
+${color}/dev/sda1 (ROOT):   ${color eeeeee}${fs_used /} / ${fs_size /}\
+${alignr}${color}/dev/sdb1 (HOME):   ${color eeeeee}${fs_used /home} / ${fs_size /home}
+]]
