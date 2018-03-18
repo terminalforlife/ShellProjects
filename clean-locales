@@ -3,10 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/ShellPlugins/Clean_Unused_Locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Fri 12 Jan 06:33:04 GMT 2018
+# Last Change       - Sun 18 Mar 14:29:35 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+
+_VERSION_="2018-03-18"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -15,16 +17,17 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            CLEAN-LOCALES (11th January 2018)
+		            CLEAN-LOCALES ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Remove some unnecessary non-English localizations.
 
 		SYNTAX:     clean-locales [OPTS]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug|-D              - Enables the built-in bash debugging.
+		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 
 		FILES:      Files in /usr/share/locale will be deleted, except:
 
@@ -38,10 +41,13 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--debug|-D)
-			DEBUGME="true" ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -50,21 +56,23 @@ while [ "$1" ]; do
 done
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 if [ -x /bin/rm ]; then
-	[ -d /usr/share/locale ] || {
+	if ! [ -d /usr/share/locale ]; then
 		XERR "$LINENO" "Directory missing: /usr/share/locale"
-	}
+	fi
 
 	for DIR in /usr/share/locale/*; {
 		if ! [[ "$DIR" =~ (en_GB|en_US|locale\.alias) ]]; then
 			printf "DELETING: $DIR "
 
 			if [ -e /dev/null ]; then
-				/bin/rm -rf "$DIR" &> /dev/null && {
+				if /bin/rm -rf "$DIR" &> /dev/null; then
 					printf "[OK]\n"
-				} || printf "[ERROR]\n"
+				else
+					printf "[ERROR]\n"
+				fi
 			else
 				XERR "$LINENO" "Unable to find: /dev/null"
 			fi
