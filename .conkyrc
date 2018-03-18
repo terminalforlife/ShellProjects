@@ -6,10 +6,11 @@
 [ Author E-Mail     - terminalforlife@yahoo.com
 [ Author GitHub     - https://github.com/terminalforlife
 [----------------------------------------------------------------------------------
+	#font = 'Radio Space Bold:size=10',
 --]]
 
 conky.config = {
-	alignment = 'top_right',
+	alignment = 'middle_middle',
 	background = true,
 	border_width = 0,
 	cpu_avg_samples = 2,
@@ -19,9 +20,10 @@ conky.config = {
 	draw_borders = true,
 	draw_outline = true,
 	draw_shades = true,
+	use_xft = false,
 	font = '-bitstream-courier 10 pitch-normal-r',
-	gap_x = 210,
-	gap_y = 200,
+	gap_x = 0,
+	gap_y = 0,
 	minimum_height = 5,
 	minimum_width = 5,
 	net_avg_samples = 2,
@@ -35,6 +37,7 @@ conky.config = {
 	own_window_class = 'Conky',
 	own_window_type = 'override',
 	own_window_transparent = true,
+	own_window_hints = undecorate,sticky,skip_taskbar,skip_pager,below,
 	stippled_borders = 0,
 	short_units = true,
 	update_interval = 0.1,
@@ -46,12 +49,18 @@ conky.config = {
 }
 
 conky.text = [[
-${color}${time %A %F %X}         ${alignr 1}${exec /usr/bin/lsb_release -ds} ${color eeeeee}[${color}$kernel${color eeeeee}]
-${color 666666}${hr 1}
-${color}CPU:    ${color 000000}${cpubar 9}
-${color}RAM:    ${color 000000}${membar 9,290}${alignr}${color}$mem / $memmax
-${color}SWAP:   ${color 000000}${swapbar 9,290}${alignr}${color}$swap / $swapmax
-${color 666666}${hr 1}
-${color}/dev/sda1 (ROOT):   ${color eeeeee}${fs_used /} / ${fs_size /}\
-${alignr}${color}/dev/sdb1 (HOME):   ${color eeeeee}${fs_used /home} / ${fs_size /home}
+${color dddddd}${time %A %F %X}         ${alignr 1}${exec /usr/bin/lsb_release -ds} ${color 888888}[${color dddddd}$kernel${color 888888}]
+
+${color}/dev/${color dddddd}sda1 ${color 777777}(ROOT)${color eeeeee}:   ${color eeeeee}${fs_used /} / ${fs_size /}${alignr}${color}/dev/${color dddddd}sdb1 ${color 777777}(HOME)${color eeeeee}:   ${color eeeeee}${fs_used /home} / ${fs_size /home}
+
+${color dddddd}COMMAND                          CPU       MEM       PID    USER      UID
+${color aaaaaa}${top name 1}   ${goto 185}${top cpu 1}   ${top mem 1}%     ${top pid 1}   ${top uid 1}    ${alignr}${top user 1}
+${color aaaaaa}${top name 2}   ${goto 185}${top cpu 2}   ${top mem 2}%     ${top pid 2}   ${top uid 2}    ${alignr}${top user 2}
+${color aaaaaa}${top name 3}   ${goto 185}${top cpu 3}   ${top mem 3}%     ${top pid 3}   ${top uid 3}    ${alignr}${top user 3}
+${color aaaaaa}${top name 4}   ${goto 185}${top cpu 4}   ${top mem 4}%     ${top pid 4}   ${top uid 4}    ${alignr}${top user 4}
+${color aaaaaa}${top name 5}   ${goto 185}${top cpu 5}   ${top mem 5}%     ${top pid 5}   ${top uid 5}    ${alignr}${top user 5}
+${color aaaaaa}${top name 6}   ${goto 185}${top cpu 6}   ${top mem 6}%     ${top pid 6}   ${top uid 6}    ${alignr}${top user 6}
+${color aaaaaa}${top name 7}   ${goto 185}${top cpu 7}   ${top mem 7}%     ${top pid 7}   ${top uid 7}    ${alignr}${top user 7}
+${color aaaaaa}${top name 8}   ${goto 185}${top cpu 8}   ${top mem 8}%     ${top pid 8}   ${top uid 8}    ${alignr}${top user 8}
+${color aaaaaa}${top name 9}   ${goto 185}${top cpu 9}   ${top mem 9}%     ${top pid 9}   ${top uid 9}    ${alignr}${top user 9}
 ]]
