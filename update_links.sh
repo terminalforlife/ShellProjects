@@ -37,6 +37,6 @@ for DEP in /bin/{ln,rm}; {
 /bin/ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
 
 /bin/rm -v $HOME/.config/tint2/tint2rc 2> /dev/null
-/bin/ln -v tint2rc $HOME/.config/tint2/tintrc 2> /dev/null
+/bin/ln -v tint2rc $HOME/.config/tint2/tint2rc 2> /dev/null
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
