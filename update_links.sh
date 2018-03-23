@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Fri 23 Mar 16:33:39 GMT 2018
+# Last Change       - Fri 23 Mar 19:59:00 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,13 +36,13 @@ for DEP in /bin/{ln,rm}; {
 /bin/rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
 /bin/ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
 
-/bin/rm -v $HOME/.config/tint2/tint2rc 2> /dev/null
-/bin/ln -v tint2rc $HOME/.config/tint2/tint2rc 2> /dev/null
+#/bin/rm -v $HOME/.config/tint2/tint2rc 2> /dev/null
+#/bin/ln -v tint2rc $HOME/.config/tint2/tint2rc 2> /dev/null
 
-/bin/rm -v $HOME/.config/gpicview/gpicview.conf 2> /dev/null
-/bin/ln -v gpicview.conf $HOME/.config/gpicview/gpicview.conf 2> /dev/null
+#/bin/rm -v $HOME/.config/gpicview/gpicview.conf 2> /dev/null
+#/bin/ln -v gpicview.conf $HOME/.config/gpicview/gpicview.conf 2> /dev/null
 
-/bin/rm -v $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
-/bin/ln -v pcmanfm.conf $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
+#/bin/rm -v $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
+#/bin/ln -v pcmanfm.conf $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
