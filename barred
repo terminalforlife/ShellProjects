@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/barred
 # Started On        - Sun 19 Nov 13:56:45 GMT 2017
-# Last Change       - Tue 19 Dec 12:02:15 GMT 2017
+# Last Change       - Sat 24 Mar 00:55:47 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,6 +13,8 @@
 #
 # SYNTAX: barred B[[0|25|50|75|100]|P]
 #----------------------------------------------------------------------------------
+
+_VERSION_="2018-03-24"
 
 B=(𝍥:0 𝍦:25 𝍧:50 𝍨:75 𝍤:100 )
 
