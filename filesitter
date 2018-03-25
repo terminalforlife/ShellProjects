@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sun 25 Mar 12:06:22 BST 2018
+# Last Change       - Sun 25 Mar 12:07:38 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -88,12 +88,10 @@ while :; do
 	}
 
 	if [ ${OLD:-0} -eq $NEW ]; then
-		# Use trap to avoid neverending loop with suspend.
-		#[ "$ACTION" ] || ACTION="suspend"
-		#trap "/bin/systemctl $ACTION" HUP
-		#kill -HUP $$ || XERR "$LINENO" "System $ACTION failed."
-		echo "$OLD"
-		echo "$NEW"
+		 Use trap to avoid neverending loop with suspend.
+		[ "$ACTION" ] || ACTION="suspend"
+		trap "/bin/systemctl $ACTION" HUP
+		kill -HUP $$ || XERR "$LINENO" "System $ACTION failed."
 	fi
 
 	OLD="$NEW"
