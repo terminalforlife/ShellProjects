@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 11:28:32 BST 2018
+# Last Change       - Sun 25 Mar 11:29:36 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -104,8 +104,7 @@ if [[ "$MAKE_LIST_OPT" =~ (:|:\[+\]) ]]; then
 	for FILE in **; {
 		[ -f "$FILE" ] || continue
 		IFS="/" read -a X <<< "${FILE% (*}"
-		printf "%s%s: %s\n" "${X[0]}"\
-			"${MAKE_LIST_OPT#:}" "${X[1]}"
+		printf "%s%s: %s\n" "${X[0]}" "${MAKE_LIST_OPT#:}" "${X[1]}"
 	}
 
 	exit 0
@@ -149,7 +148,7 @@ if [ "$ORGANIZE" == "true" ]; then
 	exit 0
 fi
 
-[ -f "$INDEX" ] || XERR "$LINENO" "Movie index file not found."
+[ -f "$INDEX" ] || XERR "$LINENO" "Index file '$INDEX' not found."
 
 declare -i LINE=0
 while read -r; do
