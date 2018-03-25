@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sun 25 Mar 12:07:38 BST 2018
+# Last Change       - Sun 25 Mar 12:16:39 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --interval N            - Where N is the check interval in seconds.
+		            --interval|-I N         - Where N is the check interval in seconds.
 		                                      Default is to check every 300 seconds.
 		            --shutdown|-S           - Power system off instead of suspending.
 
@@ -47,7 +47,7 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--interval)
+		--interval|-N)
 			shift
 			if [[ "$1" =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
 				INTERVAL="$1"
@@ -88,10 +88,11 @@ while :; do
 	}
 
 	if [ ${OLD:-0} -eq $NEW ]; then
-		 Use trap to avoid neverending loop with suspend.
-		[ "$ACTION" ] || ACTION="suspend"
-		trap "/bin/systemctl $ACTION" HUP
-		kill -HUP $$ || XERR "$LINENO" "System $ACTION failed."
+		# Use trap to avoid neverending loop with suspend.
+		#[ "$ACTION" ] || ACTION="suspend"
+		#trap "/bin/systemctl $ACTION" HUP
+		#kill -HUP $$ || XERR "$LINENO" "System $ACTION failed."
+		echo "NOTE: Disabled temporarily due to infinite loop -- oops."
 	fi
 
 	OLD="$NEW"
