@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sun 25 Mar 12:30:42 BST 2018
+# Last Change       - Sun 25 Mar 12:34:33 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -65,6 +65,10 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+if ! [ "$*" ]; then
+	XERR "$LINENO" "No files were given for filesitter to monitor."
+fi
 
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/stat /bin/{systemctl,sleep}; {
