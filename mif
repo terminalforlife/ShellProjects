@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 11:02:41 BST 2018
+# Last Change       - Sun 25 Mar 11:09:27 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -57,7 +57,11 @@ USAGE(){
 	EOF
 }
 
-shopt -s extglob globstar
+if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then
+	shopt -s extglob globstar
+else
+	XERR "$LINENO" "Bash version 4.0 or greater is required."
+fi
 
 INDEX="$HOME/.mif"
 NOSTATUS="false"
