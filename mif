@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 11:20:03 BST 2018
+# Last Change       - Sun 25 Mar 11:21:43 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --debug                 - Enables the built-in bash debugging.
+		            --debug|-D              - Enables the built-in bash debugging.
 		            --file|-f FILE          - Use FILE path instead of the saved path.
 		            --seen|-s               - Filter by movies marked as seen.
 		            --unseen|-u             - The default. Works opposite to the above.
@@ -75,7 +75,7 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
-		--debug)
+		--debug|-D)
 			DEBUGME="true" ;;
 		--mklist|-M)
 			shift; MAKE_LIST_OPT=":[+]" ;;
