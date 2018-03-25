@@ -3,34 +3,31 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Thu 18 Jan 18:52:45 GMT 2018
+# Last Change       - Sun 25 Mar 10:46:50 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
+_VERSION_="2018-03-25"
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-if ! [ -x /bin/mkdir -a -x /bin/mv ]; then
-	XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
-fi
-
-shopt -s extglob globstar
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MIF - Movie Index Filter (18th January 2018)
+		            MIF - Movie Index Filter ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Shell program to filter films by year and whether seen or not.
 
 		SYNTAX:     mif [OPTS] [YEAR]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug                 - Enables the built-in bash debugging.
+		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug                 - Enables the built-in bash debugging.
 		            --file|-f FILE          - Use FILE path instead of the saved path.
 		            --seen|-s               - Filter by movies marked as seen.
 		            --unseen|-u             - The default. Works opposite to the above.
@@ -44,7 +41,7 @@ USAGE(){
 
 		NOTE:       The file which mif parses must be in a strict layout in order for
 		            mif to work correctly. An example of such a file's contents:
-		
+
 		              # Comment lines will be ignored.
 		              1972[+]: The Godfather
 		              1974[+]: The Godfather - Part II
@@ -54,41 +51,39 @@ USAGE(){
 		              1993[-]: The Fugitive
 		              1994[+]: Clear and Present Danger
 		              1994[+]: Jack Dee: Live at the London Palladium
-		
+
 		            Where + is unseen (new) and - is seen.
 
 		FILE:       Default is $HOME/.mif but use --file|-f FILE to specify your own.
 	EOF
 }
 
+shopt -s extglob globstar
+
 INDEX="$HOME/.mif"
 NOSTATUS="false"
 SEEN="false"
 TTL="false"
 
-MAKE_LIST(){
-	[ -x /bin/sed ] || XERR "$LINENO" "Dependency '/bin/sed' not met."
-
-	for FILE in **; {
-		[ -f "$FILE" ] && {
-			#TODO - Find pure shell approach. Use variable buffers?
-			printf "%s\n" "${FILE% (*}" | /bin/sed "s/\//${1}: /"
-		}
-	}
-}
-
 while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--debug)
 			DEBUGME="true" ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
 		--mklist|-M)
-			shift; MAKE_LIST "[+]"; exit 0 ;;
+			shift
+			MAKE_LIST_OPT=":[+]"
+			exit 0 ;;
 		--mklist:N|-M:N)
-			shift; MAKE_LIST ""; exit 0 ;;
+			shift
+			MAKE_LIST_OPT=":"
+			exit 0 ;;
 		--file|-f)
 			shift; INDEX="$1" ;;
 		--all|-a)
@@ -107,9 +102,28 @@ while [ "$1" ]; do
 		*)
 			break ;;
 	esac
-
 	shift
 done
+
+[ "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
+
+if ! [ -x /bin/mkdir -a -x /bin/mv ]; then
+	XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
+fi
+
+if [ -x /bin/sed ]; then
+	if [[ "$MAKE_LIST" =~ (:|:\[+\]) ]]; then
+		for FILE in **; {
+			if [ -f "$FILE" ]; then
+				#TODO - Find pure shell approach. Variable buffers?
+				printf "%s\n" "${FILE% (*}"\
+					| /bin/sed "s/\//${1}: /"
+			fi
+		}
+	fi
+else
+	XERR "$LINENO" "Dependency '/bin/sed' not met."
+fi
 
 if ! [ "$ORGANIZE" == "true" ]; then
 	if [[ "$1" =~ ^[0-9]+$ ]]; then
@@ -119,8 +133,6 @@ if ! [ "$ORGANIZE" == "true" ]; then
 		[ "$SEEN" == "all" ] || XERR "$LINENO" "Invalid year specified."
 	fi
 fi
-
-[ -n "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access not required."
 
@@ -156,7 +168,6 @@ fi
 declare -i LINE=0
 while read -r; do
 	{ [[ "$REPLY" == +(#)* ]] || [ -z "$REPLY" ]; } && continue
-
 	if [ "$NOSTATUS" == "false" ]; then
 		if [ "$SEEN" == "false"  ]; then
 			if [[ "$REPLY" == $YEAR\[\+\]:\ * ]]; then
@@ -183,4 +194,4 @@ done < "$INDEX"
 [ $LINE -eq 0 ] && XERR "$LINENO" "Unable to find year $YEAR."
 [ "$TTL" == "true" ] && printf "\nTotal: %d\n" "$LINE"
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
