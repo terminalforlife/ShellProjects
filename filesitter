@@ -3,43 +3,35 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sat  3 Mar 23:14:01 GMT 2018
+# Last Change       - Sun 25 Mar 12:06:22 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
+_VERSION_="2018-03-25"
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-declare -i DEPCOUNT=0
-for DEP in /usr/bin/{tr,cut,stat} /bin/{systemctl,sleep}; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FILESITTER (3rd March 2018)
+		            FILESITTER ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Watch for and act upon the completion of file size changes.
 
-		SYNTAX:     filesitter [OPTS] FILE1 FILE2 FILE3
-		
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug                 - Enables the built-in bash debugging.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --interval N            - Where N is the check interval in seconds.
-		                                      Default is to check every 600 minutes.
-		            --shutdown              - Power system off instead of suspending.
+		SYNTAX:     filesitter [OPTS] FILE1 FILE2 FILE3 . . .
 
-		NOTE:       Only up to three files can be watched at one time.
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --interval N            - Where N is the check interval in seconds.
+		                                      Default is to check every 300 seconds.
+		            --shutdown|-S           - Power system off instead of suspending.
+
+		NOTE:       Multiple files can be monitored at a time.
 
 		            Suspending the machine is the default action upon no detected file size
 		            change. The amount of minimum detected space change is 1 byte.
@@ -50,10 +42,11 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--debug)
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
 			DEBUGME="true" ;;
-		--quiet|-q)
-			BEQUIET="true" ;;
 		--interval)
 			shift
 			if [[ "$1" =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
@@ -61,58 +54,52 @@ while [ "$1" ]; do
 			else
 				XERR "$LINENO" "Invalid interval specified."
 			fi ;;
-		--shutdown)
+		--shutdown|-S)
 			ACTION="poweroff" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-#TODO - Why is this here? Explore and optimize.
-IFS=""
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/stat /bin/{systemctl,sleep}; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
 
-if ! [ "$1" -a "$2" -a "$3" ]; then
-	XERR "$LINENO" "At least one filename is required."
-else
-	#TODO - More than 3 file shouldn't be an issue -- fix.
-	FILENAME1="$1"
-	FILENAME2="$2"
-	FILENAME3="$3"
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+if ! [ -e /dev/null ]; then
+	XERR "$LINENO" "Unable to find the '/dev/null' file."
 fi
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+[ "$DEBUGME" == "true" ] && set -x
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
-
+declare -i NEW=0
 while :; do
-	for FILE in\
-	\
-		"${FILENAME1:-NULL}" "${FILENAME2:-NULL}" "${FILENAME3:-NULL}"
-	{
-		[ "$FILE" == "NULL" ] && continue
-		if ! [ -f "$FILE" -o -r "$FILE" ]; then
-			XERR "$LINENO" "Cannot find or access: $FILE"
-		else
-			NEW+=`/usr/bin/stat --printf="%s" "$FILE"`
-		fi
+	for FILE in $@; {
+		[ -f "$FILE" ] || continue
+		NEW+=`/usr/bin/stat --printf="%s" "$FILE" 2> /dev/null`
 	}
 
 	if [ ${OLD:-0} -eq $NEW ]; then
 		# Use trap to avoid neverending loop with suspend.
-		[ -z "$ACTION" ] && ACTION="suspend"
-		trap "/bin/systemctl $ACTION" HUP
-
-		kill -HUP $$ && exit 0 || {
-			XERR "$LINENO" "Failed to $ACTION the system."
-		}
+		#[ "$ACTION" ] || ACTION="suspend"
+		#trap "/bin/systemctl $ACTION" HUP
+		#kill -HUP $$ || XERR "$LINENO" "System $ACTION failed."
+		echo "$OLD"
+		echo "$NEW"
 	fi
 
 	OLD="$NEW"
-	unset NEW
+	NEW=0
 
-	/bin/sleep ${INTERVAL:-600}s
+	/bin/sleep ${INTERVAL:-300}s
 done
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
