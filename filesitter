@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sun 25 Mar 12:16:39 BST 2018
+# Last Change       - Sun 25 Mar 12:30:42 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -38,6 +38,8 @@ USAGE(){
 	EOF
 }
 
+ACTION="suspend"
+
 while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
@@ -47,7 +49,7 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--interval|-N)
+		--interval|-I)
 			shift
 			if [[ "$1" =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
 				INTERVAL="$1"
@@ -80,25 +82,25 @@ fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
-declare -i NEW=0
-while :; do
+GO="yes"
+while [ "$GO" == "yes" ]; do
+	declare -i NEW=0
+
 	for FILE in $@; {
 		[ -f "$FILE" ] || continue
 		NEW+=`/usr/bin/stat --printf="%s" "$FILE" 2> /dev/null`
 	}
 
 	if [ ${OLD:-0} -eq $NEW ]; then
-		# Use trap to avoid neverending loop with suspend.
-		#[ "$ACTION" ] || ACTION="suspend"
-		#trap "/bin/systemctl $ACTION" HUP
-		#kill -HUP $$ || XERR "$LINENO" "System $ACTION failed."
-		echo "NOTE: Disabled temporarily due to infinite loop -- oops."
+		GO="no"
+	else
+		OLD="$NEW"
+		/bin/sleep ${INTERVAL:-300}s
 	fi
-
-	OLD="$NEW"
-	NEW=0
-
-	/bin/sleep ${INTERVAL:-300}s
 done
+
+if ! /bin/systemctl $ACTION; then
+	XERR "$LINENO" "System $ACTION failed."
+fi
 
 # vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
