@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 10:50:20 BST 2018
+# Last Change       - Sun 25 Mar 10:52:56 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -99,12 +99,6 @@ while [ "$1" ]; do
 	shift
 done
 
-[ "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
-
-if ! [ -x /bin/mkdir -a -x /bin/mv ]; then
-	XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
-fi
-
 if [ -x /bin/sed ]; then
 	if [[ "$MAKE_LIST" =~ (:|:\[+\]) ]]; then
 		for FILE in **; {
@@ -128,7 +122,11 @@ if ! [ "$ORGANIZE" == "true" ]; then
 	fi
 fi
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access not required."
+[ "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
+
+if ! [ -x /bin/mkdir -a -x /bin/mv ]; then
+	XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
+fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
