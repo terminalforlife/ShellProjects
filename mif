@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 11:21:43 BST 2018
+# Last Change       - Sun 25 Mar 11:24:36 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ USAGE(){
 		            --unseen|-u             - The default. Works opposite to the above.
 		            --all|-a                - Display all films; disregard filters.
 		            --total|-t              - Output the total number of matches.
-		            --no-status|-N          - Feature currently not functional.
+		            --mark M                - Where M is - or + for whether seen or not.
 		            --organize|-O           - Organise files in the CWD by year. This
 		                                      This has the potential to be destructive!
 		            --mklist|-M[:N]         - Output a mif-usable movie list from CWD.
