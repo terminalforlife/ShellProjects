@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 11:09:27 BST 2018
+# Last Change       - Sun 25 Mar 11:20:03 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -99,20 +99,15 @@ while [ "$1" ]; do
 	shift
 done
 
-if [ -x /bin/sed ]; then
-	if [[ "$MAKE_LIST_OPT" =~ (:|:\[+\]) ]]; then
-		for FILE in **; {
-			if [ -f "$FILE" ]; then
-				#TODO - Find pure shell approach. Variable buffers?
-				printf "%s\n" "${FILE% (*}"\
-					| /bin/sed "s/\//${MAKE_LIST_OPT#:}: /"
-			fi
-		}
+if [[ "$MAKE_LIST_OPT" =~ (:|:\[+\]) ]]; then
+	for FILE in **; {
+		[ -f "$FILE" ] || continue
+		IFS="/" read -a X <<< "${FILE% (*}"
+		printf "%s%s: %s\n" "${X[0]}"\
+			"${MAKE_LIST_OPT#:}" "${X[1]}"
+	}
 
-		exit 0
-	fi
-else
-	XERR "$LINENO" "Dependency '/bin/sed' not met."
+	exit 0
 fi
 
 if ! [ "$ORGANIZE" == "true" ]; then
