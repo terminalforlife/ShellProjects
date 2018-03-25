@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 10:46:50 BST 2018
+# Last Change       - Sun 25 Mar 10:50:20 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -26,7 +26,6 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --debug                 - Enables the built-in bash debugging.
 		            --file|-f FILE          - Use FILE path instead of the saved path.
 		            --seen|-s               - Filter by movies marked as seen.
@@ -74,8 +73,6 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--debug)
 			DEBUGME="true" ;;
-		--quiet|-q)
-			BEQUIET="true" ;;
 		--mklist|-M)
 			shift
 			MAKE_LIST_OPT=":[+]"
@@ -92,9 +89,6 @@ while [ "$1" ]; do
 			ORGANIZE="true" ;;
 		--total|-t)
 			TTL="true" ;;
-		--no-status|-N)
-			#TODO - Finish this.
-			NOSTATUS="true" ;;
 		--seen|-s)
 			SEEN="true" ;;
 		--unseen|-u)
@@ -136,8 +130,7 @@ fi
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access not required."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 [ "$ORGANIZE" == "true" ] && {
 	[ -e /dev/null ] || XERR "$LINENO" "Unable to find: /dev/null"
@@ -168,26 +161,19 @@ fi
 declare -i LINE=0
 while read -r; do
 	{ [[ "$REPLY" == +(#)* ]] || [ -z "$REPLY" ]; } && continue
-	if [ "$NOSTATUS" == "false" ]; then
-		if [ "$SEEN" == "false"  ]; then
-			if [[ "$REPLY" == $YEAR\[\+\]:\ * ]]; then
-				printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
-				LINE+=1
-			fi
-		elif [ "$SEEN" == "true"  ]; then
-			if [[ "$REPLY" == $YEAR\[\-\]:\ * ]]; then
-				printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
-				LINE+=1
-			fi
-		elif [ "$SEEN" == "all"  ]; then
+	if [ "$SEEN" == "false"  ]; then
+		if [[ "$REPLY" == $YEAR\[\+\]:\ * ]]; then
 			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
 			LINE+=1
 		fi
-	else
-		if [[ "$REPLY" == $YEAR:\ * ]]; then
+	elif [ "$SEEN" == "true"  ]; then
+		if [[ "$REPLY" == $YEAR\[\-\]:\ * ]]; then
 			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
 			LINE+=1
 		fi
+	elif [ "$SEEN" == "all"  ]; then
+		printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+		LINE+=1
 	fi
 done < "$INDEX"
 
