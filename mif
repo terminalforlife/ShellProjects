@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 11:24:36 BST 2018
+# Last Change       - Sun 25 Mar 11:25:20 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -64,7 +64,6 @@ else
 fi
 
 INDEX="$HOME/.mif"
-NOSTATUS="false"
 SEEN="false"
 TTL="false"
 
@@ -85,6 +84,8 @@ while [ "$1" ]; do
 			shift; INDEX="$1" ;;
 		--all|-a)
 			SEEN="all" ;;
+		--mark)
+			shift; MARK="$1" ;;
 		--organize|-O)
 			ORGANIZE="true" ;;
 		--total|-t)
