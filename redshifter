@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Mon 26 Mar 20:05:56 BST 2018
+# Last Change       - Mon 26 Mar 20:33:19 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ _VERSION_="2018-03-26"
 BUFFER="$HOME/.config/redshifter.tmp"
 [ -d "$HOME/.config" ] || /bin/mkdir "$HOME/.config"
 
-if ! [ -f "$BUFFER" -o -r "$BUFFER" ]; then
+if ! [ -f "$BUFFER" -a -r "$BUFFER" ]; then
 	GAMMAS_NOW=6500
 	printf "6500\n" > "$BUFFER"
 else
@@ -58,12 +58,12 @@ case "$1" in
 		/usr/bin/redshift -o -O 6500K ;;
 	--increment|-i)
 		TEMP=$(( GAMMAS_NOW + $2 ))
-		[ $TEMP -gt 25000 ] && break
+		[ $TEMP -gt 25000 ] && exit 0
 		printf "%d\n" "$TEMP" > "$BUFFER"
 		/usr/bin/redshift -o -O ${TEMP}K ;;
 	--decrement|-d)
 		TEMP=$(( GAMMAS_NOW - $2 ))
-		[ $TEMP -lt 1000 ] && break
+		[ $TEMP -lt 1000 ] && exit 0
 		printf "%d\n" "$TEMP" > "$BUFFER"
 		/usr/bin/redshift -o -O ${TEMP}K ;;
 esac
