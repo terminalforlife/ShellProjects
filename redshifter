@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Sun  4 Mar 20:36:39 GMT 2018
+# Last Change       - Mon 26 Mar 13:33:47 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,8 +11,9 @@
 #
 # IMPORTANT:
 #
-# This small script assumes you have redshift installed and available. Also assumed
-# is that you'll be using this script via keyboard shortcuts, not terminals.
+# This small script assumes you have redshift (and mkdir of course) installed and
+# available. Also assumed is that you'll be using this script via keyboard
+# shortcuts, not terminals.
 #
 # Calling bash to avoid dependencies and to make use of bash syntax.
 #
@@ -22,23 +23,35 @@
 #             --increment|-i N        - Increment gamma by N integer.
 #             --decrement|-d N        - Decrement gamma by N integer.
 #             --reset|-r              - Reset to the default.
+#
+# NOTE:       As of 2018-03-26, redshifter no longer uses /tmp for the temporary
+#             file from which redshifter reads and sets the current value. This
+#             will be stored in the user's home directory, to keep the value from
+#             resetting upon reboot.
+#
+#             If you do need to reset the value, simply delete the stored file:
+#
+#               ~/.config/redshifter.tmp
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-04"
+_VERSION_="2018-03-26"
 
-BUFFER="/tmp/redshifter.tmp"
+BUFFER="$HOME/.config/redshifter.tmp"
+[ -d "$HOME/.config" ] || /bin/mkdir "$HOME/.config"
 
-[ -f "$BUFFER" -o -r "$BUFFER" ] || {
+if ! [ -f "$BUFFER" -o -r "$BUFFER" ]; then
 	GAMMAS_NOW=6500
 	printf "%d\n" "6500" > "$BUFFER"
-} && GAMMAS_NOW=`< "$BUFFER"`
+else
+	GAMMAS_NOW=`< "$BUFFER"`
+fi
 
 case "$1" in
 	--version|-v)
 		printf "%s\n" "$_VERSION_"
 		exit 0 ;;
 	--reset|-r)
-		printf "%d\n" "6500" > "$BUFFER"
+		printf "6500\n" > "$BUFFER"
 		/usr/bin/redshift -o -O 6500K ;;
 	--increment|-i)
 		TEMP=$(( GAMMAS_NOW + $2 ))
@@ -52,4 +65,4 @@ case "$1" in
 		/usr/bin/redshift -o -O ${TEMP}K ;;
 esac
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
