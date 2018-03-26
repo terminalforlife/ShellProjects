@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Mon 26 Mar 13:33:47 BST 2018
+# Last Change       - Mon 26 Mar 20:05:56 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -32,6 +32,9 @@
 #             If you do need to reset the value, simply delete the stored file:
 #
 #               ~/.config/redshifter.tmp
+#
+#             If this won't work, when it previously may have, check the value
+#             saved isn't a value of '-100' or something; must be an integer.
 #----------------------------------------------------------------------------------
 
 _VERSION_="2018-03-26"
@@ -41,7 +44,7 @@ BUFFER="$HOME/.config/redshifter.tmp"
 
 if ! [ -f "$BUFFER" -o -r "$BUFFER" ]; then
 	GAMMAS_NOW=6500
-	printf "%d\n" "6500" > "$BUFFER"
+	printf "6500\n" > "$BUFFER"
 else
 	GAMMAS_NOW=`< "$BUFFER"`
 fi
