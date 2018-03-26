@@ -1,21 +1,19 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/terminalrc
 # Started On        - Fri 20 Oct 00:37:52 BST 2017
-# Last Change       - Fri 20 Oct 00:56:54 BST 2017
+# Last Change       - Mon 26 Mar 22:01:11 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # This is just my xfce4-terminal settings file, in-case you wanted to use it. It's
 # a minimalistic, keyboard-focused setup. To use this file, save it in and as:
 #
 # $HOME/.config/xfce4/terminal/terminalrc
-
 #----------------------------------------------------------------------------------
 
 [Configuration]
 FontName=Oxygen Mono Bold 11
-FontAllowBold=TRUE
+FontAllowBold=FALSE
 MiscAlwaysShowTabs=FALSE
 MiscBell=TRUE
 MiscBordersDefault=FALSE
