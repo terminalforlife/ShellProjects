@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Thu  8 Mar 04:32:29 GMT 2018
+# Last Change       - Mon 26 Mar 23:26:57 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-08"
+_VERSION_="2018-03-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -53,21 +53,19 @@ done
 
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/{wget,fold,tput}; {
-	[ -x "$DEP" ] || {
+	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
-	}
+	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
-
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
 # Newer versions of wget by default request unwanted server-side compression.
 read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 URL="$DOM/jokes/joke-of-the-day"
 
