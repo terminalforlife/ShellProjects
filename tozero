@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Wed 28 Mar 07:16:06 BST 2018
+# Last Change       - Wed 28 Mar 07:22:27 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -78,34 +78,37 @@ DATE="$1"
 
 TARGET="${DATE:-tomorrow}"
 
-#TODO - This is a mess. Clean it up!
-SECONDS=$(( $(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s) ))
-MINUTES=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 ))
-HOURS=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 / 60 ))
-DAYS=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 / 60 / 24 ))
-WEEKS=$(( ($(/bin/date -d "$TARGET" +%s) - $(/bin/date +%s)) / 60 / 60 / 24 / 7 ))
+BUF1=`/bin/date -d "$TARGET" +%s`
+BUF2=`/bin/date +%s`
+
+SECONDS=$((BUF1-BUF2))
+MINUTES=$(((BUF1-BUF2)/60))
+HOURS=$(((BUF1-BUF2)/60/60))
+DAYS=$(((BUF1-BUF2)/60/60/24))
+WEEKS=$(((BUF1-BUF2)/60/60/24/7))
 
 case "$TYPE" in
 	seconds|s)
-		echo "SECONDS:   $SECONDS" ;;
+		printf "%s\n" "SECONDS:   $SECONDS" ;;
 	minutes|m)
-		echo "MINUTES:   $MINUTES" ;;
+		printf "%s\n" "MINUTES:   $MINUTES" ;;
 	hours|h)
-		echo "HOURS:     $HOURS" ;;
+		printf "%s\n" "HOURS:     $HOURS" ;;
 	days|d)
-		echo "DAYS:      $DAYS" ;;
+		printf "%s\n" "DAYS:      $DAYS" ;;
 	weeks|w)
-		echo "WEEKS:     $WEEKS" ;;
+		printf "%s\n" "WEEKS:     $WEEKS" ;;
 	*)
-		for I in\
-			"SECONDS:   $SECONDS"\
-			"MINUTES:   $MINUTES"\
-			"HOURS:     $HOURS"\
-			"DAYS:      $DAYS"\
-			"WEEKS:     $WEEKS"
-		{
-			echo "$I"
-		} ;;
+		while read -r; do
+			printf "%s\n" "$REPLY"
+		done <<-EOF
+			SECONDS:   $SECONDS
+			MINUTES:   $MINUTES
+			HOURS:     $HOURS
+			DAYS:      $DAYS
+			WEEKS:     $WEEKS
+		EOF
+		;;
 esac
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
