@@ -3,28 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Sat  3 Mar 23:18:55 GMT 2018
+# Last Change       - Wed 28 Mar 07:16:06 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
+_VERSION_="2018-03-28"
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-[ -x /bin/date ] || XERR "$LINENO" "Dependency '/bin/date' not met."
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            TOZERO (3rd March 2018)
+		            TOZERO ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Simple program to display a countdown for a target date.
 
 		SYNTAX:     tozero [OPTS] TARGET
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --only|-o TYPE          - Where TYPE is which to only show.
 
@@ -52,6 +53,9 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--only|-o)
@@ -66,9 +70,9 @@ done
 
 DATE="$1"
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+[ -x /bin/date ] || XERR "$LINENO" "Dependency '/bin/date' not met."
 
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 /bin/date -d "$DATE" &> /dev/null || XERR "$LINENO" "Incorrect TARGET string."
 
