@@ -70,7 +70,6 @@ LOGFILE="$MAINDIR/medlog.log"
 [ -f "$LOGFILE" ] || > "$LOGFILE"
 [ -w "$LOGFILE" ] || XERR "$LINENO" "File '${LOGFILE//*\/}' has no write access."
 
-#TODO - Make this a readarray and use the index count to parse it.
 while read -a X; do
 	printf -v LAST_LOG "%s\n" "${X[0]}"
 done < "$LOGFILE"
