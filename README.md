@@ -19,9 +19,3 @@ The below one-liner will fetch and correctly place the TFL `compton` configurati
 ```bash
 TFL_CCF="$HOME/.config/compton.conf"; [ -f "$TFL_CCF" ] && mv "$TFL_CCF"{,.bak}; wget -cq github.com/terminalforlife/miscellaneous/raw/master/compton.conf -O "$TFL_CCF"
 ```
-
-If you've got insit, it's as simple as:
-
-```bash
-sudo insit compconf
-```
