@@ -12,7 +12,7 @@ For files unavailable in insit (likely for good reason), you can clone this repo
 
 ### ALTERNATIVE INSTALLATIONS
 
-#### *FILE:* compton.conf
+##### FILE: compton.conf
 
 The below one-liner will fetch and correctly place the TFL `compton` configuration file, while backing up the original.
 
