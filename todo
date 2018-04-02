@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Mon  2 Apr 02:31:15 BST 2018
+# Last Change       - Mon  2 Apr 02:43:03 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,8 +16,10 @@
 # Where your git repositories (directories thereof) are stored.
 HUB="$HOME/GitHub/terminalforlife/Personal"
 
-# Here, you can exclude specified repositories (directories) found in HUB.
+# Here, you can exclude specified repositories (directories) found in HUB. This is
+# an array, so be sure to correctly quote names with spaces and special characters.
 EXCLUDE=(
+	swap-alert pymisc learnlinux get-uuid medlog-in-c
 )
 
 #---------------------------------------------------FETCH AND CHECK REPOSITORY LIST
@@ -39,6 +41,9 @@ printf "%d repositor%s found.\n" "${#REPOS[@]}" "$T"
 #-----------------------------------------------------------PROCESS EACH REPOSITORY
 
 for I in ${!REPOS[@]}; {
+	for OMIT in ${EXCLUDE[@]}; {
+		[ "$OMIT" == "${REPOS[I]//*\/}" ] && continue 2
+	}
+
 	printf "Checking: %s\n" "${REPOS[I]//*\/}"
-	
 }
