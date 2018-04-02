@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Mon  2 Apr 03:24:33 BST 2018
+# Last Change       - Mon  2 Apr 03:51:53 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -28,6 +28,13 @@ EXCLUDE=(swap-alert pymisc learnlinux get-uuid medlog-in-c)
 # If you want to only check only these (array, as above) repositories, you can, -
 # but if you don't, be sure to either comment this assignment out, or empty it.
 ONLY=()
+
+#TODO - Not yet working correctly.
+# Use LS_COLORS in todo's output.
+COLORS="false"
+
+# How todo will display the directory structure.
+T1="│"; T2="├ "; T3="└"; T4="─"
 
 #---------------------------------------------------FETCH AND CHECK REPOSITORY LIST
 
@@ -64,6 +71,15 @@ ONLY_OR_EXCLUDE(){
 	}
 }
 
+if [ "$COLORS" == "true" -a "$LS_COLORS" ]; then
+	while IFS=":" read -a X; do
+		if [ "${X%=*}" == "di" ]; then
+			DIR_COLOR="${X#*=}"
+			break
+		fi
+	done <<< "$LS_COLORS"
+fi
+
 for I in ${!REPOS[@]}; {
 	if [ ${#ONLY[@]} -gt 0 ]; then
 		ONLY_OR_EXCLUDE ${ONLY[@]}
@@ -73,10 +89,16 @@ for I in ${!REPOS[@]}; {
 
 	SUBDIRS=()
 	for Y in "${REPOS[I]}"/*; {
-		[ -d "$Y" -a ! "${Y//*\/}" == ".git" ] && SUBDIRS+=("$Y")
+		if [ -d "$Y" -a ! "${Y//*\/}" == ".git" ]; then
+			SUBDIRS=("$Y")
+		fi
 	}
 
-	printf "          |__ %s\n" "${SUBDIRS[@]//*\/}"
-
-	printf "Checking: %s\n" "${REPOS[I]//*\/}"
+	if [ "$COLORS" == "true" ]; then
+		printf "\e[${DIR_COLOR}m%s\e[0m\n" "$T1" "${REPOS[I]//*\/}"
+		printf "\e[${DIR_COLOR}m%s\e[0m/\n" "$T1" "${SUBDIRS[@]//*\/}"
+	else
+		printf "%s%s\n" "$T2" "${REPOS[I]//*\/}"
+		printf "%s\n" "$T1" "${SUBDIRS[@]//*\/}"
+	fi
 }
