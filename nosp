@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - nosp
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Tue  9 Jan 18:53:07 GMT 2018
+# Last Change       - Mon  2 Apr 04:08:30 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,15 +13,14 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
 [ $# -eq 0 ] || XERR "$LINENO" "No arguments are required."
 
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/xfconf-query /bin/sleep; {
-	[ -x "$DEP" ] || {
+	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
-	}
+	fi
 }
 
 [ $DEPCOUNT -gt 0 ] && exit 1
