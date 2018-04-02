@@ -1,15 +1,44 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - 
+# Project Name      - miscellaneous/todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Mon  2 Apr 02:04:43 BST 2018
+# Last Change       - Mon  2 Apr 02:31:15 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# Work in progress. The idea is to write a pure-shell approach to the todo alias in
+# bashconfig/.bash_aliases which displays a list of TODOs found in various files.
+#
+# This is for educational (fun) purposes, portability (sort of), and preference.
+#----------------------------------------------------------------------------------
 
-MAIN="$HOME/GitHub/terminalforlife/Personal"
+# Where your git repositories (directories thereof) are stored.
+HUB="$HOME/GitHub/terminalforlife/Personal"
 
-for DIR in $MAIN/*; {
+# Here, you can exclude specified repositories (directories) found in HUB.
+EXCLUDE=(
+)
+
+#---------------------------------------------------FETCH AND CHECK REPOSITORY LIST
+
+REPOS=()
+if [ -d "$HUB" ]; then
+	declare -i NUM=0
+	for DIR in $HUB/*; {
+		if [ -d "$DIR" -a -d "$DIR/.git" ]; then
+			REPOS+=("$DIR")
+			NUM+=1
+		fi
+	}
+fi
+
+[ ${#REPOS[@]} -gt 0 ] && T="ies were" || T="y was"
+printf "%d repositor%s found.\n" "${#REPOS[@]}" "$T"
+
+#-----------------------------------------------------------PROCESS EACH REPOSITORY
+
+for I in ${!REPOS[@]}; {
+	printf "Checking: %s\n" "${REPOS[I]//*\/}"
 	
 }
