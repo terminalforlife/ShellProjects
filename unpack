@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/unpack
 # Started On        - Wed  8 Nov 15:41:30 GMT 2017
-# Last Change       - Wed 10 Jan 14:11:43 GMT 2018
+# Last Change       - Mon  2 Apr 04:10:12 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,8 +15,11 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-[ -x /usr/bin/mimetype ] || XERR "$LINENO" "Dependency '/usr/bin/mimetype' not met."
-[ $# -eq 0 ] && XERR "$LINENO" "Specify at least one archive."
+if ! [ -x /usr/bin/mimetype ]; then
+	XERR "$LINENO" "Dependency '/usr/bin/mimetype' not met."
+elif [ $# -eq 0 ]; then
+	XERR "$LINENO" "Specify at least one archive."
+fi
 
 CMD(){
 	if [ -x "${1%% *}" ]; then
@@ -28,7 +31,6 @@ CMD(){
 SPACE="${RANDOM}${RANDOM}"
 for FILE in ${@// /$SPACE}; {
 	FILE="${FILE//$SPACE/ }"
-
 	while read -a X; do
 		case "${X[@]}" in
 			Tar\ archive)
@@ -54,4 +56,4 @@ for FILE in ${@// /$SPACE}; {
 	done <<< "$(/usr/bin/mimetype -db "$FILE")"
 }
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
