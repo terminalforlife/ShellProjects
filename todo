@@ -3,12 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Mon  2 Apr 03:51:53 BST 2018
+# Last Change       - Mon  2 Apr 04:05:33 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# Work in progress. The idea is to write a pure-shell approach to the todo alias in
-# bashconfig/.bash_aliases which displays a list of TODOs found in various files.
+# Work in progress. The idea is to write a more involved pure-shell approach to the
+# todo alias in bashconfig/.bash_aliases which displays a list of TODOs found in
+# various files.
 #
 # This is for educational (fun) purposes, portability (sort of), and preference.
 #----------------------------------------------------------------------------------
