@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Mon  2 Apr 04:05:33 BST 2018
+# Last Change       - Mon  2 Apr 04:06:29 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -34,6 +34,7 @@ ONLY=()
 # Use LS_COLORS in todo's output.
 COLORS="false"
 
+#TODO - Tree format is not displaying correctly at all.
 # How todo will display the directory structure.
 T1="│"; T2="├ "; T3="└"; T4="─"
 
