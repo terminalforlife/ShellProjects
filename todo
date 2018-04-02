@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - 
+# Started On        - Mon  2 Apr 02:04:43 BST 2018
+# Last Change       - Mon  2 Apr 02:04:43 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+MAIN="$HOME/GitHub/terminalforlife/Personal"
+
+for DIR in $MAIN/*; {
+	
+}
