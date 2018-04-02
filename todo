@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Mon  2 Apr 03:09:45 BST 2018
+# Last Change       - Mon  2 Apr 03:24:33 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,6 +12,9 @@
 #
 # This is for educational (fun) purposes, portability (sort of), and preference.
 #----------------------------------------------------------------------------------
+
+#TODO - Move these to the usual argument parser.
+#TODO - Add USAGE(), the dependency check, etc.
 
 # Where your git repositories (directories thereof) are stored.
 HUB="$HOME/GitHub/terminalforlife/Personal"
@@ -24,12 +27,14 @@ EXCLUDE=(swap-alert pymisc learnlinux get-uuid medlog-in-c)
 #TODO - Incomplete feature is pretty much a placeholder for now; finish it.
 # If you want to only check only these (array, as above) repositories, you can, -
 # but if you don't, be sure to either comment this assignment out, or empty it.
-ONLY=(installit)
+ONLY=()
 
 #---------------------------------------------------FETCH AND CHECK REPOSITORY LIST
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+shopt -s dotglob
 
 REPOS=()
 if [ -d "$HUB" ]; then
@@ -66,7 +71,12 @@ for I in ${!REPOS[@]}; {
 		ONLY_OR_EXCLUDE ${EXCLUDE[@]}
 	fi
 
+	SUBDIRS=()
+	for Y in "${REPOS[I]}"/*; {
+		[ -d "$Y" -a ! "${Y//*\/}" == ".git" ] && SUBDIRS+=("$Y")
+	}
 
+	printf "          |__ %s\n" "${SUBDIRS[@]//*\/}"
 
 	printf "Checking: %s\n" "${REPOS[I]//*\/}"
 }
