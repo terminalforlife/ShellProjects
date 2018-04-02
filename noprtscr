@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/noprtscr (No Print Screen)
 # Started On        - Sun 21 Jan 18:30:36 GMT 2018
-# Last Change       - Sun  4 Mar 20:44:09 GMT 2018
+# Last Change       - Mon  2 Apr 04:12:09 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,10 +17,13 @@
 #             --prtsc-is-menu         - Use PrtSC to launch the Mint Menu.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-04"
+_VERSION_="2018-04-02"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-[ -x /usr/bin/gsettings ] || XERR "$LINENO" "Dependency '/usr/bin/gsettings' not met."
+
+if ! [ -x /usr/bin/gsettings ]; then
+	XERR "$LINENO" "Dependency '/usr/bin/gsettings' not met."
+fi
 
 while [ "$1" ]; do
 	case "$1" in
@@ -34,16 +37,14 @@ while [ "$1" ]; do
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
-
 	shift
 done
 
 SCHEMA="org.cinnamon.desktop.keybindings.media-keys"
-
 for KEY in {area,window}-screenshot{,-clip} screenshot{,-clip}; {
 	if ! /usr/bin/gsettings set "$SCHEMA" "$KEY" "[]"; then
 		XERR "$LINENO" "Unable to clear: $KEY"
 	fi
 }
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
