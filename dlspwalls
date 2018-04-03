@@ -3,30 +3,31 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dlspwalls
 # Started On        - Sun 15 Oct 20:48:22 BST 2017
-# Last Change       - Wed 28 Feb 22:00:55 GMT 2018
+# Last Change       - Tue  3 Apr 12:51:06 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
+_VERSION_="2018-04-03"
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-[ -x /usr/bin/wget ] || ERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DLSPWALLS (28th February 2018)
+		            DLSPWALLS ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Download a collection of steampunk wallpapers.
 
 		SYNTAX:     dlspwalls [OPTS]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug|-D              - Enables the built-in bash debugging.
+		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 
 		NOTE:       Files will be download to the current directory, as JPGs.
 
@@ -38,10 +39,13 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--debug|-D)
-			DEBUGME="true" ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -49,28 +53,31 @@ while [ "$1" ]; do
 	shift
 done
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+[ -x /usr/bin/wget ] || ERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
-# Newer versions of wget by default request unwanted server-side compression.
 read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 URL="https://wallpapercave.com/download/steampunk-wallpaper"
-HTML=`/usr/bin/wget -q "${URL%/down*}/steampunk-wallpaper-1920x1080" -O -`
+HTML=`/usr/bin/wget -q $NOWARC "${URL%/down*}/steampunk-wallpaper-1920x1080" -O -`
 
-declare -a GETID=()
+GETID=()
 while read -a Y; do
 	for FIELD in ${Y[@]/src=\"\/wp}; {
 		[ "$FIELD" == "$OLD" ] && continue
-
-		[[ "$FIELD" == /* ]] && {
-			[[ "$FIELD" =~ [0-9A-Za-z]+.jpg ]] && {
+		if [[ "$FIELD" == /* ]]; then
+			if [[ "$FIELD" =~ [0-9A-Za-z]+.jpg ]]; then
 				GETID+=("${FIELD%.jpg\"}")
-			}
-		} || continue
+			fi
+		else
+			continue
+		fi
 
 		OLD="$FIELD"
 	}
@@ -85,4 +92,4 @@ for ID in ${GETID[@]//\/}; {
 	/usr/bin/wget -qc $NOWARC "${URL}-1920x1080-${ID}" -O "$FNAME"
 }
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
