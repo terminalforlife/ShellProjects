@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Mon  2 Apr 04:06:29 BST 2018
+# Last Change       - Tue  3 Apr 13:54:48 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -30,14 +30,6 @@ EXCLUDE=(swap-alert pymisc learnlinux get-uuid medlog-in-c)
 # but if you don't, be sure to either comment this assignment out, or empty it.
 ONLY=()
 
-#TODO - Not yet working correctly.
-# Use LS_COLORS in todo's output.
-COLORS="false"
-
-#TODO - Tree format is not displaying correctly at all.
-# How todo will display the directory structure.
-T1="│"; T2="├ "; T3="└"; T4="─"
-
 #---------------------------------------------------FETCH AND CHECK REPOSITORY LIST
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -58,13 +50,6 @@ else
 	XERR "$LINENO" "Unable to find or access git repository HUB."
 fi
 
-if ! [ ${#REPOS[@]} -eq 0 ]; then
-	[ ${#REPOS[@]} -gt 0 ] && T="ies were" || T="y was"
-	printf "%d repositor%s found.\n" "${#REPOS[@]}" "$T"
-else
-	XERR "$LINENO" "No git repositories were found in HUB."
-fi
-
 #-----------------------------------------------------------PROCESS EACH REPOSITORY
 
 ONLY_OR_EXCLUDE(){
@@ -73,15 +58,6 @@ ONLY_OR_EXCLUDE(){
 	}
 }
 
-if [ "$COLORS" == "true" -a "$LS_COLORS" ]; then
-	while IFS=":" read -a X; do
-		if [ "${X%=*}" == "di" ]; then
-			DIR_COLOR="${X#*=}"
-			break
-		fi
-	done <<< "$LS_COLORS"
-fi
-
 for I in ${!REPOS[@]}; {
 	if [ ${#ONLY[@]} -gt 0 ]; then
 		ONLY_OR_EXCLUDE ${ONLY[@]}
@@ -89,18 +65,9 @@ for I in ${!REPOS[@]}; {
 		ONLY_OR_EXCLUDE ${EXCLUDE[@]}
 	fi
 
-	SUBDIRS=()
 	for Y in "${REPOS[I]}"/*; {
-		if [ -d "$Y" -a ! "${Y//*\/}" == ".git" ]; then
-			SUBDIRS=("$Y")
-		fi
+		[ -d "$Y" -a ! "${Y//*\/}" == ".git" ] && SUBDIRS=("$Y")
 	}
 
-	if [ "$COLORS" == "true" ]; then
-		printf "\e[${DIR_COLOR}m%s\e[0m\n" "$T1" "${REPOS[I]//*\/}"
-		printf "\e[${DIR_COLOR}m%s\e[0m/\n" "$T1" "${SUBDIRS[@]//*\/}"
-	else
-		printf "%s%s\n" "$T2" "${REPOS[I]//*\/}"
-		printf "%s\n" "$T1" "${SUBDIRS[@]//*\/}"
-	fi
+	printf "%d:%s\n" "0" "${REPOS[I]//*\/}"
 }
