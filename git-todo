@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/todo
+# Project Name      - miscellaneous/git-todo
 # Started On        - Mon  2 Apr 02:04:43 BST 2018
-# Last Change       - Tue  3 Apr 13:54:48 BST 2018
+# Last Change       - Tue  3 Apr 14:03:02 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -32,8 +32,48 @@ ONLY=()
 
 #---------------------------------------------------FETCH AND CHECK REPOSITORY LIST
 
+_VERSION_="2018-04-03"
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            GIT-TODO ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            View and count TODO items in your git repositories.
+
+		SYNTAX:     git-todo [OPTS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --exclude|-E R          - Exclude R git repositories.
+		            --only|-O R             - Process only R git repositroies.
+		            --hub|-H P              - Use P as the repository hub path.
+		            --raw|-r                - View raw output in NUM:REPO format.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+	shift
+done
+
+[ "$DEBUGME" == "true" ] && set -x
 
 shopt -s dotglob
 
@@ -49,8 +89,6 @@ if [ -d "$HUB" ]; then
 else
 	XERR "$LINENO" "Unable to find or access git repository HUB."
 fi
-
-#-----------------------------------------------------------PROCESS EACH REPOSITORY
 
 ONLY_OR_EXCLUDE(){
 	for O in $@; {
