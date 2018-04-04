@@ -3,23 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Wed 10 Jan 21:33:33 GMT 2018
+# Last Change       - Wed  4 Apr 08:21:09 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# This really needs a rewrite; it's pretty sloppy. If this is something you'd be
+# interested in, please let me know.
+#----------------------------------------------------------------------------------
+
+_VERSION_="2018-04-04"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-declare -i DEPCOUNT=0
-for DEP in /bin/grep /usr/bin/{wget,seq}; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
 
 #TODO - Currently won't download S01E01.
 #TODO - IMPORTANT: Fix filenames; they're a mess. :(
@@ -28,16 +23,17 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DL-UBUNTU-PODCASTS (19th December 2017)
+		            DL-UBUNTU-PODCASTS ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Simple program to download all of the old Ubuntu Podcast episodes.
 
 		SYNTAX:     dl-ubuntu-podcasts [OPTS] PAGE PAGE PAGE . . .
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug                 - Enables the built-in bash debugging.
+		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 		            --dest|-d PATH          - Where PATH is an alternative destination.
 		            --get-season-eight      - Grab the newer episodes from season eight.
 		            --get-season-nine       - Grab the newer episodes from season nine.
@@ -53,47 +49,68 @@ USAGE(){
 	EOF
 }
 
-ALTDEST=""
-
-EXTRA_SEASON(){
-	URL="http://static.ubuntupodcast.org/ubuntupodcast"
-
-	#TODO - Use eval with brace expansion to avoid needing seq.
-	for E in `/usr/bin/seq $2 $3`; {
-		/usr/bin/wget -qc --show-progress\
-			"$URL/s${1}/e${E}/ubuntupodcast_s${1}e${E}.mp3"
-	}
-}
-
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--debug)
-			DEBUGME="true" ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--debug)
+			DEBUGME="true" ;;
 		--dest|-s)
 			shift
 
 			ALTDEST="$1"
-			[ -d "$ALTDEST" ] || {
+			if ! [ -d "$ALTDEST" ]; then
 				XERR "Destination directory not found."
-			} ;;
+			fi ;;
 		--get-season-eight)
-			EXTRA_SEASON 08 01 42 ;;
+			EXTRA="08 01 42" ;;
 		--get-season-nine)
-			EXTRA_SEASON 09 01 44 ;;
+			EXTRA="09 01 44" ;;
 		--get-season-ten)
-			EXTRA_SEASON 10 01 38 ;;
+			EXTRA="10 01 38" ;;
 		*)
 			break ;;
 	esac
-
 	shift
 done
 
-if [ -n "$*" ]; then
+if ! [ -x /usr/bin/wget ]; then
+	XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+fi
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+EXTRA_SEASON(){
+	for E in `eval printf "%d\\\\\n" {$2..$3}`; {
+		printf "%s\n" "$E"
+	}
+
+	URL="http://static.ubuntupodcast.org/ubuntupodcast"
+	/usr/bin/wget $NOWARC -qc --show-progress\
+		"$URL/s${1}/e${E}/ubuntupodcast_s${1}e${E}.mp3"
+}
+
+if [ "$EXTRA" ]; then
+	case "$EXTRA" in
+		8)
+			EXTRA_SEASON $EXTRA ;;
+		9)
+			EXTRA_SEASON $EXTRA ;;
+		10)
+			EXTRA_SEASON $EXTRA ;;
+	esac
+fi
+
+if [ "$*" ]; then
 	USERPAGE="true"
 
 	while [ -n "$1" ]; do
@@ -109,10 +126,8 @@ else
 	NUM=193
 fi
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
-
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 while :; do
 	if ! [ "$USERPAGE" == "true" ]; then
@@ -123,26 +138,37 @@ while :; do
 
 	#TODO - Fix custom pages not working.
 
-	PAGE=`/usr/bin/wget -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
+	PAGE=`/usr/bin/wget $NOWARC -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
+	DL_LINK_MATCH="http://podcast\.ubuntu-uk\.org/download/.*\.ogg"
+	OUTNAME_MATCH="[Ss][0-9]+[Ee][0-9]+\s+–\s+[[:space:][:alnum:]]+"
 
-	#TODO - These two could be done with a pure-shell approach?
-	DL_LINK=`printf "%s\n" "$PAGE" | /bin/grep -m 1 -o "http://podcast\.ubuntu-uk\.org/download/.*\.ogg"`
-	OUTNAME=`printf "%s\n" "$PAGE" | /bin/grep -m 1 -o "[Ss][0-9]\+[Ee][0-9]\+\s\+–\s\+[[:space:][:alnum:]]\+"`
+	while read; do
+		if [[ "$REPLY" =~ $DL_LINK_MATCH ]]; then
+			[ "$DL_LINK" ] || DL_LINK="$REPLY"
+		elif [[ "$REPLY" =~ $OUTNAME_MATCH ]]; then
+			[ "$OUTNAME" ] || OUTNAME="$REPLY"
+		elif [ "$DL_LINK" -a "$OUTNAME" ]; then
+			break
+		fi
+	done <<< "$PAGE"
 
 	if [ -z "$ALTDEST" ]; then
 		printf "NUM:         %s\n" "$NUM"
 		printf "OUTNAME:     %s\n" "$OUTNAME"
 		[ -z "$OUTNAME" ] && break
-		/usr/bin/wget -cq --show-progress\
+		/usr/bin/wget $NOWARC -cq --show-progress\
 			"$DL_LINK" -O "./${OUTNAME}.ogg"
 	else
 		[ -z "$OUTNAME" ] && break
-		/usr/bin/wget -cq --show-progress\
+		/usr/bin/wget $NOWARC -cq --show-progress\
 			"$DL_LINK" -O "${ALTDEST%\/}/${OUTNAME}.ogg"
 	fi
 
 	[ "$USERPAGE" == "true" ] || NUM="${NUM/* }"
-	[ -z "$NUM" ] && break
+
+	if ! [ "$NUM" ]; then
+		break
+	fi
 done
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
