@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Fri  6 Apr 21:59:47 BST 2018
+# Last Change       - Fri  6 Apr 22:06:24 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,6 +11,8 @@
 _VERSION_="2018-04-06"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+
+[ $# -gt 0 ] && XERR "$LINENO" "This program takes no arguments."
 
 while read -r; do
 	printf "%s\n" "$REPLY"
@@ -35,19 +37,21 @@ done <<-EOF
 EOF
 
 read -n 1 -e -p "[C]ontinue, despite the impending doom, or [q]uit? "
+printf "\n"
 
 case "$REPLY" in
 	[Cc])
 		if [ $UID -eq 0 ]; then
 			if [ -x /usr/bin/dpkg-query ]; then
 				if [ -x /usr/bin/apt-get ]; then
+					LIST=()
 					F='${db:Status-Abbrev} ${Essential} ${Binary:Package}\n'
 					while read -a X; do
 						if [ "${X[0]}${X[1]}" == "iino" ]; then
 							LIST+=("${X[2]}")
 						fi
 					done <<< "$(/usr/bin/dpkg-query -Wf "$F" \*)"
-					/usr/bin/apt-get remove --purge --autoremove ${LIST[@]}
+					/usr/bin/apt-get remove --purge ${LIST[@]}
 				else
 					XERR "$LINENO" "Dependency '/usr/bin/apt-get' not met."
 				fi
