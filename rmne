@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat  7 Apr 00:12:54 BST 2018
+# Last Change       - Sat  7 Apr 00:20:05 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ while read -r; do
 	printf "%s\n" "$REPLY"
 done <<-EOF
 
-	  !! WARNING !!  +----------------------------------------------+   !! WARNING !!
+	!! WARNING !!  +------------------------------------------------+   !! WARNING !!
 
 	This is a small and dangerous program for the sole purpose of tearing down the
 	non-essential packages, for educational, fun, or other purposes, such as setting up
@@ -29,11 +29,17 @@ done <<-EOF
 	likely be left with just the Debian essentials, unless your distribution has set
 	some odd packages as essential, such as in Linux Lite.
 
-	There is no 'undo' for this action. You will likely just be left with ONLY the dpkg
+	There is no 'undo' for this action. You may only be left with ONLY the dpkg
 	executable, meaning you will not be able to download packages with apt-get, which
 	is the very least of your problems, if you reboot.
 
-	  !! WARNING !!  +----------------------------------------------+   !! WARNING !!
+	Specifically, packages to be removed fall under the following criteria:
+
+	  1. They must not have the priority of standard, important, or required.
+	  2. They must not be part of the KEEP variable array.
+	  3. They must be part of the minimal task.
+
+	!! WARNING !!  +------------------------------------------------+   !! WARNING !!
 
 EOF
 
@@ -100,10 +106,11 @@ if [ -x /usr/bin/dpkg-query ]; then
 			for TASK in `FILTERED $PKG`; {
 				if [ "$TASK" == "minimal" ]; then
 					MINIMAL="true"
-					END_LIST+=("$PKG")
-					break
+					continue 2
 				fi
 			}
+
+			END_LIST+=("$PKG")
 		}
 
 		INFO "Initiating removal of final package list."
