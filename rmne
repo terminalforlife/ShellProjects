@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Fri  6 Apr 21:29:12 BST 2018
+# Last Change       - Fri  6 Apr 21:42:08 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,4 +15,19 @@
 # This program is ONLY for Debian and Ubuntu, or distributions based thereon.
 #----------------------------------------------------------------------------------
 
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 
+if [ $UID -eq 0 ]; then
+	if [ -x /usr/bin/dpkg-query ]; then
+		F='${db:Status-Abbrev} ${Essential} ${Binary:Package}\n'
+		while read -a X; do
+			if [ "${X[0]}${X[1]}" == "iiyes" ]; then
+				printf "%s\n" "${X[2]}"
+			fi
+		done <<< "$(/usr/bin/dpkg-query -Wf "$F" \*)"
+	else
+		XERR "$LINENO" "Dependency '/usr/bin/dpkg-query' not met."
+	fi
+else
+	XERR "$LINENO" "Root access is required."
+fi
