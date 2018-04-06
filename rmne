@@ -3,31 +3,67 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Fri  6 Apr 21:42:08 BST 2018
+# Last Change       - Fri  6 Apr 21:59:47 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# This is a work in progress, and a very dangerous one at that! Do NOT run this
-# willy-nilly, lest you fry your Linux installation. The purpose of this small
-# program is to remove all of the non-essential packages, for educational, fun, or
-# other purposes, such as setting up a specific type of installation.
-#
-# This program is ONLY for Debian and Ubuntu, or distributions based thereon.
-#----------------------------------------------------------------------------------
+
+_VERSION_="2018-04-06"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 
-if [ $UID -eq 0 ]; then
-	if [ -x /usr/bin/dpkg-query ]; then
-		F='${db:Status-Abbrev} ${Essential} ${Binary:Package}\n'
-		while read -a X; do
-			if [ "${X[0]}${X[1]}" == "iiyes" ]; then
-				printf "%s\n" "${X[2]}"
+while read -r; do
+	printf "%s\n" "$REPLY"
+done <<-EOF
+
+	  !! WARNING !!  +----------------------------------------------+   !! WARNING !!
+
+	This is a small and dangerous program for the sole purpose of tearing down the
+	non-essential packages, for educational, fun, or other purposes, such as setting up
+	a specific type of installation.
+
+	This program is ONLY for Debian and Ubuntu, or distributions based thereon. You'll
+	likely be left with just the Debian essentials, unless your distribution has set
+	some odd packages as essential, such as in Linux Lite.
+
+	There is no 'undo' for this action. You will likely just be left with ONLY the dpkg
+	executable, meaning you will not be able to download packages with apt-get, which
+	is the very least of your problems, if you reboot.
+
+	  !! WARNING !!  +----------------------------------------------+   !! WARNING !!
+
+EOF
+
+read -n 1 -e -p "[C]ontinue, despite the impending doom, or [q]uit? "
+
+case "$REPLY" in
+	[Cc])
+		if [ $UID -eq 0 ]; then
+			if [ -x /usr/bin/dpkg-query ]; then
+				if [ -x /usr/bin/apt-get ]; then
+					F='${db:Status-Abbrev} ${Essential} ${Binary:Package}\n'
+					while read -a X; do
+						if [ "${X[0]}${X[1]}" == "iino" ]; then
+							LIST+=("${X[2]}")
+						fi
+					done <<< "$(/usr/bin/dpkg-query -Wf "$F" \*)"
+					/usr/bin/apt-get remove --purge --autoremove ${LIST[@]}
+				else
+					XERR "$LINENO" "Dependency '/usr/bin/apt-get' not met."
+				fi
+			else
+				XERR "$LINENO" "Dependency '/usr/bin/dpkg-query' not met."
 			fi
-		done <<< "$(/usr/bin/dpkg-query -Wf "$F" \*)"
-	else
-		XERR "$LINENO" "Dependency '/usr/bin/dpkg-query' not met."
-	fi
-else
-	XERR "$LINENO" "Root access is required."
-fi
+		else
+			XERR "$LINENO" "Root access is required."
+		fi ;;
+	[Qq])
+		printf "No action taken -- quitting.\n"
+		exit 0 ;;
+	"")
+		printf "No response -- quitting.\n"
+		exit 1 ;;
+	*)
+		printf "Unrecognised response -- quitting.\n"
+		exit 1 ;;
+esac
