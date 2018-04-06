@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/rmne
+# Started On        - Fri  6 Apr 21:27:34 BST 2018
+# Last Change       - Fri  6 Apr 21:29:12 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This is a work in progress, and a very dangerous one at that! Do NOT run this
+# willy-nilly, lest you fry your Linux installation. The purpose of this small
+# program is to remove all of the non-essential packages, for educational, fun, or
+# other purposes, such as setting up a specific type of installation.
+#
+# This program is ONLY for Debian and Ubuntu, or distributions based thereon.
+#----------------------------------------------------------------------------------
+
+
