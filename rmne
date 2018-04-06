@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat  7 Apr 00:20:05 BST 2018
+# Last Change       - Sat  7 Apr 00:26:07 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -38,6 +38,8 @@ done <<-EOF
 	  1. They must not have the priority of standard, important, or required.
 	  2. They must not be part of the KEEP variable array.
 	  3. They must be part of the minimal task.
+
+	NOTE: You may wish to download some DEB packages beforehand.
 
 	!! WARNING !!  +------------------------------------------------+   !! WARNING !!
 
@@ -89,17 +91,21 @@ if [ -x /usr/bin/dpkg-query ]; then
 			fi
 		done <<< "$(/usr/bin/dpkg-query -Wf "$FORMAT" \*)"
 
-		FILTERED(){
-			while read -a X; do
-				if [ "${X[0]}" == "Task:" ]; then
-					for F in "${X[@]//,}"; {
-						if ! [ "$F" == "Task:" ]; then
-							printf "%s " "${F}"
-						fi
-					}
-				fi
-			done <<< "$(/usr/bin/apt-cache show $1)"
-		}
+		if [ -x /usr/bin/apt-cache ]; then
+			FILTERED(){
+				while read -a X; do
+					if [ "${X[0]}" == "Task:" ]; then
+						for F in "${X[@]//,}"; {
+							if ! [ "$F" == "Task:" ]; then
+								printf "%s " "${F}"
+							fi
+						}
+					fi
+				done <<< "$(/usr/bin/apt-cache show $1)"
+			}
+		else
+			XERR "$LINENO" "Dependency '/usr/bin/apt-cache' not met."
+		fi
 
 		for PKG in ${LIST[@]}; {
 			INFO "Checking task of '$PKG' package."
