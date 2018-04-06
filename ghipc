@@ -3,14 +3,16 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ghipc (GitHub IP Check)
 # Started On        - Wed 14 Feb 18:30:38 GMT 2018
-# Last Change       - Fri  9 Mar 15:30:26 GMT 2018
+# Last Change       - Fri  6 Apr 20:54:31 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-09"
+_VERSION_="2018-04-06"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+
+URL='https://api.github.com/meta'
 
 USAGE(){
 	while read -r; do
@@ -27,7 +29,7 @@ USAGE(){
 		            --version|-v            - Output o ly the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 
-		SITE:       https://api.github.com/meta
+		SITE:       $URL
 	EOF
 }
 
@@ -56,11 +58,12 @@ IP_LIST="$@"
 
 [ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
 
-# Newer versions of wget by default request unwanted server-side compression.
 read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
 
-URL='https://api.github.com/meta'
 while read LINE; do
 	BUFFER="${LINE//[!0-9.\/]}"
 	for IP in $IP_LIST; {
