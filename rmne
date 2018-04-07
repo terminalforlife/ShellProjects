@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat  7 Apr 03:30:49 BST 2018
+# Last Change       - Sat  7 Apr 03:52:21 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ done <<-EOF
 
 	This program is ONLY for Debian and Ubuntu, or distributions based thereon. You'll
 	likely be left with just the Debian essentials, unless your distribution has set
-	some odd packages as essential, such as in Linux Lite.
+	some odd packages as essential, such as in Linux Lite and Linux Mint.
 
 	There is no 'undo' for this action. You may only be left with ONLY the dpkg
 	executable, meaning you will not be able to download packages with apt-get, which
