@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat  7 Apr 03:52:21 BST 2018
+# Last Change       - Sat  7 Apr 04:00:37 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -42,8 +42,10 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		*)
+		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
 	esac
 	shift
 done
