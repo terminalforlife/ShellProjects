@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat  7 Apr 00:26:07 BST 2018
+# Last Change       - Sat  7 Apr 03:30:49 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,9 +11,56 @@
 _VERSION_="2018-04-07"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 INFO(){ printf "INFO: %s\n" "$1"; }
 
-[ $# -gt 0 ] && XERR "$LINENO" "This program takes no arguments."
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            RMNE - REMOVE NON-ESSENTIAL ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Remove all non-essential packages from Ubuntu or Debian installations.
+
+		SYNTAX:     rmne [OPTS] PKG1 PKG2 PKG3 ...
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --debug|-D              - Enables the built-in bash debugging.
+
+		NOTE:       Where PKG is one or more packages to keep, despite priority and task.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+	shift
+done
+
+KEEP=($@)
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{apt-get,apt-cache,dpkg-query}; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
 
 while read -r; do
 	printf "%s\n" "$REPLY"
@@ -45,14 +92,10 @@ done <<-EOF
 
 EOF
 
+[ "$DEBUGME" == "true" ] && set -x
+
 read -n 1 -e -p "[C]ontinue, despite the impending doom, or [q]uit? "
 printf "\n"
-
-# Packages specified in this variable array will be kept, regardless of priority.
-KEEP=(
-	cron systemd apparmor bash dash apt dpkg pam
-	e2fsprogs util-linux libc6 mount login iptables
-)
 
 case "$REPLY" in
 	[Cc])
@@ -68,62 +111,46 @@ case "$REPLY" in
 		exit 1 ;;
 esac
 
-if ! [ $UID -eq 0 ]; then
-	XERR "$LINENO" "Root access is required."
-fi
-
-if [ -x /usr/bin/dpkg-query ]; then
-	if [ -x /usr/bin/apt-get ]; then
-		INFO "Fetching list of non-essential packages."
-		FORMAT='${db:Status-Abbrev} ${Priority} ${Binary:Package}\n'
-		while read STATUS PRIORITY PKG; do
-			MATCH='^(important|standard|required)$'
-			if [ "$STATUS" == "ii" ] && ! [[ "$PRIORITY" =~ $MATCH ]]; then
-				for I in ${KEEP[@]}; {
-					if [ "$I" == "$PKG" ]; then
-						INFO "Ignoring '$PKG' package to be kept."
-						continue 2
-					fi
-				}
-
-				INFO "Package '$PKG' set for initial list."
-				LIST+=("$PKG")
+INFO "Fetching list of non-essential packages."
+FORMAT='${db:Status-Abbrev} ${Priority} ${Binary:Package}\n'
+while read STATUS PRIORITY PKG; do
+	MATCH='^(important|standard|required)$'
+	if [ "$STATUS" == "ii" ] && ! [[ "$PRIORITY" =~ $MATCH ]]; then
+		for I in ${KEEP[@]}; {
+			if [ "$I" == "$PKG" ]; then
+				INFO "Ignoring '$PKG' package to be kept."
+				continue 2
 			fi
-		done <<< "$(/usr/bin/dpkg-query -Wf "$FORMAT" \*)"
-
-		if [ -x /usr/bin/apt-cache ]; then
-			FILTERED(){
-				while read -a X; do
-					if [ "${X[0]}" == "Task:" ]; then
-						for F in "${X[@]//,}"; {
-							if ! [ "$F" == "Task:" ]; then
-								printf "%s " "${F}"
-							fi
-						}
-					fi
-				done <<< "$(/usr/bin/apt-cache show $1)"
-			}
-		else
-			XERR "$LINENO" "Dependency '/usr/bin/apt-cache' not met."
-		fi
-
-		for PKG in ${LIST[@]}; {
-			INFO "Checking task of '$PKG' package."
-			for TASK in `FILTERED $PKG`; {
-				if [ "$TASK" == "minimal" ]; then
-					MINIMAL="true"
-					continue 2
-				fi
-			}
-
-			END_LIST+=("$PKG")
 		}
 
-		INFO "Initiating removal of final package list."
-		/usr/bin/apt-get remove --purge --autoremove ${END_LIST[@]}
-	else
-		XERR "$LINENO" "Dependency '/usr/bin/apt-get' not met."
+		INFO "Package '$PKG' set for initial list."
+		LIST+=("$PKG")
 	fi
-else
-	XERR "$LINENO" "Dependency '/usr/bin/dpkg-query' not met."
-fi
+done <<< "$(/usr/bin/dpkg-query -Wf "$FORMAT" \*)"
+
+FILTERED(){
+	while read -a X; do
+		if [ "${X[0]}" == "Task:" ]; then
+			for F in "${X[@]//,}"; {
+				if ! [ "$F" == "Task:" ]; then
+					printf "%s " "${F}"
+				fi
+			}
+		fi
+	done <<< "$(/usr/bin/apt-cache show $1)"
+}
+
+for PKG in ${LIST[@]}; {
+	INFO "Checking task of '$PKG' package."
+	for TASK in `FILTERED $PKG`; {
+		if [ "$TASK" == "minimal" ]; then
+			MINIMAL="true"
+			continue 2
+		fi
+	}
+
+	END_LIST+=("$PKG")
+}
+
+INFO "Initiating removal of final package list."
+/usr/bin/apt-get remove --purge --autoremove ${END_LIST[@]}
