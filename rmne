@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat  7 Apr 17:57:29 BST 2018
+# Last Change       - Sat  7 Apr 18:00:00 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -62,13 +62,11 @@ for DEP in /usr/bin/{apt-get,apt-cache,dpkg-query}; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
-
 while read -r; do
 	printf "%s\n" "$REPLY"
 done <<-EOF
 
-	WARNING  +--------------------------------------------------------------+   WARNING
+	WARNING  +---------------------------------------------------------------+  WARNING
 
 	This is a small but dangerous program for the sole purpose of tearing down the
 	non-essential packages, for educational, fun, or other purposes, such as setting up
@@ -89,9 +87,11 @@ done <<-EOF
 	  2. They must not be those which are specified as command arguments.
 	  3. They must not be part of the minimal task.
 
-	WARNING  +--------------------------------------------------------------+   WARNING
+	WARNING  +---------------------------------------------------------------+  WARNING
 
 EOF
+
+[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
 
 [ "$DEBUGME" == "true" ] && set -x
 
