@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat  7 Apr 18:08:01 BST 2018
+# Last Change       - Sat  7 Apr 18:14:46 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,11 +27,15 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to rmne.
 		            --debug|-D              - Enables the built-in bash debugging.
+		            --no-purge              - Do not purge any remaining package files.
 
 		NOTE:       Where PKG is one or more packages to keep, despite priority and task.
 	EOF
 }
+
+PURGE="--purge"
 
 while [ "$1" ]; do
 	case "$1" in
@@ -40,8 +44,12 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
+		--no-purge)
+			unset PURGE ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -53,7 +61,7 @@ done
 KEEP=($@)
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{apt-get,apt-cache,dpkg-query}; {
+for DEP in /usr/bin/{wget,apt-get,apt-cache,dpkg-query}; {
 	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -61,6 +69,31 @@ for DEP in /usr/bin/{apt-get,apt-cache,dpkg-query}; {
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if [ "$UPDATE" == "true" ]; then
+	VERSION_URL="$DOM/terminalforlife/miscellaneous/raw/master/rmne-version"
+	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				New version available:    $LATEST
+				Current version:          $_VERSION_
+			EOF
+		fi
+	else
+		XERR "$LINENO" "Failed to check for available updates."
+	fi
+
+	exit 0
+fi
 
 printf -v DATE "%(%F)T" -1
 while read -r; do
@@ -154,4 +187,5 @@ for PKG in ${LIST[@]}; {
 }
 
 INFO "Initiating removal of final package list."
-/usr/bin/apt-get remove --purge --autoremove ${END_LIST[@]}
+/usr/bin/apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
+	remove $PURGE --autoremove ${END_LIST[@]}
