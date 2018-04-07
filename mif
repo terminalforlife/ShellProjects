@@ -3,15 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sun 25 Mar 11:29:36 BST 2018
+# Last Change       - Sat  7 Apr 18:54:09 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-25"
+_VERSION_="2018-04-07"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+DOM="https://github.com"
 
 USAGE(){
 	while read -r; do
@@ -26,6 +28,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to mif.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --file|-f FILE          - Use FILE path instead of the saved path.
 		            --seen|-s               - Filter by movies marked as seen.
@@ -54,6 +57,8 @@ USAGE(){
 		            Where + is unseen (new) and - is seen.
 
 		FILE:       Default is $HOME/.mif but use --file|-f FILE to specify your own.
+
+		SITE:       $DOM/terminalforlife/miscellaneous
 	EOF
 }
 
@@ -74,6 +79,8 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--mklist|-M)
@@ -100,6 +107,35 @@ while [ "$1" ]; do
 	shift
 done
 
+declare -i DEPCOUNT=0
+for DEP in /bin/{mkdir,mv} /usr/bin/wget; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+if [ "$UPDATE" == "true" ]; then
+	VERSION_URL="$DOM/terminalforlife/miscellaneous/raw/master/mif-version"
+	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				New version available:    $LATEST
+				Current version:          $_VERSION_
+			EOF
+		fi
+	else
+		XERR "$LINENO" "Failed to check for available updates."
+	fi
+
+	exit 0
+fi
+
 if [[ "$MAKE_LIST_OPT" =~ (:|:\[+\]) ]]; then
 	for FILE in **; {
 		[ -f "$FILE" ] || continue
@@ -119,10 +155,6 @@ if ! [ "$ORGANIZE" == "true" ]; then
 fi
 
 [ "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
-
-if ! [ -x /bin/mkdir -a -x /bin/mv ]; then
-	XERR "$LINENO" "Dependency '/bin/mkdir' or '/bin/mv' not met."
-fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
