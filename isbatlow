@@ -1,0 +1,149 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/isbatlow
+# Started On        - Sun  8 Apr 20:47:08 BST 2018
+# Last Change       - Sun  8 Apr 22:01:37 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2018-04-08"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+DOM="https://github.com"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            ISBATLOW ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Simple utility for laptops, to check if the battery is low.
+
+		SYNTAX:     isbatlow [OPTS] [CMD]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to simplify-ubuntu.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --interval|-I N         - Set the check interval,in seconds, to N.
+		            --limit|-L N            - Set the battery percentile limit to N.
+		            --battery|-B BAT        - Where BAT is the battery to watch.
+
+		NOTE:       Where CMD is one or more commands to run upon the battery limit being
+		            detected, which is by default 15%, remaining.
+
+		SITE:       $DOM/terminalforlife/miscellaneous
+	EOF
+}
+
+FILE="$HOME/Desktop/file.tmp"
+BATTERY="battery_BAT0"
+declare -i INTERVAL=30
+declare -i LIMIT=15
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--interval|-I)
+			shift
+			if [[ "$1" =~ ^[0-9]+$ ]] && [ $1 -gt 0 ]; then
+				LIMIT=$1
+			else
+				XERR "$LINENO" "Invalid interval specified."
+			fi ;;
+		--limit|-L)
+			shift
+			if [[ "$1" =~ ^[0-9]+$ ]]\
+			&& [ $1 -gt 0 -a $1 -lt 100 ]; then
+				LIMIT=$1
+			else
+				XERR "$LINENO" "Invalid limit specified."
+			fi ;;
+		--battery|-B)
+			shift
+			if ! [ "$1" ]; then
+				XERR "$LINENO" "Missing battery specification."
+			else
+				BATTERY="$1"
+			fi ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+CMD="$@"
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{notify-send,on_ac_power,wget} /bin/sleep; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if [ "$UPDATE" == "true" ]; then
+	VERSION_URL="$DOM/terminalforlife/miscellaneous/raw/master/isbatlow-version"
+	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				New version available:    $LATEST
+				Current version:          $_VERSION_
+			EOF
+		fi
+	else
+		XERR "$LINENO" "Failed to check for available updates."
+	fi
+
+	exit 0
+fi
+
+[ "$DEBUGME" == "true" ] && set -x
+
+if ! /usr/bin/on_ac_power; then
+	while IFS=":" read -a X; do
+		if [ "${X[0]// }" == "percentage" ]; then
+			if ! [[ "${X[1]// }" =~ ^[0-9]+%$ ]]; then
+				/usr/bin/notify-send --urgency=critical\
+					"Unable to get valid battery value."
+				ERR "$LINENO" "Unable to get valid percentile."
+			else
+				if [ ${X[1]%\%} -le $LIMIT ]; then
+					/usr/bin/notify-send --urgency=critical\
+						"Battery is critically low!"
+
+					($CMD)
+				fi
+			fi
+
+			break
+		fi
+	done <<< "$(/usr/bin/upower -i /org/freedesktop/UPower/devices/$BATTERY)"
+	/bin/sleep ${INTERVAL}s
+fi
