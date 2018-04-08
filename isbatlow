@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Sun  8 Apr 22:01:37 BST 2018
+# Last Change       - Sun  8 Apr 22:04:03 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -41,7 +41,6 @@ USAGE(){
 	EOF
 }
 
-FILE="$HOME/Desktop/file.tmp"
 BATTERY="battery_BAT0"
 declare -i INTERVAL=30
 declare -i LIMIT=15
