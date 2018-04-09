@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Wed 28 Mar 07:22:27 BST 2018
+# Last Change       - Mon  9 Apr 21:54:25 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-28"
+_VERSION_="2018-04-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -28,6 +28,7 @@ USAGE(){
 		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --only|-o TYPE          - Where TYPE is which to only show.
+		            --int-only|-I           - Show only the integer, not its type.
 
 		NOTE:       Behind the scenes, 'date' is used, so strings like "tomorrow", "next -
 		            month", and "yesterday" can be used instead of a YYYY-MM-DD format.
@@ -41,11 +42,11 @@ USAGE(){
 		EXAMPLE:    Display countdown until December the 11th, 2017:
 
 		              $ tozero 2018-10-02
-		              SECONDS:    3893051
-		              MINUTES:    64884
-		              HOURS:      1081
-		              DAYS:       45
-		              WEEKS:      6
+		              S: 3,893,051
+		              M: 64,884
+		              H: 1,081
+		              D: 45
+		              W: 6
 	EOF
 }
 
@@ -60,6 +61,8 @@ while [ "$1" ]; do
 			DEBUGME="true" ;;
 		--only|-o)
 			shift; TYPE="$1" ;;
+		--int-only|-I)
+			INTONLY="true" ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -81,34 +84,37 @@ TARGET="${DATE:-tomorrow}"
 BUF1=`/bin/date -d "$TARGET" +%s`
 BUF2=`/bin/date +%s`
 
-SECONDS=$((BUF1-BUF2))
+SECS=$((BUF1-BUF2))
 MINUTES=$(((BUF1-BUF2)/60))
 HOURS=$(((BUF1-BUF2)/60/60))
 DAYS=$(((BUF1-BUF2)/60/60/24))
 WEEKS=$(((BUF1-BUF2)/60/60/24/7))
 
+SHOW(){
+	if [ "$INTONLY" == "true" ]; then
+		printf "%-'d\n" "$2"
+	else
+		printf "%s: %-'d\n" "$1" "$2"
+	fi
+}
+
 case "$TYPE" in
 	seconds|s)
-		printf "%s\n" "SECONDS:   $SECONDS" ;;
+		SHOW S $SECS ;;
 	minutes|m)
-		printf "%s\n" "MINUTES:   $MINUTES" ;;
+		SHOW M $MINUTES ;;
 	hours|h)
-		printf "%s\n" "HOURS:     $HOURS" ;;
+		SHOW H $HOURS ;;
 	days|d)
-		printf "%s\n" "DAYS:      $DAYS" ;;
+		SHOW D $DAYS ;;
 	weeks|w)
-		printf "%s\n" "WEEKS:     $WEEKS" ;;
+		SHOW W $WEEKS ;;
 	*)
-		while read -r; do
-			printf "%s\n" "$REPLY"
-		done <<-EOF
-			SECONDS:   $SECONDS
-			MINUTES:   $MINUTES
-			HOURS:     $HOURS
-			DAYS:      $DAYS
-			WEEKS:     $WEEKS
-		EOF
-		;;
+		SHOW S $SECS
+		SHOW M $MINUTES
+		SHOW H $HOURS
+		SHOW D $DAYS
+		SHOW W $WEEKS ;;
 esac
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
