@@ -1,0 +1,99 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/feh-slides
+# Started On        - Sun  5 Nov 12:04:09 GMT 2017
+# Last Change       - Sat 14 Apr 20:37:07 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2018-04-14"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            FEH-SLIDES ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            A super-simple desktop wallpaper slideshow.
+
+		SYNTAX:     feh-slides [OPTS] [PATH]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --interval|-i N         - Change wallpaper every N seconds.
+		            --trap|-T               - Trap SIGUSR1 for a cleaner exit. This is more
+		                                      of a placeholder for future expansion.
+
+		NOTE:       Where PATH is the directory in which your chosen wallpapers are stored.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--increase|-i)
+			shift; INTERVAL="$1" ;;
+		--decrease|-d)
+			shift; DIR="$1" ;;
+		--trap|-T)
+			TRAP="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+if ! [ $# -eq 1 ]; then
+	XERR "$LINENO" "Only one wallpaper directory may be specified."
+fi
+
+[ -x /bin/sleep ] || XERR "$LINENO" "Dependency '/bin/sleep' not met."
+
+[ "$DEBUGME" == "true" ] && set -x
+
+# Room for easy expansion.
+EXIT(){
+	kill $$
+	exit 0
+}
+
+if [ -d "$1" ]; then
+	if [ "$TRAP" == "true" ]; then
+		trap 'EXIT' 10 # SIGUSR1
+	fi
+
+	while :; do
+		for FILE in "${DIR%\/}"/*; {
+			if [ -f "$FILE" ]; then
+				if [ -x /usr/bin/feh ]; then
+					/usr/bin/feh --no-fehbg --bg-center "$FILE"
+				elif [ -x /usr/bin/nitrogen ]; then
+					/usr/bin/nitrogen --replace "$FILE"
+				else
+					XERR "$LINENO" "Currently, only feh or nitrogen are supported."
+				fi
+
+				/bin/sleep ${INTERVAL:-5}s
+			fi
+		}
+	done
+else
+	XERR "$LINENO" "Directory '$DIR' not found."
+fi
+
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
