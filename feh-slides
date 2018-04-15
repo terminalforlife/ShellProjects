@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Sun 15 Apr 11:48:23 BST 2018
+# Last Change       - Sun 15 Apr 11:51:20 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ if [ -d "$1" ]; then
 				elif [ -x /usr/bin/nitrogen ]; then
 					/usr/bin/nitrogen --replace "$FILE"
 				else
-					XERR "$LINENO" "Currently, only feh or nitrogen are supported."
+					XERR "$LINENO" "Currently, only feh are nitrogen are supported."
 				fi
 
 				if ! /bin/sleep ${INTERVAL:-5}s; then
