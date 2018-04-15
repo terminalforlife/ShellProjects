@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Sun 15 Apr 11:29:53 BST 2018
+# Last Change       - Sun 15 Apr 11:32:23 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ while [ "$1" ]; do
 	shift
 done
 
-if ! [ $# -gt 1 ]; then
+if [ $# -gt 1 ]; then
 	XERR "$LINENO" "Only one wallpaper directory may be specified."
 elif ! [ $# -eq 0 ]; then
 	XERR "$LINENO" "A wallpaper directory must be specified."
