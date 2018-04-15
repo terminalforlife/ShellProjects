@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Sun 15 Apr 11:33:07 BST 2018
+# Last Change       - Sun 15 Apr 11:35:10 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -44,10 +44,8 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--increase|-i)
+		--interval|-i)
 			shift; INTERVAL="$1" ;;
-		--decrease|-d)
-			shift; DIR="$1" ;;
 		--trap|-T)
 			TRAP="true" ;;
 		-*)
@@ -80,7 +78,7 @@ if [ -d "$1" ]; then
 	fi
 
 	while :; do
-		for FILE in "${DIR%\/}"/*; {
+		for FILE in "${1%\/}"/*; {
 			if [ -f "$FILE" ]; then
 				if [ -x /usr/bin/feh ]; then
 					/usr/bin/feh --no-fehbg --bg-center "$FILE"
@@ -95,7 +93,7 @@ if [ -d "$1" ]; then
 		}
 	done
 else
-	XERR "$LINENO" "Directory '$DIR' not found."
+	XERR "$LINENO" "Directory '$1' not found."
 fi
 
 # vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
