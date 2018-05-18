@@ -110,7 +110,7 @@ fi
 SNOTESCHK
 MATCH="$1"
 declare -i LINE_COUNT=0
-while read LINE; do
+while read -r LINE; do
 	LINE_COUNT+=1
 	[ "$LINE" == "${COM}END" ] && break
 	if [[ "$LINE" =~ ^(|${COM}.*)$ ]]; then
