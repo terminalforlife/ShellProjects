@@ -3,13 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Sun 20 May 12:34:59 BST 2018
+# Last Change       - Sun 20 May 12:35:44 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Quick shell program to toggle TLP to improve power management on portable setups.
-# This was written for a family member, and isn't relevant to me, so I've not been
-# able to test it yet.
 #----------------------------------------------------------------------------------
 
 _VERSION_="2018-05-20"
