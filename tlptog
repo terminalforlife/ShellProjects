@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Sun 20 May 12:10:32 BST 2018
+# Last Change       - Sun 20 May 12:34:59 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -89,13 +89,14 @@ fi
 
 if [ -f "$WORK_FILE" ]; then
 	while IFS="=" read -a X; do
+		[[ "${X[0]}" =~ ^# ]] && continue
 		if [ "${X[0]}" == "TLP_ENABLE" ]; then
 			if [ ${X[1]} -eq 1 ]; then
-				if ! /bin/sed -i 's/TLP_ENABLE=1/TLP_ENABLE=0/g' "$WORK_FILE"; then
+				if ! /bin/sed -i 's/\(TLP_ENABLE=\)1/\10/' "$WORK_FILE"; then
 					XERR "$LINENO" "Parameter 'TLP_ENABLE' unsuccessfully set to '1'."
 				fi
 			elif [ ${X[1]} -eq 0 ]; then
-				if ! /bin/sed -i 's/TLP_ENABLE=0/TLP_ENABLE=1/g' "$WORK_FILE"; then
+				if ! /bin/sed -i 's/\(TLP_ENABLE=\)0/\11/' "$WORK_FILE"; then
 					XERR "$LINENO" "Parameter 'TLP_ENABLE' unsuccessfully set to '0'."
 				fi
 			else
