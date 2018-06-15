@@ -1,0 +1,104 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/tfl-ubuntu-setup
+# Started On        - Thu 14 Jun 23:36:44 BST 2018
+# Last Change       - Fri 15 Jun 23:36:01 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Installs Ubuntu 16.04 and 18.04 from the Ubuntu with XFCE ISO. This just makes it
+# a bit easier and quicker than doing it all manually. It sets things up how I how
+# I have it.
+#
+# First draft will be specific to my system, but will later make it more portable.
+# Not everyone has an nVidia graphics card and no wireless network, for example.
+#
+# CAUTION: This script should only be ran AFTER installation, in a separate TTY.
+#          Preferably, before you first log into X.
+#----------------------------------------------------------------------------------
+
+_VERSION_="2018-06-15"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/apt-get /bin/{rm,bash}; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+
+PROMPT(){
+	printf "One or more errors detected -- [c]ontinue or [q]uit?\n"
+
+	while :; do
+		read -n 1 -e -p "PROMPT: "
+		if [[ "$REPLY" == [Cc] ]]; then
+			break
+		elif [[ "$REPLY" == [Qq] ]]; then
+			printf "Quitting...\n"
+			exit 1
+		fi
+	done
+}
+
+APT(){
+	/usr/bin/apt-get -q -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
+		-o APT::Get::AutomaticRemove=true -o APT::Get::Purge=true $@\
+		|| return 1
+}
+
+if ! [ -x /usr/bin/wget ]; then
+	APT install wget || PROMPT
+fi
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if ! [ -x /usr/bin/insit ]; then
+	INSIT_LINK="github.com/terminalforlife/installit/raw/master/insit"
+	/usr/bin/wget $NOWARC -q --show-progress "$INSIT_LINK" -O /tmp/insit
+	if [ $? -eq 0 ]; then
+		if /bin/bash /tmp/insit -S; then
+			/bin/rm -v /tmp/insit
+
+			# Addresses an issue with the instructed install method.
+			INSIT_DIR="$HOME/.local/share/insit"
+			[ -d "$INSIT_DIR" ] && /bin/rm -rv "$INSIT_DIR"
+		else
+			exit 1
+		fi
+	else
+		PROMPT
+	fi
+fi
+
+if ! [ -x /usr/sbin/ufw ]; then
+	if APT install ufw; then
+		/usr/sbin/ufw enable
+	else
+		PROMPT
+	fi
+else
+	/usr/sbin/ufw enable
+fi
+
+EXTRA_PKGS=(
+	firefox   # Safe and easy web browser from Mozilla
+	links2    # Web browser running in both graphics and text mode
+	mpv       # video player based on MPlayer/mplayer2
+)
+
+for PKG in ${EXTRA_PKGS[@]}; {
+	APT install "$PKG"
+}
