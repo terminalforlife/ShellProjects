@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Sat 16 Jun 12:24:27 BST 2018
+# Last Change       - Sat 16 Jun 12:34:08 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -31,6 +31,19 @@ for DEP in /usr/bin/apt-get /bin/{rm,bash,chown,chmod}; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 [ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+
+if [ -f /etc/lsb-release ]; then
+	while IFS="=" read -a X; do
+		if [ "${X[0]}" == "DISTRIB_ID" -a "${X[1]}" == "Ubuntu" ]; then
+			ERR "$LINENO" "This script only supports Debian/Ubuntu systems."
+			PROMPT
+			break
+		fi
+	done < /etc/lsb-release
+else
+	ERR "$LINENO" "Unable to determine the system's LSB type."
+	PROMPT
+fi
 
 INSIT_PATH="/usr/bin/insit"
 INSIT_HOME_DIR="$HOME/.local/share/insit"
@@ -132,10 +145,14 @@ printf "\n"
 # This variable array holds the package names which will be installed, per my
 # (or your?) preference. The right-aligned comments are the short descriptions.
 EXTRA_PKGS=(
-	firefox   # Safe and easy web browser from Mozilla
-	links2    # Web browser running in both graphics and text mode
-	moc       # ncurses based console audio player
-	mpv       # video player based on MPlayer/mplayer2
+	audacity      # fast, cross-platform audio editor
+	firefox       # Safe and easy web browser from Mozilla
+	links2        # Web browser running in both graphics and text mode
+	moc           # ncurses based console audio player
+	mpv           # video player based on MPlayer/mplayer2
+	openshot      # Create and edit videos and movies
+	psmisc        # utilities that use the proc file system
+	thunderbird   # Email, RSS and newsgroup client with integrated spam filter
 )
 
 for PKG in ${EXTRA_PKGS[@]}; {
