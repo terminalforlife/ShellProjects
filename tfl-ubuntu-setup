@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Fri 15 Jun 23:37:52 BST 2018
+# Last Change       - Sat 16 Jun 12:24:27 BST 2018
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,13 +15,13 @@
 #          Preferably, before you first log into X.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-06-15"
+_VERSION_="2018-06-16"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/apt-get /bin/{rm,bash}; {
+for DEP in /usr/bin/apt-get /bin/{rm,bash,chown,chmod}; {
 	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -32,9 +32,15 @@ for DEP in /usr/bin/apt-get /bin/{rm,bash}; {
 
 [ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
 
+INSIT_PATH="/usr/bin/insit"
+INSIT_HOME_DIR="$HOME/.local/share/insit"
+INSIT_LINK="github.com/terminalforlife/installit/raw/master/insit"
+
+SU_PATH="/usr/bin/simplify-ubuntu"
+SU_LINK="github.com/terminalforlife/simplify-ubuntu/raw/master/simplify-ubuntu"
+
 PROMPT(){
 	printf "One or more errors detected -- [c]ontinue or [q]uit?\n"
-
 	while :; do
 		read -n 1 -e -p "PROMPT: "
 		if [[ "$REPLY" == [Cc] ]]; then
@@ -47,14 +53,11 @@ PROMPT(){
 }
 
 APT(){
+	[ -x /usr/bin/wget ] || { APT install wget || PROMPT; }
 	/usr/bin/apt-get -q -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
 		-o APT::Get::AutomaticRemove=true -o APT::Get::Purge=true $@\
 		|| return 1
 }
-
-if ! [ -x /usr/bin/wget ]; then
-	APT install wget || PROMPT
-fi
 
 read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
@@ -63,15 +66,13 @@ if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 fi
 
 if ! [ -x /usr/bin/insit ]; then
-	INSIT_LINK="github.com/terminalforlife/installit/raw/master/insit"
 	/usr/bin/wget $NOWARC -q --show-progress "$INSIT_LINK" -O /tmp/insit
 	if [ $? -eq 0 ]; then
 		if /bin/bash /tmp/insit -S; then
 			/bin/rm -v /tmp/insit
 
 			# Addresses an issue with the instructed install method.
-			INSIT_DIR="$HOME/.local/share/insit"
-			[ -d "$INSIT_DIR" ] && /bin/rm -rv "$INSIT_DIR"
+			[ -d "$INSIT_HOME_DIR" ] && /bin/rm -rv "$INSIT_HOME_DIR"
 		else
 			exit 1
 		fi
@@ -80,6 +81,23 @@ if ! [ -x /usr/bin/insit ]; then
 	fi
 fi
 
+if [ -x "$INSIT_PATH" ] && ! [ -x "$SU_PATH" ]; then
+	/usr/bin/wget $NOWARC -q --show-progress "$SU_LINK" -O "$SU_PATH"
+	if [ $? -eq 0 ]; then
+		/bin/chmod -v 755 "$SU_PATH"
+		/bin/chown -v 0:0 "$SU_PATH"
+	else
+		PROMPT
+	fi
+fi
+
+# Run simplify-ubuntu, if it's found. This is so the user can go through various
+# packages he or she may not actually want, which often come as default.
+if [ -x "$SU_PATH" ]; then
+	$SU_PATH || PROMPT
+fi
+
+# If ufw isn't installed, install it. Enable the firewall if found or installed.
 if ! [ -x /usr/sbin/ufw ]; then
 	if APT install ufw; then
 		/usr/sbin/ufw enable
@@ -90,9 +108,33 @@ else
 	/usr/sbin/ufw enable
 fi
 
+# Should be installed by default, but in-case this script is used in a different
+# environment, such as with the mini.iso image, this will ensure man is installed.
+if ! [ -x /usr/bin/man ]; then
+	APT install man || PROMPT
+fi
+
+while read -r; do
+	printf "%s\n" "$REPLY"
+done <<-EOF
+
+	NOTE:  If you used simplify-ubuntu to remove packages, be aware that some
+	       packages may now be installed again, per the EXTRA_PKGS variable
+	       array within this script.
+
+	       However, you should still be prompted for each installation.
+
+EOF
+
+read -n 1 -s -p "Press any key to continue... "
+printf "\n"
+
+# This variable array holds the package names which will be installed, per my
+# (or your?) preference. The right-aligned comments are the short descriptions.
 EXTRA_PKGS=(
 	firefox   # Safe and easy web browser from Mozilla
 	links2    # Web browser running in both graphics and text mode
+	moc       # ncurses based console audio player
 	mpv       # video player based on MPlayer/mplayer2
 )
 
