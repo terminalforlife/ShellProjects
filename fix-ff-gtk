@@ -1,0 +1,85 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/fix-ff-gtk
+# Started On        - Fri 29 Mar 13:12:04 GMT 2019
+# Last Change       - Fri 29 Mar 14:31:23 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-03-29"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+FF="/usr/bin/firefox"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            FIX-FF-GTK ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Psuedo-Fix colors used in Firefox when using a dark GTK theme.
+
+		SYNTAX:     fix-ff-gtk [OPTS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --theme|-t NAME         - Where NAME is the chosen GTK theme.
+
+		NOTES:      The GTK theme Adwaita, which distributions often have pre-installed, is
+		            needed, unless another is specified.
+
+		            This script will work globally, meaning ALL users, regardless of their
+		            chosen theme, will use the Adwaita GTK theme for their use of Firefox.
+
+		            This script basically edits $FF which is what is used when
+		            you execute the firefox command. If you use a different executable, -
+		            then this will not work for you.
+
+		            Although this fix has worked for me for over a year, newer or older
+		            versions of Firefox may execute or be scripted (aforementioned file) in
+		            a different way, thus nullifying this script.
+
+		            This script will likely not work on all distributions of Linux. It was
+		            written in Ubuntu 16.04.4, and should work on all forms and likely
+		            versions of Debian- and Ubuntu-based distributions of Linux.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--theme|-t)
+			THEME="$2" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+	shift
+done
+
+if ! [ -f "$FF" ] || ! [ -r "$FF" ] || ! [ -w "$FF" ]; then
+	XERR "$LINENO" "File "$FF" not found or inaccessible."
+fi
+
+[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+
+declare -i LINE=0
+STRING='exec\ \$MOZ_LIBDIR\/\$MOZ_APP_NAME\ \"\$@\"'
+while read; do
+	LINE+=1
+	if [[ "$REPLY" =~ ^\ +$STRING ]]; then
+		printf "File '%s' modified.\n" "$FF"
+		break
+	elif [[ "$REPLY" =~ ^\ +GTK_THEME\=\"Adwaita\"\ $STRING ]]; then
+		printf "File '%s' already modified.\n" "$FF"
+		break
+	fi
+done < "$FF"
