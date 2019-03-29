@@ -3,9 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/fix-ff-gtk
 # Started On        - Fri 29 Mar 13:12:04 GMT 2019
-# Last Change       - Fri 29 Mar 14:31:23 GMT 2019
+# Last Change       - Fri 29 Mar 14:34:52 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# WORK IN PROGRESS. Will appear on insit when finished.
 #----------------------------------------------------------------------------------
 
 _VERSION_="2019-03-29"
