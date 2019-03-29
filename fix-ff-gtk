@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/fix-ff-gtk
 # Started On        - Fri 29 Mar 13:12:04 GMT 2019
-# Last Change       - Fri 29 Mar 22:34:14 GMT 2019
+# Last Change       - Fri 29 Mar 22:37:24 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -67,12 +67,11 @@ done
 
 [ -z "$THEME" ] && THEME="Adwaita"
 
+[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+[ -x /bin/sed ] || XERR "$LINENO" "Dependency '/bin/sed' not met."
 if ! [ -f "$FF" ] || ! [ -r "$FF" ] || ! [ -w "$FF" ]; then
 	XERR "$LINENO" "File "$FF" not found or inaccessible."
 fi
-
-[ -x /bin/sed ] || XERR "$LINENO" "Dependency '/bin/sed' not met."
-[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
 
 declare -i LINE=0
 STRING='exec\ \$MOZ_LIBDIR\/\$MOZ_APP_NAME\ \"\$\@\"'
