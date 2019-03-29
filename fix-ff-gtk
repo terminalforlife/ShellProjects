@@ -3,11 +3,9 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/fix-ff-gtk
 # Started On        - Fri 29 Mar 13:12:04 GMT 2019
-# Last Change       - Fri 29 Mar 14:34:52 GMT 2019
+# Last Change       - Fri 29 Mar 22:34:14 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# WORK IN PROGRESS. Will appear on insit when finished.
 #----------------------------------------------------------------------------------
 
 _VERSION_="2019-03-29"
@@ -67,21 +65,30 @@ while [ "$1" ]; do
 	shift
 done
 
+[ -z "$THEME" ] && THEME="Adwaita"
+
 if ! [ -f "$FF" ] || ! [ -r "$FF" ] || ! [ -w "$FF" ]; then
 	XERR "$LINENO" "File "$FF" not found or inaccessible."
 fi
 
+[ -x /bin/sed ] || XERR "$LINENO" "Dependency '/bin/sed' not met."
 [ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
 
 declare -i LINE=0
-STRING='exec\ \$MOZ_LIBDIR\/\$MOZ_APP_NAME\ \"\$@\"'
+STRING='exec\ \$MOZ_LIBDIR\/\$MOZ_APP_NAME\ \"\$\@\"'
 while read; do
 	LINE+=1
-	if [[ "$REPLY" =~ ^\ +$STRING ]]; then
-		printf "File '%s' modified.\n" "$FF"
-		break
-	elif [[ "$REPLY" =~ ^\ +GTK_THEME\=\"Adwaita\"\ $STRING ]]; then
+	if [[ "$REPLY" =~ ^\ +$STRING ]] && [ $LINE -eq 110 ]; then
+		if /bin/sed -in 110s/'^\(\s\+\)'"$STRING"/'\1GTK_THEME="'$THEME'" '"$STRING"/ "$FF"; then
+			printf "File '%s' modified.\n" "$FF"
+			exit 0
+		else
+			XERR "$LINENO" "File '$FF' failed during editing."
+		fi
+	elif [[ "$REPLY" =~ ^\ +GTK_THEME\=\"$THEME\"\ $STRING ]]; then
 		printf "File '%s' already modified.\n" "$FF"
-		break
+		exit 1
 	fi
 done < "$FF"
+
+XERR "$LINENO" "File '$FF' contents unexpected."
