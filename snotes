@@ -11,6 +11,9 @@
 # eventually be included into snotes properly.
 #----------------------------------------------------------------------------------
 
+#TODO - Fix clash between snotes' arguments and when searching with notes for those
+#       arguments. Also, --edit/-e CMD is not working.
+
 _VERSION_="2018-03-11"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
