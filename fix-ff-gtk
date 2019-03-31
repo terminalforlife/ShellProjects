@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/fix-ff-gtk
 # Started On        - Fri 29 Mar 13:12:04 GMT 2019
-# Last Change       - Fri 29 Mar 22:37:24 GMT 2019
+# Last Change       - Mon  1 Apr 00:59:30 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-03-29"
+_VERSION_="2019-04-01"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -45,7 +45,7 @@ USAGE(){
 		            a different way, thus nullifying this script.
 
 		            This script will likely not work on all distributions of Linux. It was
-		            written in Ubuntu 16.04.4, and should work on all forms and likely
+		            written in Ubuntu 16.04.6, and should work on all forms and likely
 		            versions of Debian- and Ubuntu-based distributions of Linux.
 	EOF
 }
