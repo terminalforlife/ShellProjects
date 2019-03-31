@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Mon 26 Mar 21:56:42 BST 2018
+# Last Change       - Sun 31 Mar 11:30:37 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -47,5 +47,8 @@ for DEP in /bin/{ln,rm}; {
 
 /bin/rm -v $HOME/.config/xfce4/terminal/terminalrc 2> /dev/null
 /bin/ln -v terminalrc $HOME/.config/xfce4/terminal/terminalrc 2> /dev/null
+
+/bin/rm -v $HOME/.config/herbstluftwm/autostart 2> /dev/null
+/bin/ln -v autostart $HOME/.config/herbstluftwm/ 2> /dev/null
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
