@@ -3,23 +3,23 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Thu 22 Feb 13:28:16 GMT 2018
+# Last Change       - Mon  1 Apr 00:36:23 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# My mocp settings. Simple script to allow me to quickly load MOC how I like.
-#----------------------------------------------------------------------------------
+
+_VERSION_="2019-04-01"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
+THEMEDIR="/usr/share/moc/themes"
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MPLAY (2nd February 2018)
+		            MPLAY ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Simple script to allow me to quickly load MOC how I like.
@@ -31,10 +31,12 @@ USAGE(){
 		            --notify|-N             - Send track info notifications.
 
 		NOTE:       Where PATH is the location in which music is found.
+
+		            The following directory is expected by default:
+
+		              $THEMEDIR
 	EOF
 }
-
-THEMEDIR="/usr/share/moc/themes"
 
 while [ "$1" ]; do
 	case "$1" in
@@ -45,7 +47,7 @@ while [ "$1" ]; do
 			THEMEDIR="$1"
 
 			if ! [ -d "$THEMEDIR" ]; then
-				XERR "$LINENO" "Theme directory not found."
+				XERR "$LINENO" "Unable to find the theme directory."
 			fi ;;
 		--notify|-N)
 			NOTIFY="true" ;;
@@ -54,17 +56,19 @@ while [ "$1" ]; do
 		*)
 			break ;;
 	esac
-
 	shift
 done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
 
 if [ -n "$1" ]; then
 	[ -d "$1" ] || XERR "$LINENO" "Unable to find the given music directory."
 fi
 
 if [ "$NOTIFY" == "true" ]; then
-	# This uses a small script from my i3config repository; you can use that even if
-	# you don't use i3-wm! Just point this path to the script, whereever you want it.
+	# This uses a small script from my i3config repository; you can use that
+	# even if you don't use i3-wm! Just point this path to the script, -
+	# wherever you want it.
 	COMMAND="/bin/bash $HOME/.i3a/track_notify"
 else
 	COMMAND=":"
