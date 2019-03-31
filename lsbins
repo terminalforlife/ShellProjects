@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - lsbins
 # Started On        - Sat 16 Sep 21:34:24 BST 2017
-# Last Change       - Sun  4 Mar 20:45:24 GMT 2018
+# Last Change       - Mon  1 Apr 00:23:24 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-04"
+_VERSION_="2019-04-01"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -32,26 +32,27 @@ USAGE(){
 	EOF
 }
 
-case "$*" in
-	--help|-h|-\?)
-		USAGE; exit 0 ;;
-	--version|-v)
-		printf "%s\n" "$_VERSION_"
-		exit 0 ;;
-	--force-all)
-		DEVNULL="false" ;;
-	"")
-		;;
-	*)
-		XERR "$LINENO" "Incorrect argument(s)." ;;
-esac
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--force-all)
+			DEVNULL="false" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+	esac
+	shift
+done
 
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/{man,sort,uniq,find} /bin/sed; {
-	[ -x "$DEP" ] || {
+	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
-	}
+	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
