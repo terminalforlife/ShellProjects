@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/autostart
 # Started On        - Sat 30 Mar 21:41:21 GMT 2019
-# Last Change       - Sun 31 Mar 11:33:04 BST 2019
+# Last Change       - Mon  1 Apr 17:21:16 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,9 +11,8 @@
 # Use i3-wm's initialization file, courtesy of i3config.
 /bin/bash $HOME/.i3a/initialize
 
-hc(){ /usr/bin/herbstclient "$@"; }
+hc(){ /usr/bin/herbstclient $@; }
 
-# Cleanup, in-case anything is already set.
 hc emit_hook reload # Must be first!
 hc keyunbind --all
 hc mouseunbind --all
@@ -24,7 +23,6 @@ hc unrule -F
 #hc keybind Mod1-Shift-q quit
 hc keybind Mod1-Shift-r reload
 hc keybind Mod1-Shift-q close
-hc keybind Mod1-Return spawn /usr/bin/xfce4-terminal
 
 hc keybind Mod1-j focus left
 hc keybind Mod1-k focus down
@@ -44,6 +42,21 @@ hc keybind Mod1-Control-semicolon resize right +0.5
 hc keybind Mod1-space floating toggle
 hc keybind Mod1-f fullscreen toggle
 
+hc keybind Mod4+0 spawn /usr/bin/redshifter -i 100
+hc keybind Mod4+9 spawn /usr/bin/redshifter -d 100
+hc keybind Mod4+8 spawn /usr/bin/redshifter -r
+
+hc keybind Mod1+Return spawn /bin/bash $HOME/.i3a/terminal
+hc keybind Shift+Control+Up spawn /bin/bash $HOME/.i3a/term_font_size -r 1
+hc keybind Shift+Control+Down spawn /bin/bash $HOME/.i3a/term_font_size -l 1
+hc keybind Shift+Control+Left spawn /bin/bash $HOME/.i3a/term_font_size -s 11
+hc keybind Shift+Control+Right spawn /bin/bash $HOME/.i3a/term_font_size -s 21
+hc keybind Mod1+Tab spawn /bin/bash $HOME/.i3a/drop_terminal
+hc keybind Mod4+w spawn /usr/bin/mpv tv://
+hc keybind Mod4+Shift+0 spawn /usr/bin/transset -a 1
+hc keybind Mod4+Shift+9 spawn /usr/bin/transset -a 0.2
+hc keybind Control+Mod1+L spawn /bin/bash $HOME/.i3a/leave_session
+
 hc keybind Mod4+p spawn /bin/bash $HOME/.i3a/track_notify
 hc keybind Mod4+XF86AudioNext spawn /usr/bin/mocp --seek +3
 hc keybind Mod4+XF86AudioPrev spawn /usr/bin/mocp --seek -3
@@ -62,43 +75,56 @@ hc keybind XF86Calculator spawn /usr/bin/xcalc
 hc keybind Print spawn /bin/bash $HOME/.i3a/scrot_take
 hc keybind Shift+Print spawn /bin/bash $HOME/.i3a/scrot_sel_take
 hc keybind Mod4+Print spawn /bin/bash $HOME/.i3a/scrot_sel_take --lite
-hc keybind Ctrl+Shift+Print spawn /bin/bash $HOME/.i3a/scrot_win_take
+hc keybind Control+Shift+Print spawn /bin/bash $HOME/.i3a/scrot_win_take
 hc keybind Mod1+d spawn /bin/bash $HOME/.i3a/use_dmenu
-hc keybind Mod1+shift+num spawn /bin/bash $HOME/bin/telldate
+hc keybind Mod1+Shift+num spawn /bin/bash $HOME/bin/telldate
 
 hc mousebind Mod1-Button1 move
 hc mousebind Mod1-Button3 resize
 
+for TAG in default {2..9} 0; {
+	if hc add $TAG; then
+		hc keybind Mod1+${TAG/default/1} use $TAG
+		hc keybind Mod1+Shift+${TAG/default/1} move $TAG
+	fi
+}
+
+hc set always_show_frame 0
 hc set frame_border_active_color '#000000'
 hc set frame_border_normal_color '#000000'
 hc set frame_bg_normal_color '#000000'
 hc set frame_bg_active_color '#000000'
 hc set frame_border_width 0
-hc set always_show_frame 0
 hc set frame_bg_transparent 1
 hc set frame_transparent_width 0
 hc set frame_gap 0
 
-hc attr theme.active.color '#000000'
-hc attr theme.normal.color '#000000'
-hc attr theme.urgent.color orange
-hc attr theme.inner_width 1
-hc attr theme.inner_color black
-hc attr theme.border_width 0
-hc attr theme.floating.border_width 0
-hc attr theme.floating.outer_width 0
-hc attr theme.floating.outer_color black
-hc attr theme.active.inner_color '#000000'
-hc attr theme.active.outer_color '#000000'
-hc attr theme.background_color '#000000'
+#hc attr theme.active.color '#777777'
+#hc attr theme.normal.color '#000000'
+#hc attr theme.urgent.color orange
+#hc attr theme.inner_width 2
+#hc attr theme.inner_color '#333333'
+#hc attr theme.border_width 3
+#hc attr theme.floating.border_width 0
+#hc attr theme.floating.outer_width 0
+#hc attr theme.floating.outer_color black
+#hc attr theme.active.inner_color '#444444'
+#hc attr theme.active.outer_color '#222222'
+#hc attr theme.background_color '#000000'
 
-hc set window_gap 30
+hc set_layout vertical
+
+hc set window_gap 20
 hc set frame_padding 0
 hc set smart_window_surroundings 0
-hc set smart_frame_surroundings 1
+hc set smart_frame_surroundings 0
 hc set mouse_recenter_gap 0
 
 hc rule focus=on
+
+hc rule class="Firefox" tag=4
+hc rule class="Thunderbird" tag=8
+
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
 hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK|DESKTOP)' manage=off
