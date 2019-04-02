@@ -3,12 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/autostart
 # Started On        - Sat 30 Mar 21:41:21 GMT 2019
-# Last Change       - Mon  1 Apr 17:21:16 BST 2019
+# Last Change       - Tue  2 Apr 11:59:26 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-# Use i3-wm's initialization file, courtesy of i3config.
 /bin/bash $HOME/.i3a/initialize
 
 hc(){ /usr/bin/herbstclient $@; }
@@ -45,6 +44,20 @@ hc keybind Mod1-f fullscreen toggle
 hc keybind Mod4+0 spawn /usr/bin/redshifter -i 100
 hc keybind Mod4+9 spawn /usr/bin/redshifter -d 100
 hc keybind Mod4+8 spawn /usr/bin/redshifter -r
+
+hc keybind Mod1+h split right
+hc keybind Mod1+v split below
+hc keybind Mod1+q remove # Only removes unused frames.
+
+hc keybind Mod4+Shift+j resize left +0.01
+hc keybind Mod4+Shift+semicolon resize left -0.01
+hc keybind Mod4+Shift+k resize down +0.01
+hc keybind Mod4+Shift+l resize up +0.01
+
+hc keybind Mod4+Shift+Left resize left +0.001
+hc keybind Mod4+Shift+Right resize right -0.001
+hc keybind Mod4+Shift+Down resize down +0.001
+hc keybind Mod4+Shift+Up resize up +0.001
 
 hc keybind Mod1+Return spawn /bin/bash $HOME/.i3a/terminal
 hc keybind Shift+Control+Up spawn /bin/bash $HOME/.i3a/term_font_size -r 1
@@ -89,32 +102,21 @@ for TAG in default {2..9} 0; {
 	fi
 }
 
-hc set always_show_frame 0
+hc set always_show_frame 1
 hc set frame_border_active_color '#000000'
 hc set frame_border_normal_color '#000000'
 hc set frame_bg_normal_color '#000000'
 hc set frame_bg_active_color '#000000'
-hc set frame_border_width 0
+hc set frame_border_width 4
 hc set frame_bg_transparent 1
 hc set frame_transparent_width 0
-hc set frame_gap 0
-
-#hc attr theme.active.color '#777777'
-#hc attr theme.normal.color '#000000'
-#hc attr theme.urgent.color orange
-#hc attr theme.inner_width 2
-#hc attr theme.inner_color '#333333'
-#hc attr theme.border_width 3
-#hc attr theme.floating.border_width 0
-#hc attr theme.floating.outer_width 0
-#hc attr theme.floating.outer_color black
-#hc attr theme.active.inner_color '#444444'
-#hc attr theme.active.outer_color '#222222'
-#hc attr theme.background_color '#000000'
+hc set frame_gap 10
+hc set frame_normal_opacity 20
+hc set frame_active_opacity 60
 
 hc set_layout vertical
 
-hc set window_gap 20
+hc set window_gap 10
 hc set frame_padding 0
 hc set smart_window_surroundings 0
 hc set smart_frame_surroundings 0
@@ -133,5 +135,4 @@ hc unlock
 
 herbstclient set tree_style '╾│ ├└╼─┐'
 
-# No panel(s), so no panel-padding necessary.
 hc pad 0 0
