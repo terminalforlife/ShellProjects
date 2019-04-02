@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/autostart
 # Started On        - Sat 30 Mar 21:41:21 GMT 2019
-# Last Change       - Tue  2 Apr 15:08:07 BST 2019
+# Last Change       - Tue  2 Apr 20:47:54 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -136,5 +136,6 @@ hc unlock
 
 herbstclient set tree_style '╾│ ├└╼─┐'
 
-hc pad 0 20
-/bin/bash $HOME/.config/herbstluftwm/panel.sh &
+hc pad 0 0
+#hc pad 0 20
+#/bin/bash $HOME/.config/herbstluftwm/panel.sh &
