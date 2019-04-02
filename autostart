@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/autostart
 # Started On        - Sat 30 Mar 21:41:21 GMT 2019
-# Last Change       - Tue  2 Apr 11:59:26 BST 2019
+# Last Change       - Tue  2 Apr 15:08:07 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -21,6 +21,7 @@ hc unrule -F
 
 #hc keybind Mod1-Shift-q quit
 hc keybind Mod1-Shift-r reload
+#hc keybind Mod1-Shift-q close_and_remove
 hc keybind Mod1-Shift-q close
 
 hc keybind Mod1-j focus left
@@ -47,7 +48,7 @@ hc keybind Mod4+8 spawn /usr/bin/redshifter -r
 
 hc keybind Mod1+h split right
 hc keybind Mod1+v split below
-hc keybind Mod1+q remove # Only removes unused frames.
+hc keybind Mod1+q remove
 
 hc keybind Mod4+Shift+j resize left +0.01
 hc keybind Mod4+Shift+semicolon resize left -0.01
@@ -135,4 +136,5 @@ hc unlock
 
 herbstclient set tree_style '╾│ ├└╼─┐'
 
-hc pad 0 0
+hc pad 0 20
+/bin/bash $HOME/.config/herbstluftwm/panel.sh &
