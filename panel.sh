@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/panel.sh
 # Started On        - Tue  2 Apr 12:14:00 BST 2019
-# Last Change       - Tue  2 Apr 15:13:30 BST 2019
+# Last Change       - Tue  2 Apr 15:49:31 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -60,5 +60,12 @@ if [ -x /usr/bin/dzen2 ]; then
 			# Lengthen the refresh rate to improve performance.
 		done 2> /dev/null
 	} | /usr/bin/dzen2 -x 0 -w 1950 -h 16 -bg "#000000" -fg "#ffffff" -ta c\
-		-fn "-misc-fixed-bold-r-normal--11-10-75-75-c-50-iso8859-1"
+		-fn "-misc-fixed-bold-r-normal--11-10-75-75-c-50-iso8859-1" &
+
+	sleep 0.3s
+
+	if [ -x /usr/bin/transset ]; then
+		/usr/bin/transset 0.6 -i `/usr/bin/xwininfo -root -all\
+			| /bin/grep dzen2 | /usr/bin/cut -d " " -f 6`
+	fi
 fi
