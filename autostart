@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/autostart
 # Started On        - Sat 30 Mar 21:41:21 GMT 2019
-# Last Change       - Tue  2 Apr 20:47:54 BST 2019
+# Last Change       - Thu  4 Apr 00:19:41 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -92,6 +92,12 @@ hc keybind Mod4+Print spawn /bin/bash $HOME/.i3a/scrot_sel_take --lite
 hc keybind Control+Shift+Print spawn /bin/bash $HOME/.i3a/scrot_win_take
 hc keybind Mod1+d spawn /bin/bash $HOME/.i3a/use_dmenu
 hc keybind Mod1+Shift+num spawn /bin/bash $HOME/bin/telldate
+
+hc keybind Shift+Mod4+1 spawn /bin/bash $HOME/.i3a/partmount -L "Main Data"
+hc keybind Shift+Mod4+2 spawn /bin/bash $HOME/.i3a/partmount -L "Media 1"
+hc keybind Shift+Mod4+3 spawn /bin/bash $HOME/.i3a/partmount -L "Media 2"
+hc keybind Shift+Mod4+4 spawn /bin/bash $HOME/.i3a/partmount -L "Media 3"
+hc keybind Shift+Mod4+5 spawn /bin/bash $HOME/.i3a/partmount -L "CloneZilla"
 
 hc mousebind Mod1-Button1 move
 hc mousebind Mod1-Button3 resize
