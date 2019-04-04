@@ -3,14 +3,22 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/autostart
 # Started On        - Sat 30 Mar 21:41:21 GMT 2019
-# Last Change       - Thu  4 Apr 00:19:41 BST 2019
+# Last Change       - Thu  4 Apr 14:16:35 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# These are my HLWM settings, which closely mimic my i3-wm setup, for familiarity.
+#
+# NOTE: You'll need some files from my i3config repository. These will be added to
+#       insit seperately, eventually, but for now, you'll need to do this manually
+#       if you want to use them, or just install i3config via insit.
+#---------------------------------------------------------------------------INITIAL
 
 /bin/bash $HOME/.i3a/initialize
 
 hc(){ /usr/bin/herbstclient $@; }
+
+#---------------------------------------------------------------------------CLEANUP
 
 hc emit_hook reload # Must be first!
 hc keyunbind --all
@@ -18,6 +26,8 @@ hc mouseunbind --all
 hc attr theme.tiling.reset 1
 hc attr theme.floating.reset 1
 hc unrule -F
+
+#--------------------------------------------------------------------------BINDINGS
 
 #hc keybind Mod1-Shift-q quit
 hc keybind Mod1-Shift-r reload
@@ -69,7 +79,7 @@ hc keybind Mod1+Tab spawn /bin/bash $HOME/.i3a/drop_terminal
 hc keybind Mod4+w spawn /usr/bin/mpv tv://
 hc keybind Mod4+Shift+0 spawn /usr/bin/transset -a 1
 hc keybind Mod4+Shift+9 spawn /usr/bin/transset -a 0.2
-hc keybind Control+Mod1+L spawn /bin/bash $HOME/.i3a/leave_session
+hc keybind Mod4+l spawn /bin/bash $HOME/.i3a/lockscreen
 
 hc keybind Mod4+p spawn /bin/bash $HOME/.i3a/track_notify
 hc keybind Mod4+XF86AudioNext spawn /usr/bin/mocp --seek +3
@@ -102,18 +112,25 @@ hc keybind Shift+Mod4+5 spawn /bin/bash $HOME/.i3a/partmount -L "CloneZilla"
 hc mousebind Mod1-Button1 move
 hc mousebind Mod1-Button3 resize
 
-for TAG in default {2..9} 0; {
+#-------------------------------------------------------------------------TAG SETUP
+
+hc rename default 1
+for TAG in {1..9} 0; {
 	if hc add $TAG; then
-		hc keybind Mod1+${TAG/default/1} use $TAG
-		hc keybind Mod1+Shift+${TAG/default/1} move $TAG
+		hc keybind Mod1+$TAG use $TAG
+		hc keybind Mod1+Shift+$TAG move $TAG
 	fi
 }
 
-hc set always_show_frame 1
+#------------------------------------------------------------------------------SETS
+
 hc set frame_border_active_color '#000000'
 hc set frame_border_normal_color '#000000'
 hc set frame_bg_normal_color '#000000'
 hc set frame_bg_active_color '#000000'
+
+hc set default_frame_layout 0
+hc set always_show_frame 2
 hc set frame_border_width 4
 hc set frame_bg_transparent 1
 hc set frame_transparent_width 0
@@ -121,26 +138,36 @@ hc set frame_gap 10
 hc set frame_normal_opacity 20
 hc set frame_active_opacity 60
 
-hc set_layout vertical
-
 hc set window_gap 10
 hc set frame_padding 0
 hc set smart_window_surroundings 0
 hc set smart_frame_surroundings 0
 hc set mouse_recenter_gap 0
+hc set focus_stealing_prevention 1
+hc set update_dragged_clients 1
+
+#-----------------------------------------------------------------------------RULES
 
 hc rule focus=on
 
 hc rule class="Firefox" tag=4
 hc rule class="Thunderbird" tag=8
+hc rule class="Xmessage" pseudotile=on
+hc rule class="Pavucontrol" pseudotile=on
+hc rule class="Openshot-qt" tag=2 fullscreen=on
+hc rule class="Audacity" tag=2 fullscreen=on
 
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' pseudotile=on
 hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
 hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK|DESKTOP)' manage=off
 
+#---------------------------------------------------------------------MISCELLANEOUS
+
 hc unlock
 
 herbstclient set tree_style '╾│ ├└╼─┐'
+
+#-----------------------------------------------------------------------------PANEL
 
 hc pad 0 0
 #hc pad 0 20
