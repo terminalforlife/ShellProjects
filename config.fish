@@ -20,7 +20,7 @@ set HISTTIMEFORMAT [%F_%X]; set HISTSIZE 1000; set HISTFILESIZE 0
 
 #----------------------------------------------------------------------------------
 
-set FLIB "$HOME/ShellPlugins"
+set FLIB "$HOME/.shplugs"
 
 if [ -d "$FLIB" ]
 	for FUNC in;
