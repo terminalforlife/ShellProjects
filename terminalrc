@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/terminalrc
 # Started On        - Fri 20 Oct 00:37:52 BST 2017
-# Last Change       - Mon 26 Mar 22:01:11 BST 2018
+# Last Change       - Thu 11 Apr 20:27:58 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ BackgroundImageStyle=TERMINAL_BACKGROUND_STYLE_STRETCHED
 ScrollingOnOutput=FALSE
 ColorCursor=#ffffff0
 BackgroundMode=TERMINAL_BACKGROUND_TRANSPARENT
-BackgroundDarkness=0.700000
+BackgroundDarkness=0.800000
 MiscBellUrgent=FALSE
 MiscMouseWheelZoom=TRUE
 MiscMiddleClickOpensUri=FALSE
