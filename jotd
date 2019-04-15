@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Mon 26 Mar 23:26:57 BST 2018
+# Last Change       - Tue 16 Apr 00:51:31 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-26"
+_VERSION_="2019-04-16"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -32,6 +32,14 @@ USAGE(){
 
 		NOTE:       These jokes may or may not be tasteful!
 
+		FILE:       Jokes are saved in:
+
+		              /tmp/jotd_store.txt
+
+		            This is to avoid contacting the server on each execution of jotd. When
+		            the system is restarted, assuming /tmp is cleared, jotd will once again
+		            contact the server and recreate the file with the current joke.
+
 		SITE:       $DOM
 	EOF
 }
@@ -52,7 +60,7 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{wget,fold,tput}; {
+for DEP in /usr/bin/{tee,wget,fold,tput}; {
 	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -69,27 +77,35 @@ read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 
 URL="$DOM/jokes/joke-of-the-day"
 
-declare -i C=1
-while read X; do
-	if [[ "$X" =~ \<p\ id\=\"joke_[0-9]+\"\> ]]; then
-		printf -v JID "%d" "${X//[!0-9]}"
-		[[ "$JID" =~ ^[0-9]+$ ]] && C+=1
-	elif [ $C -eq 2 ]; then
-		for F in $X; {
-			if [[ "$F" == *\<br\>* ]]; then
-				printf "${F//<br>/$'\n'} "
-			elif [[ "$F" == *\</p\>* ]]; then
-				break
-			else
-				printf "%s " "$F"
-			fi
-		}
+MAIN(){
+	declare -i C=1
+	while read X; do
+		if [[ "$X" =~ \<p\ id\=\"joke_[0-9]+\"\> ]]; then
+			printf -v JID "%d" "${X//[!0-9]}"
+			[[ "$JID" =~ ^[0-9]+$ ]] && C+=1
+		elif [ $C -eq 2 ]; then
+			for F in $X; {
+				if [[ "$F" == *\<br\>* ]]; then
+					printf "${F//<br>/$'\n'} "
+				elif [[ "$F" == *\</p\>* ]]; then
+					break
+				else
+					printf "%s " "$F"
+				fi
+			}
 
-		printf "\n"
-		break
-	fi
-done <<< "$(/usr/bin/wget "$NOWARC" -q -t 1 "$URL" -O -)"\
-	| /usr/bin/fold -s --width=${COL:-`/usr/bin/tput cols`}
+			printf "\n"
+			break
+		fi
+	done <<< "$(/usr/bin/wget "$NOWARC" -q -t 1 "$URL" -O -)"\
+		| /usr/bin/fold -s --width=${COL:-`/usr/bin/tput cols`}
+}
 
-#TODO - If it's already known what today's joke is, why contact the servers to
-#       check for a new one? Fix this using a /tmp file, at the very least.
+FILE="/tmp/jotd_store.txt"
+if ! [ -f "$FILE" ]; then
+	MAIN | /usr/bin/tee "$FILE"
+else
+	while read; do
+		printf "%s\n" "$REPLY"
+	done < "$FILE"
+fi
