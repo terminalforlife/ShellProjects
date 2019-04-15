@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - $HOME/.shplugs/Clean_Unused_Locales
+# Project Name      - miscellaneous/clean-locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Sun 18 Mar 14:29:35 GMT 2018
+# Last Change       - Tue 16 Apr 00:56:11 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-18"
+_VERSION_="2019-04-16"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
