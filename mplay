@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Mon  1 Apr 00:45:34 BST 2019
+# Last Change       - Mon 15 Apr 01:10:46 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-01"
+_VERSION_="2019-04-15"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -29,6 +29,7 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --theme-path|-T         - Set a custom theme directory path.
 		            --notify|-N             - Send track info notifications.
+		            --run-once|-o           - Exit the MOC server when closed.
 
 		NOTE:       Where PATH is the location in which music is found.
 
@@ -51,6 +52,8 @@ while [ "$1" ]; do
 			fi ;;
 		--notify|-N)
 			NOTIFY="true" ;;
+		--once|-o)
+			ONCE="true" ;;
 		-*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -76,28 +79,32 @@ fi
 [ -f "$THEMEDIR/${THEME:-red_theme}" ] || XERR "$LINENO" "Theme file not found."
 
 if [ -x /usr/bin/mocp ]; then
-	/usr/bin/mocp -T $THEMEDIR/${THEME:-red_theme}   \
-		-O ShowFormat=yes                        \
-		-O ShowTime=no                           \
-		-O Shuffle=yes                           \
-		-O HideFileExtension=yes                 \
-		-O SavePlaylist=no                       \
-		-O TagsCacheSize=3000                    \
-		-O PlaylistNumbering=yes                 \
-		-O Layout1="playlist(50%,50%,50%,50%)"   \
-		-O FollowPlayedFile=yes                  \
-		-O ModPlug_NoiseReduction=yes            \
-		-O ModPlug_ResamplingMode=FIR            \
-		-O OnSongChange="$COMMAND"               \
-		-O CanStartInPlaylist=yes                \
-		-O ResampleMethod=SincMediumQuality      \
-		-O UseMimeMagic=no                       \
-		-O ShowHiddenFiles=no                    \
-		-O InputBuffer=512                       \
-		-O OutputBuffer=512                      \
-		-O Prebuffering=256                      \
-		"${1:-$HOME/Music}"                      \
+	/usr/bin/mocp -n -T $THEMEDIR/${THEME:-red_theme} \
+		-O ShowFormat=yes                         \
+		-O ShowTime=no                            \
+		-O Shuffle=yes                            \
+		-O HideFileExtension=yes                  \
+		-O SavePlaylist=no                        \
+		-O TagsCacheSize=3000                     \
+		-O PlaylistNumbering=yes                  \
+		-O Layout1="playlist(50%,50%,50%,50%)"    \
+		-O FollowPlayedFile=yes                   \
+		-O ModPlug_NoiseReduction=yes             \
+		-O ModPlug_ResamplingMode=FIR             \
+		-O OnSongChange="$COMMAND"                \
+		-O CanStartInPlaylist=yes                 \
+		-O ResampleMethod=SincMediumQuality       \
+		-O UseMimeMagic=no                        \
+		-O ShowHiddenFiles=no                     \
+		-O InputBuffer=512                        \
+		-O OutputBuffer=512                       \
+		-O Prebuffering=256                       \
+		-m "${1:-$HOME/Music}"                    \
 	|| XERR "$LINENO" "Unable to start the MOC player."
+
+	if [ "$ONCE" == "true" ]; then
+		wait; /usr/bin/mocp -x
+	fi
 else
 	XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
 fi
