@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ccfiles (Cross-Check Files)
 # Started On        - Wed 13 Dec 13:45:22 GMT 2017
-# Last Change       - Sat 16 Dec 09:57:29 GMT 2017
+# Last Change       - Tue 16 Apr 11:23:19 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,29 +15,31 @@
 #       seems to have gone a different direction.
 #----------------------------------------------------------------------------------
 
+_VERSION_="2019-04-16"
+
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-[ -x /bin/readlink ] || XERR "$LINENO" "Dependency '/bin/readlink' not met."
+DIR="/var/lib/dpkg/info"
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            CCFILES (16th December 2017)
+		            CCFILES ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Cross-check files installed by dpkg.
 
 		SYNTAX:     ccfiles [OPTS]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 		            --nopause|-P            - Do not pause upon WARNING discovery.
 		            --nobell|-B             - Do not sound a bell upon WARNING discovery.
 
-		FILES:      /var/lib/dpkg/info/*.list
+		FILES:      $DIR/*.list
 	EOF
 }
 
@@ -60,33 +62,35 @@ while [ -n "$1" ]; do
 	shift
 done
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+[ -x /bin/readlink ] || XERR "$LINENO" "Dependency '/bin/readlink' not met."
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 #TODO - Check for Debian/Ubuntu base.
 
-[ -d /var/lib/dpkg/info/ ] || XERR "$LINENO" "Missing required directory."
+if [ -d $DIR/ ]; then
+	for FILE in $DIR/*.list; {
+		while read -r; do
+			for EXE in /proc/*/exe; {
+				RESOLVED=`/bin/readlink --quiet "$EXE"`
 
-for FILE in /var/lib/dpkg/info/*.list; {
-	while read -r; do
-		for EXE in /proc/*/exe; {
-			RESOLVED=`/bin/readlink --quiet "$EXE"`
+				if ! [ -x "$RESOLVED" ]; then
+					if ! [ "$NOBELL" == "true" ]; then
+						printf "WARNING: %s\n" "$RESOLVED"
+					else
+						printf "\aWARNING: %s\n" "$RESOLVED"
+					fi
 
-			if ! [ -x "$RESOLVED" ]; then
-				if ! [ "$NOBELL" == "true" ]; then
-					printf "WARNING: %s\n" "$RESOLVED"
+					if ! [ "$NOPAUSE" == "true" ]; then
+						read -n 1 -s -p "Press any key to continue... "
+					fi
 				else
-					printf "\aWARNING: %s\n" "$RESOLVED"
+					printf "CHECKING: %s\n" "$RESOLVED"
 				fi
-
-				if ! [ "$NOPAUSE" == "true" ]; then
-					read -n 1 -s -p "Press any key to continue... "
-				fi
-			else
-				printf "CHECKING: %s\n" "$RESOLVED"
-			fi
-		}
-	done < "$FILE"
-}
+			}
+		done < "$FILE"
+	}
+else
+	XERR "$LINENO" "Directory '$DIR' not found."
+fi
