@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Sun 15 Apr 11:51:20 BST 2018
+# Last Change       - Tue 16 Apr 01:10:21 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-04-15"
+_VERSION_="2019-04-16"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -32,6 +32,8 @@ USAGE(){
 		                                      of a placeholder for future expansion.
 
 		NOTE:       Where PATH is the directory in which your chosen wallpapers are stored.
+
+		            If no interval is specified, the default of 5 seconds is chosen.
 	EOF
 }
 
@@ -56,13 +58,21 @@ while [ "$1" ]; do
 	shift
 done
 
+declare -i DEPCOUNT=0
+for DEP in /bin/sleep /usr/bin/feh; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
 if [ $# -gt 1 ]; then
 	XERR "$LINENO" "Only one wallpaper directory may be specified."
 elif [ $# -eq 0 ]; then
 	XERR "$LINENO" "A wallpaper directory must be specified."
 fi
-
-[ -x /bin/sleep ] || XERR "$LINENO" "Dependency '/bin/sleep' not met."
 
 [ "$DEBUGME" == "true" ] && set -x
 
@@ -80,15 +90,9 @@ if [ -d "$1" ]; then
 	while :; do
 		for FILE in "${1%\/}"/*; {
 			if [ -f "$FILE" ]; then
-				if [ -x /usr/bin/feh ]; then
-					/usr/bin/feh --no-fehbg --bg-center "$FILE"
-				elif [ -x /usr/bin/nitrogen ]; then
-					/usr/bin/nitrogen --replace "$FILE"
-				else
-					XERR "$LINENO" "Currently, only feh are nitrogen are supported."
-				fi
-
-				if ! /bin/sleep ${INTERVAL:-5}s; then
+				if ! /usr/bin/feh --no-fehbg --bg-center "$FILE"; then
+					XERR "$LINENO" "One or more errors detected while setting wallpaper with feh."
+				elif ! /bin/sleep ${INTERVAL:-5}s &> /dev/null; then
 					XERR "$LINENO" "Invalid interval time specified."
 				fi
 			fi
