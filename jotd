@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Tue 16 Apr 00:51:31 BST 2019
+# Last Change       - Wed 17 Apr 11:49:25 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-16"
+_VERSION_="2019-04-17"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -76,6 +76,7 @@ read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 [ "$DEBUGME" == "true" ] && set -x
 
 URL="$DOM/jokes/joke-of-the-day"
+FILE="/tmp/jotd_store.txt"
 
 MAIN(){
 	declare -i C=1
@@ -101,11 +102,10 @@ MAIN(){
 		| /usr/bin/fold -s --width=${COL:-`/usr/bin/tput cols`}
 }
 
-FILE="/tmp/jotd_store.txt"
-if ! [ -f "$FILE" ]; then
+if [ -z "$(MAIN)" ]; then
+	XERR "$LINENO" "Null value. The site has probably changed."
+elif ! [ -f "$FILE" ]; then
 	MAIN | /usr/bin/tee "$FILE"
 else
-	while read; do
-		printf "%s\n" "$REPLY"
-	done < "$FILE"
+	MAIN
 fi
