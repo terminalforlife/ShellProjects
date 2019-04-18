@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 19:00:52 BST 2019
+# Last Change       - Thu 18 Apr 19:04:08 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -53,7 +53,8 @@ USAGE(){
 
 		              \$HOME/.nwchk.log
 
-		EXAMPLE:    nwchk --bell -p 1.1.1.1 -S 'https://duckduckgo.com/'
+		EXAMPLE:    nwchk -i 60 --internet -b -L /tmp/nwchk_tmp.log wlp4s0
+		            nwchk --bell -p 1.1.1.1 -S 'https://duckduckgo.com/' enp3s0
 
 		SITE:       The default address for the wget spider:
 
