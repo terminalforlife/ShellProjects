@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 18:37:28 BST 2019
+# Last Change       - Thu 18 Apr 19:00:52 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -42,7 +42,8 @@ USAGE(){
 		            --bell|-b               - Sound off the X11 bell on alert.
 
 		NOTE:       This is a daemon-like shell program, written to be executed once, and
-		            left running, like a typical daemon, unless otherwise instructed.
+		            left running, like a typical daemon, unless otherwise instructed. One
+		            example of a place to execute nwchk, would be rc.local in /etc.
 
 		            Where IFACE is the network interface to check.
 
@@ -77,7 +78,7 @@ while [ "$1" ]; do
 			shift
 
 			if ! [[ "$1" =~ ^[0-9]+$ ]] || [ $1 -lt 3 ]; then
-				XERR "$LINENO" "Invalid interval provided."
+				XERR "$LINENO" "Invalid seconds of interval provided."
 			fi ;;
 		--log|-l)
 			LOG="true" ;;
@@ -86,11 +87,15 @@ while [ "$1" ]; do
 		--internet|-I)
 			INTERNET="true" ;;
 		--ping-addr|-p)
-			#TODO - Check address validity.
-			#TODO - Check for this but no -I.
-			shift; IP="$1" ;;
+			shift
+
+			if ! [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+				XERR "$LINENO" "Invalid ping IP address provided."
+			fi
+
+			IP="$1" ;;
 		--spider-addr|-S)
-			#TODO - Check validity.
+			#TODO - Check validity?
 			shift; SPIDER="$1" ;;
 		--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
@@ -99,6 +104,11 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+#TODO - Remove when finished. This warning is temporary.
+if ! [ "$INTERNET" == "true" ]; then
+	XERR "$LINENO" "Feature(s) not yet available."
+fi
 
 #TODO - Check for -S and/or -p but no -I.
 #TODO - Check for -i and -o.
@@ -142,8 +152,6 @@ fi
 # Prefer ip, if both are found, as ifconfig is deprecated.
 [ "$USEIP" == "true" -a "$USEIF" == "true" ] && unset USEIF
 
-#type -Pf systemctl 2>&1 > /dev/null && SYSD="true"
-
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
@@ -168,7 +176,6 @@ LOGIT(){
 	fi
 }
 
-#TODO - Handle clean and logged exit, good or bad.
 EXIT(){
 	LOGIT "NWCHK has exited."
 	NOTIFY normal "No longer checking network connectivity."
@@ -178,34 +185,21 @@ trap 'EXIT' EXIT
 
 LOGIT "Begun checking network connectivity."
 
-declare -i ERRS=0
 while :; do
-	#TODO - Experimental. Seems to offer conflicting results.
-	#if [ "$SYSD" == "true" ]; then
-	#	if ! systemctl status network-online.target 2>&1 > /dev/null; then
-	#		LOGIT "SystemD detects that 'Network' is not online."
-	#		ERRS+=1
-	#	fi
-	#fi
-
 	if [ "$INTERNET" == "true" ]; then
-		if ! ping -q -c 1 ${IP:-8.8.8.8} 2>&1 > /dev/null; then
-			LOGIT "Error(s) detected while pinging IP address."
-			ERRS+=1
-		fi
-
 		if type -Pf wget 2>&1 > /dev/null; then
 			if ! wget -q -T 3 --spider "$SADDR"; then
-				LOGIT "Unable to confirm server () availability."
-				ERRS+=1
+				LOGIT "Unable to confirm server availability."
+
+				if ! ping -q -c 1 ${IP:-8.8.8.8} 2>&1 > /dev/null; then
+					LOGIT "Error(s) detected while pinging IP address."
+					NOTIFY critical "Network connectivity error(s) detected."
+				fi
 			fi
 		fi
 	fi
 
-	if [ $ERRS -gt 0 ]; then
-		LOGIT "Sending notification to the current user."
-		NOTIFY critical "Network connectivity error(s) detected."
-	fi
+	#TODO - Checks for network itself go here.
 
 	if ! [ "$ONCE" == "true" ]; then
 		sleep ${INT:-10}s
