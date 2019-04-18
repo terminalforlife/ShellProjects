@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 12:59:14 BST 2019
+# Last Change       - Thu 18 Apr 13:13:12 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -30,6 +30,7 @@ USAGE(){
 		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --debug|-D              - Enables the built-in bash debugging.
+		            --logfile|-L PATH       - File to use instead of the default.
 		            --no-log|-N             - Don't keep a log of detected events.
 		            --internet|-I           - Check also for Internet connectivity.
 		            --once-only|-o          - Don't check periodically, only once.
@@ -40,6 +41,10 @@ USAGE(){
 		NOTE:       Where IFACE is the network interface to check.
 
 		            The default ping address is 8.8.8.8, Google's public DNS.
+
+		            The default log file used is:
+
+		              \$HOME/.nwchk.log
 	EOF
 }
 
@@ -63,13 +68,15 @@ while [ "$1" ]; do
 			if ! [[ "$1" =~ ^[0-9]+$ ]]; then
 				XERR "$LINENO" "Invalid interval provided."
 			fi ;;
-		--no-log|-N)
-			NOLOG="true" ;;
+		--log|-N)
+			LOG="true" ;;
+		--logfile|-L)
+			shift; LOGFILE="$1" ;;
 		--internet|-I)
 			INTERNET="true" ;;
 		--ping-addr|-p)
 			#TODO - Check address validity.
-			shift; PING_ADDR="$1" ;;
+			shift; IP="$1" ;;
 		--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -118,31 +125,40 @@ fi
 
 NOTIFY(){
 	#TODO - Add exclamation or other type of alert icon.
-	/usr/bin/notify-send --urgency=critical "$1" || return $?
+	if ! /usr/bin/notify-send --urgency=critical "$1"; then
+		LOGIT=""
+		XERR "$LINENO" "Unable to send a notification -- quitting."
+	fi
 
 	#TODO - Have this repeat, as once probably isn't enough.
 	[ "$BELL" == "true" ] && printf "\a"
 }
 
-LOG(){
+LOGIT(){
 	if [ "$LOG" == "true" ]; then
 		printf "%(%F_%X)T: %s\n" -1 "$1"
 	fi
 }
 
+declare -i ERRS=0
 while :; do
 	if [ "$SYSD" == "true" ]; then
 		if ! /bin/systemctl status network-online.target; then
-			LOG ""
-			NOTIFY ""
+			LOGIT ""
+			ERRS+=1
 		fi
 	fi
 
 	if [ "$INTERNET" == "true" ]; then
-		if ! /bin/ping -q -c 1 8.8.8.8; then
-			LOG=""
-			NOTIFY=""
+		if ! /bin/ping -q -c 1 ${IP:-8.8.8.8} 2>&1 > /dev/null; then
+			LOGIT "Error(s) detected while pinging IP address."
+			ERRS+=1
 		fi
+	fi
+
+	if [ $ERRS -gt 0 ]; then
+		LOGIT "Sending notification to the current user."
+		NOTIFY ""
 	fi
 
 	if ! [ "$ONCE" == "true" ]; then
