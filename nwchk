@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 11:29:14 BST 2019
+# Last Change       - Thu 18 Apr 12:07:28 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -24,12 +24,16 @@ USAGE(){
 
 		            Check, once or periodically, for network connectivity.
 
-		SYNTAX:     nwchk [OPTS]
+		SYNTAX:     nwchk [OPTS] IFACE
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --debug|-D              - Enables the built-in bash debugging.
+		            --once-only|-o          - Don't check periodically, only once.
+		            --interval|-i M         - Minutes (M) between checks.
+
+		NOTE:       Where IFACE is the network interface to check.
 	EOF
 }
 
@@ -44,14 +48,32 @@ while [ "$1" ]; do
 			BEQUIET="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		*)
+		--once-only|-o)
+			ONCE="true" ;;
+		--interval|-i)
+			shift
+
+			if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+				XERR "$LINENO" "Invalid interval provided."
+			fi ;;
+		--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
+if ! [ "$*" ]; then
+	XERR "$LINENO" "Missing user-specified network interface."
+else
+	if [ "${#@}" -gt 1 ]; then
+		XERR "$LINENO" "Only one interface may be specified at one time."
+	else
+		IFACE="$1"
+	fi
+fi
+
 declare -i DEPCOUNT=0
-for DEP in PATH; {
+for DEP in /bin/sleep /usr/bin/notify-send; {
 	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -60,7 +82,33 @@ for DEP in PATH; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
+if [ -x /bin/ip ]; then
+	IP="true"
+elif [ -x /sbin/ifconfig ];
+	IFCONFIG="true"
+else
+	XERR "$LINENO" "Unable to find applicable executable."
+fi
+
+# Prefer ip, if both are found, as ifconfig is deprecated.
+[ "$IP" == "true" -a "$IFCONFIG" == "true" ] && unset IFCONFIG
+
+[ -x /bin/systemctl ] && SYSD="true"
+
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
+NOTIFY(){
+	#TODO - Add exclamation or other type of alert icon.
+	/usr/bin/notify-send --urgency=critical "$1"
+}
 
+while :; do
+	if [ "$SYSD" == "true" ]; then
+		if ! /bin/systemctl status network-online.target; then
+			:
+		fi
+	fi
+
+	/bin/sleep ${INT}m
+done
