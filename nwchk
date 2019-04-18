@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 14:14:50 BST 2019
+# Last Change       - Thu 18 Apr 14:17:25 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -122,15 +122,15 @@ for DEP in sleep ping notify-send; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-if [ -x ip ]; then
+if type -Pf ip 2>&1 > /dev/null; then
 	USEIP="true"
-elif [ -x ifconfig ];
+elif type -Pf ifconfig 2>&1 > /dev/null;
 	USEIF="true"
 else
 	XERR "$LINENO" "Unable to find applicable executable."
 fi
 
-if [ "$INTERNET" == "true" -a ! -x ping ]; then
+if [ "$INTERNET" == "true" ] && ! type -Pf ping 2>&1 > /dev/null; then
 	XERR "$LINENO" "Dependency 'ping' not met."
 fi
 
@@ -196,11 +196,7 @@ while :; do
 
 	if [ $ERRS -gt 0 ]; then
 		LOGIT "Sending notification to the current user."
-		if [ "$INTERNET" == "true" ]; then
-			NOTIFY critical "Network device and/or Internet connectivity error(s) detected."
-		else
-			NOTIFY critical "Network device error(s) detected."
-		fi
+		NOTIFY critical "Network connectivity error(s) detected."
 	fi
 
 	if ! [ "$ONCE" == "true" ]; then
