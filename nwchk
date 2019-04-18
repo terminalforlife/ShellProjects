@@ -3,13 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 15:19:18 BST 2019
+# Last Change       - Thu 18 Apr 15:19:40 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Written by inspiration of YouTube and Arch user, 'S3NTYN3L'.
 #----------------------------------------------------------------------------------
-set -- -L file enp0s3
+
 _VERSION_="2019-04-18"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
