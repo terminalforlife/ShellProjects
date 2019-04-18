@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 13:13:12 BST 2019
+# Last Change       - Thu 18 Apr 13:39:44 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,6 +14,8 @@ _VERSION_="2019-04-18"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+SADDR="https://www.google.co.uk/"
 
 USAGE(){
 	while read -r; do
@@ -34,7 +36,7 @@ USAGE(){
 		            --no-log|-N             - Don't keep a log of detected events.
 		            --internet|-I           - Check also for Internet connectivity.
 		            --once-only|-o          - Don't check periodically, only once.
-		            --interval|-i M         - Minutes (M) between checks.
+		            --interval|-i S         - Seconds (S) between each check.
 		            --ping-addr|-p IP       - Address to ping connectivity checks.
 		            --bell|-b               - Sound off the X11 bell on alert.
 
@@ -45,6 +47,8 @@ USAGE(){
 		            The default log file used is:
 
 		              \$HOME/.nwchk.log
+
+		            The default interval, if none is specified, is 30 seconds.
 	EOF
 }
 
@@ -76,7 +80,12 @@ while [ "$1" ]; do
 			INTERNET="true" ;;
 		--ping-addr|-p)
 			#TODO - Check address validity.
+			#TODO - Check for this but no -I.
 			shift; IP="$1" ;;
+		--spider-addr)
+			#TODO - Check validity.
+			#TODO - Check for this but no -I.
+			shift; SADDR="$1"
 		--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -140,11 +149,18 @@ LOGIT(){
 	fi
 }
 
+#TODO - Handle clean and logged exit, good or bad.
+EXIT(){
+	:
+}
+
+trap 'EXIT' EXIT
+
 declare -i ERRS=0
 while :; do
 	if [ "$SYSD" == "true" ]; then
 		if ! /bin/systemctl status network-online.target; then
-			LOGIT ""
+			LOGIT "SystemD detects that 'Network' is not online."
 			ERRS+=1
 		fi
 	fi
@@ -154,15 +170,26 @@ while :; do
 			LOGIT "Error(s) detected while pinging IP address."
 			ERRS+=1
 		fi
+
+		if [ -x /usr/bin/wget ]; then
+			if ! /usr/bin/wget -q -T 3 --spider ; then
+				LOGIT "Unable to confirm server () availability."
+				ERRS+=1
+			fi
+		fi
 	fi
 
 	if [ $ERRS -gt 0 ]; then
 		LOGIT "Sending notification to the current user."
-		NOTIFY ""
+		if [ "$INTERNET" == "true" ]; then
+			NOTIFY "Network device and/or Internet connectivity error(s) detected."
+		else
+			NOTIFY "Network device error(s) detected."
+		fi
 	fi
 
 	if ! [ "$ONCE" == "true" ]; then
-		/bin/sleep ${INT}m
+		/bin/sleep ${INT:-30}s
 	else
 		break
 	fi
