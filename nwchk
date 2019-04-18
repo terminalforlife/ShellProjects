@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 14:27:18 BST 2019
+# Last Change       - Thu 18 Apr 15:01:31 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ USAGE(){
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --logfile|-L PATH       - File to use instead of the default.
-		            --no-log|-N             - Don't keep a log of detected events.
+		            --log|-l                - Save a log of detected events.
 		            --internet|-I           - Check also for Internet connectivity.
 		            --once-only|-o          - Don't check periodically, only once.
 		            --interval|-i S         - Seconds (S) between each check.
@@ -59,6 +59,8 @@ USAGE(){
 	EOF
 }
 
+LOGFILE="$HOME/.nwchk.log"
+
 while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
@@ -77,10 +79,8 @@ while [ "$1" ]; do
 
 			if ! [[ "$1" =~ ^[0-9]+$ ]] || [ $1 -lt 3 ]; then
 				XERR "$LINENO" "Invalid interval provided."
-			fi
-
-			INT=$1 ;;
-		--log|-N)
+			fi ;;
+		--log|-l)
 			LOG="true" ;;
 		--logfile|-L)
 			shift; LOGFILE="$1" ;;
@@ -103,6 +103,7 @@ done
 
 #TODO - Check for -S and/or -p but no -I.
 #TODO - Check for -i and -o.
+#TODO - Check for -L but no -l
 
 if ! [ "$*" ]; then
 	XERR "$LINENO" "Missing user-specified network interface."
@@ -147,7 +148,7 @@ type -Pf systemctl 2>&1 > /dev/null && SYSD="true"
 NOTIFY(){
 	#TODO - Add exclamation or other type of alert icon.
 	if ! notify-send --urgency=$1 "$2"; then
-		LOGIT=""
+		LOGIT="Unable to send a notification."
 		XERR "$LINENO" "Unable to send a notification -- quitting."
 	fi
 
@@ -161,14 +162,14 @@ NOTIFY(){
 
 LOGIT(){
 	if [ "$LOG" == "true" ]; then
-		printf "%(%F_%X)T: %s\n" -1 "$1"
+		printf "%(%F_%X)T: %s\n" -1 "$1" >> "$LOGFILE"
 	fi
 }
 
 #TODO - Handle clean and logged exit, good or bad.
 EXIT(){
 	LOGIT "NWCHK has exited."
-	NOTIFY normal "NWCHK has Stopped checking network connectivity."
+	NOTIFY normal "No longer checking network connectivity."
 }
 
 trap 'EXIT' EXIT
@@ -183,7 +184,7 @@ while :; do
 	fi
 
 	if [ "$INTERNET" == "true" ]; then
-		if ! ping -q -c 1 ${SPIDER:-8.8.8.8} 2>&1 > /dev/null; then
+		if ! ping -q -c 1 ${IP:-8.8.8.8} 2>&1 > /dev/null; then
 			LOGIT "Error(s) detected while pinging IP address."
 			ERRS+=1
 		fi
@@ -202,7 +203,7 @@ while :; do
 	fi
 
 	if ! [ "$ONCE" == "true" ]; then
-		sleep ${INT:-30}s
+		sleep ${INT:-10}s
 	else
 		break
 	fi
