@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 14:17:25 BST 2019
+# Last Change       - Thu 18 Apr 14:27:18 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -95,6 +95,8 @@ while [ "$1" ]; do
 			shift; SPIDER="$1" ;;
 		--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
 	esac
 	shift
 done
@@ -124,7 +126,7 @@ for DEP in sleep ping notify-send; {
 
 if type -Pf ip 2>&1 > /dev/null; then
 	USEIP="true"
-elif type -Pf ifconfig 2>&1 > /dev/null;
+elif type -Pf ifconfig 2>&1 > /dev/null; then
 	USEIF="true"
 else
 	XERR "$LINENO" "Unable to find applicable executable."
@@ -174,7 +176,7 @@ trap 'EXIT' EXIT
 declare -i ERRS=0
 while :; do
 	if [ "$SYSD" == "true" ]; then
-		if ! systemctl status network-online.target; then
+		if ! systemctl status network-online.target 2>&1 > /dev/null; then
 			LOGIT "SystemD detects that 'Network' is not online."
 			ERRS+=1
 		fi
@@ -187,7 +189,7 @@ while :; do
 		fi
 
 		if type -Pf wget 2>&1 > /dev/null; then
-			if ! wget -q -T 3 --spider ; then
+			if ! wget -q -T 3 --spider "$SADDR"; then
 				LOGIT "Unable to confirm server () availability."
 				ERRS+=1
 			fi
