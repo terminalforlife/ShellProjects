@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 15:23:14 BST 2019
+# Last Change       - Thu 18 Apr 18:33:13 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -41,7 +41,10 @@ USAGE(){
 		            --spider-addr|-S ADDR   - The address to crawl with a spider.
 		            --bell|-b               - Sound off the X11 bell on alert.
 
-		NOTE:       Where IFACE is the network interface to check.
+		NOTE:       This is a daemon-like shell program, written to be executed once, and
+		            left running, like a typical daemon, unless otherwise instructed.
+
+		            Where IFACE is the network interface to check.
 
 		            The default ping address is 8.8.8.8, Google's public DNS.
 
@@ -138,8 +141,6 @@ if [ "$INTERNET" == "true" ] && ! type -Pf ping 2>&1 > /dev/null; then
 	XERR "$LINENO" "Dependency 'ping' not met."
 fi
 
-echo $USEIP $USEIF
-
 # Prefer ip, if both are found, as ifconfig is deprecated.
 [ "$USEIP" == "true" -a "$USEIF" == "true" ] && unset USEIF
 
@@ -181,12 +182,13 @@ LOGIT "Begun checking network connectivity."
 
 declare -i ERRS=0
 while :; do
-	if [ "$SYSD" == "true" ]; then
-		if ! systemctl status network-online.target 2>&1 > /dev/null; then
-			LOGIT "SystemD detects that 'Network' is not online."
-			ERRS+=1
-		fi
-	fi
+	#TODO - Experimental. Seems to offer conflicting results.
+	#if [ "$SYSD" == "true" ]; then
+	#	if ! systemctl status network-online.target 2>&1 > /dev/null; then
+	#		LOGIT "SystemD detects that 'Network' is not online."
+	#		ERRS+=1
+	#	fi
+	#fi
 
 	if [ "$INTERNET" == "true" ]; then
 		if ! ping -q -c 1 ${IP:-8.8.8.8} 2>&1 > /dev/null; then
