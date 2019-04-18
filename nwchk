@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 19:04:08 BST 2019
+# Last Change       - Thu 18 Apr 20:39:37 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -106,11 +106,6 @@ while [ "$1" ]; do
 	shift
 done
 
-#TODO - Remove when finished. This warning is temporary.
-if ! [ "$INTERNET" == "true" ]; then
-	XERR "$LINENO" "Feature(s) not yet available."
-fi
-
 #TODO - Check for -S and/or -p but no -I.
 #TODO - Check for -i and -o.
 
@@ -187,20 +182,33 @@ trap 'EXIT' EXIT
 LOGIT "Begun checking network connectivity."
 
 while :; do
+	if [ "$USEIP" == "true" ]; then
+		for WORD in `ip link show "$IFACE"`; {
+			if [ "$GET_STATE" == "true" -a "$WORD" == "DOWN" ]; then
+				LOGIT "Network interface '$IFACE' detected as 'DOWN' by ip."
+				NOTIFY critical "Network connectivity error(s) detected."
+
+				break
+			elif [ "$WORD" == "state" ]; then
+				GET_STATE="true"
+			fi
+		}
+	elif [ "$USEIF" == "true" ]; then
+		:
+	fi
+
 	if [ "$INTERNET" == "true" ]; then
 		if type -Pf wget 2>&1 > /dev/null; then
 			if ! wget -q -T 3 --spider "$SADDR"; then
 				LOGIT "Unable to confirm server availability."
 
 				if ! ping -q -c 1 ${IP:-8.8.8.8} 2>&1 > /dev/null; then
-					LOGIT "Error(s) detected while pinging IP address."
-					NOTIFY critical "Network connectivity error(s) detected."
+					LOGIT "Error(s) detected when pinging IP address."
+					NOTIFY critical "Internet connectivity error(s) detected."
 				fi
 			fi
 		fi
 	fi
-
-	#TODO - Checks for network itself go here.
 
 	if ! [ "$ONCE" == "true" ]; then
 		sleep ${INT:-10}s
