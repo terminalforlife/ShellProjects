@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 15:19:40 BST 2019
+# Last Change       - Thu 18 Apr 15:23:14 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -138,6 +138,8 @@ if [ "$INTERNET" == "true" ] && ! type -Pf ping 2>&1 > /dev/null; then
 	XERR "$LINENO" "Dependency 'ping' not met."
 fi
 
+echo $USEIP $USEIF
+
 # Prefer ip, if both are found, as ifconfig is deprecated.
 [ "$USEIP" == "true" -a "$USEIF" == "true" ] && unset USEIF
 
@@ -177,12 +179,8 @@ trap 'EXIT' EXIT
 
 LOGIT "Begun checking network connectivity."
 
-declare -i NUM=0
 declare -i ERRS=0
 while :; do
-	NUM+=1
-	LOGIT "Iteration $NUM"
-
 	if [ "$SYSD" == "true" ]; then
 		if ! systemctl status network-online.target 2>&1 > /dev/null; then
 			LOGIT "SystemD detects that 'Network' is not online."
