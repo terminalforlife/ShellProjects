@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 20:39:37 BST 2019
+# Last Change       - Thu 18 Apr 20:58:41 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -185,7 +185,7 @@ while :; do
 	if [ "$USEIP" == "true" ]; then
 		for WORD in `ip link show "$IFACE"`; {
 			if [ "$GET_STATE" == "true" -a "$WORD" == "DOWN" ]; then
-				LOGIT "Network interface '$IFACE' detected as 'DOWN' by ip."
+				LOGIT "Network '$IFACE' detected as 'DOWN' by ip."
 				NOTIFY critical "Network connectivity error(s) detected."
 
 				break
@@ -194,7 +194,18 @@ while :; do
 			fi
 		}
 	elif [ "$USEIF" == "true" ]; then
-		:
+		while read -a X; do
+			if [ "${X[0]}" == "UP" ]; then
+				for WORD in ${X[@]}; {
+					[ "$WORD" == "RUNNING" ] && RUNNING="true"
+				}
+
+				if ! [ "$RUNNING" == "true" ]; then
+					LOGIT "Network '$IFACE' not detected as 'RUNNING' by ifconfig."
+					NOTIFY critical "Network connectivity error(s) detected."
+				fi
+			fi
+		done <<< "$(ifconfig "$IFACE")"
 	fi
 
 	if [ "$INTERNET" == "true" ]; then
