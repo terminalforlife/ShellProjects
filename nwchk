@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 20:58:41 BST 2019
+# Last Change       - Thu 18 Apr 21:03:52 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -40,6 +40,7 @@ USAGE(){
 		            --ping-addr|-p IP       - Address to ping for connectivity checks.
 		            --spider-addr|-S ADDR   - The address to crawl with a spider.
 		            --bell|-b               - Sound off the X11 bell on alert.
+		            --no-notify|-N          - Do not send any notifications.
 
 		NOTE:       This is a daemon-like shell program, written to be executed once, and
 		            left running, like a typical daemon, unless otherwise instructed. One
@@ -96,8 +97,9 @@ while [ "$1" ]; do
 
 			IP="$1" ;;
 		--spider-addr|-S)
-			#TODO - Check validity?
 			shift; SPIDER="$1" ;;
+		--no-notify|-N)
+			NO_NOTIFY="true" ;;
 		--*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
@@ -152,10 +154,12 @@ fi
 [ "$DEBUGME" == "true" ] && set -x
 
 NOTIFY(){
-	#TODO - Add exclamation or other type of alert icon.
-	if ! notify-send --urgency=$1 "$2"; then
-		LOGIT="Unable to send a notification."
-		XERR "$LINENO" "Unable to send a notification -- quitting."
+	if ! [ "$NO_NOTIFY" == "true" ]; then
+		#TODO - Add exclamation or other type of alert icon.
+		if ! notify-send --urgency=$1 "$2"; then
+			LOGIT="Unable to send a notification."
+			XERR "$LINENO" "Unable to send a notification -- quitting."
+		fi
 	fi
 
 	if [ "$BELL" == "true" ]; then
