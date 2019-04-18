@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 18:33:13 BST 2019
+# Last Change       - Thu 18 Apr 18:37:28 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ USAGE(){
 		            --log|-l                - Save a log of detected events.
 		            --internet|-I           - Check also for Internet connectivity.
 		            --once-only|-o          - Don't check periodically, only once.
-		            --interval|-i S         - Seconds (S) between each check.
+		            --interval|-i S         - Override the default of 10 seconds.
 		            --ping-addr|-p IP       - Address to ping for connectivity checks.
 		            --spider-addr|-S ADDR   - The address to crawl with a spider.
 		            --bell|-b               - Sound off the X11 bell on alert.
@@ -48,11 +48,9 @@ USAGE(){
 
 		            The default ping address is 8.8.8.8, Google's public DNS.
 
-		            The default log file used is:
+		FILE:       By default, the following log file is used:
 
 		              \$HOME/.nwchk.log
-
-		            The default interval, if none is specified, is 10 seconds.
 
 		EXAMPLE:    nwchk --bell -p 1.1.1.1 -S 'https://duckduckgo.com/'
 
@@ -144,7 +142,7 @@ fi
 # Prefer ip, if both are found, as ifconfig is deprecated.
 [ "$USEIP" == "true" -a "$USEIF" == "true" ] && unset USEIF
 
-type -Pf systemctl 2>&1 > /dev/null && SYSD="true"
+#type -Pf systemctl 2>&1 > /dev/null && SYSD="true"
 
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -x
