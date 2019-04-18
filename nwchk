@@ -3,13 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 15:01:31 BST 2019
+# Last Change       - Thu 18 Apr 15:19:18 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Written by inspiration of YouTube and Arch user, 'S3NTYN3L'.
 #----------------------------------------------------------------------------------
-
+set -- -L file enp0s3
 _VERSION_="2019-04-18"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
@@ -49,7 +49,7 @@ USAGE(){
 
 		              \$HOME/.nwchk.log
 
-		            The default interval, if none is specified, is 30 seconds.
+		            The default interval, if none is specified, is 10 seconds.
 
 		EXAMPLE:    nwchk --bell -p 1.1.1.1 -S 'https://duckduckgo.com/'
 
@@ -58,8 +58,6 @@ USAGE(){
 		              $SADDR
 	EOF
 }
-
-LOGFILE="$HOME/.nwchk.log"
 
 while [ "$1" ]; do
 	case "$1" in
@@ -103,7 +101,10 @@ done
 
 #TODO - Check for -S and/or -p but no -I.
 #TODO - Check for -i and -o.
-#TODO - Check for -L but no -l
+
+if ! [ "$LOG" == "true" ] && [ "$LOGFILE" ]; then
+	XERR "$LINENO" "Logfile specified, but nwchk wasn't told to log."
+fi
 
 if ! [ "$*" ]; then
 	XERR "$LINENO" "Missing user-specified network interface."
@@ -116,7 +117,7 @@ else
 fi
 
 declare -i DEPCOUNT=0
-for DEP in sleep ping notify-send; {
+for DEP in dirname sleep ping notify-send; {
 	if ! type -Pf "$DEP" 2>&1 > /dev/null; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -153,14 +154,14 @@ NOTIFY(){
 	fi
 
 	if [ "$BELL" == "true" ]; then
-		for I in {1..3}; {
-			printf "\a"
-			sleep 1s
-		}
+		for I in {1..3}; { printf "\a"; sleep 1s; }
 	fi
 }
 
 LOGIT(){
+	# If logfile is or becomes invalid during loop, go with the default.
+	[ "$LOGFILE" ] || LOGFILE="$HOME/.nwchk.log"
+
 	if [ "$LOG" == "true" ]; then
 		printf "%(%F_%X)T: %s\n" -1 "$1" >> "$LOGFILE"
 	fi
@@ -174,8 +175,14 @@ EXIT(){
 
 trap 'EXIT' EXIT
 
+LOGIT "Begun checking network connectivity."
+
+declare -i NUM=0
 declare -i ERRS=0
 while :; do
+	NUM+=1
+	LOGIT "Iteration $NUM"
+
 	if [ "$SYSD" == "true" ]; then
 		if ! systemctl status network-online.target 2>&1 > /dev/null; then
 			LOGIT "SystemD detects that 'Network' is not online."
