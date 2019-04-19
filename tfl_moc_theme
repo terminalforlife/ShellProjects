@@ -1,0 +1,69 @@
+#----------------------------------------------------------------------------------
+# Project Name      - /usr/share/moc/themes/tfl_theme
+# Started On        - Fri 19 Apr 14:40:16 BST 2019
+# Last Change       - Fri 19 Apr 15:03:37 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Fields are parameter, foreground, background, and text effect, in that order.
+# The 'default' value for background seems to always translate to 'transparent'.
+# Hex values not valid, nor are modifiers like darkyellow.
+#
+# Designed for playlist-less use, via mplay in miscellaneous repository on GitHub.
+# See the above link, or use insit to install: sudo insit mplay
+#------------------------------------------------------------------------------MISC
+
+status                    =     white       default     normal
+title                     =     white       default     normal
+state                     =     white       default     normal
+
+enabled                   =     white       default     normal
+disabled                  =     black       default     normal
+
+sound_parameters          =     white       default     normal
+legend                    =     white       default     normal
+
+error                     =     red         default     normal
+message                   =     white       default     bold
+
+#------------------------------------------------------------------------------MAIN
+
+background                =     default     default     normal
+frame                     =     white       default     normal
+window_title              =     white       default     normal
+
+#-----------------------------------------------------------------------------FILES
+
+directory                 =     red         default     normal
+selected_directory        =     white       default     normal
+
+file                      =     white       default     normal
+selected_file             =     white       black       bold
+marked_selected_file      =     red         black       bold
+marked_file               =     red         default     bold
+
+info                      =     white       default     normal
+selected_info             =     white       black       bold
+marked_info               =     red         default     bold
+marked_selected_info      =     red         default     bold
+
+#-----------------------------------------------------------------------------TIMES
+
+current_time              =     white       default     normal
+time_left                 =     white       default     normal
+total_time                =     white       default     normal
+time_total_frames         =     white       default     normal
+plist_time                =     white       default     normal
+
+#------------------------------------------------------------------------------BARS
+
+empty_mixer_bar           =     black       black       normal
+filled_mixer_bar          =     black       white       normal
+
+empty_time_bar            =     white       black       normal
+filled_time_bar           =     white       white       normal
+
+#-----------------------------------------------------------------------------ENTRY
+
+entry                     =     white       default     normal
+entry_title               =     white       default     normal
