@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Fri 19 Apr 15:12:14 BST 2019
+# Last Change       - Fri 19 Apr 15:18:42 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -37,10 +37,10 @@ USAGE(){
 
 		              $THEMEDIR
 
-		            The default theme used is the tfl-moc-theme, found at the above GitHub
+		            The default theme used is the tfl_moc_theme, found at the above GitHub
 		            address. You can install it with insit, if not already done so:
 
-		              sudo insit tfl-moc-theme
+		              sudo insit tfl_moc_theme
 
 		            The latest version of mplay includes this theme, however.
 	EOF
@@ -83,7 +83,7 @@ else
 fi
 
 [ -d $THEMEDIR ] || XERR "$LINENO" "Theme directory not found."
-[ -f "$THEMEDIR/${THEME:-tfl-moc-theme}" ] || XERR "$LINENO" "Theme file not found."
+[ -f "$THEMEDIR/${THEME:-tfl_moc_theme}" ] || XERR "$LINENO" "Theme file not found."
 
 if [ -x /usr/bin/mocp ]; then
 	/usr/bin/mocp -n -T $THEMEDIR/${THEME:-red_theme} \
