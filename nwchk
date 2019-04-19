@@ -3,14 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu 18 Apr 21:25:17 BST 2019
+# Last Change       - Fri 19 Apr 15:39:48 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Written by inspiration of YouTube and Arch user, 'S3NTYN3L'.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-18"
+_VERSION_="2019-04-19"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -81,7 +81,9 @@ while [ "$1" ]; do
 
 			if ! [[ "$1" =~ ^[0-9]+$ ]] || [ $1 -lt 3 ]; then
 				XERR "$LINENO" "Invalid seconds of interval provided."
-			fi ;;
+			fi
+
+			declare -i INT=$1 ;;
 		--log|-l)
 			LOG="true" ;;
 		--logfile|-L)
@@ -111,7 +113,10 @@ while [ "$1" ]; do
 done
 
 #TODO - Check for -S and/or -p but no -I.
-#TODO - Check for -i and -o.
+
+if [ "$INT" -a "$ONCE" == "true" ]; then
+	XERR "$LINENO" "Interval specified, but nwchk was told to run once."
+fi
 
 if ! [ "$LOG" == "true" ] && [ "$LOGFILE" ]; then
 	XERR "$LINENO" "Logfile specified, but nwchk wasn't told to log."
