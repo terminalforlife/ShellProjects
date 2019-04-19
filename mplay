@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Fri 19 Apr 15:18:42 BST 2019
+# Last Change       - Fri 19 Apr 15:22:07 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,7 +27,6 @@ USAGE(){
 		SYNTAX:     mplay [OPTS] PATH
 
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --theme-path|-T         - Set a custom theme directory path.
 		            --notify|-N             - Send track info notifications.
 		            --run-once|-o           - Exit the MOC server when closed.
 
@@ -50,13 +49,6 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--theme-path|-T)
-			shift
-			THEMEDIR="$1"
-
-			if ! [ -d "$THEMEDIR" ]; then
-				XERR "$LINENO" "Unable to find the theme directory."
-			fi ;;
 		--notify|-N)
 			NOTIFY="true" ;;
 		--once|-o)
