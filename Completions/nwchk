@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/completions/nwchk
 # Started On        - Sat 20 Apr 12:29:28 BST 2019
-# Last Change       - Sat 20 Apr 12:30:35 BST 2019
+# Last Change       - Sat 20 Apr 12:44:33 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ _arg_list_nwchk(){
 	done <<< "$(/usr/bin/nwchk -h)"
 }
 
-_option_mif(){
+_option_nwchk(){
 	COMPREPLY=($(compgen -W "$(_arg_list_nwchk)" -- "$2"))
 }
 
