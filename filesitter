@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sun 25 Mar 12:34:33 BST 2018
+# Last Change       - Fri 26 Apr 14:40:19 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-25"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -80,10 +80,6 @@ for DEP in /usr/bin/stat /bin/{systemctl,sleep}; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-if ! [ -e /dev/null ]; then
-	XERR "$LINENO" "Unable to find the '/dev/null' file."
-fi
-
 [ "$DEBUGME" == "true" ] && set -x
 
 GO="yes"
@@ -92,7 +88,7 @@ while [ "$GO" == "yes" ]; do
 
 	for FILE in $@; {
 		[ -f "$FILE" ] || continue
-		NEW+=`/usr/bin/stat --printf="%s" "$FILE" 2> /dev/null`
+		NEW+=`/usr/bin/stat --printf="%s" "$FILE" 2>&-`
 	}
 
 	if [ ${OLD:-0} -eq $NEW ]; then
