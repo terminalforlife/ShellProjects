@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dl-smlr-podcasts
 # Started On        - Mon  9 Oct 22:38:03 BST 2017
-# Last Change       - Tue 10 Oct 22:59:14 BST 2017
+# Last Change       - Fri 26 Apr 14:43:45 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -34,15 +34,15 @@ USAGE(){
 	done <<-EOF
 		            DL-SMLR-PODCASTS (10th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Tool to download Sunday Morning Linux Review podcasts.
 
 		SYNTAX:     dl-smlr-podcasts [OPTS]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug                 - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		
+
 		NOTE:       All podcasts are currently downloaded only in OGG, to the CWD.
 
 		SITE:       http://smlr.us
@@ -66,7 +66,7 @@ done
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
 
 DOM="http://smlr.us"
