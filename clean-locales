@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/clean-locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Fri 26 Apr 14:37:38 BST 2019
+# Last Change       - Fri 26 Apr 14:38:57 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -67,14 +67,10 @@ if [ -x /bin/rm ]; then
 		if ! [[ "$DIR" =~ (en_GB|en_US|locale\.alias) ]]; then
 			printf "DELETING: $DIR "
 
-			if [ -e /dev/null ]; then
-				if /bin/rm -rf "$DIR" >&- 2>&-; then
-					printf "[OK]\n"
-				else
-					printf "[ERROR]\n"
-				fi
+			if /bin/rm -rf "$DIR" >&- 2>&-; then
+				printf "[OK]\n"
 			else
-				XERR "$LINENO" "Unable to find: /dev/null"
+				printf "[ERROR]\n"
 			fi
 		else
 			printf "SKIPPING: %s\n" "$DIR"
