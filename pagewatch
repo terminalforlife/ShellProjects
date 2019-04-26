@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/pagewatch
 # Started On        - Wed 18 Oct 19:27:40 BST 2017
-# Last Change       - Tue 19 Dec 12:08:49 GMT 2017
+# Last Change       - Fri 26 Apr 14:44:37 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -38,11 +38,11 @@ USAGE(){
 	done <<-EOF
 		            PAGEWATCH (19th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Watch a webpage for signs of change by checkings its md5sum.
 
 		SYNTAX:     pagewatch [OPTS] URL COMMANDS
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
@@ -89,18 +89,18 @@ COMMANDS="$@"
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
 
 printf -v BUFFER "/tmp/pagewatch_%(%F_%X)T.md5" "-1"
 [ -d /tmp ] || XERR "$LINENO" "Directory /tmp is missing or inaccessible."
 
-/usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER" 2> /dev/null
+/usr/bin/wget -q "$URL" -O - | /usr/bin/md5sum > "$BUFFER" 2>&-
 
 declare -i COUNT=0
 while :; do
 	/usr/bin/wget -q "$URL" -O -\
-		| /usr/bin/md5sum -c "$BUFFER" &> /dev/null || ($COMMANDS)
+		| /usr/bin/md5sum -c "$BUFFER" >&- 2>&- || ($COMMANDS)
 
 	COUNT+=1
 
