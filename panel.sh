@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/panel.sh
 # Started On        - Tue  2 Apr 12:14:00 BST 2019
-# Last Change       - Tue  2 Apr 15:49:31 BST 2019
+# Last Change       - Fri 26 Apr 14:45:14 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #----------------------------------------------------------------------------------
 
 # Check an instance of dzen2 isn't already running, and if it is, kill it.
-if [ `pidof dzen2 2> /dev/null` -gt 0 ]; then
+if [ `pidof dzen2 2>&-` -gt 0 ]; then
 	killall dzen2 || exit 1
 	sleep 1s
 fi
@@ -58,7 +58,7 @@ if [ -x /usr/bin/dzen2 ]; then
 			printf "\n"
 			/bin/sleep 0.1s
 			# Lengthen the refresh rate to improve performance.
-		done 2> /dev/null
+		done 2>&-
 	} | /usr/bin/dzen2 -x 0 -w 1950 -h 16 -bg "#000000" -fg "#ffffff" -ta c\
 		-fn "-misc-fixed-bold-r-normal--11-10-75-75-c-50-iso8859-1" &
 
