@@ -3,14 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Fri 19 Apr 15:43:30 BST 2019
+# Last Change       - Fri 26 Apr 14:37:00 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Written by inspiration of YouTube and Arch user, 'S3NTYN3L'.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-19"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -134,7 +134,7 @@ fi
 
 declare -i DEPCOUNT=0
 for DEP in dirname sleep ping notify-send; {
-	if ! type -Pf "$DEP" 2>&1 > /dev/null; then
+	if ! type -Pf "$DEP" >&- 2>&-; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
@@ -142,22 +142,22 @@ for DEP in dirname sleep ping notify-send; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-if type -Pf ip 2>&1 > /dev/null; then
+if type -Pf ip >&- 2>&-; then
 	USEIP="true"
-elif type -Pf ifconfig 2>&1 > /dev/null; then
+elif type -Pf ifconfig >&- 2>&-; then
 	USEIF="true"
 else
 	XERR "$LINENO" "Unable to find applicable executable."
 fi
 
-if [ "$INTERNET" == "true" ] && ! type -Pf ping 2>&1 > /dev/null; then
+if [ "$INTERNET" == "true" ] && ! type -Pf ping >&- 2>&-; then
 	XERR "$LINENO" "Dependency 'ping' not met."
 fi
 
 # Prefer ip, if both are found, as ifconfig is deprecated.
 [ "$USEIP" == "true" -a "$USEIF" == "true" ] && unset USEIF
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec 1>&-
 [ "$DEBUGME" == "true" ] && set -x
 
 NOTIFY(){
@@ -222,11 +222,11 @@ while :; do
 	fi
 
 	if [ "$INTERNET" == "true" ]; then
-		if type -Pf wget 2>&1 > /dev/null; then
+		if type -Pf wget >&- 2>&-; then
 			if ! wget -q -T 3 --spider "$SADDR"; then
 				LOGIT "Unable to confirm server availability."
 
-				if ! ping -q -c 1 ${IP:-8.8.8.8} 2>&1 > /dev/null; then
+				if ! ping -q -c 1 ${IP:-8.8.8.8} >&- 2>&-; then
 					LOGIT "Error(s) detected when pinging IP address."
 					NOTIFY critical "Internet connectivity error(s) detected."
 				fi
