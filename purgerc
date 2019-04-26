@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Fri 15 Jun 10:38:16 BST 2018
+# Last Change       - Fri 26 Apr 14:45:25 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-06-15"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -89,7 +89,7 @@ fi
 
 [ $UID -eq 0 ] || XERR "$LINENO" "Root access is required to purge 'rc' packages."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -x
 
 while read -a X; do
