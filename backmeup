@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun  4 Mar 20:37:56 GMT 2018
+# Last Change       - Fri 26 Apr 14:40:49 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-04"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -71,7 +71,7 @@ for DEP in /bin/{gzip,tar,sync,mkdir}; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
 
 MAIN_DIR="$HOME/.backmeup"
