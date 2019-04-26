@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/clean-locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Tue 16 Apr 00:56:11 BST 2019
+# Last Change       - Fri 26 Apr 14:37:38 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-16"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -55,7 +55,7 @@ while [ "$1" ]; do
 	shift
 done
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -x
 
 if [ -x /bin/rm ]; then
@@ -68,7 +68,7 @@ if [ -x /bin/rm ]; then
 			printf "DELETING: $DIR "
 
 			if [ -e /dev/null ]; then
-				if /bin/rm -rf "$DIR" &> /dev/null; then
+				if /bin/rm -rf "$DIR" >&- 2>&-; then
 					printf "[OK]\n"
 				else
 					printf "[ERROR]\n"
