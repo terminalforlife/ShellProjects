@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/ccfiles (Cross-Check Files)
 # Started On        - Wed 13 Dec 13:45:22 GMT 2017
-# Last Change       - Tue 16 Apr 11:23:19 BST 2019
+# Last Change       - Fri 26 Apr 14:42:45 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #       seems to have gone a different direction.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-16"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -64,7 +64,7 @@ done
 
 [ -x /bin/readlink ] || XERR "$LINENO" "Dependency '/bin/readlink' not met."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -x
 
 #TODO - Check for Debian/Ubuntu base.
