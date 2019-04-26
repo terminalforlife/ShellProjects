@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Wed  4 Apr 08:21:09 BST 2018
+# Last Change       - Fri 26 Apr 14:44:08 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 # interested in, please let me know.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-04-04"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -126,7 +126,7 @@ else
 	NUM=193
 fi
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -x
 
 while :; do
