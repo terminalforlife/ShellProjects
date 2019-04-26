@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dl-tuxradar-podcasts
 # Started On        - Mon  9 Oct 19:08:27 BST 2017
-# Last Change       - Tue 19 Dec 12:04:18 GMT 2017
+# Last Change       - Fri 26 Apr 14:44:01 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,15 +27,15 @@ USAGE(){
 	done <<-EOF
 		            DL-TUXRADAR-PODCASTS (19th December 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Small shell program to download the TuxRadar podcasts.
 
 		SYNTAX:     dl-tuxradar-podcasts [OPTS]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug                 - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		
+
 		NOTE:       All files (OGG) will be downloaded into the current directory.
 
 		SITE:       http://www.tuxradar.com
@@ -59,7 +59,7 @@ done
 
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
 
 DOM="http://www.tuxradar.com"
