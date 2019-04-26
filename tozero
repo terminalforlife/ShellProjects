@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Mon  9 Apr 21:54:25 BST 2018
+# Last Change       - Fri 26 Apr 14:45:37 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-04-09"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -77,7 +77,7 @@ DATE="$1"
 
 [ "$DEBUGME" == "true" ] && set -x
 
-/bin/date -d "$DATE" &> /dev/null || XERR "$LINENO" "Incorrect TARGET string."
+/bin/date -d "$DATE" >&- 2>&- || XERR "$LINENO" "Incorrect TARGET string."
 
 TARGET="${DATE:-tomorrow}"
 
