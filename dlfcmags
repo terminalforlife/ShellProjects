@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dlfcmags
 # Started On        - Tue 28 Nov 00:02:33 GMT 2017
-# Last Change       - Tue 28 Nov 00:25:46 GMT 2017
+# Last Change       - Fri 26 Apr 14:43:23 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ done
 
 [ "$*" ] || printf -v ISSUE_LIST " %d" {1..127} && ISSUE_LIST="$@"
 [ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 
 DOMAIN="http://dl.fullcirclemagazine.org"
 DL="/issue127_en.pdf"
