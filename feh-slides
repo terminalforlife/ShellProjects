@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Tue 16 Apr 01:10:21 BST 2019
+# Last Change       - Fri 26 Apr 14:39:31 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-16"
+_VERSION_="2019-04-26"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -92,7 +92,7 @@ if [ -d "$1" ]; then
 			if [ -f "$FILE" ]; then
 				if ! /usr/bin/feh --no-fehbg --bg-center "$FILE"; then
 					XERR "$LINENO" "One or more errors detected while setting wallpaper with feh."
-				elif ! /bin/sleep ${INTERVAL:-5}s &> /dev/null; then
+				elif ! /bin/sleep ${INTERVAL:-5}s >&- 2>&-; then
 					XERR "$LINENO" "Invalid interval time specified."
 				fi
 			fi
