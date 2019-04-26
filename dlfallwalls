@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/dlfallwalls
 # Started On        - Sun 15 Oct 20:48:22 BST 2017
-# Last Change       - Sat  3 Mar 23:02:28 GMT 2018
+# Last Change       - Fri 26 Apr 14:43:14 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ done
 read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
-[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
 
 URL="$DOM/download/fall-wallpapers"
