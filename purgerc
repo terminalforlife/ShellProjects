@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - miscellaneous/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Fri 26 Apr 14:45:25 BST 2019
+# Last Change       - Sat  4 May 13:43:31 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-04"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -22,14 +22,16 @@ USAGE(){
 		            PURGERC ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Very simple and light shell command to remove 'rc' packages.
+		            Simple and lightweight shell command to remove 'rc' packages.
 
 		SYNTAX:     purgerc [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --update|-U             - Check for updates to simplify-ubuntu.
+		            --update|-U             - Check for updates to purgerc.
+
+		NOTE:       If executed without root permissions, simulation mode is used.
 
 		SITE:       $DOM
 	EOF
@@ -87,7 +89,10 @@ if [ "$UPDATE" == "true" ]; then
 	exit 0
 fi
 
-[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required to purge 'rc' packages."
+if ! [ $UID -eq 0 ]; then
+	printf "Running in simulation mode.\n"
+	SIM='-s -o APT::Get::Show-User-Simulation-Note=0'
+fi
 
 [ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -x
@@ -97,8 +102,9 @@ while read -a X; do
 done <<< "$(/usr/bin/dpkg -l)"
 
 if [ "$LIST" ]; then
-	/usr/bin/apt-get -q -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
-		-o APT::Get::AutomaticRemove=true remove --purge $LIST
+	/usr/bin/apt-get -q $SIM -o Dpkg::Progress=true\
+		-o Dpkg::Progress-Fancy=true -o APT::Get::AutomaticRemove=true\
+		remove --purge $LIST
 else
 	printf "No 'rc' packages detected by APT.\n" 1>&2
 	exit 1
