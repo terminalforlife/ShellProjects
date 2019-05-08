@@ -1,0 +1,149 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - github-ssh-setup
+# Started On        - Thu 14 Sep 18:32:41 BST 2017
+# Last Change       - Mon 26 Mar 22:54:17 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2018-03-26"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            GITHUB-SSH-SETUP ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Simple program to create an SSH (RSA) key pair for GitHub.
+
+		SYNTAX:     github-ssh-setup [OPTS] [GitHub_E-MAIL] [SSH_KEY_FILE]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --install-git|-G        - If git is not yet installed, install it.
+		            --install-ssh|-S        - If ssh is not yet installed, install it.
+
+		NOTE:       Currently only available on Debian/Ubuntu installations of Linux.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--install-git|-G)
+			INSTALLGIT="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+EMAIL="$1"
+SSH_KEY_FILE="$2"
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{find,ssh-add,ssh-agent,ssh-keygen,apt-get}; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+
+[ "$DEBUGME" == "true" ] && set -x
+
+if [ "$INSTALLGIT" == "true" ]; then
+	if ! [ -x /usr/bin/git ]; then
+		printf "INFO: Installing git packages with apt-get.\n"
+		/usr/bin/apt-get -q --show-progress\
+			-o Dpkg::Progress-Fancy=true install git
+	else
+		ERR "$LINENO" "It seems git is already installed."
+	fi
+elif [ ! "$INSTALLGIT" == "true" -a ! -x /usr/bin/git ]; then
+	ERR "$LINENO" "Unable to find /usr/bin/git; is it installed?"
+fi
+
+if [ "$INSTALLSSH" == "true" ]; then
+	if ! [ -x /usr/bin/ssh ]; then
+		printf "INFO: Installing ssh packages with apt-get.\n"
+		/usr/bin/apt-get -q --show-progress\
+			-o Dpkg::Progress-Fancy=true  install ssh
+	else
+		ERR "$LINENO" "SSH seems to already be installed."
+	fi
+elif [ ! "$INSTALLSSH" == "true" -a ! -x /usr/bin/ssh ]; then
+	XERR "$LINENO" "SSH, which is required, is not installed."
+fi
+
+if ! [ "$EMAIL" ]; then
+	printf "INFO: Requesting GitHub account's E-Mail address.\n"
+	read -e -p "PROMPT: " EMAIL
+fi
+
+if ! [[ "$EMAIL" =~ ^[[:alnum:]]+@[[:alnum:]]+\.[[:alnum:]]+$ ]]; then
+	XERR "$LINENO" "Incorrect E-Mail address (format) specified."
+fi
+
+if ! [ "$SSH_KEY_FILE" ]; then
+	printf "INFO: Requesting filename for the SSH key.\n"
+	read -e -p "PROMPT: " SSH_KEY_FILE
+
+	if ! [ "$SSH_KEY_FILE" ]; then
+		printf "INFO: Using default: $HOME/.ssh/id_rsa\n"
+		SSH_KEY_FILE="$HOME/.ssh/id_rsa"
+	fi
+fi
+
+if ! [ -d "${SSH_KEY_FILE%\/*}" ]; then
+	XERR "$LINENO" "One or more key file parent directories missing."
+fi
+
+printf "INFO: Generating a new SSH (RSA, 4096) key pair.\n"
+if /usr/bin/ssh-keygen -t rsa -b 4096 -C "$EMAIL" -f $SSH_KEY_FILE; then
+	/bin/chmod -v 400 $SSH_KEY_FILE
+	/bin/chmod -v 400 ${SSH_KEY_FILE}.pub
+	/bin/chown -v $SUDO_UID:$SUDO_GID $SSH_KEY_FILE
+	/bin/chown -v $SUDO_UID:$SUDO_GID ${SSH_KEY_FILE}.pub
+else
+	XERR "$LINENO" "Non-zero exit status: /usr/bin/ssh-keygen."
+fi
+
+printf "INFO: Starting the ssh-agent background process.\n"
+if ! eval `/usr/bin/ssh-agent -s`; then
+	XERR "$LINENO" 'Non-zero exit status: eval `/usr/bin/ssh-agent -s`'
+fi
+
+printf "INFO: Adding SSH key to the ssh-agent -- storing in keychain.\n"
+if ! /usr/bin/ssh-add $SSH_KEY_FILE; then
+	XERR "$LINENO" "Non-zero exit status: /usr/bin/ssh-add"
+fi
+
+if [ -x /usr/bin/xclip ]; then
+	printf "INFO: Adding public key to clipboard with /usr/bin/xclip.\n"
+	if ! /usr/bin/xclip -sel clip < ${SSH_KEY_FILE}.pub; then
+		XERR "$LINENO" "Non-zero exit status: /usr/bin/xclip"
+	fi
+
+	printf "INFO: Now paste the .pub key into GitHub's 'Key' field.\n"
+else
+	printf "INFO: Now add your key to GitHub -- the .pub key only!\n"
+fi
