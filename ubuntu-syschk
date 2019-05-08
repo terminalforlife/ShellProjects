@@ -1,0 +1,647 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/ubuntu-syschk
+# Started On        - Mon 22 Jan 12:03:01 GMT 2018
+# Last Change       - Wed 11 Apr 19:36:52 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2018-04-11"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+INFO(){ [ "$VERBOSE" == "true" ] && printf "%s\n" "$1"; }
+ALERT(){ AC+=1; printf "ALERT: %s\n" "$1"; }
+
+DOM="https://github.com"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            UBUNTU-SYSCHK ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Performs various non-root system health checks on Ubuntu and similar.
+
+		SYNTAX:     ubuntu-syschk [OPTS] [CHECK1] [CHECK2] [CHECK3] ...
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --update|-U             - Check for updates to ubuntu-syschk.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --no-summary|-S         - Disables the post-checks summary.
+		            --ignore-distro|-I      - Ignores the distribution ID.
+		            --verbose|-V            - Makes ubuntu-syschk verbose.
+
+		CHECKS:     The following list contains toggle-able check methods:
+
+		            dpkgrc=0|1              - DPKG check for 'rc' packages.
+		            firewall=0|1            - UFW firewall check.
+		            grub=0|1                - The /boot/grub/grub.cfg check.
+		            ipspoof=0|1             - Check for extra IP spoof protection.
+		            logchk=0|1              - Check logs for warnings and errors.
+		            packages=0|1            - Package-related checks.
+		            password=0|1            - Password expiration check.
+		            perms=0|1               - Permission-related checks.
+		            safekern=0|1            - Checks for safer kernel values.
+		            services=0|1            - Checks for services.
+		            shmchk=0|1              - Noexec check for shared memory.
+		            sshsrv=0|1              - SSH server sshd_conf checks.
+		            storage=0|1             - Checks related to storage.
+		            swap=0|1                - Swap file/partition checks.
+		            swappiness=0|1          - Check for swappiness value.
+		            temps=0|1               - Temperature checks.
+
+		EXAMPLE:    ubuntu-syschk firewall=1 storage=1 swap=1 temps=1
+		            ubuntu-syschk -V --no-summary packages=1
+
+		NOTE:       Some features on some setups may fail due to needing root access. By
+		            default though, as of Ubuntu 16.04.3, a standard setup should be OK.
+
+		            Each CHECK can be toggled on (1) or off (0) after any OPTS. All CHECKS
+		            are by default set to 1, except sshsrv and logchk.
+
+		            This is mainly targeting Ubuntu systems, but it should support similar
+		            distributions, like Linux Mint, Debian, Zorin, etc.
+
+		CAVEAT:     The sshsrv check assumes OpenSSH; other SSH server software will NOT
+		            be picked up! Check with the software you installed.
+
+		SITE:       $DOM/terminalforlife/ubuntu-syschk
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--update|-U)
+			UPDATE="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--no-summary|-S)
+			NO_SUMMARY="true" ;;
+		--ignore-distro|-I)
+			IGNORE_DISTRO="true" ;;
+		--verbose|-V)
+			VERBOSE="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+INFO "Reading default and/or custom parameters."
+DPKGRC=0
+FIREWALL=0
+GRUB=0
+IPSPOOF=0
+LOGCHK=1
+PACKAGES=0
+PASSWORD=0
+PERMS=0
+SAFEKERN=0
+SERVICES=0
+SHMCHK=0
+SSHSRV=1
+STORAGE=0
+SWAP=0
+SWAPPINESS=0
+TEMPS=0
+
+while [ "$1" ]; do
+	case "$1" in
+		firewall=[01])
+			FIREWALL=${1/*=} ;;
+		services=[01])
+			SERVICES=${1/*=} ;;
+		swap=[01])
+			SWAP=${1/*=} ;;
+		temps=[01])
+			TEMPS=${1/*=} ;;
+		packages=[01])
+			PACKAGES=${1/*=} ;;
+		perms=[01])
+			PERMS=${1/*=} ;;
+		storage=[01])
+			STORAGE=${1/*=} ;;
+		safekern=[01])
+			SAFEKERN=${1/*=} ;;
+		swappiness=[01])
+			SWAPPINESS=${1/*=} ;;
+		password=[01])
+			PASSWORD=${1/*=} ;;
+		grub=[01])
+			GRUB=${1/*=} ;;
+		dpkgrc=[01])
+			DPKGRC=${1/*=} ;;
+		sshsrv=[01])
+			SSHSRV=${1/*=} ;;
+		shmchk=[01])
+			SHMCHK=${1/*=} ;;
+		ipspoof=[01])
+			IPSPOOF=${1/*=} ;;
+		logchk=[01])
+			LOGCHK=${1/*=} ;;
+		*)
+			XERR "$LINENO" "Incorrect CHECK value(s) specified." ;;
+	esac
+	shift
+done
+
+[ "$BEQUIET" == "true" ] && exec 1> /dev/null
+[ "$DEBUGME" == "true" ] && set -x
+
+if ! [ -x /usr/bin/wget ]; then
+	XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+fi
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if [ "$UPDATE" == "true" ]; then
+	INFO "Checking for available updates to ubuntu-syschk."
+	VERSION_URL="$DOM/terminalforlife/ubuntu-syschk/raw/master/version"
+	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				New version available:    $LATEST
+				Current version:          $_VERSION_
+			EOF
+		else
+			INFO "No updates are available."
+		fi
+	else
+		XERR "$LINENO" "Failed to check for available updates."
+	fi
+
+	exit 0
+fi
+
+if ! [ "$IGNORE_DISTRO" == "true" ]; then
+	INFO "Checking distribution ID via: /etc/os-release"
+	if [ -f /etc/os-release -a -r /etc/os-release ]; then
+		while IFS="=" read -a X; do
+			if [ "${X[0]//\"}" == "ID_LIKE" ]; then
+				if ! [[ "${X[1]//\"}" =~ (debian|ubuntu) ]]; then
+					XERR "$LINENO" "Unsupported distribution base."
+				fi
+
+				break
+			fi
+		done < /etc/os-release
+	else
+		XERR "$LINENO" "Unable to determine the distribution ID."
+	fi
+fi
+
+declare -i AC=0
+
+if [ $SERVICES -eq 0 ]; then
+	if [ -x /bin/systemctl ]; then
+		if [ $FIREWALL -eq 0 ]; then
+			INFO "Asking SystemD if the UFW service is active."
+			if ! /bin/systemctl -q is-active ufw; then
+				ALERT "SystemD detects the UFW service is inactive."
+			fi
+		fi
+
+		INFO "Checking operational state of the machine."
+		case "$(/bin/systemctl is-system-running)" in
+			degraded)
+				ALERT "The system is operational, but one or more units failed." ;;
+			maintenance)
+				ALERT "The rescue or emergency target is active." ;;
+			offline)
+				ALERT "The system manager is not running." ;;
+			unknown)
+				ALERT "The operational state could not be determined." ;;
+		esac
+	else
+		ERR "$LINENO" "Unable to find or access: /bin/systemctl"
+	fi
+
+	if [ -x /usr/bin/systemd-analyze ]; then
+		INFO "Loading and checking unit files with SystemD."
+		if ! /usr/bin/systemd-analyze verify; then
+			ALERT "SystemD detected one or more unit-related errors."
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/systemd-analyze"
+	fi
+fi
+
+if [ $PASSWORD -eq 0 ]; then
+	if [ -x /usr/bin/expiry ]; then
+		INFO "Checking current user's password expiration."
+		if ! /usr/bin/expiry -c; then
+			ALERT "Error(s) detected while checking password expiration."
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/expiry"
+	fi
+fi
+
+if [ $SWAP -eq 0 ]; then
+	if [ -x /sbin/swapon ]; then
+		INFO "Looking for active swap files or partitions."
+		readarray ARRAY <<< "$(/sbin/swapon --noheadings)"
+		if [ ${#ARRAY[@]} -eq 0 ]; then
+			ALERT "Unable to detect an active swap file/partition."
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: /sbin/swapon"
+	fi
+fi
+
+if [ $STORAGE -eq 0 ]; then
+	if [ -x /bin/df ]; then
+		while read -a X; do
+			if [[ "${X[0]}" == /dev/* ]]; then
+				INFO "Querying ${X[0]} for usage greater than 90%."
+				if [ "${X[1]%\%}" -gt 90 ]; then
+					ALERT "Low remaining storage space detected: ${X[0]}"
+				fi
+			fi
+		done <<< "$(/bin/df --output=source,pcent)"
+	else
+		ERR "$LINENO" "Unable to find or access: /bin/df"
+	fi
+
+	#TODO - Experimental, unfinished pure-shell approach.
+	#if [ -f /proc/partitions -a -r /proc/partitions ]; then
+	#	MATCH='^([sh]d[a-z]$|[sf][dr][0-9])$'
+
+	#	while read -a X; do
+	#		if [[ "${X[3]}" =~ $MATCH ]]; then
+	#			printf -v SIZE "%d\n" "${X[2]}"
+	#			printf -v NAME "%s\n" "${X[3]}"
+
+	#			#if [
+	#		fi
+	#	done < /proc/partitions
+	#else
+	#	ERR "$LINENO" "Unable to find or access: /sys/block"
+	#fi
+fi
+
+if [ $PERMS -eq 0 ]; then
+	if [ -x /usr/bin/stat ]; then
+		STAT(){
+			if [ -e "$1" ]; then
+				if [ -d "$1" ]; then
+					INFO "Checking metadata for directory: $1"
+				elif [ -f "$1" ]; then
+					INFO "Checking metadata for file: $1"
+				fi
+
+				STAT=`/usr/bin/stat --print "%a" "$1"`
+				OG=`/usr/bin/stat --print "%u %g" "$1"`
+				read OWNER GROUP <<< "$OG"
+
+				if ! [ "$3" == "X" ] && ! [ $OWNER -eq $3 ]; then
+					ALERT "Owner $OWNER detected: $1"
+				fi
+
+				if ! [ "$4" == "X" ] && ! [ $GROUP -eq $3 ] ; then
+					ALERT "Group $GROUP detected: $1"
+				fi
+
+				if ! [ "$2" == "XXX" ] && [ $STAT -gt $2 ]; then
+					ALERT "Unsafe permissions ($STAT) detected: $1"
+				fi
+			fi
+		}
+
+		for ITEM in /{root,boot}; {
+			STAT "$ITEM" 700 0 0
+		}
+
+		for ITEM in\
+		\
+			/var /etc /bin /sbin /dev /cdrom /lib\
+			/lib64 /media /mnt /srv /usr /sys /proc;
+		{
+			STAT "$ITEM" 755 0 0
+		}
+
+		STAT /etc/passwd 644 0 0
+		STAT /etc/shadow 640 0 X #TODO - Find and check the correct GID.
+
+		for ITEM in /home/*; {
+			if [ "$ITEM" == "/home/lost+found" ]; then
+				STAT "$ITEM" 700 0 0
+			elif [ "$ITEM" == "$HOME" ]; then
+				STAT "$ITEM" 700 $UID $UID
+			else
+				STAT "$ITEM" 700 X X
+			fi
+		}
+
+		for DIR in ${PATH//:/ }; {
+			if [ -d "$DIR" ]; then
+				INFO "Checking metadata of executables in: $DIR"
+				for FILE in "$DIR"/*; {
+					[ -L "$FILE" ] && continue
+					STAT "$FILE" XXX 0 X
+
+					#TODO - Check group, and if it's not 0, -
+					#       then check, depending on the file
+					#       being processed, whether it matches
+					#       the correct group for that file.
+				}
+			else
+				ALERT "PATH Directory missing: $DIR"
+			fi
+		}
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/stat"
+	fi
+fi
+
+if [ $PACKAGES -eq 0 ]; then
+	if [ -x /usr/bin/apt-get ]; then
+		INFO "Asking APT if there are any package changes."
+		OPT='APT::Get::Show-User-Simulation-Note=0'
+		while read -a X; do
+			if [[ "${X[*]}" == *not\ to\ upgrade. ]]; then
+				SUM="$((${X[0]}+${X[3]}))"
+				if ! [[ "$SUM" =~ ^[0-9]+$ ]]; then
+					ERR "$LINENO" "Invalid SUM detected."
+				elif [ $SUM -gt 0 ]; then
+					ALERT "APT has detected $SUM package change(s)."
+				fi
+
+				break
+			fi
+		done <<< "$(/usr/bin/apt-get -o "$OPT" -q -s dist-upgrade)"
+
+		INFO "Asking APT if there are any missing dependencies."
+		INSCHK=`/usr/bin/apt-get -o "$OPT" -qq -s install -f`
+		[ -n "$INSCHK" ] && ALERT "Missing dependencies are available to be fixed."
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/apt-get"
+	fi
+
+	if [ -x /usr/bin/dpkg ]; then
+		INFO "Performing database sanity and consistency checks."
+		if ! /usr/bin/dpkg --audit; then
+			ALERT "One or more APT database checks have failed."
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/dpkg"
+	fi
+fi
+
+if [ $TEMPS -eq 0 ]; then
+	if [ -x /usr/bin/sensors ]; then
+		INFO "Checking hardware sensors for high CPU temperature."
+		while read -a X; do
+			if [ "${X[0]}${X[1]}${X[2]}" == "Physicalid0:" ]; then
+				TEMP="${X[3]//[!0-9]}"
+				if [[ "$TEMP" =~ ^[0-9]+$ ]]; then
+					if [ $TEMP -gt 800 ]; then
+						ALERT "Current CPU temperature exceeding 80°C!"
+					fi
+				else
+					ERR "$LINENO" "Unable to determine the temperature of the CPU."
+				fi
+
+				break
+			fi
+		done <<< "$(/usr/bin/sensors -A)"
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/sensors"
+	fi
+fi
+
+if [ $SAFEKERN -eq 0 ]; then
+	KERN(){
+		P="${1//\//.}"
+		P="${P/\/proc\/sys\/}"
+		INFO "Checking parameter: $P"
+		declare -i V=`< /"$1"`
+		if ! [ -f /"$1" ]; then
+			printf "Skipping checks for non-existent: $P\n"
+		elif ! [ $V -eq $2 ]; then
+			ALERT "${3:-Unsecure} value of '$V' (!$2) at: $P"
+		fi
+	}
+
+	# These are Ubuntu-recommended settings, mentioned in /etc/sysctl.conf, and
+	# some settings are mentioned on the Arch Wiki's security section.
+
+	# Log martians.
+	KERN "proc/sys/net/ipv4/conf/all/log_martians" 1
+	KERN "proc/sys/net/ipv4/icmp_ignore_bogus_error_responses" 1
+
+	# Protects against IP spoofing.
+	KERN "proc/sys/net/ipv4/conf/all/rp_filter" 1
+	KERN "proc/sys/net/ipv4/conf/default/rp_filter" 1
+
+	# Not a router. Also ignores ICMP redirects.
+	KERN "proc/sys/net/ipv4/conf/all/accept_redirects" 0
+	KERN "proc/sys/net/ipv6/conf/all/accept_redirects" 0
+	KERN "proc/sys/net/ipv4/conf/all/send_redirects" 0
+	KERN "proc/sys/net/ipv4/conf/default/send_redirects" 0
+	KERN "proc/sys/net/ipv4/conf/all/accept_source_route" 0
+	KERN "proc/sys/net/ipv6/conf/all/accept_source_route" 0
+	KERN "proc/sys/net/ipv4/conf/default/accept_source_route" 0
+	KERN "proc/sys/net/ipv6/conf/default/accept_source_route" 0
+
+	# Block SYN attacks.
+	KERN "proc/sys/net/ipv4/tcp_syncookies" 1
+	KERN "proc/sys/net/ipv4/tcp_max_syn_backlog" 2048 Unrecommended
+	KERN "proc/sys/net/ipv4/tcp_synack_retries" 2 Unrecommended
+	KERN "proc/sys/net/ipv4/tcp_syn_retries" 5 Unrecommended
+
+	# Ignore pings.
+	KERN "proc/sys/net/ipv4/icmp_echo_ignore_all" 1
+
+	# General system security.
+	KERN "proc/sys/kernel/dmesg_restrict" 1
+	KERN "proc/sys/kernel/kptr_restrict" 1
+	KERN "proc/sys/kernel/yama/ptrace_scope" 1
+fi
+
+if [ $SWAPPINESS -eq 0 ]; then
+	INFO "Looking for potentially inappropriate swappiness."
+	FILE="/proc/sys/vm/swappiness"
+	if [ -f "$FILE" -a -r "$FILE" ]; then
+		SWAP=`< "$FILE"`
+		#TODO - Have this check also assess a sensible swappiness value
+		#       depending on the amount of RAM the user has.
+		if [ $SWAP -gt 30 ]; then
+			ALERT "Potentially unsuitable swappiness: $SWAP"
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: $FILE"
+	fi
+fi
+
+if [ $GRUB -eq 0 ]; then
+	if [ -x /usr/bin/grub-script-check ]; then
+		if [ -r /boot/grub/grub.cfg ]; then
+			INFO "Checking /boot/grub/grub.cfg for errors."
+			if ! /usr/bin/grub-script-check /boot/grub/grub.cfg; then
+				ALERT "One or more errors found in: /boot/grub/grub.cfg"
+			fi
+		else
+			ERR "$LINENO" "Unable to find or access: /boot/grub/grub.cfg"
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/grub-script-check"
+	fi
+fi
+
+if [ $SHMCHK -eq 0 ]; then
+	if [ -x /bin/mount ]; then
+		# Ubuntu-recommended settings.
+		while read -a X; do
+			if [ "${X[0]}${X[2]}" == "tmpfs/dev/shm" ]; then
+				IFS="(" read -a X <<< "${X[5]%)}"
+				for O in ${X[1]//,/ }; {
+					OKMATCH='^(rw|ro|nosuid|nodev)$'
+					if [[ "$O" =~ $OKMATCH ]]; then
+						continue
+					elif [ "$O" == "noexec" ]; then
+						N="true"
+					else
+						ALERT "Unknown mount option '$O' detected: /dev/shm"
+					fi
+				}
+
+				if ! [ "$N" == "true" ]; then
+					ALERT "Mount option 'noexec' not found: /dev/shm"
+				fi
+
+				break
+			fi
+		done <<< "$(/bin/mount)"
+	else
+		ERR "$LINENO" "Unable to find or access: /bin/mount"
+	fi
+fi
+
+if [ $DPKGRC -eq 0 ]; then
+	if [ -x /usr/bin/dpkg ]; then
+		#TODO - Add a blacklist for the user!
+		INFO "Querying DPKG for packages with an 'rc' status."
+		while read -ra REPLY; do
+			if [ "${REPLY[0]}" == rc ]; then
+				ALERT "DPKG reports 'rc' package: ${REPLY[1]}"
+			fi
+		done <<< "$(/usr/bin/dpkg -l 2> /dev/null)"
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/dpkg"
+	fi
+fi
+
+if [ $IPSPOOF -eq 0 ]; then
+	FILE="/etc/host.conf"
+	INFO "Checking IP spoof preventative measures: $FILE"
+	if [ -f "$FILE" -a -r "$FILE" ]; then
+		while read -a X; do
+			if [ "${X[0]}${X[1]}" == "orderbind,hosts" ]; then
+				PASS1="true"
+			elif [ "${X[0]}${X[1]}" == "nospoofon" ]; then
+				PASS2="true"
+			fi
+		done < "$FILE"
+
+		#TODO - I'm not sure if this is too aggressive. What if the user
+		#       has other priorities set here? Perhaps check for however
+		#       many comma-separated fields there are, to ascertain whether
+		#       the use-case is non-standard.
+		if ! [ "$PASS1" == "true" ]; then
+			ALERT "Safer setting 'order bind,hosts' not found: $FILE"
+		fi
+
+		if ! [ "$PASS2" == "true" ]; then
+			ALERT "Safer setting 'nospoof on' not found: $FILE"
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: $FILE"
+	fi
+fi
+
+if [ $SSHSRV -eq 0 ]; then
+	if [ -x /usr/bin/dpkg-query ]; then
+		INFO "Checking for safer SSH server settings: $FILE"
+		if ! /usr/bin/dpkg-query -W openssh-server &> /dev/null; then
+			ERR "$LINENO" "Is the OpenSSH server installed?"
+		else
+			MATCH1="^[Pp]ermit[Rr]oot[Ll]ogin no$"
+			MATCH2="^[Pp]ort [0-9]+$"
+			MATCH3="^[Pp]assword[Aa]uthentication no$"
+			FILE="/etc/ssh/sshd_config"
+			if [ -f "$FILE" -a -r "$FILE" ]; then
+				while read LINE; do
+					if ! [[ "$LINE" =~ $MATCH1 ]]; then
+						ALERT "Root login via SSH is enabled: $FILE"
+					elif ! [[ "$LINE" =~ $MATCH2 ]]; then
+						ALERT "The SSH server port '22' is too common: $FILE"
+					elif ! [[ "$LINE" =~ $MATCH3 ]]; then
+						ALERT "SSH server login via password enabled: $FILE"
+					fi
+				done < "$FILE"
+			fi
+		fi
+	else
+		ERR "$LINENO" "Unable to find or access: /usr/bin/ssh"
+	fi
+fi
+
+# Probably not much use, which is why it's not enabled by default.
+if [ $LOGCHK -eq 0 ]; then
+	for FILE in /var/log/{boot.log,syslog}; {
+		declare -i WARNING=0
+		declare -i ERROR=0
+		if [ -f "$FILE" -a -r "$FILE" ]; then
+			while read; do
+				case "$REPLY" in
+					*[Ww][Aa][Rr][Nn][Ii][Nn][Gg]*)
+						WARNING+=1 ;;
+					*[Ee][Rr][Rr][Oo][Rr]*)
+						ERROR+=1 ;;
+				esac
+			done < "$FILE"
+
+			if [ $WARNING -gt 0 ]; then
+				ALERT "File ${FILE##*/} has `printf "%'d" "$WARNING"` line(s) with 'WARNING' in it."
+			fi
+
+			if [ $ERROR -gt 0 ]; then
+				ALERT "File ${FILE##*/} has `printf "%'d" "$ERROR"` line(s) with 'ERROR' in it."
+			fi
+		else
+			ERR "$LINENO" "Unable to find or access: $FILE"
+		fi
+	}
+fi
+
+if ! [ "$NO_SUMMARY" == "true" ]; then
+	[ $AC -gt 0 ] || printf "Nothing to report!\n\n"
+	printf "DATE       - %(%F (%X))T\n" "-1"
+	printf "USER       - %s (%d)\n" "$USER" "$UID"
+	printf "ALERTS     - %d\n" "$AC"
+fi
+
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
