@@ -1,0 +1,86 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - lspkg/lspkg-set
+# Started On        - Wed 24 Jan 17:31:41 GMT 2018
+# Last Change       - Sat  7 Apr 16:03:15 BST 2018
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2018-04-07"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            LSPKG-SET ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Add-on for lspkg to output sets of installed packages.
+
+		SYNTAX:     lspkg-set [OPT]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --essential|-E          - Display the essential packages.
+		            --extra|-e              - Display the extra packages.
+		            --required|-R           - Display the required packages.
+		            --optional|-o           - Display the optional packages.
+		            --important|-I          - Display the important packages.
+
+		NOTE:       Much like lspkg, this shell program is only compatible with Debian or
+		            Ubuntu based systems, as it parses dpkg-query's output.
+	EOF
+}
+
+case "$*" in
+	--help|-h|-\?)
+		USAGE; exit 0 ;;
+	--version|-v)
+		printf "%s\n" "$_VERSION_"
+		exit 0 ;;
+	--essential|-E)
+		TYPE="Essential:yes" ;;
+	--extra|-e)
+		TYPE="Priority:extra" ;;
+	--required|-R)
+		TYPE="Priority:required" ;;
+	--optional|-o)
+		TYPE="Priority:optional" ;;
+	--important|-I)
+		TYPE="Priority:important" ;;
+	*)
+		XERR "$LINENO" "Incorrect argument(s) specified." ;;
+esac
+
+if ! [ -x "/usr/bin/dpkg-query" ]; then
+	XERR "$LINENO" "Dependency '/usr/bin/dpkg-query' not met."
+fi
+
+#TODO - Not seeing the Binary:Summary of the packages.
+
+FMT1="\${db:Status-Abbrev} \${${TYPE%:*}} "
+FMT2="\${Package} - \${Binary:Summary}"
+
+while read -a X; do
+	if [ "${X[0]}" == "ii" -a "${X[1]}" == "${TYPE/*:}" ]; then
+		printf -v INUM "%d" "$((${#X[@]}-1))"
+
+		OLD="$NEW"
+		NEW=$(
+			for FIELD in `eval printf {2..$INUM}`; {
+				printf "%s " "${X[FIELD]}"
+			}
+		)
+
+		if ! [ "$NEW" == "$OLD" ]; then
+			printf "%s\n" "$NEW"
+		fi
+	fi
+done <<< "$(/usr/bin/dpkg-query -Wf="${FMT1}${FMT2}\n" \*)"
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
