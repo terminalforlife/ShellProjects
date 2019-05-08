@@ -1,0 +1,164 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - ripmydvd
+# Started On        - Fri 29 Sep 21:19:47 BST 2017
+# Last Change       - Fri 26 Apr 14:17:57 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-04-26"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            RIPMYDVD ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Shell program using ffmpeg and mplayer to rip your DVD.
+
+		SYNTAX:     ripmydvd [OPTS] TARGET
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --title|-t N[-N]        - Where N is the title number on the DVD. The
+		                                      title choice can be specified by a range.
+		            --eject|-e              - Eject the device's tray upon completion.
+		            --nosummary             - Don't display a summary before exiting.
+		            --device|-d X           - Where X is the device from which to rip. By
+		                                      default, this will be /dev/sr0.
+		            --startcmd CMD          - Execute CMD command before ripping begins.
+		            --endcmd CMD            - Execute CMD command when ripping is done.
+		            --aid X                 - Where X is the audio channel.
+		            --asid X                - Where X is the audio substream ID.
+		            --alang X               - Where X is the audio language; en or eng?
+		            --combine|-C            - Wrong language? This option should work.
+
+		NOTE:       You may wish to use lsdvd to help you especially with audio.
+
+		            The --combine|-C option requires --aid or --alang. This will rip the
+		            audio and video separately, then they will be combined into TARGET.
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--device|-d)
+			shift
+
+			[ -b "$1" ] || XERR "$LINENO" "Device not found at: $1"
+			DEVICE="$1" ;;
+		--combine|-C)
+			COMBINE="true" ;;
+		--title|-t)
+			shift
+
+			if [[ "$1" =~ ^([0-9]+|[0-9]+-[0-9]+)$ ]]; then
+				TITLE="$1"
+			else
+				XERR "$LINENO" "Invalid title."
+			fi ;;
+		--aid)
+			shift
+
+			AID="-aid $1" ;;
+		--asid)
+			shift
+
+			ASID="-asid $1" ;;
+		--alang)
+			shift
+
+			ALANG="-alang $1" ;;
+		--eject|-e)
+			EJECT="true" ;;
+		--nosummary)
+			SUMMARY="false" ;;
+		--startcmd)
+			shift
+
+			START_COMMAND="$1" ;;
+		--endcmd)
+			shift
+
+			END_COMMAND="$1" ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+TARGET="$*"
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{eject,mkfifo,ffmpeg,mplayer}; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ -z "$TARGET" ] && XERR "$LINENO" "You need to provide a filename."
+[ -z "$TITLE" ] && XERR "$LINENO" "Which title do you want to rip?"
+[ -z "$DEVICE" ] && DEVICE="/dev/sr0"
+
+[ "$BEQUIET" == "true" ] && exec >&-
+[ "$DEBUGME" == "true" ] && set -x
+
+FIFO="/tmp/stream_${$}.dump"
+MPARGS1="$AID $ASID $ALANG -nosub -really-quiet -nolirc -nocache -vo x11 -zoom"
+MPARGS2="-dumpstream -dumpfile "$FIFO" dvd://$TITLE/$DEVICE"
+declare -i SECONDS=0
+
+[ -n "$START_COMMAND" ] && ($START_COMMAND)
+
+/usr/bin/mkfifo "$FIFO"
+
+if [ "$COMBINE" == "true" ]; then
+	if [ -z "$ALANG" -a -z "$AID" ]; then
+		XERR "$LINENO" "The --combine argument requires -alang or -aid."
+	fi
+
+	/usr/bin/mplayer $MPARGS1 -dumpaudio -dumpfile "/tmp/audio.dump"\
+		dvd://$TITLE/$DEVICE >&- 2>&-
+
+	/usr/bin/mplayer $MPARGS1 -dumpvideo -dumpfile "$FIFO"\
+		dvd://$TITLE/$DEVICE >&- 2>&- & disown
+
+	/usr/bin/ffmpeg -loglevel fatal -stats\
+		-i /tmp/audio.dump -i "$FIFO" "$TARGET"
+else
+	/usr/bin/mplayer $MPARGS1 $MPARGS2 >&- 2>&- & disown
+	/usr/bin/ffmpeg -loglevel fatal -stats -i "$FIFO" "$TARGET"
+fi
+
+if [ "$SUMMARY" == "false" ]; then
+	printf "\aJob on %s ran for %d seconds.\n" "$DEVICE" "$SECONDS"
+fi
+
+[ -n "$END_COMMAND" ] && ($END_COMMAND)
+
+if [ "$EJECT" == "true" ]; then
+	/usr/bin/eject $DEVICE
+fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
