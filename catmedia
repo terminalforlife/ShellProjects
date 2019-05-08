@@ -1,0 +1,129 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - catmedia (originally in miscellaneous)
+# Started On        - Sun 15 Oct 13:16:02 BST 2017
+# Last Change       - Fri 26 Apr 14:58:21 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-04-26"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            CATMEDIA ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Concatenate media files originally separated in parts.
+
+		SYNTAX:     catmedia [OPTS] IN1 IN2 IN3 . . . OUT
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
+
+		WARNING:    This only works if you're IN the directory with the media parts.
+
+		NOTE:       Where INPUT is the file parts to be concatenated, and OUTPUT is the
+		            single file to be created from the INPUT files.
+
+		FILE:       A list of part files is temporarily stored in:
+
+		              /tmp/filelist_\$RANDOM.txt
+
+		            This file will be removed upon completion.
+	EOF
+}
+
+TEMP="/tmp/filelist_$RANDOM.txt"
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		-*)
+			XERR "$LINENO" "Incorrect OPT specified. See: --help|-h|-?" ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/ffmpeg /bin/rm; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	else
+		if [ "$DEP" == "/usr/bin/ffmpeg" ]; then
+			read -a VERSION <<< `/usr/bin/ffmpeg -version`
+			BUFFER=${VERSION[2]%.*-*}
+			MAJOR=${BUFFER%.*}
+			MINOR=${BUFFER/*.}
+
+			if ! [[ "$BUFFER" =~ ^[0-9]+\.[0-9]+$ ]]; then
+				XERR "$LINENO" "Unable to determine required version of ffmpeg."
+			elif ! [ "$MAJOR" -ge 1 -a "$MINOR" -ge 1 ]; then
+				XERR "$LINENO" "Version 1.1 or greater of ffmpeg required."
+			fi
+		fi
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ "$BEQUIET" == "true" ] && exec >&-
+[ "$DEBUGME" == "true" ] && set -x
+
+# Process the input files.
+declare -i INCOUNT=0
+while [ "$1" ]; do
+	# Ensures it doesn't count the output file.
+	[ "$2" ] || break && shift
+
+	INPUT+=" ${1// /%20}"
+	INCOUNT+=1
+done
+
+OUTPUT="${1// /%20}"
+
+if [ $INCOUNT -eq 0 ]; then
+	XERR "$LINENO" "At least two inputs and an output is required."
+elif ! [ "$OUTPUT" ]; then
+	XERR "$LINENO" "At least two inputs and an output is required."
+elif ! [ -d /tmp ]; then
+	XERR "$LINENO" "Unable to access the /tmp directory."
+fi
+
+# Creating the temporary file list for ffmpeg.
+for PART in $INPUT; {
+	printf "file '%s'\n" "$PWD/${PART//%20/ }"
+} > "$TEMP"
+
+# Concatenation begins here.
+while read -a REPLY; do
+	if [[ "$REPLY" == frame=* ]]; then
+		printf "\rPROGRESS: SIZE=\"${REPLY[5]/*=}\" TIME=\"${REPLY[6]/*=}\""
+	else
+		continue
+	fi
+done <<< "$(
+	/usr/bin/ffmpeg -v 0 -stats -f concat -safe 0 -i "$TEMP" "${OUTPUT//%20/ }"
+)"
+
+/bin/rm -f "$TEMP"
