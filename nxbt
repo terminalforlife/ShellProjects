@@ -1,0 +1,226 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/nxbt
+# Started On        - Fri  6 Oct 17:52:55 BST 2017
+# Last Change       - Fri 26 Apr 14:12:50 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-04-26"
+
+declare -i SECONDS=0
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+DOM="https://github.com"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            NXBT - NEW XBT ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            A fork and improvement of the XBT program written by Joe Collins.
+
+		SYNTAX:     nxbt [OPTS] TARGET
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --update|-U             - Check for updates to nxbt.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --log|-l PATH           - Choose a different location for the logfile.
+
+		NOTE:       Where TARGET is the location to store the backed up files. The files
+		            will be stored within a timestamped directory. An example TARGET:
+
+		              nxbt /media/\$USER/Backup_Drive/
+
+		FILE:       By default, errors are redirected to: /tmp/nxbt_*.log
+
+		SITE:       $DOM/terminalforlife/nxbt
+	EOF
+}
+
+#		            --source|-s PATH        - Choose a different location to back up.
+#		            --and-source|-S PATH    - Custom source to back up, with the defaults.
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--update|-U)
+			UPDATE="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--logfile|-l)
+			shift
+			if [ -d "${1%\/*}" ]; then
+				LOGFILE="$1"
+			else
+				XERR "$LINENO" "Logfile directory not found."
+			fi ;;
+#		--source|-s)
+#			shift
+#			if [ -d "${1%\/*}" ]; then
+#				SOURCE+=" $1"
+#			else
+#				XERR "$LINENO" "Source directory not found."
+#			fi ;;
+#		--and-source|-S)
+#			shift
+#			if [ -d "${1%\/*}" ]; then
+#				ANDSOURCE="true" SOURCE+=( "$1")
+#			else
+#				XERR "$LINENO" "Source directory not found."
+#			fi ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{wget,rsync} /bin/{mkdir,sync}; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if [ "$UPDATE" == "true" ]; then
+	VERSION_URL="$DOM/terminalforlife/nxbt/raw/master/version"
+	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				New version available:    $LATEST
+				Current version:          $_VERSION_
+			EOF
+		fi
+	else
+		XERR "$LINENO" "Failed to check for available updates."
+	fi
+
+	exit 0
+fi
+
+#XERR "$LINENO" "Incorrect option(s) specified." ;;
+[ "$BEQUIET" == "true" ] && exec >&-
+[ "$DEBUGME" == "true" ] && set -x
+
+[ -d "$*" ] || XERR "$LINENO" "Unable to find or access the TARGET directory."
+
+TARGET="$*"
+[ -f "$TARGET" ] && XERR "Target is not a directory."
+[[ "$TARGET" == */ ]] || TARGET+="/"
+
+printf -v CURDATE "%(%F_%X)T" "-1"
+#TODO - Make the logfile skip the whole /tmp part; redundant.
+LOGFILE="/tmp/nxbt_${USER}_${CURDATE}.log"
+BACKNAME="NXBT_${UID}_${CURDATE}"
+if ! [ -d "$BACKNAME" ]; then
+	/bin/mkdir "${TARGET}${BACKNAME}" || exit $?
+fi
+
+printf "[+%0.7d] LOGGING: %s\n" "$SECONDS" "$LOGFILE"
+printf "[%s]: TARGET='%s' FROM='%s' USER='%s' UID='%s'\n"\
+	"${CURDATE:-???}" "${TARGET:-???}" "${HOSTNAME:-???}"\
+	"${USER:-???}" "${UID:-???}" > "$LOGFILE"
+
+DEFAULT_PATHS(){
+	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$HOME"
+	TARGETPATH="${TARGET}${BACKNAME}/$USER/"
+	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
+
+	/usr/bin/rsync -a --delete --info=progress2\
+		"$HOME" "$TARGETPATH" 2> "$LOGFILE"
+
+	printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "/etc"
+	TARGETPATH="${TARGET}${BACKNAME}/etc/"
+	[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
+
+	/usr/bin/rsync -a --delete --info=progress2\
+		"/etc" "$TARGETPATH" 2> "$LOGFILE"
+}
+
+USER_PATH(){
+	#TODO - Incorporate multiple optional sources, maybe using for loop.
+
+	# Back up user-provided files.
+	for I in $SOURCE; {
+		printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$SOURCE"
+		TARGETPATH="${TARGET}/${BACKNAME}/${SOURCE//*\/}"
+		[ -d "$TARGETPATH" ] || /bin/mkdir "$TARGETPATH"
+
+		/usr/bin/rsync -a --delete --info=progress2\
+			"$SOURCE" "$TARGETPATH"/ 2> "$LOGFILE"
+	}
+}
+
+# Use either custom path alone, or custom path plus defaults.
+if ! [ "$SOURCE" ]; then
+	DEFAULT_PATHS
+else
+	if [ "$ANDSOURCE" == "true" ]; then
+		DEFAULT_PATHS; USER_PATH
+	else
+		USER_PATH
+	fi
+fi
+
+printf "[+%0.7d] SYNCHRONIZING...\n" "$SECONDS"
+/bin/sync
+
+if [ -f "$LOGFILE" ]; then
+	readarray REPLY < "$LOGFILE"
+	if [ "${REPLY[*]}" ]; then
+		printf "[+%0.7d] SAVING: %s\n" "$SECONDS"\
+			"${TARGET}${BACKNAME}/${LOGFILE//*\/}"
+
+		READ="$(< $LOGFILE)"
+		printf "%s\n" "$READ" > "${TARGET}${BACKNAME}/${LOGFILE//*\/}"
+	else
+		printf "[+%0.7d] CLEANING: %s\n" "$SECONDS" "$LOGFILE"
+	fi
+else
+	XERR "$LINENO" "Logfile not found."
+fi
+
+if [ -f "$LOGFILE" ]; then
+	readarray X < "$LOGFILE"
+	declare -i ERRCOUNT=${#X[@]}
+fi
+
+while read -r; do
+	printf "%s\n" "$REPLY"
+done <<-EOF
+
+	+————————————————+
+	| All backed up! |
+	+————————————————+
+
+	TIME: ${SECONDS:-???}s
+	LINE: ${ERRCOUNT:-???}
+EOF
+
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
