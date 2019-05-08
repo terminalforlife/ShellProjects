@@ -1,0 +1,102 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/autoscrot
+# Started On        - Sun 17 Sep 05:06:50 BST 2017
+# Last Change       - Fri 26 Apr 14:52:59 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-04-26"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            AUTOSCROT ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Tool to take full screenshots at user-specified intervals using scrot.
+
+		SYNTAX:     autoscrot [OPTS] [SCROT_ARGS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --interval|-I N         - Where N is the seconds of interval.
+
+		NOTE:       If no interval is provided, a default of 3 will be used.
+
+		            The scrot arguments (via SCROT_ARGS) are completely optional. Due to
+		            the nature of autoscrot, obviously some argument will make no sense to
+		            pass over to scrot to process, such as the -h and probably -s flags.
+
+		            Images are saved at the default quality for JPG images.
+
+		FILE:       Screenshots saved in: \$HOME/Pictures/AutoScrot/
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--quiet|-q)
+			BEQUIET="true" ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--interval|-I)
+			shift; INTERVAL="$1"
+			if ! [[ "${INTERVAL}" =~ ^[0-9]+$ ]]\
+			|| [ $INTERVAL -lt 1 ]; then
+				XERR "$LINENO" "Invalid interval selected."
+			fi ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument specified." ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/scrot /bin/{mkdir,sleep}; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -gt 0 ] && exit 1
+
+[ "$BEQUIET" == "true" ] && exec >&-
+[ "$DEBUGME" == "true" ] && set -x
+
+printf "Press Ctrl + C to cancel and exit autoscrot.\n"
+
+declare -i NUM=0
+while :; do
+	/bin/sleep ${INTERVAL:-3}s
+
+	MAIN_DIR="$HOME/Pictures/AutoScrot"
+	[ -d "$MAIN_DIR" ] || /bin/mkdir -p "$MAIN_DIR"
+	printf -v FILENAME "%s/Screenshot_%(%F_%X)T.jpg" $MAIN_DIR -1
+
+	if /usr/bin/scrot $@ "$FILENAME"; then
+		NUM+=1
+		printf "\rScreenshots taken:   %'d" "$NUM"
+	else
+		ERR "$LINENO" "Non-zero exit status for screenshot #${NUM}."
+	fi
+done
+printf "\n"
