@@ -1,0 +1,143 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - simwea
+# Started On        - Sun 17 Sep 22:16:30 BST 2017
+# Last Change       - Sun  5 May 23:21:34 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-05-05"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+DOM="https://darksky.net"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            SIMWEA ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Display various weather statistics on a terminal.
+
+		SYNTAX:     simwea [OPTS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --fahrenheit|-F         - Display temperature in Fahrenheit.
+		            --celsius|-C            - Display temperature in Celsius.
+		            --long|-l N             - Where N is the longitude coordinate.
+		            --lat|-L N              - Where N is the latitude coordinate.
+
+		CAVEAT:     Currently, simwea only supports UK and US localisations.
+
+		SITE:       $DOM
+	EOF
+}
+
+[ $# -eq 0 ] && XERR "$LINENO" "Arguments are required."
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--fahrenheit|-F)
+			UKUS="us"; SYM="°F" ;;
+		--celsius|-C)
+			UKUS="uk"; SYM="°C" ;;
+		--long|-l)
+			shift
+			if [[ "$1" =~ [-0-9.]+ ]]; then
+				LONG="$1"
+			else
+				XERR "$LINENO" "Invalid longitude."
+			fi ;;
+		--lat|-L)
+			shift
+			if [[ "$1" =~ [-0-9.]+ ]]; then
+				LAT="$1"
+			else
+				XERR "$LINENO" "Invalid latitude."
+			fi ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if [ -n "$*" ]; then
+	XERR "$LINENO" "Incorrect argument(s) given."
+elif [ -z "$UKUS" ] || [ -z "$SYM" ]; then
+	XERR "$LINENO" "Missing Fahrenheit or Celsius arguments."
+elif [ -z "$LONG" ] || [ -z "$LAT" ]; then
+	XERR "$LINENO" "Missing longitude and latitude arguments."
+fi
+
+[ "$DEBUGME" == "true" ] && set -x
+
+PAGE="$DOM/forecast/${LONG},${LAT}/${UKUS}12/en"
+
+while read LINE; do
+	if [[ "$LINE" == *currently\ =* ]]; then
+		RESULT="$(
+			IFS="," read -a FIELD <<< "${LINE//['{}"=']}"
+			if ! [ "${FIELD[0]}" == "currently" ]; then
+				printf "%s\n" "${FIELD[@]// /%20}"
+			fi
+		)"
+
+		while IFS=":" read -a LINE; do
+			DONE="${LINE[1]//%20/ }"
+			case "${LINE[0]}" in
+				summary)
+					printf "%-20s%s\n" "Summary:" "$DONE" ;;
+				apparentTemperature)
+					printf "%-20s%s%s\n" "ApparentTemp:" "$DONE" "${SYM}" ;;
+				temperature)
+					printf "%-20s%s%s\n" "ActualTemp:" "$DONE" "${SYM}" ;;
+				precipIntensity)
+					printf "%-20s%s\n" "PrecipIntensity:" "$DONE" ;;
+				precipProbability)
+					printf "%-20s%s\n" "PrecipChance:" "$DONE" ;;
+				precipType)
+					printf "%-20s%s\n" "PrecipType:" "$DONE" ;;
+				windSpeed)
+					printf "%-20s%smph\n" "WindSpeed:" "$DONE" ;;
+				windGust)
+					printf "%-20s%smph\n" "WindGust:" "$DONE" ;;
+				windBearing)
+					printf "%-20s%s\n" "WindBearing:" "$DONE" ;;
+				pressure)
+					printf "%-20s%shPa\n" "AirPressure:" "$DONE" ;;
+				humidity)
+					printf "%-20s%s%%\n" "Humidity:" "$DONE" ;;
+				visibility)
+					printf "%-20s%smi\n" "Visibility:" "$DONE" ;;
+				uvIndex)
+					printf "%-20s%s\n" "UVIndex:" "$DONE" ;;
+				ozone)
+					printf "%-20s%s\n" "Ozone:" "$DONE" ;;
+				cloudCover)
+					printf "%-20s%s\n" "CloudCover:" "$DONE" ;;
+			esac
+		done <<< "$RESULT"
+		break
+	fi
+done <<< "$(/usr/bin/wget $NOWARC -q "$PAGE" -O -)"
