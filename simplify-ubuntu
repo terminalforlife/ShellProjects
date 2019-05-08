@@ -1,0 +1,2164 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - miscellaneous/simplify-ubuntu
+# Started On        - Fri 12 Jan 04:52:52 GMT 2018
+# Last Change       - Fri 26 Apr 14:10:44 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Q-COUNT = 168
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-04-26"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+SAY(){ printf "%s\n" "$1"; }
+
+DOM="https://github.com"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            SIMPLIFY-UBUNTU ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Project to lighten Ubuntu 16.04.* LTS installations.
+
+		SYNTAX:     simplify-ubuntu [OPTS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to simplify-ubuntu.
+		            --debug|-D              - Enables the built-in bash debugging.
+		            --purge|-p              - Purge package's global configuration files.
+		            --ignore-fonts|-F       - Don't ask any questions about fonts.
+		            --no-ask-de|-N          - Don't ask questions related to a specific DE.
+		            --ignore-lsb|-L         - Don't check the distribution via lsb_release.
+		            --yes-apt|-Y            - Put APT in the driving seat. Dangerous! This
+		                                      is the equivalent of apt-get's -qq flag.
+
+		NOTE:       Simplify-ubuntu also supports Linux Mint.
+
+		CAVEAT:     This utility will not be suitable if you're compiling software, -
+		            yourself, or heavily relying on another package manager, such as PIP.
+
+		WARNING:    It's recommended that you don't run simplify-ubuntu on a system with
+		            more than one of the supported desktop environments installed at any
+		            one time. If you choose to do so, note that you will likely run into
+		            conflicts.
+
+		SITE:       $DOM/terminalforlife/simplify-ubuntu
+	EOF
+}
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
+		--ignore-fonts|-F)
+			IGNORE_FONTS="true" ;;
+		--no-ask-de|-N)
+			NO_ASK_DE="true" ;;
+		--ignore-lsb|-L)
+			LSB_CHECK="false" ;;
+		--purge|-p)
+			PURGE="--purge" ;;
+		--yes-apt|-Y)
+			YES_APT="-qq" ;;
+		-*)
+			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+declare -i DEPCOUNT=0
+for DEP in /bin/rm /usr/bin/{lspkg,clean-locales,apt-get}; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if [ "$UPDATE" == "true" ]; then
+	if [ -x /usr/bin/wget ]; then
+		VERSION_URL="$DOM/terminalforlife/simplify-ubuntu/raw/master/version"
+		LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+		if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+			if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+				while read -r; do
+					printf "%s\n" "$REPLY"
+				done <<-EOF
+					New version available:    $LATEST
+					Current version:          $_VERSION_
+				EOF
+			fi
+		else
+			XERR "$LINENO" "Failed to check for available updates."
+		fi
+
+		exit 0
+	else
+		XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+	fi
+fi
+
+[ "$DEBUGME" == "true" ] && set -x
+
+[ $UID -eq 0 ] || SIM="-s"
+
+while read -r; do
+	printf "%s\n" "$REPLY"
+done <<-EOF
+
+	Simplify-ubuntu will assume that you have a fresh installation from an official
+	ISO. Although simplify-ubuntu should run on an old setup, there's no guarantee
+	it'll go without a hitch.
+
+	What will follow is a series of prompts which will ascertain how you would like to
+	tweak (lighten) your Ubuntu installation of Linux, based on your needs.
+
+	NOTE: Each question, for troubleshooting reasons, is assigned a number; if you run
+	      into any issues with a question, please feel free to reference it.
+
+	At any point during a question, the following can be entered:
+
+	  Y        - You're answering "Yes" to the question.
+	  N        - You're answering "No" to the question.
+	  I        - You're asking for additional information, if available.
+	  W        - You're asking for a description of the applicable package(s).
+	  Q        - You're opting to immediately quit the program.
+
+	WARNING: Since unforeseen changes can and probably will occur, it's therefore very
+	         important that you take great care using simplify-ubuntu.
+
+EOF
+
+PROMPT(){
+	while :; do
+		read -n 1 -e -p "$1 "
+
+		case "$REPLY" in
+			[Yy])
+				return 0; break ;;
+			[Nn])
+				return 1; break ;;
+			[Ii])
+				SAY "INFO: ${2:-No additional information is available.}" ;;
+			[Ww])
+				SAY "WHAT: ${3:-Description not available for this question.}" ;;
+			[Qq])
+				exit 2 ;;
+			*)
+				ERR "$LINENO" "Unrecognised response. Enter 'Y' or 'N' to continue." ;;
+		esac
+	done
+}
+
+FIND(){ /usr/bin/lspkg --match-with glob -n $@ >&- 2>&- || return 4; }
+
+DEL(){
+	if [ -x /usr/bin/apt-get ]; then
+		/usr/bin/apt-get ${YES_APT:--q} $SIM --show-progress\
+			remove $PURGE --autoremove -o Dpkg::Progress-Fancy=true\
+			-o Dpkg::Progress=true $@
+	fi
+}
+
+if [ "${LSB_CHECK:-true}" == "true" ]; then
+	if [ -f /etc/os-release -a -r /etc/os-release ]; then
+		while IFS="=" read -a X; do
+			if [ "${X[0]}" == "ID" ]; then
+				printf -v LSB_RELEASE "%s" "${X[1]}"
+				break
+			fi
+		done < /etc/os-release
+	elif [ -f /etc/lsb-release -a -r /etc/lsb-release ]; then
+		while IFS="=" read -a X; do
+			if [ "${X[0]}" == "DISTRIB_ID" ]; then
+				printf -v LSB_RELEASE "%s" "${X[1],,}"
+				break
+			fi
+		done < /etc/lsb-release
+	else
+		XERR "$LINENO" "Unable to determine the distribution ID."
+	fi
+
+	case "$LSB_RELEASE" in
+		linuxmint)
+			IS_MINT="true"
+
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				WARNING: Simplify-ubuntu has detected an installation of Linux Mint. Although your
+				         chosen distribution was not the initial target for simplify-ubuntu, there
+				         is ample support given.
+
+				         However, this could be considered 'experimental', so be sure to take even
+				         greater care with your answers.
+
+				CAUTION: The --no-ask-de|-N flags may be ignored if Mint is detected.
+
+				NOTE: Installations of Mint were tested with simplify-ubuntu:
+
+				      TIMESTAMP   x86  x64  DISTRIBUTION     DE
+				      2018-01-14  N    Y    Linux Mint 18.2  Cinnamon
+				      2018-02-17  N    Y    Linux Mint 18.3  Cinnamon
+
+			EOF
+
+			if [ -x /usr/bin/mintwelcome ]; then
+				PROMPT\
+					"[001]: Do you need the mintwelcome package?"\
+					"If you enter 'N', packages mintwelcome and mint-meta-core will be removed."\
+					"The Mint Welcome Screen you by default see at login."\
+				|| {
+					SAY "Calling APT to remove mintwelcome and related packages."
+					DEL mintwelcome
+				}
+			fi
+
+			if [ -x /usr/bin/mintupdate ]; then
+				PROMPT\
+					"[002]: Do you need the mintupdate package? (say yes if unsure)"\
+					"If you enter 'N', mintupdate and associated packages will be removed."\
+					"Mint's own GUI package Update Manager."\
+				|| {
+					SAY "Calling APT to remove mintupdate and related packages."
+					DEL mintupdate
+				}
+			fi
+
+			if [ -x /usr/bin/mintbackup ]; then
+				PROMPT\
+					"[052]: Will you be needing mintbackup (HOME backup tool)?"\
+					"If you enter 'N', the mintbackup package will be removed."\
+					"Mint's own lightweight data backup solution."\
+				|| {
+					SAY "Calling APT to remove the mintbackup package."
+					DEL mintbackup
+				}
+			fi
+
+			if [ -x /usr/bin/mintinstall ]; then
+				PROMPT\
+					"[068]: Will you be needing mintinstall (Enter 'Y' if unsure)?"\
+					"If you enter 'N', mintinstall packages will be removed."\
+					"Mint's own Software Center for getting new packages."\
+				|| {
+					SAY "Calling APT to remove mintinstall packages."
+					DEL mintinstall\*
+				}
+			fi
+
+			if [ -x /usr/bin/mintdrivers ]; then
+				PROMPT\
+					"[069]: Will you be needing mintdrivers (Enter 'Y' if unsure)?"\
+					"If you enter 'N', the mintdriver package will be removed."\
+					"Mint's own driver manager."\
+				|| {
+					SAY "Calling APT to remove the mintdrivers package."
+					DEL mintdrivers
+				}
+			fi
+
+			if [ -x /usr/bin/mintstick ]; then
+				PROMPT\
+					"[071]: Will you be needing mintstick (Enter 'Y' if unsure)?"\
+					"If you enter 'N', the mintstick package will be removed."\
+					"Write ISO or IMG files to a storage device, such as a USB pendrive."\
+				|| {
+					SAY "Calling APT to remove the mintstick package."
+					DEL mintstick
+				}
+			fi
+
+			if [ -x /usr/bin/mintlocale ]; then
+				PROMPT\
+					"[072]: Will you be needing mintlocale (locale settings GUI)?"\
+					"If you enter 'N', the mintlocale package will be removed."\
+					"A simple GUI for changing locale settings in Mint."\
+				|| {
+					SAY "Calling APT to remove the mintlocale package."
+					DEL mintlocale
+				}
+			fi
+
+			if [ -x /usr/bin/mintupload-manager ]; then
+				PROMPT\
+					"[074]: Will you be needing mintupload? (Upload Manager)"\
+					"If you enter 'N', the mintupload package will be removed."\
+					"Mint's own file GUI Upload Manager."\
+				|| {
+					SAY "Calling APT to remove the mintupload package."
+					DEL mintupload
+				}
+			fi
+
+			PROMPT\
+				"[075]: Will you be needing Mint-specific artwork? (Enter 'Y' if unsure)"\
+				"If you enter 'N', packages related to Mint artwork will be removed."\
+				"This can include packages you ordinarily don't want to remove!"\
+			|| {
+				PROMPT\
+					"[079]: CAUTION! This will remove Mint icons, themes, wallpapers, etc. Are you sure?"\
+					"If you enter 'Y', you agree to continue removing the Mint artwork."\
+					"Note that various Mint-based packages mark some of these as dependencies."\
+				&& {
+					SAY "Calling APT to remove the Mint artwork packages."
+					DEL mint-{artwork-\*,backgrounds\*,{x,y}-icons,{y-theme,themes\*}}
+				}
+			}
+
+			if [ -x /usr/bin/mintreport ]; then
+				PROMPT\
+					"[082]: Will you be needing mintreport? (error reporting tool)"\
+					"If you enter 'N', the mintreport package will be removed."\
+					"If you need to submit bug reports, this Mint GUI tool does it."\
+				|| {
+					SAY "Calling APT to remove the mintreport package."
+					DEL mintreport
+				}
+			fi
+
+			if [ -x /usr/bin/xplayer ]; then
+				PROMPT\
+					"[086]: Will you be needing Xplayer? (media player)"\
+					"If you enter 'N', the Xplayer packages will be removed."\
+					"Mint's own simple and lightweight media player."\
+				|| {
+					SAY "Calling APT to remove the Xplayer packages."
+					DEL \*xplayer\*
+				}
+			fi
+
+			if [ -x /usr/bin/xreader ]; then
+				PROMPT\
+					"[090]: Will you be needing Xreader? (document viewer)"\
+					"If you enter 'N', the Xreader packages will be removed."\
+					"Mint's own document viewer for files like PDFs."\
+				|| {
+					SAY "Calling APT to remove the Xreader packages."
+					DEL xreader\*
+				}
+			fi
+
+			if [ -x /usr/bin/xviewer ]; then
+				PROMPT\
+					"[089]: Will you be needing Xviewer? (image viewer)"\
+					"If you enter 'N', the Xviewer packages will be removed."\
+					"Mint's own simple and lightweight image viewer."\
+				|| {
+					SAY "Calling APT to remove the Xviewer packages."
+					DEL xviewer\*
+				}
+			fi
+
+			if [ -x /usr/bin/xed ]; then
+				PROMPT\
+					"[092]: Will you be needing Xed? (text editor)"\
+					"If you enter 'N', the Xed packages will be removed."\
+					"Mint's own simple and lightweight GUI text editor."\
+				|| {
+					SAY "Calling APT to remove the Xed packages."
+					DEL xed\*
+				}
+			fi
+
+			if [ -x /usr/bin/pix ]; then
+				PROMPT\
+					"[061]: Will you be needing pix (image editor)?"\
+					"If you enter 'N', pix packages will be removed."\
+					"Mint's own advanced image viewer and browser."\
+				|| {
+					SAY "Calling APT to remove pix packages."
+					DEL pix\*
+				}
+			fi
+
+			;;
+		ubuntu)
+			IS_UBUNTU="true"
+
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				NOTE: Installations of Ubuntu were tested with simplify-ubuntu:
+
+				      TIMESTAMP   x86  x64  DISTRIBUTION    DE
+				      2018-04-10  N    Y    Ubuntu 16.04.4  N/A
+				      2018-02-17  N    Y    Ubuntu 16.04.3  N/A
+
+			EOF
+
+			;;
+		zorin)
+			IS_ZORIN="true"
+
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				WARNING: Simplify-ubuntu has detected an installation of Zorin OS. Although your
+				         chosen distribution was not the initial target for simplify-ubuntu, it's
+				         still built on Ubuntu.
+
+				         However, this should be considered 'experimental', so be sure to take even
+				         greater care with your answers.
+
+				NOTE: Installations of Zorin OS were tested with simplify-ubuntu:
+
+				      TIMESTAMP   x86  x64  DISTRIBUTION    DE
+				      2018-01-18  N    Y    Zorin OS 12.2   GNOME
+
+			EOF
+
+			if [ -x /usr/bin/playonlinux ]; then
+				PROMPT\
+					"[120]: Will you be needing PlayOnLinux (via WINE)?"\
+					"If you enter 'N', PlayOnLinux packages will be removed."\
+					"PlayOnLinux makes use of WINE (is Not an Emulator)."\
+				|| {
+					SAY "Calling APT to remove PlayOnLinux packages."
+					DEL playonlinux
+				}
+			fi
+
+			;;
+		*)
+			XERR "$LINENO" "Unsupported distribution ID detected." ;;
+	esac
+fi
+
+#TODO - This is a sloppy way to detect the distribution, and is only temporary!
+[ -x /usr/bin/lite-welcome ] && ISLINUXLITE="true"
+
+if [ "$ISLINUXLITE" == "true" ]; then
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		WARNING: Simplify-ubuntu has detected an installation of Linux Lite. Although your
+		         chosen distribution was not the initial target for simplify-ubuntu, it's
+		         still built on Ubuntu.
+
+		         However, this should be considered 'experimental', so be sure to take even
+		         greater care with your answers.
+
+		NOTE: Installations of Linux Lite were tested with simplify-ubuntu:
+
+		      TIMESTAMP   x86  x64  DISTRIBUTION    DE
+		      2018-04-10  N    Y    Linux Lite 3.8  XFCE
+
+	EOF
+
+	if [ -x /usr/bin/lite-welcome ]; then
+		PROMPT\
+			"[159]: Will you need the Linux Lite welcome screen?"\
+			"If you enter 'N', the lite-welcome package will be removed."\
+			"The Linux Lite Welcome Screen."\
+		|| {
+			SAY "Calling APT to remove the lite-welcome package."
+			DEL lite-welcome
+		}
+	fi
+
+	if [ -x /usr/bin/lite-updatesnotify ]; then
+		PROMPT\
+			"[160]: Will you need the Linux Lite updates notifier? (Enter 'Y' if unsure)"\
+			"If you enter 'N', the lite-updatesnotify package will be removed."\
+			"The Linux Lite Update OSD notification."\
+		|| {
+			SAY "Calling APT to remove the lite-updatesnotify package."
+			DEL lite-updatesnotify
+		}
+	fi
+
+	if [ -x /usr/bin/lite-tweaks -o /usr/bin/lite-tweaks-super ]; then
+		PROMPT\
+			"[161]: Will you need the Lite Tweaks program?"\
+			"If you enter 'N', lite-tweaks and related packages will be removed."\
+			"A collection of tools to tweak and clean your Linux Lite system."\
+		|| {
+			SAY "Calling APT to remove the lite-tweaks package."
+			DEL lite-tweaks\*
+		}
+	fi
+
+	if [ -x /usr/bin/lite-info ]; then
+		PROMPT\
+			"[162]: Will you need the Lite Info program?"\
+			"If you enter 'N', the lite-info package will be removed."\
+			"Submit and view the Linux Lite hardware database."\
+		|| {
+			SAY "Calling APT to remove the lite-info package."
+			DEL lite-info
+		}
+	fi
+
+	if [ -x /usr/bin/lite-manual ]; then
+		PROMPT\
+			"[163]: Will you need the Lite Manual program?"\
+			"If you enter 'N', the lite-manual package will be removed."\
+			"The Help and Support Manual for Linux Lite."\
+		|| {
+			SAY "Calling APT to remove the lite-manual package."
+			DEL lite-manual
+		}
+	fi
+
+	if [ -x /usr/bin/lite-sources ]; then
+		PROMPT\
+			"[164]: Will you need the Lite Sources program? (Enter 'Y' if unsure)"\
+			"If you enter 'N', the lite-sources package will be removed."\
+			"A country repository source selector for Linux Lite."\
+		|| {
+			SAY "Calling APT to remove the lite-sources package."
+			DEL lite-sources
+		}
+	fi
+
+	if FIND lite-themes; then
+		PROMPT\
+			"[165]: Do you want the included themes for Linux Lite? (Enter 'Y' if unsure)"\
+			"If you enter 'N', the lite-themes package will be removed."\
+			"Various themes for Linux Lite."\
+		|| {
+			SAY "Calling APT to remove the lite-themes package."
+			DEL lite-themes
+		}
+	fi
+fi
+
+if FIND user-setup; then
+	PROMPT\
+		"[119]: Will you need the user-setup package (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the user-setup package will be removed."\
+		"The user-setup package creates an initial user and password."\
+	|| {
+		SAY "Calling APT to remove the user-setup package."
+		DEL user-setup
+	}
+fi
+
+if FIND xserver-xorg-video-amdgpu\*; then
+	PROMPT\
+		"[149]: Will you be using AMD graphics? (Enter 'Y' if unsure)"\
+		"If you enter 'N', xserver-xorg-video-amdgpu package(s) will be removed."\
+		"The AMDGPU display driver."\
+	|| {
+		SAY "Calling APT to remove various AMDGPU-related packages."
+		DEL xserver-xorg-video-amdgpu\*
+	}
+fi
+
+if FIND xserver-xorg-video-nouveau\*; then
+	PROMPT\
+		"[150]: Will you be using nVidia graphics? (Enter 'Y' if unsure)"\
+		"If you enter 'N', xserver-xorg-video-nouveau package(s) will be removed."\
+		"The Nouveau display driver."\
+	|| {
+		SAY "Calling APT to remove various Nouveau-related packages."
+		DEL xserver-xorg-video-nouveau\*
+	}
+fi
+
+if FIND xserver-xorg-video-intel\*; then
+	PROMPT\
+		"[151]: Will you be using Intel graphics? (Enter 'Y' if unsure)"\
+		"If you enter 'N', xserver-xorg-video-intel package(s) will be removed."\
+		"The Intel i8xx and i9xx display driver."\
+	|| {
+		SAY "Calling APT to remove various graphics Intel-related packages."
+		DEL xserver-xorg-video-intel\*
+	}
+fi
+
+PROMPT\
+	"[101]: Is this installation of Linux running inside a virtual machine?"\
+	"If you enter 'Y', questions related to such a scenario may be asked."\
+	"If the term is unfamiliar, consider software like VirtualBox and VMWare."\
+|| {
+	if FIND virtualbox-guest\*; then
+		SAY "Calling APT to remove VirtualBox guest packages."
+		DEL virtualbox-guest\*
+	fi
+
+	if FIND \*vmware\* \*-vmmouse\* python-libvmdk libvmdk\* open-vm-tools\*; then
+		SAY "Calling APT to remove VMWare packages."
+		DEL \*vmware\* \*-vmmouse\* python-libvmdk libvmdk\* open-vm-tools\*
+	fi
+
+	if FIND xserver-xorg-video-qxl; then
+		SAY "Calling APT to remove the xserver-xorg-video-qxl package."
+		DEL xserver-xorg-video-qxl
+	fi
+}
+
+if FIND \*brltty\* \*brlapi\*; then
+	PROMPT\
+		"[003]: Do you need braille support?"\
+		"If you enter 'N', various packages related to braille will be removed."\
+		"Braille support is for those whom are blind or have limited vision."\
+	|| {
+		SAY "Calling APT to remove braille packages."
+		DEL \*brltty\* \*brlapi\*
+	}
+fi
+
+if [ "$IS_CINNAMON" == "true" ]; then
+	if [ -x /usr/bin/file-roller ]; then
+		PROMPT\
+			"[104]: Will you need Archive Manager (file-roller)?"\
+			"If you enter 'N', file-roller packages will be removed."\
+			"If you manage archives elsewhere, then you won't need this."\
+		|| {
+			SAY "Calling APT to remove yelp and related packages."
+			DEL nemo-fileroller file-roller
+		}
+	fi
+else
+	if [ ! "$IS_ZORIN" == "true" -a -x /usr/bin/yelp ]; then
+		PROMPT\
+			"[077]: Will you need yelp support (Enter 'Y' if unsure)?"\
+			"If you enter 'N', yelp and related packages will be removed."\
+			"Quite a lot of packages depend on yelp being available."\
+		|| {
+			SAY "Calling APT to remove yelp and related packages."
+			DEL yelp\*
+		}
+	fi
+fi
+
+if [ -x /usr/bin/redshift ]; then
+	PROMPT\
+		"[078]: Will you ever need redshift (blue light filter)?"\
+		"If you enter 'N', the redshift packages will be removed."\
+		"Protect your eyes at the appropriate times of day."\
+	|| {
+		SAY "Calling APT to remove the redshift packages."
+		DEL \*redshift\*
+	}
+fi
+
+if FIND xcursor-themes; then
+	PROMPT\
+		"[148]: Will you use the base X cursor themes? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the xcursor-themes package(s) will be removed."\
+		"The non-essential, additional base X cursor themes."\
+	|| {
+		SAY "Calling APT to remove the xcursor-themes package(s)."
+		DEL xcursor-themes
+	}
+fi
+
+if [ ! "$IS_CINNAMON" == "true" -a -x /usr/bin/inxi ]; then
+	PROMPT\
+		"[057]: Will you be needing inxi (CLI system information tool)?"\
+		"If you enter 'N', the inxi package will be removed."\
+	|| {
+		PROMPT\
+			"[058]: Inxi is useful on support forums. Are you sure?"\
+			"If you enter 'Y', the inxi package will still be removed."\
+		&& {
+			SAY "Calling APT to remove the inxi package."
+			DEL inxi
+		}
+	}
+fi
+
+if [ -x /usr/bin/libreoffice ]; then
+	PROMPT\
+		"[005]: Do you need the LibreOffice suite?"\
+		"If you enter 'N', LibreOffice will be removed."\
+		"LibreOffice is an office productivity suite."\
+	|| {
+		SAY "Calling APT to remove all LibreOffice packages."
+		DEL \*libreoffice\* ure mythes-\* libmythes\*
+	}
+fi
+
+if [ -x /bin/nano ]; then
+	PROMPT\
+		"[006]: Do you need the terminal text editor, nano?"\
+		"If you enter 'N', this text editor will be removed."\
+	|| {
+		SAY "Calling APT to remove all nano packages."
+		DEL nano
+	}
+fi
+
+if [ -x /usr/bin/xterm ]; then
+	PROMPT\
+		"[007]: Do you need the fallback xterm virtual terminal emulator?"\
+		"If you enter 'N', xterm will be removed. Be sure to have another VTE!"\
+		"This is usually not needed, but it can be handy to keep around."\
+	|| {
+		SAY "Calling APT to remove all xterm packages."
+		DEL xterm
+	}
+fi
+
+if FIND friendly-recovery; then
+	PROMPT\
+		"[145]: Will you need a friendlier recovery mode? (Enter 'Y' if unsure)"\
+		"If you enter 'N', friendly-recovery package(s) will be removed."\
+		"Make the recovery mode (accessible via the bootloader) more user-friendly."\
+	|| {
+		SAY "Calling APT to remove friendly-recovery package(s)."
+		DEL friendly-recovery
+	}
+fi
+
+if FIND dmraid; then
+	PROMPT\
+		"[130]: Do you need the dmraid package? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the dmraid package will be removed."\
+		"Device-Mapper Software RAID support tool."\
+	|| {
+		SAY "Calling APT to remove the dmraid package."
+		DEL dmraid
+	}
+fi
+
+if FIND ntp ntp-doc ntpdate ntpstat ; then
+	PROMPT\
+		"[131]: Will you need NTP support? (Enter 'Y' if unsure)"\
+		"If you enter 'N', ntp and related packages will be removed."\
+		"Network Time Protocol daemon and utility programs."\
+	|| {
+		SAY "Calling APT to remove the ntp package."
+		DEL ntp ntp-doc ntpdate ntpstat
+	}
+fi
+
+if [ "$IS_MINT" == "true" ]; then
+	if FIND cups cups-filters\* cups-server\* cups-core-drivers\
+		printer-driver-\* system-config-printer\* libgutenprint2\
+		foomatic-db-compressed-ppds; then
+		PROMPT\
+			"[008]: Will you be using a printer with this Linux installation?"\
+			"If you enter 'N', printer drivers will be removed."\
+			"Mint comes with a lot of printer packages; do you need them?"\
+		|| {
+			SAY "Calling APT to remove all printer driver packages."
+			DEL cups cups-filters\* cups-server\* cups-core-drivers\
+				printer-driver-\* system-config-printer\*\
+				libgutenprint2 foomatic-db-compressed-ppds
+		}
+	fi
+elif [ "$IS_ZORIN" == "true" ]; then
+	if FIND cups; then
+		PROMPT\
+			"[118]: Will you be using a printer with this Linux installation?"\
+			"If you enter 'N', CUPS and some dependencies will be removed."\
+			"Removing printer-related packages on Zorin might not be desired."\
+		|| {
+			SAY "Calling APT to remove various printer packages."
+			DEL cups
+		}
+	fi
+elif [ "$IS_UBUNTU" == "true" ]; then
+	if FIND printer-driver-\* cups\* system-config-printer\*\
+		ippusbxd libgutenprint2 foomatic-db-compressed-ppds\
+		python3-cupshelpers openprinting-ppds; then
+		PROMPT\
+			"[063]: Will you be using a printer with this Linux installation?"\
+			"If you enter 'N', CUPS and printer drivers will be removed."\
+			"Ubuntu comes with a lot of printer packages; do you need them?"\
+		|| {
+			SAY "Calling APT to remove all printer packages."
+			DEL printer-driver-\* cups\* system-config-printer\*\
+				ippusbxd libgutenprint2 python3-cupshelpers\
+				foomatic-db-compressed-ppds openprinting-ppds
+		}
+	fi
+fi
+
+if FIND libfakeroot fakeroot; then
+	PROMPT\
+		"[124]: Will you need fakeroot (Enter 'Y' if unsure)?"\
+		"If you enter 'N', fakeroot and related packages will be removed."\
+		"Most will surely not need this."\
+	|| {
+		SAY "Calling APT to remove the hdparm package."
+		DEL {lib,}fakeroot
+	}
+fi
+
+if [ ! "$IS_ZORIN" == "true" -a -x /sbin/hdparm ]; then
+	PROMPT\
+		"[102]: Will you need hdparm (get/set SATA/IDE device parameters)?"\
+		"If you enter 'N', the hdparm package will be removed."\
+		"You likely won't need this. Watch for unexpected dependencies."\
+	|| {
+		SAY "Calling APT to remove the hdparm package."
+		DEL hdparm
+	}
+fi
+
+if ! [ "$IS_ZORIN" == "true" ]; then
+	if FIND simple-scan libsane\* colord\*; then
+		PROMPT\
+			"[009]: Will you be using a scanner with this Linux installation?"\
+			"If you enter 'N', simple-scan and colord will be removed."\
+			"This still applies if you want to use a printer/scanner combo."\
+		|| {
+			SAY "Calling APT to remove all scanner packages."
+			DEL simple-scan libsane\* colord\*
+		}
+	fi
+fi
+
+PROMPT\
+	"[010]: Will you need locales for languages other than English?"\
+	"If you enter 'N', clean-locales will be executed."\
+	"You'll likely want to adjust your locale settings, as well."\
+|| {
+	SAY "Using clean-locales to remove non-English locales."
+	/usr/bin/clean-locales
+}
+
+if ! [ "$IGNORE_FONTS" == "true" ]; then
+	if FIND xfonts-thai\* fonts{-tlwg\*,-thai\*}; then
+		PROMPT\
+			"[011]: Will you need any Thai fonts?"\
+			"If you enter 'N', all Thai fonts will be removed."\
+			"There may be many. Watch for dependencies."\
+		|| {
+			SAY "Calling APT to remove all Thai fonts."
+			DEL xfonts-thai\* fonts{-tlwg\*,-thai\*}
+		}
+	fi
+
+	if FIND fonts-{arphic-\*,wqy-zenhei,cns11643\*,moe-standard-\*}\
+		fonts-moe-standard-song xfonts-intl-chinese\*; then
+		PROMPT\
+			"[012]: Will you need any Chinese fonts?"\
+			"If you enter 'N', all Chinese fonts will be removed."\
+			"There may be many. Watch for dependencies."\
+		|| {
+			SAY "Calling APT to remove all Chinese fonts."
+			DEL fonts-{arphic-\*,wqy-zenhei,cns11643\*,moe-standard-\*}\
+				fonts-moe-standard-song xfonts-intl-chinese\*
+		}
+	fi
+
+	if FIND fonts-takao-\* fonts-{aoyagi-\*,dejima-mincho,hanazono,horai-umefont}\
+		fonts-{ipafont\*,kiloji,kouzan-mouhitsu,migmix,misaki}\
+		fonts-mona{,po} fonts-{motoya-l-\*,sawarabi-\*,takao}\
+		fonts-{umeplus,yozvox-yozfont\*} latex-cjk-japanese-wadalab\
+		xfonts-{ayu,intl-japanese\*,jisx0213,kaname,kappa20,mplus}\
+		xfonts-shinonome fonts-{ipaexfont\*,ipafont-nonfree-\*}\
+		xfonts-naga10 fonts-{mikachan,ipamj-mincho,seto,vlgothic}; then
+		PROMPT\
+			"[013]: Will you need any Japanese fonts?"\
+			"If you enter 'N', all Japanese fonts will be removed."\
+			"There may be many. Watch for dependencies."\
+		|| {
+			SAY "Calling APT to remove all Japanese fonts."
+			DEL fonts-takao-\*\
+				fonts-{aoyagi-\*,dejima-mincho,hanazono,horai-umefont}\
+				fonts-{ipafont\*,kiloji,kouzan-mouhitsu,migmix,misaki}\
+				fonts-mona{,po} fonts-{motoya-l-\*,sawarabi-\*,takao}\
+				fonts-{umeplus,yozvox-yozfont\*} latex-cjk-japanese-wadalab\
+				xfonts-{ayu,intl-japanese\*,jisx0213,kaname,kappa20,mplus}\
+				xfonts-shinonome fonts-{ipaexfont\*,ipafont-nonfree-\*}\
+				xfonts-naga10 fonts-{mikachan,ipamj-mincho,seto,vlgothic}
+		}
+	fi
+
+	if FIND ttf-mscorefonts-installer; then
+		PROMPT\
+			"[014]: Will you ever need Microsoft TrueType core fonts?"\
+			"If you enter 'N', all Microsoft TrueType core fonts will be removed."\
+			"These are non-free, and usually not pre-installed."\
+		|| {
+			SAY "Calling APT to remove Kate packages."
+			DEL ttf-mscorefonts-installer
+		}
+	fi
+
+	if FIND \*-cyrillic fonts-sil\*; then
+		PROMPT\
+			"[015]: Will you ever need SIL font support for minority languages?"\
+			"If you enter 'N', all SIL fonts will be removed."\
+			"There may be many. Watch for dependencies."\
+		|| {
+			SAY "Calling APT to remove SIL font packages."
+			DEL \*-cyrillic fonts-sil\*
+		}
+	fi
+fi
+
+if [ -x /usr/bin/gufw ]; then
+	PROMPT\
+		"[016]: Will you need the GUI fontend to the Uncomplicated Firewall?"\
+		"If you enter 'N', you'll be left with CLI version of the UFW."\
+		"The CLI version can suffice, depending on your needs."\
+	|| {
+		SAY "Calling APT to remove gufw package(s)."
+		DEL gufw
+	}
+fi
+
+for BIN in /usr/bin/transmission-{gtk,qt,cli}; {
+	if [ -x "$BIN" ]; then
+		TRANSMISSION="true"
+		break
+	fi
+}
+
+if [ "$TRANSMISSION" == "true" ]; then
+	PROMPT\
+		"[017]: Will you ever be using torrents with Transmission?"\
+		"If you enter 'N', transmission packages will be removed."\
+		"Transmission allows you to download files via torrents."\
+	|| {
+		SAY "Calling APT to remove all Transmission packages."
+		DEL transmission\*
+	}
+fi
+
+if [ -x /usr/bin/hexchat ]; then
+	PROMPT\
+		"[018]: Will you ever be using Hexchat (IRC client)?"\
+		"If you enter 'N', Hexchat will be removed."\
+		"With IRC, your Internet IP address will usually be public!"\
+	|| {
+		SAY "Calling APT to remove all Transmission packages."
+		DEL hexchat\*
+	}
+fi
+
+if [ -x /usr/bin/gimp ]; then
+	PROMPT\
+		"[019]: Will you ever use the GNU Image Manipulation Program?"\
+		"If you enter 'N', GIMP packages will be removed."\
+		"Think Photoshop, but it's FOSS."\
+	|| {
+		SAY "Calling APT to remove all GIMP packages."
+		DEL gimp\*
+	}
+fi
+
+if [ -x /usr/bin/pidgin ]; then
+	PROMPT\
+		"[020]: Will you ever use pidgin (IM client)?"\
+		"If you enter 'N', pidgin packages will be removed."\
+		"Graphical multi-protocol instant messaging client."\
+	|| {
+		SAY "Calling APT to remove all pidgin packages."
+		DEL indicator-status-provider-pidgin pidgin\*
+	}
+fi
+
+if FIND samba{,-common} cifs-utils\* lupin-\* smbclient casper\*; then
+	PROMPT\
+		"[021]: Will you ever need Samba (Enter 'Y' if unsure)?"\
+		"If you enter 'N', SMB packages will be removed, where possible."\
+		"SMB/CIFS file, print, and login server for Linux."\
+	|| {
+		SAY "Calling APT to remove Samba packages."
+		DEL samba{,-common} cifs-utils\* lupin-\* smbclient casper\*
+
+		NO_SAMBA="true"
+	}
+fi
+
+if FIND command-not-found; then
+	PROMPT\
+		"[105]: Will you need command-not-found (Enter 'Y' if unsure)?"\
+		"If you enter 'N', command-not-found package(s) will be removed."\
+		"A sometimes useful terminal feature, but arguable pointless."\
+	|| {
+		SAY "Calling APT to remove the command-not-found package."
+		DEL command-not-found
+
+		if FIND python3-commandnotfound && ! [ "$IS_MINT" == "true" ]; then
+			SAY "Calling APT to remove the python3-commandnotfound package."
+			DEL python3-commandnotfound
+		fi
+	}
+fi
+
+if [ -x /usr/bin/flatpak ]; then
+	PROMPT\
+		"[106]: Will you need flatpak (Enter 'Y' if unsure)?"\
+		"If you enter 'Y', flatpak packages will be removed."\
+		"Flatpak is a new framework for applications on Linux."\
+	|| {
+		SAY "Calling APT to remove flatpak packages."
+		DEL \*flatpak\*
+	}
+fi
+
+if [ ! "$IS_MINT" == "true" -a -x /usr/sbin/synaptic ]; then
+	PROMPT\
+		"[022]: Will you only perform APT package changes via terminals?"\
+		"If you enter 'Y', the Synaptic Package Manager will be removed."\
+		"Suitable for more experienced users, but not at all necessary."\
+	&& {
+		SAY "Calling APT to remove all synaptic packages."
+		DEL synaptic
+	}
+fi
+
+if ! [ "$IS_ZORIN" == "true" ]; then
+	if FIND broadcom-sta-\* atmel-firmware wireless-crda wmwave linssid\
+		plasma-widget-wifi wavemon wpasupplicant rfkill; then
+		PROMPT\
+			"[023]: Will you ever need support for wireless networking?"\
+			"If you enter 'N', various wireless packages will be removed."\
+			"You likely won't need any of these, if you don't use wireless."\
+		|| {
+			SAY "Calling APT to remove wireless packages."
+			DEL broadcom-sta-\* atmel-firmware wireless-crda wmwave linssid\
+				plasma-widget-wifi wavemon rfkill
+
+			if ! [ "$IS_CINNAMON" == "true" ]; then
+				DEL wpasupplicant
+			fi
+		}
+	fi
+fi
+
+if FIND xboxdrv; then
+	PROMPT\
+		"[024]: Will you ever need support for an XBOX 360 controller?"\
+		"If you enter 'N', the xboxdrv package will be removed."\
+		"This driver enables the use of such a controller in Linux."\
+	|| {
+		SAY "Calling APT to remove XBOX 360 controller packages."
+		DEL xboxdrv
+	}
+fi
+
+if FIND openvpn network-manager-{openvpn,openvpn-gnome}; then
+	PROMPT\
+		"[146]: Will you ever need OpenVPN (Enter 'N' if unsure?"\
+		"If you enter 'N', openvpn and related packages will be removed."\
+		"Virtual private network daemon."\
+	|| {
+		SAY "Calling APT to remove openvpn and related packages."
+		DEL openvpn
+	}
+fi
+
+if FIND wmbattery whereami urfkill pommed hdapsd fnfxd xbattbar ibam\
+	radeontool toshset armada-backlight i8kutils fdpowermon\
+	bat{mon.app,tery-stats} claws-mail-acpi-notifier gkrellm\*\
+	laptop-{detect,mode-tools} power{stat,top\*} xserver-xorg-input-wacom; then
+	PROMPT\
+		"[025]: Is this machine a laptop or similar portable device?"\
+		"If you enter 'N', various packages for such devices will be removed."\
+		"There are many packages here which may potentially be superfluous."\
+	|| {
+		SAY "Calling APT to remove packages related to portable devices."
+		DEL wmbattery whereami urfkill pommed hdapsd fnfxd xbattbar ibam\
+			radeontool toshset armada-backlight i8kutils fdpowermon\
+			bat{mon.app,tery-stats} claws-mail-acpi-notifier gkrellm\*\
+			laptop-{detect,mode-tools} power{stat,top\*}\
+			xserver-xorg-input-wacom
+
+		NO_PORTABLE="true"
+	}
+fi
+
+if FIND ubuntu-{touch\*,application-api3-touch} x11-touchscreen-calibrator\
+	libfile-touch-perl autopilot-touch\*; then
+	PROMPT\
+		"[026]: Is this machine a touch device?"\
+		"If you enter 'N', various packages for such devices will be removed."\
+		"Unless your device is touch-capable, these packages aren't needed."\
+	|| {
+		SAY "Calling APT to remove touch-related packages."
+		DEL ubuntu-{touch\*,application-api3-touch} x11-touchscreen-calibrator\
+			libfile-touch-perl autopilot-touch\*
+	}
+fi
+
+if FIND xserver-xorg-input-synaptics\*; then
+	PROMPT\
+		"[027]: Do you need support for devices with a touchpad?"\
+		"If you enter 'N', various packages for such devices will be removed."\
+		"Applies whether on a laptop or integrated into a regular keyboard."\
+	|| {
+		SAY "Calling APT to remove touchpad-related packages."
+		DEL xserver-xorg-input-synaptics\*
+
+		NO_TOUCHPAD="true"
+	}
+fi
+
+if ! [ "$NO_ASK_DE" == "true" ]; then
+	PROMPT\
+		"[028]: Are you using the KDE desktop environmnt?"\
+		"If you enter 'Y', you'll be asked KDE-specific questions."\
+	&& {
+		if FIND kubuntu-driver-manager\*; then
+			PROMPT\
+				"[029]: Will you ever need the KDE driver manager (GUI)?"\
+				"If you enter 'N', the KDE driver manager will be removed."\
+			|| {
+				SAY "Calling APT to remove the KDE driver manager."
+				DEL kubuntu-driver-manager\*
+			}
+		fi
+
+		if [ -x /usr/bin/kate ]; then
+			PROMPT\
+				"[030]: Will you ever need KDE's Kate (powerful text editor)?"\
+				"If you enter 'N', the KDE Advanced Text Editor will be removed."\
+			|| {
+				SAY "Calling APT to remove Kate packages."
+				DEL kate\* libkate\*
+			}
+		fi
+
+		if [ -x /usr/bin/partitionmanager ]; then
+			PROMPT\
+				"[031]: Will you ever need KDE's Partition Manager?"\
+				"If you enter 'N', the partitionmanager package will be removed."\
+			|| {
+				SAY "Calling APT to remove partitionmanager packages."
+				DEL partitionmanager
+			}
+		fi
+
+		if [ "$NO_SAMBA" == "true" ]; then
+			SAY "Calling APT to remove smb4k package (Samba-related)."
+			DEL smb4k
+		fi
+
+		if [ "$NO_TOUCHPAD" == "true" ]; then
+			SAY "Calling APT to remove KDE packages related to touchpads."
+			DEL kde-{config-touchpad,touchpad}
+		fi
+
+		if [ -x /usr/bin/kgrab ]; then
+			PROMPT "[087]: Will you ever use kgrab (screenshot utility)?" || {
+				SAY "Calling APT to remove the kgrab package."
+				DEL kgrab
+			}
+		fi
+	}
+
+	PROMPT\
+		"[032]: Are you using the XFCE desktop environmnt?"\
+		"If you enter 'Y', you'll be asked XFCE-specific questions."\
+	&& {
+		if [ -x /usr/bin/xfdesktop4\* ]; then
+			PROMPT\
+				"[033]: Will you be needing xfdesktop4 (XFCE desktop manager)?"\
+				"This is responsible for things like your desktop icons and background."\
+			|| {
+				SAY "Calling APT to remove xfdesktop packages."
+				DEL xfdesktop\*
+			}
+		fi
+
+		if [ -x /usr/bin/xfburn ]; then
+			PROMPT\
+				"[156]: Will you need to burn CDs or DVDs? (Enter 'N' if unsure)"\
+				"If you enter 'N', xfburn and related packages will be removed."\
+				"CD-burner application for the XFCE Desktop Environment."\
+			|| {
+				SAY "Calling APT to remove xfburn and related packages."
+				DEL xfburn
+			}
+		fi
+
+		if [ -x /usr/bin/thunar ]; then
+			PROMPT\
+				"[034]: Will you be needing Thunar (XFCE file manager)?"\
+				"If you enter 'N', Thunar and related packages will be removed."\
+			|| {
+				SAY "Calling APT to remove Thunar packages."
+				DEL thunar\*
+			}
+		fi
+
+		if [ -x /usr/bin/xfce4-screenshooter ]; then
+			PROMPT "[088]: Will you need xfce4-screenshooter (screenshot utility)?" || {
+				SAY "Calling APT to remove the xfce4-screenshooter package."
+				DEL xfce4-screenshooter\*
+			}
+		fi
+	}
+
+	PROMPT\
+		"[035]: Are you using the Mate desktop environmnt?"\
+		"If you enter 'Y', you'll be asked Mate-specific questions."\
+	&& {
+		IS_MATE="true"
+
+		if [ -x /usr/bin/pluma ]; then
+			PROMPT "[036]: Will you ever use Pluma (text editor)?" || {
+				SAY "Calling APT to remove Pluma packages."
+				DEL pluma\*
+			}
+		fi
+	}
+
+	PROMPT\
+		"[037]: Are you using the GNOME desktop environmnt?"\
+		"If you enter 'Y', you'll be asked Gnome-specific questions."\
+	&& {
+		IS_GNOME="true"
+
+		if [ -x /usr/bin/clementine ]; then
+			PROMPT "[038]: Will you ever use Clementine (GUI music player)?" || {
+				SAY "Calling APT to remove Clementine packages."
+				DEL clementine unity-scope-clementine
+			}
+		fi
+
+		if FIND mouse-tweaks; then
+			PROMPT "[122]: Will you ever use mouse-tweaks package (Enter 'Y' if unsure)?" || {
+				SAY "Calling APT to remove the mouse-tweaks package."
+				DEL mouse-tweaks
+			}
+		fi
+	}
+fi
+
+PROMPT "[039]: Will you ever need any penetration testing tools?" || {
+	if [ -x /usr/bin/nmap ]; then
+		PROMPT "[040]: Will you ever use nmap (The Network Mapper)?" || {
+			SAY "Calling APT to remove nmap package."
+			DEL nmap\* zenmap umit python{3-nmap,-nmap}\
+				libnmap-parser-perl
+		}
+	fi
+}
+
+if [ -x /usr/bin/testdisk -o -x /usr/bin/photorec ]; then
+	PROMPT "[041]: Will you ever need TestDisk and/or PhotoRec (data recovery)?" || {
+		SAY "Calling APT to remove XBOX 360 controller packages."
+		DEL testdisk\*
+	}
+fi
+
+if FIND nvidia\*; then
+	PROMPT "[042]: Will you need any nVidia packages (excluding nouveau)?" || {
+		SAY "Calling APT to remove any nVidia packages."
+		DEL nvidia\*
+	}
+fi
+
+if FIND xserver-xorg-video-radeon\* radeon\*; then
+	PROMPT "[043]: Will you need any AMD Radeon packages (excluding amdgpu)?" || {
+		SAY "Calling APT to remove any AMD Radeon packages."
+		DEL xserver-xorg-video-radeon\* radeon\*
+	}
+fi
+
+if [ -x /usr/bin/curl ]; then
+	PROMPT "[044]: Will you ever need cURL (CLI downloader)?" || {
+		SAY "Calling APT to remove cURL packages."
+		DEL curl
+	}
+fi
+
+if [ -x /usr/bin/sudo ]; then
+	PROMPT "[045]: Will you be needing sudo? (Enter 'Y' if unsure)" || {
+		PROMPT "[046]: Are you sure? Only experienced users should say yes." && {
+			SAY "Calling APT to remove sudo."
+			DEL sudo
+		}
+	}
+fi
+
+if ! [ "$IS_ZORIN" == "true" ]; then
+	if FIND ssh-askpass-gnome openssh-server ssh python-paramiko; then
+		PROMPT\
+			"[103]: Is this installation an SSH server (Enter 'Y' if unsure)?"\
+			"If you enter 'Y', non-required SSH packages will be removed."\
+		|| {
+			SAY "Calling APT to remove non-required SSH packages."
+			DEL ssh-askpass-gnome openssh-server ssh python-paramiko
+		}
+	fi
+fi
+
+if [ -x /usr/bin/rhythmbox ]; then
+	PROMPT "[047]: Will you ever use RhythmBox (GUI music player)?" || {
+		SAY "Calling APT to remove RhythmBox packages."
+		DEL rhythmbox\*
+	}
+fi
+
+if [ -x /usr/sbin/gparted ]; then
+	PROMPT "[050]: Will you be needing gparted (partition manager)?" || {
+		SAY "Calling APT to remove gparted packages."
+		DEL gparted
+	}
+fi
+
+if [ -x /usr/bin/thunderbird ]; then
+	PROMPT\
+		"[053]: Will you be needing Thunderbird (E-Mail client)?"\
+		"If you enter 'N', Thunderbird packages will be removed."\
+	|| {
+		SAY "Calling APT to remove Thunderbird packages."
+		DEL thunderbird\*
+	}
+fi
+
+if [ -x /usr/bin/tomboy ]; then
+	PROMPT\
+		"[059]: Will you be needing Tomboy (note taking)?"\
+		"If you enter 'N', Tomboy packages will be removed."\
+	|| {
+		SAY "Calling APT to remove Tomboy packages."
+		DEL tomboy\* unity-scope-tomboy
+	}
+fi
+
+if [ "$IS_MINT" == "true" ]; then
+	if [ -x /usr/bin/timeshift ]; then
+		PROMPT\
+			"[060]: Will you be needing timeshift (backup utility)?"\
+			"If you enter 'N', timeshift will be removed."\
+		|| {
+			SAY "Calling APT to remove the timeshift package."
+			DEL timeshift
+		}
+	fi
+fi
+
+if FIND xscreensaver\* gnome-{screensaver,screensaver}; then
+	PROMPT\
+		"[062]: Will you be needing support for screensavers?"\
+		"If you enter 'N', screensaver packages will be removed."\
+	|| {
+		SAY "Calling APT to remove packages related to screensavers."
+
+		if [ "$IS_GNOME" == "true" ]; then
+			DEL gnome-screensaver
+		elif [ "$IS_MATE" == "true" ]; then
+			DEL mate-screensaver\*
+		fi
+
+		DEL xscreensaver\*
+	}
+fi
+
+if [ -x /usr/bin/udisksctl ]; then
+	PROMPT\
+		"[064]: Will you be needing udisks2 (Enter 'Y' if unsure)?"\
+		"If you enter 'N', udisks2 and related packages will be removed."\
+	|| {
+		SAY "Calling APT to remove udisks2 and related packages."
+		DEL udisks2\* libudisks2-\* gir1.2-udisks-2.0
+	}
+fi
+
+if [ -x /usr/bin/duplicity ]; then
+	PROMPT\
+		"[066]: Will you be needing Duplicity (backup utility)?"\
+		"If you enter 'N', the Duplicity package will be removed."\
+	|| {
+		SAY "Calling APT to remove the Duplicity package."
+		DEL duplicity
+	}
+fi
+
+if [ -x /usr/bin/gdebi ]; then
+	PROMPT\
+		"[067]: Will you be needing gdebi (GUI deb installer)?"\
+		"If you enter 'N', gdebi and related packages will be removed."\
+	|| {
+		SAY "Calling APT to remove gdebi and related packages."
+		DEL gdebi\*
+	}
+fi
+
+if FIND mobile-broadband-provider-info; then
+	PROMPT\
+		"[070]: Will you be needing support for mobile broadband?"\
+		"If you enter 'N', the mobile-broadband-provider-info package will be removed."\
+	|| {
+		SAY "Calling APT to remove the mobile-broadband-provider-info package."
+		DEL mobile-broadband-provider-info
+	}
+fi
+
+if ! [ "$IS_ZORIN" == "true" ]; then
+	if FIND \*bluetooth\* \*bluez\* ubertooth libubertooth\*; then
+		PROMPT\
+			"[004]: Do you need bluetooth support?"\
+			"If you enter 'N', various bluetooth packages will be removed."\
+			"Either via external or internal bluetooth receivers."\
+		|| {
+			if [ "$IS_MINT" == "true" ]; then
+				PROMPT\
+					"[051]: Are you using the Cinnamon desktop environment?"\
+					"If you enter 'Y', fewer bluetooth packages will be removed."\
+					"This question may affect later questions."\
+				&& {
+					IS_CINNAMON="true"
+
+					SAY "Calling APT to remove some bluetooth packages."
+					DEL blue{tooth,z\*,berry} {gnome,pulseaudio-module}-bluetooth
+				}
+			else
+				SAY "Calling APT to remove bluetooth packages."
+				DEL \*bluetooth\* \*bluez\* ubertooth libubertooth\*
+			fi
+		}
+	fi
+
+	if [ -x /usr/bin/gnome-disks ]; then
+		PROMPT\
+			"[048]: Will you ever use gnome-disk-utility (AKA: Disks)?"\
+			"If you enter 'N', gnome-disk-utility package(s) will be removed."\
+			"Manage and configure disk drives and media via GUI."\
+		|| {
+			SAY "Calling APT to remove gnome-disk-utility packages."
+			DEL gnome-disk-utility
+		}
+	fi
+
+	if [ -x /usr/bin/evince ]; then
+		PROMPT\
+			"[054]: Will you be needing Evince (document viewer)?"\
+			"If you enter 'N', Evince packages will be removed."\
+			"Simple, multi-page document (PostScript, PDF) viewer."\
+		|| {
+			SAY "Calling APT to remove Evince packages."
+			DEL evince\*
+		}
+	fi
+
+	if [ -x /usr/bin/lshw ]; then
+		PROMPT\
+			"[056]: Will you be needing lshw (CLI system information tool)?"\
+			"If you enter 'N', the lshw package will be removed."\
+		|| {
+			SAY "Calling APT to remove the lshw package."
+			DEL lshw
+		}
+	fi
+
+	if FIND libdiscover2 discover; then
+		PROMPT\
+			"[158]: Will you be using discover? (Enter 'Y' if unsure)"\
+			"If you enter 'N', discover packages will be removed."\
+			"Hardware identification system based on the libdiscover2 library."\
+		|| {
+			SAY "Calling APT to remove aptitude and related packages."
+			DEL libdiscover2 discover
+		}
+	fi
+
+	if [ -x /usr/bin/rsync ]; then
+		PROMPT\
+			"[076]: Will you be needing rsync (file transfer)?"\
+			"If you enter 'N', the rsync package will be removed."\
+			"Fast, versatile, remote (and local) CLI file-copying tool."\
+		|| {
+			SAY "Calling APT to remove the rsync package."
+			DEL rsync
+		}
+	fi
+
+	if FIND memtest86\*; then
+		PROMPT\
+			"[065]: Will you be needing memtest86+ (Enter 'Y' if unsure)?"\
+			"If you enter 'N', the memtest86+ package will be removed."\
+			"OS-independent, thorough real-mode memory (RAM) tester."\
+		|| {
+			SAY "Calling APT to remove the memtest86+ package."
+			DEL memtest86\*
+		}
+	fi
+
+	if [ -x /usr/bin/vino-preferences ]; then
+		NO_VINO="true"
+
+		PROMPT\
+			"[080]: Will you be needing VINO (remote desktop client)?"\
+			"If you enter 'N', the VINO package will be removed."\
+		|| {
+			SAY "Calling APT to remove the VINO package."
+			DEL vino
+		}
+	fi
+
+	if FIND gvfs\*; then
+		PROMPT "[049]: Will you be needing gvfs (Enter 'Y' if unsure)?" || {
+			NO_GVFS="true"
+
+			SAY "Calling APT to remove gvfs packages."
+			DEL gvfs\*
+		}
+	fi
+
+	if FIND dvd\+rw-tools libcdparanoia0 cd-discid\
+		libcdio\* wodim libdvd\* libcdr\*; then
+		PROMPT\
+			"[107]: Will you need support for optical media (such as CDs and DVDs)?"\
+			"If you enter 'N', packages related to optical media will be removed."\
+		|| {
+			SAY "Calling APT to remove packages related to optical media."
+			DEL wodim libdvd\* libcdr\* cd-discid
+		}
+
+		if [ "$NO_GVFS" == "true" ]; then
+			DEL libcdio\*
+		fi
+
+		if [ -x /usr/bin/nemo ]; then
+			DEL libcdparanoia0
+		fi
+
+		if FIND dvd\+rw-tools; then
+			PROMPT\
+				"[083]: Will you need the dvd+rw-tools package (Enter 'Y' if unsure)?"\
+				"If you enter 'N', the dvd+rw-tools package will be removed."\
+			|| {
+				NO_DVD_RW_TOOLS="true"
+
+				SAY "Calling APT to remove the dvd+rw-tools package."
+				DEL dvd\+rw-tools
+			}
+		fi
+	fi
+
+	if [ ! "$NO_DVD_RW_TOOLS" == "true" -a -x /usr/bin/genisoimage ]; then
+		PROMPT\
+			"[084]: Will you be needing genisoimage (ISO file creator)?"\
+			"If you enter 'N', the genisoimage package will be removed."\
+		|| {
+			SAY "Calling APT to remove the genisoimage package."
+			DEL genisoimage
+		}
+	fi
+
+	if [ -x /usr/bin/brasero ]; then
+		SAY "Calling APT to remove Brasero packages."
+		DEL brasero
+	fi
+
+	if ! [ "$IS_CINNAMON" == "true" ]; then
+		if [ -x /usr/bin/gksu -a /usr/bin/gksudo ]; then
+			PROMPT\
+				"[110]: Will you need gksu and/or gksudo (Enter 'Y' if unsure)?"\
+				"If you enter 'N', the gksu package will be removed."\
+			|| {
+				SAY "Calling APT to remove the gksu package."
+				DEL gksu
+			}
+		fi
+	fi
+fi
+
+if [ -x /usr/bin/baobab ]; then
+	PROMPT\
+		"[123]: Will you need to use baobab? (GNOME Disk Usage Analyzer)"\
+		"If you enter 'N', the baobab package will be removed."\
+	|| {
+		SAY "Calling APT to remove the baobab package."
+		DEL caribou
+
+		if ! [ "$IS_CINNAMON" == "true" ]; then
+			DEL baobab
+		fi
+	}
+fi
+
+if FIND fwupd; then
+	PROMPT\
+		"[109]: Will you need to update device firmware (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the fwupd and related packages will be removed."\
+	|| {
+		SAY "Calling APT to remove the fwupd and related packages."
+		DEL \*fwupd\*
+	}
+fi
+
+if FIND freerdp\* libfreerdp\* dosfstools ntfs-3g libgcab-\*\
+	libxfreerdp\* mtools mscompress syslinux\*; then
+	PROMPT\
+		"[094]: Will you need Windows-related support? (Enter 'Y' if unsure)"\
+		"If you enter 'N', additional related questions will be asked."\
+	|| NO_MS_TOOLS="true"
+
+	if [ "$NO_MS_TOOLS" == "true" ]; then
+		SAY "Calling APT to remove the mtools package."
+		DEL mtools
+
+		SAY "Calling APT to remove package(s) for CAB archive support."
+		DEL libgcab-\*
+
+		if FIND ntfs-3g; then
+			PROMPT "[108]: Will you be needing NTFS support (Enter 'Y' if unsure)?" || {
+				SAY "Calling APT to remove the ntfs-3g package."
+				DEL ntfs-3g
+			}
+		fi
+
+		if FIND dosfstools; then
+			SAY "Calling APT to remove the dosfstools package."
+			DEL dosfstools
+		fi
+
+		if [ -x /usr/bin/xfreerdp ]; then
+			NO_FREERDP="true"
+
+			SAY "Calling APT to remove the FreeRDP packages."
+			DEL freerdp\* libfreerdp\* libxfreerdp\*
+		fi
+
+		if [ -x /usr/bin/mscompress ]; then
+			SAY "Calling APT to remove the mscompress package."
+			DEL mscompress
+		fi
+
+		if [ -x /usr/bin/syslinux ]; then
+			SAY "Calling APT to remove the syslinux packages."
+			DEL syslinux\*
+		fi
+	fi
+fi
+
+if [ "$NO_FREERDP" == "true" -o "$NO_VINO" == "true" ]; then
+	SAY "Calling APT to remove the thin-client-config-agent package."
+	DEL thin-client-config-agent
+fi
+
+if FIND netpbm; then
+	PROMPT\
+		"[081]: Will you be needing netpbm (image file converter)?"\
+		"If you enter 'N', the netpbm package will be removed."\
+		"Toolkit for the manipulation of graphical images."\
+	|| {
+		SAY "Calling APT to remove the netpbm package."
+		DEL netpbm
+	}
+fi
+
+if [ -x /usr/bin/telnet ]; then
+	PROMPT\
+		"[085]: Will you be needing telnet (basic telnet client)?"\
+		"If you enter 'N', the telnet package will be removed."\
+		"Remote communications tool using the TELNET protocol."\
+	|| {
+		SAY "Calling APT to remove the telnet package."
+		DEL telnet
+	}
+fi
+
+if [ -x /usr/bin/rename ]; then
+	PROMPT\
+		"[093]: Will you be needing rename (CLI file renamer)?"\
+		"If you enter 'N', the rename package will be removed."\
+		"Perl extension for renaming multiple files."\
+	|| {
+		SAY "Calling APT to remove the rename package."
+		DEL rename
+
+		# Seems to be a bug in that the executable doesn't get deleted
+		# properly. Added a check to give an error, should this be beyond
+		# just my case.
+		if [ -x /usr/bin/rename ]; then
+			ERR "$LINENO" "The '/usr/bin/rename' executable still exists."
+		fi
+	}
+fi
+
+if [ -x /usr/bin/lintian ]; then
+	PROMPT\
+		"[095]: Will you be needing lintian (deb package checker)?"\
+		"If you enter 'N', the lintian package will be removed."\
+		"Dissects DEB packages and reports bugs and policy violations."\
+	|| {
+		SAY "Calling APT to remove the lintian package."
+		DEL lintian
+	}
+fi
+
+if FIND libapt-pkg-perl; then
+	PROMPT\
+		"[134]: Will you need libapt-pkg-perl (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the libapt-pkg-perl package will be removed."\
+		"Perl interface to libapt-pkg."\
+	|| {
+		SAY "Calling APT to remove the libapt-pkg-perl package."
+		DEL libapt-pkg-perl
+	}
+fi
+
+if [ -x /usr/bin/i3 ]; then
+	if FIND libanyevent-i3-perl; then
+		PROMPT\
+			"[135]: Will you need libanyevent-i3-perl (Enter 'Y' if unsure)?"\
+			"If you enter 'N', the libanyevent-i3-perl package will be removed."\
+			"Perl module to communicate with the i3 window manager."\
+		|| {
+			SAY "Calling APT to remove the libanyevent-i3-perl package."
+			DEL libanyevent-i3-perl
+		}
+	fi
+fi
+
+if FIND libabw-\*; then
+	PROMPT\
+		"[136]: Will you need to read and/or write AbiWord documents?"\
+		"If you enter 'N', the libabw-* packages will be removed."\
+		"Library for reading and writing AbiWord(tm) documents."\
+	|| {
+		SAY "Calling APT to remove the libabw-* packages."
+		DEL libabw-\*
+	}
+fi
+
+if FIND libaacs0; then
+	PROMPT\
+		"[137]: Will you need to read and/or write AACS files?"\
+		"If you enter 'N', the libaacs0 package will be removed."\
+		"Provides a way to understand how the AACS works."\
+	|| {
+		SAY "Calling APT to remove the libaacs0 packages."
+		DEL libaacs0
+	}
+fi
+
+if FIND pm-utils powermgmt-base; then
+	PROMPT\
+		"[152]: Will you need extra power management support? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the pm-utils and powermgmt-base package will be removed."\
+		"Configs, utilities, and scripts for power management, common and otherwise."\
+	|| {
+		SAY "Calling APT to remove the pm-utils and powermgmt-base packages."
+		DEL pm-utils powermgmt-base
+	}
+fi
+
+if FIND lvm2 liblvm\*; then
+	PROMPT\
+		"[096]: Will you be or are you using LVM? (Enter 'Y' if unsure)"\
+		"If you enter 'N', packages related to LVM will be removed."\
+		"This is LVM2, the rewrite of The Linux Logical Volume Manager."\
+	|| NO_LVM="true"
+
+	if [ "$NO_LVM" == "true" ]; then
+		PROMPT\
+			"[091]: WARNING! May be problematic if you're wrong. Are you sure?"\
+			"If you enter 'Y', LVM-related packages will still be removed."\
+		&& {
+			SAY "Calling APT to remove the LVM-related packages."
+			DEL lvm2 liblvm\*
+		}
+	fi
+fi
+
+if FIND xul-ext-ubufox; then
+	if ! [ -x /usr/bin/firefox ]; then
+		SAY "NOTE: Package xul-ext-ubufox found, but Firefox executable wasn't."
+	fi
+
+	PROMPT\
+		"[097]: Will you need the xul-ext-ubufox package (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the Ubuntu modifications for Firefox will be removed."\
+		"Adds Ubuntu-specific modifications to Firefox."\
+	|| {
+		SAY "Calling APT to remove the xul-ext-ubufox package."
+		DEL xul-ext-ubufox
+	}
+fi
+
+if [ -x /usr/bin/zip -o -x /usr/bin/unzip  ]; then
+	PROMPT\
+		"[098]: Do you need support for zip archives (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the zip package will be removed."\
+		"Create and extract ZIP files."\
+	|| {
+		SAY "Calling APT to remove the zip package."
+		DEL zip unzip
+	}
+fi
+
+if [ -x /usr/bin/7zr ]; then
+	PROMPT\
+		"[099]: Do you need support for 7zip archives (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the p7zip package will be removed."\
+		"7z file archiver with a high compression ratio."\
+	|| {
+		SAY "Calling APT to remove the p7zip package."
+		DEL p7zip
+	}
+fi
+
+if [ -x /usr/bin/arj  ]; then
+	PROMPT\
+		"[112]: Do you need support for arj archives (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the arj package will be removed."\
+		"This package is an open-source version of the arj archiver."\
+	|| {
+		SAY "Calling APT to remove the arj package."
+		DEL arj
+	}
+fi
+
+if [ -x /usr/bin/xclip ]; then
+	PROMPT\
+		"[100]: Do you need xclip (CLI clipboard utility)?"\
+		"If you enter 'N', the xclip package will be removed."\
+		"Provides an interface to X selections (clipboard)."\
+	|| {
+		SAY "Calling APT to remove the xclip package."
+		DEL xclip
+	}
+fi
+
+if [ -x /usr/bin/apt-offline ]; then
+	PROMPT\
+		"[111]: Do you need apt-offline (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the apt-offline package will be removed."\
+		"Offline APT Package Manager."\
+	|| {
+		SAY "Calling APT to remove the apt-offline package."
+		DEL apt-offline
+	}
+fi
+
+if [ -x /usr/bin/dc ]; then
+	PROMPT\
+		"[113]: Do you need dc (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the dc package will be removed."\
+		"GNU dc arbitrary precision reverse-polish calculator."\
+	|| {
+		SAY "Calling APT to remove the dc package."
+		DEL dc
+	}
+fi
+
+if [ -x /usr/sbin/dmidecode ]; then
+	PROMPT\
+		"[114]: Do you need dmidecode (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the dmidecode package will be removed."\
+		"Reports information about hardware, according to the BIOS."\
+	|| {
+		SAY "Calling APT to remove the dmidecode package."
+		DEL dmidecode
+	}
+fi
+
+if FIND evolution-data-server\*; then
+	PROMPT\
+		"[115]: Do you need any Evolution packages (Enter 'Y' if unsure)?"\
+		"If you enter 'N', packages related to Evolution will be removed."\
+		"Evolution is an all-purpose suite for mail, memos, to-dos, etc."\
+	|| {
+		SAY "Calling APT to remove any packages related to Evolution."
+		DEL evolution-data-server\*
+	}
+fi
+
+if FIND manpages-dev; then
+	PROMPT\
+		"[116]: Will you need development manual pages? (Enter 'N' if unsure)"\
+		"If you enter 'N', the manpages-dev package will be removed."\
+		"This is useful for programmers -- regular users don't need it."\
+	|| {
+		SAY "Calling APT to remove the manpages-dev package."
+		DEL manpages-dev
+	}
+fi
+
+if FIND netcat netcat-openbsd netcat-traditional; then
+	PROMPT\
+		"[117]: Will you need to use netcat? (Enter 'N' if unsure)"\
+		"If you enter 'N', the netcat package(s) will be removed."\
+		"The TCP/IP Swiss Army knife, but most likely won't need it."\
+	|| {
+		SAY "Calling APT to remove the netcat package(s)."
+		DEL netcat netcat-openbsd netcat-traditional
+	}
+fi
+
+if FIND caribou; then
+	PROMPT\
+		"[121]: Will you need to use caribou? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the caribou package(s) will be removed."\
+		"This is a configurable on-screen keyboard with scanning mode."\
+	|| {
+		SAY "Calling APT to remove the caribou package(s)."
+		DEL caribou
+
+		if ! [ "$IS_CINNAMON" == "true" ]; then
+			DEL \*caribou\*
+		fi
+	}
+fi
+
+if FIND ed; then
+	PROMPT\
+		"[139]: Will you need the ed package? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the ed package will be removed."\
+		"Classic UNIX line-orientated text editor."\
+	|| {
+		SAY "Calling APT to remove the ed package."
+		DEL ed
+	}
+fi
+
+if FIND fortunes fortunes-\*; then
+	PROMPT\
+		"[127]: Will you need the fortunes package(s)?"\
+		"If you enter 'N', the fortunes package(s) will be removed."\
+		"Data files containing (many) fortune cookies."\
+	|| {
+		SAY "Calling APT to remove the fortunes package(s)."
+		DEL fortunes fortunes-\*
+	}
+fi
+
+if FIND ftp; then
+	PROMPT\
+		"[126]: Will you need the ftp package? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the ftp package will be removed."\
+		"User interface to the ARPANET standard File Transfer Protocol."\
+	|| {
+		SAY "Calling APT to remove the ftp package."
+		DEL ftp
+	}
+fi
+
+if ! [ "$IS_CINNAMON" == "true" ]; then
+	if FIND dpkg-dev; then
+		PROMPT\
+			"[140]: Will you need tools to build DEB packages from source?"\
+			"If you enter 'N', dpkg-dev and related packages will be removed."\
+			"Debian package development tools."\
+		|| {
+			SAY "Calling APT to remove dpkg-dev and related packages."
+			DEL dpkg-dev
+		}
+	fi
+
+	if FIND gettext; then
+		PROMPT\
+			"[141]: Will you need to the gettext packages (Enter 'Y' if unsure)?"\
+			"If you enter 'N', gettext and related packages will be removed."\
+		|| {
+			SAY "Calling APT to remove gettext and related packages."
+			DEL gettext
+		}
+	fi
+
+	if FIND gdb gdbserver; then
+		PROMPT\
+			"[138]: Will you be needing gdb and related packages?"\
+			"If you enter 'N', the gdb package(s) will be removed."\
+			"GNU Debugger. A must-have for any serious programmer."\
+		|| {
+			SAY "Calling APT to remove the gdb package(s)."
+			DEL gdb gdbserver
+		}
+	fi
+fi
+
+if FIND friendly-recovery; then
+	PROMPT\
+		"[128]: Will you need friendly-recovery? (Enter 'Y' if unsure)"\
+		"If you enter 'N', friendly-recovery will be removed."\
+		"Makes the recovery mode (accessed via the bootloader) friendlier."\
+	|| {
+		SAY "Calling APT to remove the friendly-recovery package."
+		DEL friendly-recovery
+	}
+fi
+
+if FIND reiserfsprogs; then
+	PROMPT\
+		"[129]: Will you need reiserfsprogs? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the reiserfsprogs package will be removed."\
+		"User-level tools for ReiserFS filesystems."\
+	|| {
+		SAY "Calling APT to remove the reiserfsprogs package."
+		DEL reiserfsprogs
+	}
+fi
+
+if FIND x11-session-utils; then
+	PROMPT\
+		"[132]: Will you need x11-session-utils? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the x11-session-utils package will be removed."\
+		"This package provides the X session manager and related tools."\
+	|| {
+		SAY "Calling APT to remove the x11-session-utils package."
+		DEL x11-session-utils
+	}
+fi
+
+if FIND apport apport-\* python-apport python3-apport; then
+	PROMPT\
+		"[133]: Will you ever need automated crash reports?"\
+		"If you enter 'N', apport and related packages will be removed."\
+		"Automatically generate crash reports for debugging."\
+	|| {
+		SAY "Calling APT to remove the apport and related packages."
+		DEL apport apport-\* python-apport python3-apport
+	}
+fi
+
+if FIND \*popularity-contest \*-popcon; then
+	PROMPT\
+		"[142]: Do you want to send Canonical your usage data?"\
+		"If you enter 'N', popcon and related packages will be removed."\
+		"Allows the user to \"vote\" for their favorite packages, automatically."\
+	|| {
+		SAY "Calling APT to remove popcon and related packages packages."
+		DEL \*popularity-contest \*-popcon
+	}
+fi
+
+if FIND pcmciautils; then
+	PROMPT\
+		"[147]: Do you need support for PCMCIA devices? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the pcmciautils package will be removed."\
+		"PCMCIA utilities for Linux 2.6.13-rc1 or later."\
+	|| {
+		SAY "Calling APT to remove the pcmciautils package."
+		DEL pcmciautils
+	}
+fi
+
+if [ -x /usr/bin/time ]; then
+	PROMPT\
+		"[143]: Will you need the time package? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the time package will be removed."\
+		"The GNU alternative to the time bash builtin."\
+	|| {
+		SAY "Calling APT to remove the time package."
+		DEL time
+	}
+fi
+
+if [ -x /usr/bin/fakeroot ]; then
+	PROMPT\
+		"[144]: Will you need fakeroot? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the fakeroot package will be removed."\
+		"Tool for simulating superuser privileges."\
+	|| {
+		SAY "Calling APT to remove the fakeroot package."
+		DEL fakeroot
+	}
+fi
+
+if FIND xinit; then
+	PROMPT\
+		"[154]: Will you need the xinit package? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the xinit package will be removed."\
+		"Facilitates starting an X server and base X session."\
+	|| {
+		SAY "Calling APT to remove the xinit package."
+		DEL xinit
+	}
+fi
+
+if FIND cryptsetup{,bin} libcrypt-passwdmd5-perl; then
+	PROMPT\
+		"[153]: Will you need disk encryption support? (Enter 'Y' if unsure)"\
+		"If you enter 'N', various crypt-related packages will be removed."\
+		"Tool for simulating superuser privileges."\
+	|| {
+		SAY "Calling APT to remove various crypt-related packages."
+		DEL cryptsetup{,bin} libcrypt-passwdmd5-perl
+	}
+fi
+
+if FIND gstreamer1.0-fluendo-mp3; then
+	PROMPT\
+		"[155]: Do you want the Fluendo MP3 decoder? (Enter 'Y' if unsure)"\
+		"If you enter 'N', the gstreamer1.0-fluendo-mp3 package will be removed."\
+		"A GStreamer 1.0 plugin allowing decoding of MPEG 1 audio layer III streams."\
+	|| {
+		SAY "Calling APT to remove the gstreamer1.0-fluendo-mp3 package."
+		DEL gstreamer1.0-fluendo-mp3
+	}
+fi
+
+if FIND aptitude\*; then
+	PROMPT\
+		"[157]: Will you be using aptitude? (Enter 'Y' if unsure)"\
+		"If you enter 'N', aptitude and related packages will be removed."\
+		"Lightweight package manager with a terminal-based UI."\
+	|| {
+		SAY "Calling APT to remove aptitude and related packages."
+		DEL aptitude\*
+	}
+fi
+
+if FIND whiptail; then
+	PROMPT\
+		"[166]: Will you be using whiptail? (Enter 'Y' if unsure)"\
+		"If you enter 'N', whiptail and related packages will be removed."\
+		"Displays user-friendly dialog boxes from shell scripts."\
+	|| {
+		SAY "Calling APT to remove whiptail and related packages."
+		DEL whiptail
+	}
+fi
+
+if FIND ureadahead; then
+	PROMPT\
+		"[167]: Will you be using ureadahead? (Enter 'Y' if unsure)"\
+		"If you enter 'N', ureadahead and related packages will be removed."\
+		"Read required files in advance, improving boot performance."\
+	|| {
+		SAY "Calling APT to remove ureadahead and related packages."
+		DEL ureadahead
+	}
+fi
+
+if FIND python3-cairo python3-gi-cairo; then
+	PROMPT\
+		"[168]: Will you need Python Cairo packages? (Enter 'Y' if unsure)"\
+		"If you enter 'N', Python 3 Cairo packages will be removed."\
+		"Read required files in advance, improving boot performance."\
+	|| {
+		SAY "Provides Cairo modules for use in Python 3 programs."
+		DEL python3-cairo python3-gi-cairo
+	}
+fi
+
+PROMPT\
+	"[125]: Remove any and all leftover cached DEB packages?"\
+	"If you do this, these packages would have to be re-downloaded."\
+&& {
+	SAY "Removing leftover cached DEB packages."
+	/bin/rm -vf 2>&-\
+		/var/cache/apt/archives/*\
+		/var/cache/apt/archives/partial/*\
+		/var/lib/apt/lists/partial/*\
+		/var/cache/apt/pkgcache.bin\
+		/var/cache/apt/srcpkgcache.bin
+}
+
+SAY "Synchronizing cached writes to persistent storage."
+/bin/sync
+
+printf "\nDONE! -- Please reboot the machine.\n\n"
