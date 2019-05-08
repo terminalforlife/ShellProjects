@@ -1,0 +1,195 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - dwwdl (Distrowatch Weekly Downloader)
+# Started On        - Sat 16 Sep 22:41:54 BST 2017
+# Last Change       - Mon  6 Nov 16:05:37 GMT 2017
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/wget /bin/{sync,sleep}; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -gt 0 ] && exit 1
+
+USAGE(){
+	while read; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            DWWDL - Distrowatch Weekly Downloader (6th November 2017)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+		
+		            Download all of the available DistroWatch Weekly podcasts.
+
+		SYNTAX:     dwwdl [OPTS]
+		
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --server-kind           - A random number of seconds from 1-9 between
+		                                      each image. An 'interval' also occurs for
+		                                      every set of images, in minutes.
+		            --interval|-i N         - Default value is set to 10. Error if missing
+		                                      the above flag. Where N is an integer(s).
+		                                      If N is '0', it will disable the feature.
+		            --show-progress         - Output the wget 'bar' type progress.
+		            --type|-t X             - Where X is the file type; either mp3 or ogg.
+		            --date|-d N             - Where n is the number which corrosponds to
+		                                      the date of the podcast you want to download.
+		                                      An example of n would be 20170804.
+		            --quiet-sleep           - Prevents the display of the sleep messages.
+		                                      Only applicable if --server-kind is used.
+		            --suspend|-s            - Suspend the system after dwwdl finishes.
+		            --shutdown|-S           - Shut the system down after dwwdl finishes.
+
+		NOTE:       All podcasts will be downloaded to the current working directory and
+		            are from newest to oldest, unless --date=n is used.
+
+		            Entries older than 20050822 were before DWW podcasts were available.
+		
+		SITE:       https://www.distrowatch.com
+	EOF
+}
+
+PROGRESS=""
+SERVER_KIND="false"
+SLEEP_S=9
+INTERVAL=10
+EXT="ogg"
+PODS=""
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--server-kind)
+			SERVER_KIND="true" ;;
+		--interval|-i)
+			shift
+
+			[[ "$1" =~ [0-9]+ ]] && INTERVAL="$1" || {
+				XERR "$LINENO" "Incorrect interval."
+			} ;;
+		--quiet-sleep)
+			QUIET_SLEEP="true" ;;
+		--show-progress)
+			PROGRESS="--show-progress" ;;
+		--type|-t)
+			shift
+
+			[[ "$1" =~ ^(mp3|ogg)$ ]] && EXT="$1" || {
+				XERR "$LINENO" "Incorrect file type selected."
+			} ;;
+		--date|-d)
+			shift
+
+			[[ "$1" =~ ^[0-9]{8} ]] && PODS+=" $1" || {
+				XERR "$LINENO" "Incorrect podcast date provided."
+			} ;;
+		--suspend|-s)
+			SUSPEND="true"
+			[ -x /bin/systemctl ] || {
+				XERR "$LINENO" "Dependency 'systemctl' not met."
+			} ;;
+		--shutdown|-S)
+			SHUTDOWN="true"
+			[ -x /sbin/shutdown ] || {
+				XERR "$LINENO" "Dependency 'shutdown' not met."
+			} ;;
+		*)
+			break ;;
+	esac
+
+	shift
+done
+
+[ "$*" ] && XERR "$LINENO" "Incorrect argument(s) detected."
+
+[ "$SERVER_KIND" == "true" ] || {
+	[ "$QUIET_SLEEP" == "true" -o ! "$INTERVAL" -eq 10 ] && {
+		XERR "$LINENO" "Expecting '--server-kind' argument."
+	}
+}
+
+[ $UID -gt 0 ] || XERR "$LINENO" "Root access is not recommended."
+
+declare -i TIME_COUNT=0
+
+[ -z "$PODS" ] && {
+	#TODO - See about adding $OLDTONEW functionality here with pure shell.
+	PODS=$(
+		LINK="http://distrowatch.com/weekly.php?issue=1"
+
+		while read -ra X; do
+			for A in ${X[@]}; {
+				[[ "$A" == *\?issue\=* ]] && {
+					printf "%s\n" ${A//[!0-9]/}
+				}
+			}
+		done <<< `/usr/bin/wget -q "$LINK" -O -`
+	)
+}
+
+DLURL="http://distrowatch.com/podcast/dww"
+
+for DATE in $PODS; {
+	[ $DATE -lt 20050822 ] && continue
+
+	[ -z "$PROGRESS" ] && printf "PODCAST: %s\n" "$DATE"
+
+	[ "$SERVER_KIND" == "true" -a ! -f "${DL_LINK//*\/}" ] && {
+		TIME_COUNT+=1; printf -v RAND "%0.5d" "$RANDOM"
+		[ "$QUIET_SLEEP" == "true" ] || {
+			printf "Sleeping for %d second(s)...\n" "${RAND/????}"
+		}
+
+		/bin/sleep ${RAND/????}s
+
+		[ $INTERVAL -eq 0 -a $TIME_COUNT -eq $INTERVAL ] && {
+			printf -v RAND "%0.5d" "$RANDOM"
+
+			[ "$QUIET_SLEEP" == "true" ] || {
+				printf "Sleeping for %d minute(s)...\n"\
+					"${RAND/????}"
+			}
+
+			/bin/sleep ${RAND/????}m
+			TIME_COUNT=0
+		}
+	}
+
+	/usr/bin/wget -cq --no-cookies $PROGRESS ${DLURL}${DATE}.${EXT} || {
+		ERR "$LINENO" "Podcast '$DATE' failed."
+	}
+}
+
+[ "$SHUTDOWN" == "true" ] && {
+	/sbin/shutdown +3 &> /dev/null
+	printf "%s\n" "Shutting down in 3 minutes..."
+	read -n 1 -e -p "Type 'C' to cancel, or 'N' to shutdown now: " SHUTDOWN_PROMPT
+
+	case "${SHUTDOWN_PROMPT:-EMPTY}" in
+		[Cc])
+			/sbin/shutdown --no-wall -c
+			exit 0 ;;
+		[Nn])
+			/sbin/shutdown --no-wall now ;;
+		EMPTY|*)
+			echo "Incorrect response. Quitting." 1>&2
+			exit 1 ;;
+	esac
+}
+
+[ "$SUSPEND" == "true" ] && {
+	/bin/sync
+	printf "%s\n" "System will suspend in 3s; type Ctrl+C to cancel and quit dwwdl."
+	/bin/sleep 3
+	/bin/systemctl suspend
+}
