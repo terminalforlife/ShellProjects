@@ -1,0 +1,194 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - roks (inspired by purge-old-kernels)
+# Started On        - Sun 17 Sep 23:32:47 BST 2017
+# Last Change       - Fri 26 Apr 14:14:41 BST 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-04-26"
+
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+
+DOM="https://github.com"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            ROKS - Remove Old Kernels ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Remove old kernel versions on an Ubuntu- or Debian-based system.
+
+		SYNTAX:     roks [OPTS]
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --quiet|-q              - Disable all STDOUT and STDERR output.
+		            --update|-U             - Check for updates to roks.
+		            --debug|-D              - Enables the built-in bash debugger.
+		            --keep|-k N             - Where N is the number of kernels to keep.
+		                                      The default is 2, which is recommended.
+		            --type X                - Where X is the type of kernel, such as
+		                                      generic, lowlatency, aws, gke, etc. The
+		                                      default is to disregard the type.
+		            --ignore-os             - Run roks regardless of unsupported OS.
+
+		NOTE:      Written as an improvement over the now-deprecated script called
+		           'purge-old-kernels' found in the byobu package. This small program will
+		           clear out your system of old kernel versions on an Ubuntu- or
+		           Debian-based system.
+
+		           Unrecognised short or long flags will be passed to apt or apt-get.
+
+		           As of 2019-03-31, roks no longer supports handling older kernel versions
+		           in Debian- or Ubuntu-based systems. I recommend taking extra care when
+		           using roks on systems with kernels older than 4.15; it might work, but
+		           not necessarily as intended.
+
+		SITE:      $DOM/terminalforlife/roks
+	EOF
+}
+
+NUM_TO_KEEP=2
+IGNORE_OS="false"
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"
+			exit 0 ;;
+		--quiet|-q)
+			exec >&- 2>&- ;;
+		--update|-U)
+			UPDATE="true" ;;
+		--debug|-D)
+			DEBUG_MODE="true" ;;
+		--keep|-k)
+			shift
+			if [[ "$1" =~ [0-9]+ ]]; then
+				if [ $1 -eq 0 ]; then
+					XERR "$LINENO" "Invalid number of kernels selected."
+				else
+					declare -i NUM_TO_KEEP=$1
+				fi
+			else
+				XERR "$LINENO" "Invalid expression specified."
+			fi ;;
+		--ignore-os)
+			IGNORE_OS="true" ;;
+		--type)
+			shift; KTYPE="-${1}" ;;
+		-*|--*)
+			APTGETOPTS+=" $1" ;;
+		*)
+			XERR "$LINENO" "Incorrect argument(s) provided." ;;
+	esac
+	shift
+done
+
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{wget,apt-get,linux-version}; {
+	if ! [ -x "$DEP" ]; then
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
+
+if [ "$UPDATE" == "true" ]; then
+	VERSION_URL="$DOM/terminalforlife/roks/raw/master/version"
+	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+			while read -r; do
+				printf "%s\n" "$REPLY"
+			done <<-EOF
+				New version available:    $LATEST
+				Current version:          $_VERSION_
+			EOF
+		fi
+	else
+		XERR "$LINENO" "Failed to check for available updates."
+	fi
+
+	exit 0
+fi
+
+if ! [ "$IGNORE_OS" == "true" ]; then
+	if [ -f /etc/os-release -a -r /etc/os-release ]; then
+		while read -a X; do
+			if [[ "${X[0]}" =~ ^(ID_LIKE=|ID=) ]]; then
+				case "${X[0]/*=}" in
+					[Uu]buntu|[Dd]ebian|[Ll]inux[Mm]int)
+						break ;;
+					*)
+						XERR "$LINENO" "Unsupported distribution detected." ;;
+				esac
+			fi
+		done < /etc/os-release
+	else
+		ERR "$LINENO" "Unable to identify LSB/Distro type."
+		read -n 1 -e -p "Will you [c]ontinue or [q]uit? "
+		case "$REPLY" in
+			[Cc])
+				;;
+			[Qq])
+				printf "Quitting -- no action taken.\n"
+				exit 0 ;;
+			*)
+				XERR "$LINENO" "Incorrect response -- no action taken." ;;
+		esac
+	fi
+fi
+
+[ "$DEBUG_MODE" == "true" ] && set -x
+
+if [ -f /proc/version -a -r /proc/version ]; then
+	read -a X < /proc/version
+	printf -v CKERN "%s" "${X[2]}"
+elif [ -x /bin/uname ]; then
+	CKERN=`/bin/uname -r`
+else
+	XERR "$LINENO" "Unable to determine current kernel version."
+fi
+
+#------------------------------------------------------------------------------MAIN
+
+NUM_TO_KEEP+=2
+KLIST=`/usr/bin/linux-version list`
+if ! [ "$KLIST" ]; then
+	XERR "$LINENO" "No kernels were found -- do you have root access?"
+elif ! [ "$KLIST" ]; then
+	XERR "$LINENO" "No kernels were selected for removal."
+else
+	declare -a TO_GO=()
+	for LOOP in $KLIST; {
+		[ -n "$KTYPE" ] && LOOP="${LOOP%-*}${KTYPE}"
+		if ! [ "$LOOP" == "$CKERN" ]; then
+			TO_GO+="${LOOP%-*}${KTYPE}"
+		fi
+	}
+
+	/usr/bin/apt-get -q $APTGETOPTS -o Dpkg::Progress=true\
+		-o Dpkg::Progress-Fancy=true remove ${TO_GO[@]}
+
+	if ! [ $? -eq 130 -o $? -eq 0 ]; then
+		XERR "$LINENO" "Non-zero exit status while removing old kernels."
+	fi
+fi
+
+# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
