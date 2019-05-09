@@ -1,16 +1,16 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/tlptog
+# Project Name      - Extra/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Sun 20 May 12:35:44 BST 2018
+# Last Change       - Thu  9 May 00:59:21 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Quick shell program to toggle TLP to improve power management on portable setups.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-05-20"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -65,7 +65,7 @@ for DEP in /usr/bin/wget /bin/sed; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/miscellaneous/raw/master/tlptog-version"
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/tlptog-version"
 	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
 	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
 		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
