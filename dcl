@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/dcl (dos-cdrom-lib)
+# Project Name      - Extra/dcl (dos-cdrom-lib)
 # Started On        - Thu 23 Nov 16:47:50 GMT 2017
-# Last Change       - Fri 24 Nov 03:18:02 GMT 2017
+# Last Change       - Thu  9 May 00:52:07 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -110,18 +110,18 @@ SELECT_OPTION_ONE(){
 		while read -r; do
 			printf "%s\n" "$REPLY"
 		done <<-EOF
-		
+
 			         ╭ Explore the Pages ╮
 			         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
-		
+
 			  Enter a menu option at the prompt.
-		
+
 			  1) View Page Number 1
 			  2) View Page Number 2
 			  3) View Page Number 3
 			  4) View Page Number 4
 			  5) Back to the Main Menu
-		
+
 		EOF
 
 		read -en 1 -p "  ▸ "
@@ -152,15 +152,15 @@ SELECT_OPTION_TWO(){
 		while read -r; do
 			printf "%s\n" "$REPLY"
 		done <<-EOF
-		
+
 			         ╭ Change Settings ╮
 			         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
-		
+
 			  Enter a menu option at the prompt.
-		
+
 			  1) ???
 			  2) Back to the Main Menu
-		
+
 		EOF
 
 		read -en 1 -p "  ▸ "
@@ -185,15 +185,15 @@ SELECT_OPTION_THREE(){
 		while read -r; do
 			printf "%s\n" "$REPLY"
 		done <<-EOF
-		
+
 			         ╭ Help & Support ╮
 			         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
-		
+
 			  Enter a menu option at the prompt.
-		
+
 			  1) ???
 			  2) Back to the Main Menu
-		
+
 		EOF
 
 		read -en 1 -p "  ▸ "
@@ -218,17 +218,17 @@ while :; do
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-	
+
 		         ╭ Welcome to DCL ╮
 		         ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛
-	
+
 		  Enter a menu option at the prompt.
-	
+
 		  1) Explore the Pages
 		  2) Change Settings
 		  3) Help & Support
 		  4) Quit DCL
-	
+
 	EOF
 
 	read -en 1 -p "  ▸ "
