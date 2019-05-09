@@ -1,16 +1,16 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/disk-watcher
+# Project Name      - Extra/disk-watcher
 # Started On        - Sun 28 Jan 00:56:24 GMT 2018
-# Last Change       - Fri 26 Apr 14:43:03 BST 2019
+# Last Change       - Thu  9 May 00:53:57 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Placeholder for a handy-dandy project idea.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
