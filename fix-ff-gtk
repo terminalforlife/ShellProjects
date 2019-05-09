@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/fix-ff-gtk
+# Project Name      - Extra/fix-ff-gtk
 # Started On        - Fri 29 Mar 13:12:04 GMT 2019
-# Last Change       - Mon  1 Apr 00:59:30 BST 2019
+# Last Change       - Thu  9 May 00:56:56 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-01"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
