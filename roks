@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu  9 May 20:15:17 BST 2019
+# Last Change       - Thu  9 May 20:24:51 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -33,6 +33,7 @@ USAGE(){
 		            --type X                - Where X is the type of kernel, such as
 		                                      generic, lowlatency, aws, gke, etc. The
 		                                      default is to disregard the type.
+		            --purge                 - Don't just remove; purge the blighters.
 
 		NOTE:      Written as an improvement over the now-deprecated script called
 		           'purge-old-kernels' found in the byobu package. This small program will
@@ -49,7 +50,6 @@ USAGE(){
 }
 
 NUM_TO_KEEP=2
-IGNORE_OS="false"
 
 while [ "$1" ]; do
 	case "$1" in
@@ -75,6 +75,8 @@ while [ "$1" ]; do
 			fi ;;
 		--type)
 			shift; KTYPE="-${1}" ;;
+		--purge)
+			PURGE="--purge" ;;
 		-*|--*)
 			APTGETOPTS+=" $1" ;;
 		*)
@@ -120,9 +122,9 @@ else
 	}
 
 	/usr/bin/apt-get -q $APTGETOPTS -o Dpkg::Progress=true\
-		-o Dpkg::Progress-Fancy=true remove ${TO_GO[@]}
+		-o Dpkg::Progress-Fancy=true remove $PURGE ${TO_GO[@]}
 
-	if ! [ $? -eq 130 -o $? -eq 0 ]; then
+	if [ $? -ne 0 ]; then
 		XERR "$LINENO" "Non-zero exit status while removing old kernels."
 	fi
 fi
