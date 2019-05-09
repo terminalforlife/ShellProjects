@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/ubuntu-syschk
+# Project Name      - Extra/ubuntu-syschk
 # Started On        - Mon 22 Jan 12:03:01 GMT 2018
-# Last Change       - Wed 11 Apr 19:36:52 BST 2018
+# Last Change       - Thu  9 May 00:59:29 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-04-11"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
