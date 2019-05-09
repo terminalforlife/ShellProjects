@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/mplay
+# Project Name      - Extra/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Fri 19 Apr 15:24:19 BST 2019
+# Last Change       - Thu  9 May 00:58:13 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-19"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
