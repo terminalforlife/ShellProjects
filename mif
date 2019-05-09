@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/mif (Movie Index Filter)
+# Project Name      - Extra/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Sat  7 Apr 18:54:09 BST 2018
+# Last Change       - Thu  9 May 00:58:04 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-04-07"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -58,7 +58,7 @@ USAGE(){
 
 		FILE:       Default is $HOME/.mif but use --file|-f FILE to specify your own.
 
-		SITE:       $DOM/terminalforlife/miscellaneous
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
@@ -118,7 +118,7 @@ for DEP in /bin/{mkdir,mv} /usr/bin/wget; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/miscellaneous/raw/master/mif-version"
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/mif-version"
 	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
 	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
 		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
