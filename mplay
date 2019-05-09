@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Thu  9 May 00:58:13 BST 2019
+# Last Change       - Thu  9 May 13:58:47 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -37,9 +37,7 @@ USAGE(){
 		              $THEMEDIR
 
 		            The default theme used is the tfl_moc_theme, found at the above GitHub
-		            address. You can install it with insit, if not already done so:
-
-		              sudo insit tfl_moc_theme
+		            address, in the Extra repository.
 
 		            The latest version of mplay includes this theme, however.
 	EOF
