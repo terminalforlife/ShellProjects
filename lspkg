@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/lspkg (List Packages)
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Thu  9 May 14:56:44 BST 2019
+# Last Change       - Thu  9 May 15:06:56 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -30,9 +30,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to lspkg.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --ignore-os|-I          - Ignore the LSB/Distro type; don't check.
 		            --no-describe|-N        - Do not display package descriptions.
 		            --name-only|-n          - Match only the package names.
 		            --ignore-case|-i        - Match both upper- and lower-case.
@@ -70,12 +68,8 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
-		--update|-U)
-			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--ignore-os|-I)
-			LSBCHK="false" ;;
 		--no-describe|-N)
 			NO_DESCRIBE="true" ;;
 		--ignore-case|-i)
@@ -104,57 +98,8 @@ done
 
 PKG=($@)
 
-if ! [ -x /usr/bin/wget ]; then
-	XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
-fi
-
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
-
-if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/lspkg/raw/master/version"
-	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
-	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
-		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-			while read -r; do
-				printf "%s\n" "$REPLY"
-			done <<-EOF
-				New version available:    $LATEST
-				Current version:          $_VERSION_
-			EOF
-		fi
-	else
-		XERR "$LINENO" "Failed to check for available updates."
-	fi
-
-	exit 0
-fi
-
 if ! [ -x /usr/bin/dpkg-query ]; then
 	XERR "$LINENO" "Dependency '/usr/bin/dpkg-query' not met."
-fi
-
-OS(){
-	# Check for an Ubuntu or Debian LSB/Distro, which is required for this to
-	# work, since it parses and so directly relies on dpkg-query.
-	if [ -f /etc/os-release -a -r /etc/os-release ]; then
-		while read -a X; do
-			if [[ "${X[0]}" == ID_LIKE=* ]]; then
-				printf "%s\n" "${X[0]/*=}"; break
-			elif [[ "${X[0]}" == ID=* ]]; then
-				printf "%s\n" "${X[0]/*=}"; break
-			fi
-		done < /etc/os-release
-	else
-		XERR "$LINENO" "Cannot identify your LSB/Distro type."
-	fi
-}
-
-if [ "$LSBCHK" == "true" ] && ! [[ "$(OS)" =~ ([Uu]buntu|[Dd]ebian) ]]; then
-	XERR "$LINENO" "Unsupported LSB/Distro type."
 fi
 
 [ "$DEBUGME" == "true" ] && set -x
