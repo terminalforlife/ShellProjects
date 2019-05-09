@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/purgerc
+# Project Name      - Extra/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Sat  4 May 13:43:31 BST 2019
+# Last Change       - Thu  9 May 00:58:34 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-04"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -71,7 +71,7 @@ if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 fi
 
 if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/miscellaneous/raw/master/purgerc-version"
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/purgerc-version"
 	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
 	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
 		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
