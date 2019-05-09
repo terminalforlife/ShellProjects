@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/isbatlow
+# Project Name      - Extra/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Sun  8 Apr 22:04:03 BST 2018
+# Last Change       - Thu  9 May 00:57:28 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-04-08"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -37,7 +37,7 @@ USAGE(){
 		NOTE:       Where CMD is one or more commands to run upon the battery limit being
 		            detected, which is by default 15%, remaining.
 
-		SITE:       $DOM/terminalforlife/miscellaneous
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
@@ -105,7 +105,7 @@ if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 fi
 
 if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/miscellaneous/raw/master/isbatlow-version"
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/isbatlow-version"
 	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
 	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
 		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
