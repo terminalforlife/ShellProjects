@@ -1,19 +1,17 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - roks (inspired by purge-old-kernels)
+# Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Fri 26 Apr 14:14:41 BST 2019
+# Last Change       - Thu  9 May 20:15:17 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-DOM="https://github.com"
 
 USAGE(){
 	while read -r; do
@@ -29,14 +27,12 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Disable all STDOUT and STDERR output.
-		            --update|-U             - Check for updates to roks.
 		            --debug|-D              - Enables the built-in bash debugger.
 		            --keep|-k N             - Where N is the number of kernels to keep.
 		                                      The default is 2, which is recommended.
 		            --type X                - Where X is the type of kernel, such as
 		                                      generic, lowlatency, aws, gke, etc. The
 		                                      default is to disregard the type.
-		            --ignore-os             - Run roks regardless of unsupported OS.
 
 		NOTE:      Written as an improvement over the now-deprecated script called
 		           'purge-old-kernels' found in the byobu package. This small program will
@@ -49,8 +45,6 @@ USAGE(){
 		           in Debian- or Ubuntu-based systems. I recommend taking extra care when
 		           using roks on systems with kernels older than 4.15; it might work, but
 		           not necessarily as intended.
-
-		SITE:      $DOM/terminalforlife/roks
 	EOF
 }
 
@@ -66,8 +60,6 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--quiet|-q)
 			exec >&- 2>&- ;;
-		--update|-U)
-			UPDATE="true" ;;
 		--debug|-D)
 			DEBUG_MODE="true" ;;
 		--keep|-k)
@@ -81,8 +73,6 @@ while [ "$1" ]; do
 			else
 				XERR "$LINENO" "Invalid expression specified."
 			fi ;;
-		--ignore-os)
-			IGNORE_OS="true" ;;
 		--type)
 			shift; KTYPE="-${1}" ;;
 		-*|--*)
@@ -94,7 +84,7 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{wget,apt-get,linux-version}; {
+for DEP in /usr/bin/{apt-get,linux-version}; {
 	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -102,58 +92,6 @@ for DEP in /usr/bin/{wget,apt-get,linux-version}; {
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
-
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
-
-if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/roks/raw/master/version"
-	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
-	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
-		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-			while read -r; do
-				printf "%s\n" "$REPLY"
-			done <<-EOF
-				New version available:    $LATEST
-				Current version:          $_VERSION_
-			EOF
-		fi
-	else
-		XERR "$LINENO" "Failed to check for available updates."
-	fi
-
-	exit 0
-fi
-
-if ! [ "$IGNORE_OS" == "true" ]; then
-	if [ -f /etc/os-release -a -r /etc/os-release ]; then
-		while read -a X; do
-			if [[ "${X[0]}" =~ ^(ID_LIKE=|ID=) ]]; then
-				case "${X[0]/*=}" in
-					[Uu]buntu|[Dd]ebian|[Ll]inux[Mm]int)
-						break ;;
-					*)
-						XERR "$LINENO" "Unsupported distribution detected." ;;
-				esac
-			fi
-		done < /etc/os-release
-	else
-		ERR "$LINENO" "Unable to identify LSB/Distro type."
-		read -n 1 -e -p "Will you [c]ontinue or [q]uit? "
-		case "$REPLY" in
-			[Cc])
-				;;
-			[Qq])
-				printf "Quitting -- no action taken.\n"
-				exit 0 ;;
-			*)
-				XERR "$LINENO" "Incorrect response -- no action taken." ;;
-		esac
-	fi
-fi
 
 [ "$DEBUG_MODE" == "true" ] && set -x
 
@@ -165,8 +103,6 @@ elif [ -x /bin/uname ]; then
 else
 	XERR "$LINENO" "Unable to determine current kernel version."
 fi
-
-#------------------------------------------------------------------------------MAIN
 
 NUM_TO_KEEP+=2
 KLIST=`/usr/bin/linux-version list`
@@ -191,4 +127,4 @@ else
 	fi
 fi
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
