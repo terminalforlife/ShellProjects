@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Thu  9 May 20:47:35 BST 2019
+# Last Change       - Thu  9 May 20:59:47 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -73,7 +73,6 @@ done
 	-O FollowPlayedFile=yes                   \
 	-O ModPlug_NoiseReduction=yes             \
 	-O ModPlug_ResamplingMode=FIR             \
-	-O OnSongChange="$COMMAND"                \
 	-O CanStartInPlaylist=yes                 \
 	-O ResampleMethod=SincMediumQuality       \
 	-O UseMimeMagic=no                        \
