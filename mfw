@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/mfw (Mint Forum Watch)
+# Project Name      - Extra/mfw (Mint Forum Watch)
 # Started On        - Sun 21 Jan 14:15:13 GMT 2018
-# Last Change       - Wed 31 Jan 12:46:40 GMT 2018
+# Last Change       - Thu  9 May 00:57:58 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -33,11 +33,11 @@ USAGE(){
 	done <<-EOF
 		            MFW - Mint Forum Watch (31st January 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Notifier for page-one threads on the Newbie Questions Linux Mint forum.
 
 		SYNTAX:     mfw [OPTS] [INTERVAL]
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --filter|-F ID          - Omit threads by their ID number. (See URL)
