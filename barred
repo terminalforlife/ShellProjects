@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/barred
+# Project Name      - Extra/barred
 # Started On        - Sun 19 Nov 13:56:45 GMT 2017
-# Last Change       - Sat 24 Mar 00:55:47 GMT 2018
+# Last Change       - Thu  9 May 00:51:07 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 # SYNTAX: barred B[[0|25|50|75|100]|P]
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-24"
+_VERSION_="2019-05-09"
 
 B=(𝍥:0 𝍦:25 𝍧:50 𝍨:75 𝍤:100 )
 
