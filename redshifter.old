@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/redshifter
+# Project Name      - Extra/redshifter
 # Started On        - Tue  3 Oct 19:14:37 BST 2017
-# Last Change       - Mon 26 Mar 20:33:19 BST 2018
+# Last Change       - Thu  9 May 00:58:42 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -37,7 +37,7 @@
 #             saved isn't a value of '-100' or something; must be an integer.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-26"
+_VERSION_="2019-05-09"
 
 BUFFER="$HOME/.config/redshifter.tmp"
 [ -d "$HOME/.config" ] || /bin/mkdir "$HOME/.config"
