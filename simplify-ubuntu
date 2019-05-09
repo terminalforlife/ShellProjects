@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Thu  9 May 00:58:51 BST 2019
+# Last Change       - Thu  9 May 21:08:39 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -31,7 +31,6 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to simplify-ubuntu.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --purge|-p              - Purge package's global configuration files.
 		            --ignore-fonts|-F       - Don't ask any questions about fonts.
@@ -61,8 +60,6 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
-		--update|-U)
-			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--ignore-fonts|-F)
@@ -92,35 +89,6 @@ for DEP in /bin/rm /usr/bin/{lspkg,clean-locales,apt-get}; {
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
-
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
-
-if [ "$UPDATE" == "true" ]; then
-	if [ -x /usr/bin/wget ]; then
-		VERSION_URL="$DOM/terminalforlife/simplify-ubuntu/raw/master/version"
-		LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
-		if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
-			if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-				while read -r; do
-					printf "%s\n" "$REPLY"
-				done <<-EOF
-					New version available:    $LATEST
-					Current version:          $_VERSION_
-				EOF
-			fi
-		else
-			XERR "$LINENO" "Failed to check for available updates."
-		fi
-
-		exit 0
-	else
-		XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
-	fi
-fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
