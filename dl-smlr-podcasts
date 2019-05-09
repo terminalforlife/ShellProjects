@@ -1,36 +1,21 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/dl-smlr-podcasts
+# Project Name      - Extra/dl-smlr-podcasts
 # Started On        - Mon  9 Oct 22:38:03 BST 2017
-# Last Change       - Fri 26 Apr 14:43:45 BST 2019
+# Last Change       - Thu  9 May 00:56:31 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
 # This is unfinished; not ready for use and probably isn't even functional.
-
 #----------------------------------------------------------------------------------
 
-XERR(){ echo "[L${1}] ERROR: $2" 1>&2; exit 1; }
-ERR(){ echo "[L${1}] ERROR: $2" 1>&2; }
-
-declare -i DEPCOUNT=0
-for DEP in /usr/bin/{wget,cut} /bin/grep
-{
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
-
-shopt -s extglob
+XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
 USAGE(){
 	while read -r; do
-		echo "$REPLY"
+		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            DL-SMLR-PODCASTS (10th October 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
@@ -64,10 +49,20 @@ while [ -n "$1" ]; do
 	shift
 done
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+declare -i DEPCOUNT=0
+for DEP in /usr/bin/{wget,cut} /bin/grep; {
+	[ -x "$DEP" ] || {
+		ERR "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	}
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
 
 [ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
+
+shopt -s extglob
 
 DOM="http://smlr.us"
 MAIN=`/usr/bin/wget -q "$DOM" -O -`
