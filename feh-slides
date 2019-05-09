@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Thu  9 May 00:56:47 BST 2019
+# Last Change       - Thu  9 May 17:10:28 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -102,4 +102,4 @@ else
 	XERR "$LINENO" "Directory '$1' not found."
 fi
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
