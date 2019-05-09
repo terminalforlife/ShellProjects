@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/clean-locales
 # Started On        - Wed  1 Nov 11:29:18 GMT 2017
-# Last Change       - Thu  9 May 00:52:00 BST 2019
+# Last Change       - Thu  9 May 21:21:55 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ while [ "$1" ]; do
 	shift
 done
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
 if [ -x /bin/rm ]; then
