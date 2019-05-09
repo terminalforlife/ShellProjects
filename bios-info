@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/bios-info
+# Project Name      - Extra/bios-info
 # Started On        - Tue 20 Feb 07:47:12 GMT 2018
-# Last Change       - Tue 20 Feb 07:58:50 GMT 2018
+# Last Change       - Thu  9 May 00:51:13 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,11 +18,11 @@ USAGE(){
 	done <<-EOF
 		            BIOS-INFO (20th February 2018)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Simple tool to show basic BIOS keys and their values.
 
 		SYNTAX:     bios-info [OPT]
-		
+
 		OPT:        --help|-h|-?            - Displays this help information.
 	EOF
 }
