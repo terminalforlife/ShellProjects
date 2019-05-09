@@ -3,16 +3,16 @@
 set -- "3D / Abstract" 1
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/dlhdw
+# Project Name      - Extra/dlhdw
 # Started On        - Sat  9 Jun 11:40:57 BST 2018
-# Last Change       - Fri 26 Apr 14:43:32 BST 2019
+# Last Change       - Thu  9 May 00:54:51 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # WORK IN PROGRESS!!!
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-09"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
