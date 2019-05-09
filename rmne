@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Thu  9 May 00:58:48 BST 2019
+# Last Change       - Thu  9 May 16:35:36 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -29,7 +29,6 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to rmne.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --no-purge              - Do not purge any remaining package files.
 
@@ -48,8 +47,6 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
-		--update|-U)
-			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--no-purge)
@@ -65,7 +62,7 @@ done
 KEEP=($@)
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{wget,apt-get,apt-cache,dpkg-query}; {
+for DEP in /usr/bin/{apt-get,apt-cache,dpkg-query}; {
 	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -73,31 +70,6 @@ for DEP in /usr/bin/{wget,apt-get,apt-cache,dpkg-query}; {
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
-
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
-
-if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/rmne-version"
-	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
-	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
-		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-			while read -r; do
-				printf "%s\n" "$REPLY"
-			done <<-EOF
-				New version available:    $LATEST
-				Current version:          $_VERSION_
-			EOF
-		fi
-	else
-		XERR "$LINENO" "Failed to check for available updates."
-	fi
-
-	exit 0
-fi
 
 printf -v DATE "%(%F)T" -1
 while read -r; do
