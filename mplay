@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Thu  9 May 13:58:47 BST 2019
+# Last Change       - Thu  9 May 20:44:18 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -22,12 +22,11 @@ USAGE(){
 		            MPLAY ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Simple script to allow me to quickly load MOC how I like.
+		            MOC Wrapper for a clean layout with a subtle transparent theme.
 
 		SYNTAX:     mplay [OPTS] PATH
 
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --notify|-N             - Send track info notifications.
 		            --run-once|-o           - Exit the MOC server when closed.
 
 		NOTE:       Where PATH is the location in which music is found.
@@ -47,8 +46,6 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--notify|-N)
-			NOTIFY="true" ;;
 		--once|-o)
 			ONCE="true" ;;
 		-*)
@@ -57,53 +54,39 @@ while [ "$1" ]; do
 	shift
 done
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not required."
-
-if [ -n "$1" ]; then
-	[ -d "$1" ] || XERR "$LINENO" "Unable to find the given music directory."
-fi
-
-if [ "$NOTIFY" == "true" ]; then
-	# This uses a small script from my i3config repository; you can use that
-	# even if you don't use i3-wm! Just point this path to the script, -
-	# wherever you want it.
-	COMMAND="/bin/bash $HOME/.i3a/track_notify"
-else
-	COMMAND=":"
-fi
+[ "$1" -a ! -d "$1" ] && XERR "$LINENO" "Unable to find the given music directory."
 
 [ -d $THEMEDIR ] || XERR "$LINENO" "Theme directory not found."
 [ -f "$THEMEDIR/tfl_moc_theme" ] || XERR "$LINENO" "Theme file not found."
 
-if [ -x /usr/bin/mocp ]; then
-	/usr/bin/mocp -n -T "$THEMEDIR/tfl_moc_theme"     \
-		-O ShowFormat=yes                         \
-		-O ShowTime=no                            \
-		-O Shuffle=yes                            \
-		-O HideFileExtension=yes                  \
-		-O SavePlaylist=no                        \
-		-O TagsCacheSize=3000                     \
-		-O PlaylistNumbering=yes                  \
-		-O Layout1="playlist(50%,50%,50%,50%)"    \
-		-O FollowPlayedFile=yes                   \
-		-O ModPlug_NoiseReduction=yes             \
-		-O ModPlug_ResamplingMode=FIR             \
-		-O OnSongChange="$COMMAND"                \
-		-O CanStartInPlaylist=yes                 \
-		-O ResampleMethod=SincMediumQuality       \
-		-O UseMimeMagic=no                        \
-		-O ShowHiddenFiles=no                     \
-		-O InputBuffer=512                        \
-		-O OutputBuffer=512                       \
-		-O Prebuffering=256                       \
-		-m "${1:-$HOME/Music}"                    \
-	|| XERR "$LINENO" "Unable to start the MOC player."
+[ -x '/usr/bin/mocp' ] || XERR "$LINENO" "Dependency '/usr/bin/mocp' not met."
+[ -x '/sbin/alsa' ] || XERR "$LINENO" "Dependency '/sbin/alsa' not met."
 
-	if [ "$ONCE" == "true" ]; then
-		wait; /usr/bin/mocp -x
-	fi
-else
-	XERR "$LINENO" "Dependency '/usr/bin/mocp' and/or '/sbin/alsa' not met."
+/usr/bin/mocp -n -T "$THEMEDIR/tfl_moc_theme"     \
+	-O ShowFormat=yes                         \
+	-O ShowTime=no                            \
+	-O Shuffle=no                             \
+	-O HideFileExtension=yes                  \
+	-O SavePlaylist=no                        \
+	-O TagsCacheSize=3000                     \
+	-O PlaylistNumbering=yes                  \
+	-O Layout1="playlist(50%,50%,50%,50%)"    \
+	-O FollowPlayedFile=yes                   \
+	-O ModPlug_NoiseReduction=yes             \
+	-O ModPlug_ResamplingMode=FIR             \
+	-O OnSongChange="$COMMAND"                \
+	-O CanStartInPlaylist=yes                 \
+	-O ResampleMethod=SincMediumQuality       \
+	-O UseMimeMagic=no                        \
+	-O ShowHiddenFiles=no                     \
+	-O InputBuffer=512                        \
+	-O OutputBuffer=512                       \
+	-O Prebuffering=256                       \
+	-m "${1:-$HOME/Music}"                    \
+|| XERR "$LINENO" "Unable to start the MOC player."
+
+if [ "$ONCE" == "true" ]; then
+	wait; /usr/bin/mocp -x
 fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
