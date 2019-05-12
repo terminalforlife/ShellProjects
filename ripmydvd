@@ -1,33 +1,36 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - ripmydvd
+# Project Name      - Extra/ripmydvd
 # Started On        - Fri 29 Sep 21:19:47 BST 2017
-# Last Change       - Fri 26 Apr 14:17:57 BST 2019
+# Last Change       - Sun 12 May 23:44:19 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            RIPMYDVD ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Shell program using ffmpeg and mplayer to rip your DVD.
 
-		SYNTAX:     ripmydvd [OPTS] TARGET
+		SYNTAX:     $_PROJECT_ [OPTS] TARGET
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 		            --title|-t N[-N]        - Where N is the title number on the DVD. The
 		                                      title choice can be specified by a range.
 		            --eject|-e              - Eject the device's tray upon completion.
@@ -53,16 +56,15 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
-		--debug|-D)
-			DEBUGME="true" ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
 		--device|-d)
 			shift
 
-			[ -b "$1" ] || XERR "$LINENO" "Device not found at: $1"
+			[ -b "$1" ] || FAIL 1 "$LINENO" "Device not found at: $1"
 			DEVICE="$1" ;;
 		--combine|-C)
 			COMBINE="true" ;;
@@ -72,7 +74,7 @@ while [ "$1" ]; do
 			if [[ "$1" =~ ^([0-9]+|[0-9]+-[0-9]+)$ ]]; then
 				TITLE="$1"
 			else
-				XERR "$LINENO" "Invalid title."
+				FAIL 1 "$LINENO" "Invalid title."
 			fi ;;
 		--aid)
 			shift
@@ -108,20 +110,20 @@ done
 TARGET="$*"
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{eject,mkfifo,ffmpeg,mplayer}; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in eject mkfifo ffmpeg mplayer; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
-	}
+	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ -z "$TARGET" ] && XERR "$LINENO" "You need to provide a filename."
-[ -z "$TITLE" ] && XERR "$LINENO" "Which title do you want to rip?"
-[ -z "$DEVICE" ] && DEVICE="/dev/sr0"
+[ "$TARGET" ] || FAIL 1 "$LINENO" "You need to provide a filename."
+[ "$TITLE" ] || FAIL 1 "$LINENO" "Which title do you want to rip?"
+[ "$DEVICE" ] || DEVICE="/dev/sr0"
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
 FIFO="/tmp/stream_${$}.dump"
@@ -129,36 +131,35 @@ MPARGS1="$AID $ASID $ALANG -nosub -really-quiet -nolirc -nocache -vo x11 -zoom"
 MPARGS2="-dumpstream -dumpfile "$FIFO" dvd://$TITLE/$DEVICE"
 declare -i SECONDS=0
 
-[ -n "$START_COMMAND" ] && ($START_COMMAND)
+[ "$START_COMMAND" ] && ($START_COMMAND)
 
-/usr/bin/mkfifo "$FIFO"
+mkfifo "$FIFO"
 
 if [ "$COMBINE" == "true" ]; then
-	if [ -z "$ALANG" -a -z "$AID" ]; then
-		XERR "$LINENO" "The --combine argument requires -alang or -aid."
+	if ! [ "$ALANG" -a "$AID" ]; then
+		FAIL 1 "$LINENO" "The --combine argument requires -alang or -aid."
 	fi
 
-	/usr/bin/mplayer $MPARGS1 -dumpaudio -dumpfile "/tmp/audio.dump"\
-		dvd://$TITLE/$DEVICE >&- 2>&-
+	mplayer $MPARGS1 -dumpaudio -dumpfile "/tmp/audio.dump"\
+		dvd://$TITLE/$DEVICE > /dev/null 2>&1
 
-	/usr/bin/mplayer $MPARGS1 -dumpvideo -dumpfile "$FIFO"\
-		dvd://$TITLE/$DEVICE >&- 2>&- & disown
+	mplayer $MPARGS1 -dumpvideo -dumpfile "$FIFO"\
+		dvd://$TITLE/$DEVICE > /dev/null 2>&1 & disown
 
-	/usr/bin/ffmpeg -loglevel fatal -stats\
-		-i /tmp/audio.dump -i "$FIFO" "$TARGET"
+	ffmpeg -loglevel fatal -stats -i /tmp/audio.dump -i "$FIFO" "$TARGET"
 else
-	/usr/bin/mplayer $MPARGS1 $MPARGS2 >&- 2>&- & disown
-	/usr/bin/ffmpeg -loglevel fatal -stats -i "$FIFO" "$TARGET"
+	mplayer $MPARGS1 $MPARGS2 > /dev/null 2>&1 & disown
+	ffmpeg -loglevel fatal -stats -i "$FIFO" "$TARGET"
 fi
 
 if [ "$SUMMARY" == "false" ]; then
 	printf "\aJob on %s ran for %d seconds.\n" "$DEVICE" "$SECONDS"
 fi
 
-[ -n "$END_COMMAND" ] && ($END_COMMAND)
+[ "$END_COMMAND" ] && ($END_COMMAND)
 
 if [ "$EJECT" == "true" ]; then
-	/usr/bin/eject $DEVICE
+	eject $DEVICE
 fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
