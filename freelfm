@@ -3,75 +3,66 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/freelfm
 # Started On        - Fri 15 Sep 21:19:42 BST 2017
-# Last Change       - Thu  9 May 00:57:07 BST 2019
+# Last Change       - Sun 12 May 22:12:30 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-declare -i DEPCOUNT=0
-for DEP in /usr/bin/{tee,wget} /bin/{sync,sleep,sed,grep,mkdir}; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
 }
-
-[ $DEPCOUNT -gt 0 ] && exit 1
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FREELFM ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Download last.fm's free music into the current working directory.
 
-		SYNTAX:     freelfm [OPTS] <page#> <page#> <page#> . . .
+		SYNTAX:     $_PROJECT_ [OPTS] <page#> <page#> <page#> . . .
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --links-only            - Don't download, just save the true, direct
 		                                      download links to a file. See FILES.
-		            --suspend|-s            - Suspend the system after freelfm finishes.
-		            --shutdown|-S           - Shut the system down after freelfm finishes.
+		            --suspend|-s            - Suspend the system after $_PROJECT_ finishes.
+		            --shutdown|-S           - Shut the system down after $_PROJECT_ finishes.
 
 		NOTE:       The current max page is 12. The total number is 220+ MP3 tracks.
 
-		FILES:      The freelfm files (except tracks) are saved in /tmp, for example:
+		FILES:      The $_PROJECT_ files (except tracks) are saved in /tmp, for example:
 
 		            STDOUT and STDERR are logged into this file.
 
-		              freelfm_2017-09-01_21:25:47.log
+		              ${_PROJECT_}_2017-09-01_21:25:47.log
 
 		            Each page is downloaded and then parsed for download links.
 
-		              freelfm_p2_2017-09-01_21:25:47.htm
+		              ${_PROJECT_}_p2_2017-09-01_21:25:47.htm
 
 		            If you choose the --links-only flag, they will be saved here.
 
-		              freelfm_links_2017-09-01_21:25:47.txt
+		              ${_PROJECT_}_links_2017-09-01_21:25:47.txt
 
 		SITE:       https://www.last.fm
 	EOF
 }
 
 LINKSONLY="false"
-PAGENUM=""
 
 while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--suspend|-s)
@@ -81,26 +72,37 @@ while [ "$1" ]; do
 		--links-only)
 			LINKSONLY="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
+declare -i DEPCOUNT=0
+for DEP in tee wget sync sleep sed grep mkdir; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -gt 0 ] && exit 1
+
+
 if ! [ "$*" ]; then
-	XERR "$LINENO" "One or more page numbers missing."
+	FAIL 1 "$LINENO" "One or more page numbers missing."
 else
 	PAGENUM="$@"
 	for NUM in $PAGENUM; {
 		if ! [[ "$NUM" == [0-9] ]]; then
-			XERR "$LINENO" "Invalid page number at: $NUM"
+			FAIL 1 "$LINENO" "Invalid page number at: $NUM"
 		fi
 	}
 fi
 
 # Newer versions of wget by default request unwanted server-side compression.
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
 [ "$DEBUGME" == "true" ] && set -x
@@ -108,33 +110,33 @@ read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
 DLDIR="./"
 printf -v CURDATE "%(%F_%X)T" -1
 SITEURL="https://www.last.fm/music/+free-music-downloads?page="
-LINKSONLY_FILE="/tmp/freelfm_links_${CURDATE}.txt"
-LOGFILE="/tmp/freelfm_${CURDATE}.log"
+LINKSONLY_FILE="/tmp/${_PROJECT_}_links_${CURDATE}.txt"
+LOGFILE="/tmp/${_PROJECT_}_${CURDATE}.log"
 
 for PAGE in $PAGENUM; {
-	SITETMP="/tmp/freelfm_${PAGE}_${CURDATE}.htm"
+	SITETMP="/tmp/${_PROJECT_}_${PAGE}_${CURDATE}.htm"
 
 	printf "%s\n" "PAGE: $PAGE"
-	/usr/bin/wget $NOWARC -q "${SITEURL}${PAGE}" -O "$SITETMP"
+	wget $NOWARC -q "${SITEURL}${PAGE}" -O "$SITETMP"
 
 	TITLELINK=$(
-		/bin/grep -e "title=\".* — .*\"" -oe "https://.*\.mp3" "$SITETMP"\
-			| /bin/sed 's/\s/_/g; s/&amp\;/\&/g; s/—/-/g'
+		grep -e "title=\".* — .*\"" -oe "https://.*\.mp3" "$SITETMP"\
+			| sed 's/\s/_/g; s/&amp\;/\&/g; s/—/-/g'
 	)
 
 	for LINK in $TITLELINK; {
 		if [[ "$LINK" == title=* ]]; then
 			TITLE=$(
 				printf "%s\n" "${LINK//_/ }"\
-					| /bin/sed -e s/\&amp\;/\&/ -e s/^title=//\
+					| sed -e s/\&amp\;/\&/ -e s/^title=//\
 						   -e s/\"//g -e s/\&\#39\;/\'/g
 			)
 		else
 			if ! [ "$LINKSONLY" == "true" ]; then
 				printf "%s\n" "FILE: ${TITLE}.mp3"
-				/usr/bin/wget -qc --no-cookies $NOWARC \
+				wget -qc --no-cookies $NOWARC \
 					"$LINK" -O "$DLDIR/${TITLE//\"}.mp3" || {
-					ERR "$LINENO" "Track '${TITLE}.mp3' failed."
+					FAIL 0 "$LINENO" "Track '${TITLE}.mp3' failed."
 				}
 			else
 				printf "%s\n" "LINK: ${TITLE}.mp3"
@@ -142,19 +144,19 @@ for PAGE in $PAGENUM; {
 			fi
 		fi
 	}
-} |& /usr/bin/tee "$LOGFILE"
+} |& tee "$LOGFILE"
 
 if [ "$SHUTDOWN" == "true" ]; then
-	/sbin/shutdown +3 &> /dev/null
+	shutdown +3 > /dev/null 2>&1
 	printf "%s\n" "Shutting down in 3 minutes..."
 	MSG="Type 'C' to cancel, or 'N' to shutdown now: "
 	read -n 1 -e -p "$MSG" SHUTDOWN_PROMPT
 	case "${SHUTDOWN_PROMPT:-EMPTY}" in
 		[Cc])
-			/sbin/shutdown --no-wall -c
+			shutdown --no-wall -c
 			exit 0 ;;
 		[Nn])
-			/sbin/shutdown --no-wall now ;;
+			shutdown --no-wall now ;;
 		EMPTY|*)
 			printf "%s\n" "Incorrect response. Quitting." 1>&2
 			exit 1 ;;
@@ -166,12 +168,12 @@ if [ "$SUSPEND" == "true" ]; then
 	printf "%s\n" "System will suspend in 3s; type Ctrl+C to cancel."
 	/bin/sleep 3
 
-	if [ -x /bin/systemctl ]; then
-		/bin/systemctl suspend
-	elif [ -x /usr/sbin/pm-suspend ]; then
-		/usr/sbin/pm-suspend
+	if type -fP systemctl > /dev/null 2>&1; then
+		systemctl suspend
+	elif type -fP pm-suspend > /dev/null 2>&1; then
+		pm-suspend
 	else
-		XERR "$LINENO" "Unable to find a supported suspend method."
+		FAIL 1 "$LINENO" "Unable to find a supported suspend method."
 	fi
 fi
 
