@@ -1,24 +1,26 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - nosp
+# Project Name      - Extra/nosp (No Smart-Placement)
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Mon  2 Apr 04:08:30 BST 2018
+# Last Change       - Sun 12 May 23:21:41 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # A workaround for the issue in XFCE wherein Smart Placement refuses to go away.
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
-[ $# -eq 0 ] || XERR "$LINENO" "No arguments are required."
+[ $# -eq 0 ] || FAIL 1 "$LINENO" "No arguments are required."
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/xfconf-query /bin/sleep; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in xfconf-query sleep; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -26,18 +28,18 @@ for DEP in /usr/bin/xfconf-query /bin/sleep; {
 [ $DEPCOUNT -gt 0 ] && exit 1
 
 LOCAL_XML_FILE="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
-CURRENT_VALUE=`/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
+CURRENT_VALUE=`xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
 
 if [ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ]; then
 	# This command group waits, sets value to 90, waits, then sets back to 100.
 	{
-		/bin/sleep 3s
-		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 90 -t int
-		/bin/sleep 0.3 # Removing wait time results in this fix not working.
-		/usr/bin/xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
+		sleep 3s
+		xfconf-query -c xfwm4 -p /general/placement_ratio -s 90 -t int
+		sleep 0.3 # Removing wait time results in this fix not working.
+		xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
 	} &
 else
-	XERR "$LINENO" "Unable to fix Smart Placement."
+	FAIL 1 "$LINENO" "Unable to fix Smart Placement."
 fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
