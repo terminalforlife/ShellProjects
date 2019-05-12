@@ -1,33 +1,36 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - getline
+# Project Name      - Extra/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Mon 26 Mar 23:14:43 BST 2018
+# Last Change       - Sun 12 May 22:20:38 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2018-03-26"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            GETLINE ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Pure Bourne Again Shell way to handle a plain text file.
 
-		SYNTAX:     getline [OPTS] ACTION FILE1 FILE2 FILE3 . . .
+		SYNTAX:     $_PROJECT_ [OPTS] ACTION FILE1 FILE2 FILE3 . . .
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --nocolor|-c            - Disables color in all standard getline output.
+		            --nocolor|-c            - Disables color in all standard $_PROJECT_ output.
 		            --nums|-n               - Displays line numbers when viewing files.
 		            --ttl|-t                - Shows only the total numbers; omits filename.
 		            --sum|-S                - When using count action, display grand total.
@@ -48,11 +51,11 @@ USAGE(){
 
 		NOTE:       Words, lines, and characters are determined in a shell-like way.
 
-		EXAMPLE:    getline field 14:2 /etc/bash.bashrc
-		            getline --nums read ~/.bashrc
-		            getline --ttl lcount /etc/fstab
-		            getline -c gmatch "kernel:" /var/log/syslog
-		            getline read /etc/passwd
+		EXAMPLE:    $_PROJECT_ field 14:2 /etc/bash.bashrc
+		            $_PROJECT_ --nums read ~/.bashrc
+		            $_PROJECT_ --ttl lcount /etc/fstab
+		            $_PROJECT_ -c gmatch "kernel:" /var/log/syslog
+		            $_PROJECT_ read /etc/passwd
 	EOF
 }
 
@@ -214,7 +217,7 @@ LINE_NUM_FUNC(){
 	if [ "$LINE_NUMBERS" == "false" ]; then
 		printf "%s$3" "$2"
 	else
-		[ -z "$2" ] && continue
+		[ "$2" ] || continue
 		printf "${GREY}%#6d$NORMAL  %s$3" "$1" "$2"
 	fi
 }
@@ -228,7 +231,7 @@ for FILE in $FILELIST; {
 		printf "FILE: %s\n" "$FILE"
 	fi
 
-	if [ -z "$FILE" ]; then
+	if ! [ "$FILE" ]; then
 		XERR "$LINENO" "No filename(s) specified."
 	elif ! [ -f "$FILE" -a -r "$FILE" ]; then
 		XERR "$LINENO" "File missing or inaccessible: $FILE"
@@ -339,4 +342,4 @@ for FILE in $FILELIST; {
 	fi
 }
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
