@@ -3,15 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Thu  9 May 20:59:47 BST 2019
+# Last Change       - Sun 12 May 23:16:40 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 THEMEDIR="/usr/share/moc/themes"
 
@@ -19,14 +22,15 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MPLAY ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            MOC Wrapper for a clean layout with a subtle transparent theme.
 
-		SYNTAX:     mplay [OPTS] PATH
+		SYNTAX:     $_PROJECT_ [OPTS] PATH
 
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --run-once|-o           - Exit the MOC server when closed.
 
 		NOTE:       Where PATH is the location in which music is found.
@@ -38,7 +42,7 @@ USAGE(){
 		            The default theme used is the tfl_moc_theme, found at the above GitHub
 		            address, in the Extra repository.
 
-		            The latest version of mplay includes this theme, however.
+		            The latest version of $_PROJECT_ includes this theme, however.
 	EOF
 }
 
@@ -46,20 +50,24 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--once|-o)
 			ONCE="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-[ "$1" -a ! -d "$1" ] && XERR "$LINENO" "Unable to find the given music directory."
+[ "$1" -a ! -d "$1" ] && FAIL 1 "$LINENO" "Unable to find the given music directory."
 
-[ -d $THEMEDIR ] || XERR "$LINENO" "Theme directory not found."
-[ -f "$THEMEDIR/tfl_moc_theme" ] || XERR "$LINENO" "Theme file not found."
+[ -d $THEMEDIR ] || FAIL 1 "$LINENO" "Theme directory not found."
+[ -f "$THEMEDIR/tfl_moc_theme" ] || FAIL 1 "$LINENO" "Theme file not found."
 
-[ -x '/usr/bin/mocp' ] || XERR "$LINENO" "Dependency '/usr/bin/mocp' not met."
+if ! type -fP mocp > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'mocp' not met."
+fi
 
 /usr/bin/mocp -n -T "$THEMEDIR/tfl_moc_theme"     \
 	-O ShowFormat=yes                         \
@@ -81,10 +89,10 @@ done
 	-O OutputBuffer=512                       \
 	-O Prebuffering=256                       \
 	-m "${1:-$HOME/Music}"                    \
-|| XERR "$LINENO" "Unable to start the MOC player."
+|| FAIL 1 "$LINENO" "Unable to start the MOC player."
 
 if [ "$ONCE" == "true" ]; then
-	wait; /usr/bin/mocp -x
+	wait; mocp -x
 fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
