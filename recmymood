@@ -3,28 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/recmymood
 # Started On        - Thu 28 Dec 12:20:40 GMT 2017
-# Last Change       - Thu  9 May 00:58:38 BST 2019
+# Last Change       - Sun 12 May 23:40:17 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Incomplete. The general idea is to record your mood and manipulate the results.
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-[ -x /bin/mkdir ] || XERR "$LINENO" "Dependency '/bin/mkdir' not met."
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            RECMYMOOD (3rd March 2018)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		SYNTAX:     recmymood [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 	EOF
 }
@@ -33,17 +34,21 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+if ! type -fP mkdir > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency '/bin/mkdir' not met."
+fi
 
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 while read -r; do
 	printf "%s\n" "$REPLY"
@@ -70,7 +75,7 @@ EOF
 
 MAIN_DIR="$HOME/.config"
 [ -d "$MAIN_DIR" ] || /bin/mkdir "$MAIN_DIR"
-LOG="$MAIN_DIR/recmymood.log"
+LOG="$MAIN_DIR/$_PROJECT_.log"
 
 read -e -p "MOOD: " GETMOOD
 if [[ "$GETMOOD" =~ ^([0-9]+|[0-9]+\.[0-9]+)$ ]]; then
