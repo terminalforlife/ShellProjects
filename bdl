@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - bdl (Batch Downloader)
 # Started On        - Sat 16 Sep 22:34:12 BST 2017
-# Last Change       - Fri 26 Apr 14:08:43 BST 2019
+# Last Change       - Sun 12 May 15:18:54 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,21 +14,24 @@
 #       An exception for this needs to be put in place. This is probably why this
 #       target directory feature was buggy and probably unfinished as a result.
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            BDL - BATCH DOWNLOADER ($_VERSION_)
+		            ${_PROJECT_^^} - BATCH DOWNLOADER ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Easily and quickly download a batch of files using wget.
 
-		SYNTAX:     bdl [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -38,11 +41,11 @@ USAGE(){
 		            --editor|-E CMD         - Where CMD is the command for your editor.
 		            --suspend|-s            - Immediately suspend machine when finished.
 		            --shutdown|-S           - Like above, but a shutdown after 1 minute.
-		            --notify|-N             - Use notify-send to inform of bdl completion.
+		            --notify|-N             - Use notify-send to inform of $_PROJECT_ completion.
 		            --edit|-e               - Change URL list with an available text editor.
-		            --clear|-C              - Empty the bdl download list entirely.
+		            --clear|-C              - Empty the $_PROJECT_ download list entirely.
 
-		FILE:       All files are found in '\$HOME/.bdl'.
+		FILE:       All files are found in '\$HOME/.$_PROJECT_'.
 
 		TIP:        You can specify the destination for your downloads on a per-download
 		            basis, all you need to do is append the destination path to the end of
@@ -54,9 +57,9 @@ USAGE(){
 	EOF
 }
 
-MAIN_DIR="$HOME/.bdl"
+MAIN_DIR="$HOME/.$_PROJECT_"
 LIST_EDITOR_FILE="$MAIN_DIR/editor.conf"
-BDL_FILE="$MAIN_DIR/bdl_list.txt"
+BDL_FILE="$MAIN_DIR/${_PROJECT_}_list.txt"
 
 while [ "$1" ]; do
 	case "$1" in
@@ -76,7 +79,7 @@ while [ "$1" ]; do
 			shift
 
 			[ -d "$1" ] || {
-				XERR "$LINENO" "Destination directory unavailable."
+				FAIL 1 "$LINENO" "Destination directory unavailable."
 			} && DL_DIR="$1" ;;
 		--editor|-E)
 			shift
@@ -94,13 +97,13 @@ while [ "$1" ]; do
 		--shutdown|-S)
 			SHUTDOWN="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 if ! [ -f "$LIST_EDITOR_FILE" -a -s "$LIST_EDITOR_FILE" ]; then
-	XERR "$LINENO" "Please choose an editor. See --help for info."
+	FAIL 1 "$LINENO" "Please choose an editor. See --help for info."
 else
 	read LIST_EDITOR < "$LIST_EDITOR_FILE"
 fi
@@ -110,21 +113,21 @@ if [ "$EDITFLAG" == "true" ]; then
 		$LIST_EDITOR "$BDL_FILE" 2>&-
 		exit 0
 	else
-		XERR "$LINENO" "Unable to execute: $LIST_EDITOR"
+		FAIL 1 "$LINENO" "Unable to execute: $LIST_EDITOR"
 	fi
 fi
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/wget /sbin/shutdown /bin/{mv,systemctl,sleep,sync,mkdir}; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in wget shutdown mv systemctl sleep sync mkdir; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -gt 0 ] && exit 1
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
 if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 	NOWARC="--no-warc-compression"
@@ -133,14 +136,14 @@ fi
 [ "$DEBUGME" == "true" ] && set -x
 
 if [ "$CLEAR" == "true" ]; then
-	/bin/mv "$BDL_FILE"{,.old}
+	mv "$BDL_FILE"{,.old}
 	exit 0
 fi
 
-#TODO - Why won't this directory be created on Ubuntu 18.04? There's no XERR, it
+#TODO - Why won't this directory be created on Ubuntu 18.04? There's no FAIL(), it
 #       just refuses to create the directory, so the following test breaks.
-if ! [ -d "$MAIN_DIR" ] && ! /bin/mkdir "$MAIN_DIR" >&- 2>&-; then
-	XERR "$LINENO" "Unable to create $HOME/.bdl directory."
+if ! [ -d "$MAIN_DIR" ] && ! mkdir "$MAIN_DIR" > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Unable to create $HOME/.$_PROJECT_ directory."
 fi
 
 [ -f "$BDL_FILE" ] || > "$BDL_FILE"
@@ -150,9 +153,9 @@ INIT_MAIN(){
 		if ! [[ "${LINE[0]}" =~ ^#+ ]]; then
 			WARGS="-qc $NOWARC --show-progress"
 			if ! [ "${LINE[1]}" ]; then
-				/usr/bin/wget $WARGS "${LINE[0]}"\
+				wget $WARGS "${LINE[0]}"\
 					-O "./${LINE[0]//*\/}"
-				/bin/sync "./${LINE[0]//*\/}"
+				sync "./${LINE[0]//*\/}"
 			else
 				FIELD_NUMBER=0
 				for I in ${LINE[@]}; {
@@ -164,31 +167,31 @@ INIT_MAIN(){
 
 				#TODO - Fix TARGET evaluating to null value.
 				if ! [ -d "${TARGET%\/}" ]; then
-					XERR "$LINENO" "Invalid target directory."
+					FAIL 1 "$LINENO" "Invalid target directory."
 				else
-					/usr/bin/wget $WARGS "${LINE[0]}"\
+					wget $WARGS "${LINE[0]}"\
 						-O "${TARGET%\/}/${LINE[0]//*\/}"
-					/bin/sync "$TARGET"
+					sync "$TARGET"
 				fi
 			fi
 		fi
 	done < "$BDL_FILE"
 
 	if [ "$NOTIFY" == "true" ]; then
-		/usr/bin/notify-send "Downloading with bdl is completed."
+		notify-send "Downloading with $_PROJECT_ is completed."
 	fi
 
 	if [ "$SHUTDOWN" == "true" ]; then
-		/usr/bin/notify-send "System shutdown in one minute."\
+		notify-send "System shutdown in one minute."\
 			-i warning -u critical
 
-		/sbin/shutdown --no-wall +1
+		shutdown --no-wall +1
 	elif [ "$SUSPEND" == "true" ]; then
-		/usr/bin/notify-send "System will suspend in ten seconds."\
+		notify-send "System will suspend in ten seconds."\
 			-i warning -u critical
 
-		/bin/sleep 10s
-		/bin/systemctl suspend
+		sleep 10s
+		systemctl suspend
 	fi
 }
 
@@ -198,3 +201,5 @@ if [ "$SHUTDOWN" == "true" ]; then
 else
 	INIT_MAIN
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
