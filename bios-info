@@ -3,25 +3,31 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/bios-info
 # Started On        - Tue 20 Feb 07:47:12 GMT 2018
-# Last Change       - Thu  9 May 00:51:13 BST 2019
+# Last Change       - Sun 12 May 14:56:23 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # This may be expanded in the future.
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            BIOS-INFO (20th February 2018)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Simple tool to show basic BIOS keys and their values.
 
-		SYNTAX:     bios-info [OPT]
+		SYNTAX:     $_PROJECT_ [OPT]
 
 		OPT:        --help|-h|-?            - Displays this help information.
 	EOF
@@ -34,7 +40,7 @@ while [ "$1" ]; do
 		--debug|-D)
 			DEBUGME="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 
 	shift
