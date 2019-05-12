@@ -3,17 +3,20 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/lspkg (List Packages)
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Thu  9 May 15:06:56 BST 2019
+# Last Change       - Sun 12 May 22:58:50 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
 #TODO - The ignore case flag won't work when specifying glob matching.
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 DOM="https://github.com"
 
@@ -21,12 +24,12 @@ USAGE(){
 	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            LSPKG - LIST PACKAGES ($_VERSION_)
+		            ${_PROJECT_^^} - LIST PACKAGES ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Search through, test for, and list out installed packages.
 
-		SYNTAX:     lspkg [OPTS] [SEARCH_1] [SEARCH_2] [SEARCH_3] ...
+		SYNTAX:     $_PROJECT_ [OPTS] [SEARCH_1] [SEARCH_2] [SEARCH_3] ...
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -55,7 +58,7 @@ USAGE(){
 
 		            An exit status of 4 means no match(es) were found.
 
-		SITE:       $DOM/terminalforlife/lspkg
+		SITE:       $DOM/terminalforlife/$_PROJECT_
 	EOF
 }
 
@@ -80,7 +83,7 @@ while [ "$1" ]; do
 			if [[ "$1" =~ ^(glob|regex)$ ]]; then
 				MATCH_WITH="$1"
 			else
-				XERR "$LINENO" "Incorrect match type provided."
+				FAIL 1 "$LINENO" "Incorrect match type provided."
 			fi ;;
 		--name-only|-n)
 			NAME_ONLY="true" ;;
@@ -89,7 +92,7 @@ while [ "$1" ]; do
 		--count|-c)
 			DOCOUNT="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -98,19 +101,15 @@ done
 
 PKG=($@)
 
-if ! [ -x /usr/bin/dpkg-query ]; then
-	XERR "$LINENO" "Dependency '/usr/bin/dpkg-query' not met."
+if ! type -fP dpkg-query > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'dpkg-query' not met."
 fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
 PKG_LIST(){
-	if ! /usr/bin/dpkg-query --show\
-		-f="\${db:Status-Abbrev} \$${PACKNAME} - \${binary:Summary}\n" \*
-		# While thhis could be used for name searching -----^, there seems
-		# to be more flexibility within the while loop.
-	then
-		XERR "$LINENO" "Non-zero exit status for: /usr/bin/dpkg-query"
+	if ! dpkg-query --show -f="\${db:Status-Abbrev} \$${PACKNAME} - \${binary:Summary}\n" \*; then
+		FAIL 1 "$LINENO" "Non-zero exit status for: dpkg-query"
 	fi
 }
 
@@ -200,7 +199,7 @@ if [ "$DOCOUNT" == "true" ]; then
 	fi
 fi
 
-if [ -n "${PKG[*]}" -a ! $SEARCH_RESULT -gt 0 ]; then
+if [ "${PKG[*]}" -a ! $SEARCH_RESULT -gt 0 ]; then
 	exit 4
 fi
 
