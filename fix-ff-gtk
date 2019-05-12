@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/fix-ff-gtk
 # Started On        - Fri 29 Mar 13:12:04 GMT 2019
-# Last Change       - Sun 12 May 16:16:02 BST 2019
+# Last Change       - Sun 12 May 22:06:14 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ while [ "$1" ]; do
 	shift
 done
 
-[ -z "$THEME" ] && THEME="Adwaita"
+[ "$THEME" ] || THEME="Adwaita"
 
 [ $UID -eq 0 ] || FAIL 1 "$LINENO" "Root access is required."
 
