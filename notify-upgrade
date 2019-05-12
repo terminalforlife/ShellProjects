@@ -1,28 +1,31 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - notify-upgrade
+# Project Name      - Extra/notify-upgrade
 # Started On        - Sun 17 Sep 16:07:59 BST 2017
-# Last Change       - Tue 16 Apr 11:58:58 BST 2019
+# Last Change       - Sun 12 May 23:23:38 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-16"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            NOTIFY-UPGRADE ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Simple upgrade notifier for Debian- and Ubuntu-based systems.
 
-		SYNTAX:     notify-upgrade [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -50,20 +53,20 @@ while [ "$1" ]; do
 			shift; INT="$1"
 
 			if ! [[ "$INT" =~ ^[0-9]+$ ]]; then
-				XERR "$LINENO" "Invalid, non-integer minute interval set."
+				FAIL 1 "$LINENO" "Invalid, non-integer minute interval set."
 			fi ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 declare -i DEPCOUNT=0
-for DEP in /bin/sleep /usr/bin/{apt-get,notify-send}; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in sleep apt-get notify-send; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
-	}
+	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
@@ -77,14 +80,14 @@ while :; do
 			MSG="APT: $SUM package(s) due for update."
 
                         if ! [[ "$SUM" =~ ^[0-9]+$ ]]; then
-                                XERR "$LINENO" "Invalid SUM detected."
+                                FAIL 1 "$LINENO" "Invalid SUM detected."
                         elif [ $SUM -gt 0 ]; then
-				/usr/bin/notify-send --urgency=critical "$MSG"
+				notify-send --urgency=critical "$MSG"
                         fi
 
                         break
                 fi
-        done <<< "$(/usr/bin/apt-get -o "$OPT" -q -s dist-upgrade)"
+        done <<< "$(apt-get -o "$OPT" -q -s dist-upgrade)"
 
 	/bin/sleep ${INT}m
 done
