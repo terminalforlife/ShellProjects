@@ -3,26 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/catmedia
 # Started On        - Sun 15 Oct 13:16:02 BST 2017
-# Last Change       - Thu  9 May 00:51:39 BST 2019
+# Last Change       - Sun 12 May 15:19:43 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            CATMEDIA ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Concatenate media files originally separated in parts.
 
-		SYNTAX:     catmedia [OPTS] IN1 IN2 IN3 . . . OUT
+		SYNTAX:     $_PROJECT_ [OPTS] IN1 IN2 IN3 . . . OUT
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -56,30 +59,29 @@ while [ "$1" ]; do
 		--debug|-D)
 			DEBUGME="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect OPT specified. See: --help|-h|-?" ;;
+			FAIL 1 "$LINENO" "Incorrect OPT specified. See: --help|-h|-?" ;;
 		*)
 			break ;;
 	esac
-
 	shift
 done
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/ffmpeg /bin/rm; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in ffmpeg rm; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	else
-		if [ "$DEP" == "/usr/bin/ffmpeg" ]; then
-			read -a VERSION <<< `/usr/bin/ffmpeg -version`
+		if [ "$DEP" == "ffmpeg" ]; then
+			read -a VERSION <<< `ffmpeg -version`
 			BUFFER=${VERSION[2]%.*-*}
 			MAJOR=${BUFFER%.*}
 			MINOR=${BUFFER/*.}
 
 			if ! [[ "$BUFFER" =~ ^[0-9]+\.[0-9]+$ ]]; then
-				XERR "$LINENO" "Unable to determine required version of ffmpeg."
+				FAIL 1 "$LINENO" "Unable to determine required version of ffmpeg."
 			elif ! [ "$MAJOR" -ge 1 -a "$MINOR" -ge 1 ]; then
-				XERR "$LINENO" "Version 1.1 or greater of ffmpeg required."
+				FAIL 1 "$LINENO" "Version 1.1 or greater of ffmpeg required."
 			fi
 		fi
 	fi
@@ -87,7 +89,7 @@ for DEP in /usr/bin/ffmpeg /bin/rm; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
 # Process the input files.
@@ -103,11 +105,11 @@ done
 OUTPUT="${1// /%20}"
 
 if [ $INCOUNT -eq 0 ]; then
-	XERR "$LINENO" "At least two inputs and an output is required."
+	FAIL 1 "$LINENO" "At least two inputs and an output is required."
 elif ! [ "$OUTPUT" ]; then
-	XERR "$LINENO" "At least two inputs and an output is required."
+	FAIL 1 "$LINENO" "At least two inputs and an output is required."
 elif ! [ -d /tmp ]; then
-	XERR "$LINENO" "Unable to access the /tmp directory."
+	FAIL 1 "$LINENO" "Unable to access the /tmp directory."
 fi
 
 # Creating the temporary file list for ffmpeg.
@@ -123,7 +125,9 @@ while read -a REPLY; do
 		continue
 	fi
 done <<< "$(
-	/usr/bin/ffmpeg -v 0 -stats -f concat -safe 0 -i "$TEMP" "${OUTPUT//%20/ }"
+	ffmpeg -v 0 -stats -f concat -safe 0 -i "$TEMP" "${OUTPUT//%20/ }"
 )"
 
-/bin/rm -f "$TEMP"
+rm -f "$TEMP"
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
