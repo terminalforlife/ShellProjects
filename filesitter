@@ -3,26 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Thu  9 May 00:56:51 BST 2019
+# Last Change       - Sun 12 May 16:12:35 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FILESITTER ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Watch for and act upon the completion of file size changes.
 
-		SYNTAX:     filesitter [OPTS] FILE1 FILE2 FILE3 . . .
+		SYNTAX:     $_PROJECT_ [OPTS] FILE1 FILE2 FILE3 . . .
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -45,21 +48,21 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--interval|-I)
 			shift
+
 			if [[ "$1" =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
 				INTERVAL="$1"
 			else
-				XERR "$LINENO" "Invalid interval specified."
+				FAIL 1 "$LINENO" "Invalid interval specified."
 			fi ;;
 		--shutdown|-S)
 			ACTION="poweroff" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -67,13 +70,13 @@ while [ "$1" ]; do
 done
 
 if ! [ "$*" ]; then
-	XERR "$LINENO" "No files were given for filesitter to monitor."
+	FAIL 1 "$LINENO" "No files were given for $_PROJECT_ to monitor."
 fi
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/stat /bin/{systemctl,sleep}; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in stat systemctl sleep; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -88,19 +91,19 @@ while [ "$GO" == "yes" ]; do
 
 	for FILE in $@; {
 		[ -f "$FILE" ] || continue
-		NEW+=`/usr/bin/stat --printf="%s" "$FILE" 2>&-`
+		NEW+=`stat --printf="%s" "$FILE" 2>&-`
 	}
 
 	if [ ${OLD:-0} -eq $NEW ]; then
 		GO="no"
 	else
 		OLD="$NEW"
-		/bin/sleep ${INTERVAL:-300}s
+		sleep ${INTERVAL:-300}s
 	fi
 done
 
-if ! /bin/systemctl $ACTION; then
-	XERR "$LINENO" "System $ACTION failed."
+if ! systemctl $ACTION; then
+	FAIL 1 "$LINENO" "System $ACTION failed."
 fi
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
