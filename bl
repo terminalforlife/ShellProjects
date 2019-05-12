@@ -3,26 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - bl - blkid lite
 # Started On        - Thu 14 Sep 01:49:40 BST 2017
-# Last Change       - Fri 26 Apr 14:56:22 BST 2019
+# Last Change       - Sun 12 May 15:18:46 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" >&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            BL - BLKID Lite ($_VERSION_)
+		            ${_PROJECT_^^} - BLKID Lite ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Much simpler, quicker version of blkid.
 
-		SYNTAX:     bl [OPTS] <DEV> ...
+		SYNTAX:     $_PROJECT_ [OPTS] <DEV> ...
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -32,14 +35,14 @@ USAGE(){
 
 		EXAMPLE:    Display only the UUID for the following devices:
 
-		              bl -U=/dev/sda1 -U=/dev/sdb3
+		              $_PROJECT_ -U=/dev/sda1 -U=/dev/sdb3
 
 		            Display NAME,LABEL,UUID,FSTYPE,PARTUUID for devices:
 
-		              bl /dev/sdb1 /dev/sdg2 /dev/fd0
+		              $_PROJECT_ /dev/sdb1 /dev/sdg2 /dev/fd0
 
 		NOTE:       While this small program certainly couldn't replace blkid's entire
-		            suite of functionalities, bl is perhaps enough for most who just need
+		            suite of functionalities, $_PROJECT_ is perhaps enough for most who just need
 		            a UUID or LABEL.
 	EOF
 }
@@ -52,8 +55,7 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true"
 			A+=1; ;;
@@ -76,15 +78,15 @@ while [ "$1" ]; do
 		/dev/*)
 			[ $A -eq 0 ] && SHOWDEV="${SHOWDEV:-} $1" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 declare -i DEPCOUNT=0
-for DEP in /bin/{sed,lsblk}; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in sed lsblk; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -92,27 +94,27 @@ for DEP in /bin/{sed,lsblk}; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 if [ "${UFLAG_ACTIVE:-}" == "true" -a "${LFLAG_ACTIVE:-}" == "true" ]; then
-	XERR "$LINENO" "Unable to mix --uuid|-U and --label|-L flags."
+	FAIL 1 "$LINENO" "Unable to mix --uuid|-U and --label|-L flags."
 elif [[ "$LSBLK_FORMAT" =~ ^(label|uuid)$ ]] && [ -z "$SHOWDEV" ]; then
-	XERR "$LINENO" "Missing a block device name."
+	FAIL 1 "$LINENO" "Missing a block device name."
 fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
 MAIN_FUNC(){
 	LSBLK(){
-		/bin/lsblk ${PORNOT:--P} -po $LSBLK_FORMAT ${SHOWDEV} 2>&-
+		lsblk ${PORNOT:--P} -po $LSBLK_FORMAT ${SHOWDEV} 2>&-
 	}
 
 	# Format the output appropriately based on how lsblk is called.
 	case "$LSBLK_FORMAT" in
 		uuid)
-			LSBLK | /bin/sed 's/^UUID="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
+			LSBLK | sed 's/^UUID="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
 		name)
 			#TODO - Is this even used?
-			LSBLK | /bin/sed 's/^LABEL="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
+			LSBLK | sed 's/^LABEL="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
 		*)
-			LSBLK | /bin/sed -e 's/^NAME="\/dev\/\([[:alnum:]]\+\)"/\1:/'\
+			LSBLK | sed -e 's/^NAME="\/dev\/\([[:alnum:]]\+\)"/\1:/'\
 				-e 's/FSTYPE="/TYPE="/; /\(UUID=""\|FSTYPE=""\)/d'\
 				-e 's/LABEL="" //; /\(^$\|^[\t\s]\+$\)/d' ;;
 	esac
@@ -129,3 +131,5 @@ if [ -z "$MAIN_VAR" ]; then
 else
 	printf "%s\n" "$MAIN_VAR"
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
