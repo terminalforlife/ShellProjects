@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/herbstluftwm/autostart
 # Started On        - Sat 30 Mar 21:41:21 GMT 2019
-# Last Change       - Thu  4 Apr 14:16:35 BST 2019
+# Last Change       - Sun 12 May 15:19:05 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,11 +16,11 @@
 
 /bin/bash $HOME/.i3a/initialize
 
-hc(){ /usr/bin/herbstclient $@; }
+hc(){ herbstclient $@; }
 
 #---------------------------------------------------------------------------CLEANUP
 
-hc emit_hook reload # Must be first!
+hc emit_hook reload # <-- Must be first!
 hc keyunbind --all
 hc mouseunbind --all
 hc attr theme.tiling.reset 1
@@ -29,7 +29,7 @@ hc unrule -F
 
 #--------------------------------------------------------------------------BINDINGS
 
-#hc keybind Mod1-Shift-q quit
+#hc keybind Mod1-Shift-q<F2> quit
 hc keybind Mod1-Shift-r reload
 #hc keybind Mod1-Shift-q close_and_remove
 hc keybind Mod1-Shift-q close
@@ -172,3 +172,5 @@ herbstclient set tree_style '╾│ ├└╼─┐'
 hc pad 0 0
 #hc pad 0 20
 #/bin/bash $HOME/.config/herbstluftwm/panel.sh &
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
