@@ -3,15 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Thu  9 May 00:57:46 BST 2019
+# Last Change       - Sun 12 May 22:54:44 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 DOM="http://www.laughfactory.com"
 
@@ -19,12 +22,12 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            JOTD - JOKE OF THE DAY ($_VERSION_)
+		            ${_PROJECT_^^} - JOKE OF THE DAY ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Display a Joke of the Day on your terminal.
 
-		SYNTAX:     jotd [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -34,10 +37,10 @@ USAGE(){
 
 		FILE:       Jokes are saved in:
 
-		              /tmp/jotd_store.txt
+		              /tmp/${_PROJECT_}_store.txt
 
-		            This is to avoid contacting the server on each execution of jotd. When
-		            the system is restarted, assuming /tmp is cleared, jotd will once again
+		            This is to avoid contacting the server on each execution of $_PROJECT_. When
+		            the system is restarted, assuming /tmp is cleared, $_PROJECT_ will once again
 		            contact the server and recreate the file with the current joke.
 
 		SITE:       $DOM
@@ -54,15 +57,15 @@ while [ "$1" ]; do
 		--debug|-D)
 			DEBUGME="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{tee,wget,fold,tput}; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in tee wget fold tput; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -70,13 +73,13 @@ for DEP in /usr/bin/{tee,wget,fold,tput}; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 # Newer versions of wget by default request unwanted server-side compression.
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
 [ "$DEBUGME" == "true" ] && set -x
 
 URL="$DOM/jokes/joke-of-the-day"
-FILE="/tmp/jotd_store.txt"
+FILE="/tmp/${_PROJECT_}_store.txt"
 
 MAIN(){
 	declare -i C=1
@@ -98,14 +101,14 @@ MAIN(){
 			printf "\n"
 			break
 		fi
-	done <<< "$(/usr/bin/wget "$NOWARC" -q -t 1 "$URL" -O -)"\
-		| /usr/bin/fold -s --width=${COL:-`/usr/bin/tput cols`}
+	done <<< "$(wget "$NOWARC" -q -t 1 "$URL" -O -)"\
+		| fold -s --width=${COL:-`tput cols`}
 }
 
-if [ -z "$(MAIN)" ]; then
-	XERR "$LINENO" "Null value. The site has probably changed."
+if ! [ "$(MAIN)" ]; then
+	FAIL 1 "$LINENO" "Null value. The site has probably changed."
 elif ! [ -f "$FILE" ]; then
-	MAIN | /usr/bin/tee "$FILE"
+	MAIN | tee "$FILE"
 else
 	MAIN
 fi
