@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - dwwdl (Distrowatch Weekly Downloader)
+# Project Name      - Extra/dwwdl (Distrowatch Weekly Downloader)
 # Started On        - Sat 16 Sep 22:41:54 BST 2017
-# Last Change       - Sun 12 May 16:06:55 BST 2019
+# Last Change       - Sun 12 May 22:04:37 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -201,3 +201,5 @@ elif [ "$SUSPEND" == "true" ]; then
 	sleep 3
 	systemctl suspend
 fi
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
