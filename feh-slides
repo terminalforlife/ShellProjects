@@ -3,26 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Thu  9 May 17:10:28 BST 2019
+# Last Change       - Sun 12 May 16:10:01 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FEH-SLIDES ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            A super-simple desktop wallpaper slideshow.
 
-		SYNTAX:     feh-slides [OPTS] [PATH]
+		SYNTAX:     $_PROJECT_ [OPTS] [PATH]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -42,8 +45,7 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--interval|-i)
@@ -51,7 +53,7 @@ while [ "$1" ]; do
 		--trap|-T)
 			TRAP="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -59,9 +61,9 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in /bin/sleep /usr/bin/feh; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in sleep feh; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -69,9 +71,9 @@ for DEP in /bin/sleep /usr/bin/feh; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 if [ $# -gt 1 ]; then
-	XERR "$LINENO" "Only one wallpaper directory may be specified."
+	FAIL 1 "$LINENO" "Only one wallpaper directory may be specified."
 elif [ $# -eq 0 ]; then
-	XERR "$LINENO" "A wallpaper directory must be specified."
+	FAIL 1 "$LINENO" "A wallpaper directory must be specified."
 fi
 
 [ "$DEBUGME" == "true" ] && set -x
@@ -83,23 +85,21 @@ EXIT(){
 }
 
 if [ -d "$1" ]; then
-	if [ "$TRAP" == "true" ]; then
-		trap 'EXIT' 10 # SIGUSR1
-	fi
+	[ "$TRAP" == "true" ] && trap 'EXIT' 10 # <-- SIGUSR1
 
 	while :; do
 		for FILE in "${1%\/}"/*; {
 			if [ -f "$FILE" ]; then
-				if ! /usr/bin/feh --no-fehbg --bg-center "$FILE"; then
-					XERR "$LINENO" "One or more errors detected while setting wallpaper with feh."
-				elif ! /bin/sleep ${INTERVAL:-5}s >&- 2>&-; then
-					XERR "$LINENO" "Invalid interval time specified."
+				if ! feh --no-fehbg --bg-center "$FILE"; then
+					FAIL 1 "$LINENO" "One or more errors detected while setting wallpaper with feh."
+				elif ! sleep ${INTERVAL:-5}s > /dev/null 2>&1; then
+					FAIL 1 "$LINENO" "Invalid interval time specified."
 				fi
 			fi
 		}
 	done
 else
-	XERR "$LINENO" "Directory '$1' not found."
+	FAIL 1 "$LINENO" "Directory '$1' not found."
 fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
