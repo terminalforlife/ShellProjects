@@ -3,37 +3,40 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Thu  9 May 00:50:56 BST 2019
+# Last Change       - Sun 12 May 15:13:13 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            BACKMEUP ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            A simple tool to quickly and easily back up your HOME.
 
-		SYNTAX:     backmeup [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 		            --reset|-R              - Re-run the initial setting prompts.
 		            --notify|-N             - Notify after completion, via notify-send.
 
-		EXAMPLE:    backmeup --notify -Q
+		EXAMPLE:    $_PROJECT_ --notify -Q
 
-		FILE:       User settings saved in and read from: \$HOME/.backmeup/settings
+		FILE:       User settings saved in and read from: \$HOME/.$_PROJECT_/settings
 
 		NOTE:       When entering your settings, ensure that no variables are used.
 	EOF
@@ -44,29 +47,27 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
-		--debug|-D)
-			DEBUGME="true" ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--debug|-D)
+			DEBUGME="true" ;;
 		--reset|-R)
 			RESET="true" ;;
 		--notify|-N)
 			NOTIFY="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
-
 	shift
 done
 
 declare -i DEPCOUNT=0
-for DEP in /bin/{gzip,tar,sync,mkdir}; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in gzip tar sync mkdir; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
-	}
+	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
@@ -74,21 +75,21 @@ for DEP in /bin/{gzip,tar,sync,mkdir}; {
 [ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
 
-MAIN_DIR="$HOME/.backmeup"
+MAIN_DIR="$HOME/.$_PROJECT_"
 SETTINGS="$MAIN_DIR/settings"
 
-[ -d "$MAIN_DIR" ] || /bin/mkdir "$MAIN_DIR"
+[ -d "$MAIN_DIR" ] || mkdir "$MAIN_DIR"
 
 if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
-	read -ep "Directory for backmeup archives: " STORE
+	read -ep "Directory for $_PROJECT_ archives: " STORE
 
 	case "$REPLY" in
 		*)
 			if ! [ -d "$STORE" ]; then
-				XERR "$LINENO" "Directory not found or inaccessible."
+				FAIL 1 "$LINENO" "Directory not found or inaccessible."
 			fi ;;
 		"")
-			XERR "$LINENO" "You must enter a valid path." ;;
+			FAIL 1 "$LINENO" "You must enter a valid path." ;;
 	esac
 
 	printf -v DATETIME "%(%F_%H%M)T" "-1"
@@ -97,7 +98,7 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 		while read -r; do
 			printf "%s\n" "$REPLY"
 		done <<-EOF
-			# User settings file for and parsed by backmeup.
+			# User settings file for and parsed by $_PROJECT_.
 			# Created:   $DATETIME
 			# User:      $USER
 			# UID:       $UID
@@ -111,10 +112,10 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 		EOF
 	} > "$SETTINGS"
 
-	printf "Settings saved - Please relaunch backmeup.\n"
+	printf "Settings saved - Please relaunch $_PROJECT_.\n"
 	exit 0
 elif ! [ -r "$SETTINGS" ]; then
-	XERR "$LINENO" "File '$SETTINGS' inaccessible."
+	FAIL 1 "$LINENO" "File '$SETTINGS' inaccessible."
 fi
 
 declare -a EXCLUDE
@@ -135,32 +136,32 @@ while read -a X; do
 		EMPTY)
 			;;
 		*)
-			XERR "$LINENO" "Invalid parameter '${Y[0]}' on line #$LINE." ;;
+			FAIL 1 "$LINENO" "Invalid parameter '${Y[0]}' on line #$LINE." ;;
 	esac
 done < "$SETTINGS"
 
-[ -d "$STORE" ] || XERR "$LINENO" "Target '$STORE' not found."
+[ -d "$STORE" ] || FAIL 1 "$LINENO" "Target '$STORE' not found."
 
 printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
 declare -i SECONDS=0
 
-/bin/tar --xattrs --ignore-failed-read `eval printf "%s\\\\\n" ${EXCLUDE[@]}`\
+tar --xattrs --ignore-failed-read `eval printf "%s\\\\\n" ${EXCLUDE[@]}`\
 	--totals -cvpf "${STORE%/}/$ARCHIVE" "$HOME" || FAIL="true"
 
-/bin/gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE" || FAIL="true"
-/bin/sync "${STORE%/}/$ARCHIVE.tgz" || FAIL="true"
+gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE" || FAIL="true"
+sync "${STORE%/}/$ARCHIVE.tgz" || FAIL="true"
 
 if ! [ "$FAIL" == "true" ]; then
 	printf "Backup successfully created in %d seconds.\n" "$SECONDS"
 else
-	ERR "$LINENO" "One or more errors detected during backup."
+	FAIL 0 "$LINENO" "One or more errors detected during backup."
 fi
 
 if [ "$NOTIFY" == "true" ]; then
-	if [ -x /usr/bin/notify-send ]; then
-		/usr/bin/notify-send "Your backmeup execution is finished."
+	if type -fP notify-send > /dev/null 2>&1; then
+		notify-send "Your $_PROJECT_ execution is finished."
 	else
-		XERR "$LINENO" "Dependency '/usr/bin/notify-send' not met."
+		FAIL 1 "$LINENO" "Dependency 'notify-send' not met."
 	fi
 fi
 
