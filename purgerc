@@ -3,15 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Thu  9 May 17:02:17 BST 2019
+# Last Change       - Sun 12 May 23:38:30 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 DOM="https://github.com"
 
@@ -19,12 +22,12 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            PURGERC ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Simple and lightweight shell command to remove 'rc' packages.
 
-		SYNTAX:     purgerc [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -41,12 +44,9 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
-		--update|-U)
-			UPDATE="true" ;;
 		*)
 			XERR "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -54,7 +54,7 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{dpkg,apt-get}; {
+for DEP in dpkg apt-get; {
 	if ! [ -x "$DEP" ]; then
 		ERR "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -69,14 +69,13 @@ if ! [ $UID -eq 0 ]; then
 fi
 
 [ "$BEQUIET" == "true" ] && exec >&-
-[ "$DEBUGME" == "true" ] && set -x
 
 while read -a X; do
 	[ "${X[0]}" == "rc" ] && LIST+=" ${X[1]}"
-done <<< "$(/usr/bin/dpkg -l)"
+done <<< "$(dpkg -l)"
 
 if [ "$LIST" ]; then
-	/usr/bin/apt-get -q $SIM -o Dpkg::Progress=true\
+	apt-get -q $SIM -o Dpkg::Progress=true\
 		-o Dpkg::Progress-Fancy=true -o APT::Get::AutomaticRemove=true\
 		remove --purge $LIST
 else
