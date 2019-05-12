@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ghipc (GitHub IP Check)
 # Started On        - Wed 14 Feb 18:30:38 GMT 2018
-# Last Change       - Sun 12 May 22:25:24 BST 2019
+# Last Change       - Sun 12 May 23:48:59 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -42,8 +42,7 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		-*)
