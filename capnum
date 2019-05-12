@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/capnum
 # Started On        - Wed 31 Jan 23:35:19 GMT 2018
-# Last Change       - Thu  9 May 00:51:19 BST 2019
+# Last Change       - Sun 12 May 15:18:41 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -20,21 +20,23 @@
 # scripts I had written in an attempt to achieve this very result.
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 declare -i DEPCOUNT=0
-for DEP in /bin/sleep /usr/bin/{xset,notify-send}; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in sleep xset notify-send; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
-	}
+	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $# -eq 1 ] || XERR "$LINENO" "Number of seconds in which to notify is required."
-NOTIFY(){ /usr/bin/notify-send --urgency=low --expire-time=20 "$1"; }
+[ $# -eq 1 ] || FAIL 1 "$LINENO" "Number of seconds in which to notify is required."
+NOTIFY(){ notify-send --urgency=low --expire-time=20 "$1"; }
 
 while :; do
 	while read -a X; do
@@ -59,7 +61,9 @@ while :; do
 
 			break
 		fi
-	done <<< "$(/usr/bin/xset q)"
+	done <<< "$(xset q)"
 
-	/bin/sleep 0.${1//[!0-9]}s
+	sleep 0.${1//[!0-9]}s
 done
+
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
