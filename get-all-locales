@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/get-all-locales
 # Started On        - Wed 22 Nov 16:23:38 GMT 2017
-# Last Change       - Thu  9 May 00:57:12 BST 2019
+# Last Change       - Sun 12 May 22:13:29 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -23,9 +23,9 @@ PKGS=$(
 		{
 			[ "${X[0]}" == "language-pack-$C" ] && printf "${X[0]} "
 		}
-	done <<< "$(/usr/bin/apt-cache search "^language-pack")"
+	done <<< "$(apt-cache search "^language-pack")"
 )
 
-/usr/bin/apt-get install -qq --show-progress $PKGS
+apt-get install -q --show-progress $PKGS
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
