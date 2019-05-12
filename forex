@@ -3,14 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Thu  9 May 00:57:02 BST 2019
+# Last Change       - Sun 12 May 16:21:39 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 DOM="https://www.foreignexchange.org.uk"
 
@@ -18,18 +22,19 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            FOREX (3rd March 2018)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Easily convert various currency rates straight from the terminal.
 
-		SYNTAX:     forex [OPTS] SOURCE AMOUNT TARGET
+		SYNTAX:     $_PROJECT_ [OPTS] SOURCE AMOUNT TARGET
 
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --rounded|-R            - Do not display as a floating point.
 
-		EXAMPLE:    $ forex USD 5 GBP
+		EXAMPLE:    $ $_PROJECT_ USD 5 GBP
 		            0.7254
 
 		SITE:       $DOM
@@ -40,28 +45,35 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--rounded|-R)
 			ROUNDED="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
-
 	shift
 done
+
+if ! type -fP wget > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'wget' not met."
+fi
 
 SOURCE="$1"
 AMOUNT="$2"
 TARGET="$3"
 
-# Newer versions of wget by default request unwanted server-side compression.
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+read -a WGET_VER_LINE <<< "$(wget --version)"
+WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
+if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
+	NOWARC="--no-warc-compression"
+fi
 
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$DEBUGME" == "true" ] && set -x
 
 # Curent and historical currency abbreviations. Taken from: http://www.xe.com
 declare -a VALID=(
@@ -82,19 +94,17 @@ for TYPE in ${VALID[@]}; {
 }
 
 if ! [ "$SOURCE_YES" == "true" ]; then
-	XERR "$LINENO" "Currency SOURCE '$SOURCE' not recognised."
+	FAIL 1 "$LINENO" "Currency SOURCE '$SOURCE' not recognised."
 elif ! [ "$TARGET_YES" == "true" ]; then
-	XERR "$LINENO" "Currency TARGET '$TARGET' not recognised."
+	FAIL 1 "$LINENO" "Currency TARGET '$TARGET' not recognised."
 fi
-
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
 
 SITE="$DOM/fx-rates/conversion/$AMOUNT/$SOURCE/$TARGET"
 while read -a X; do
 	if [[ "${X[*]}" =~ name=\"answer\" ]]; then
 		RESULT="${X[3]//[!0-9.]}"
 	fi
-done <<< "$(/usr/bin/wget -q -t 1 $NOWARC "$SITE" -O -)"
+done <<< "$(wget -q -t 1 $NOWARC "$SITE" -O -)"
 
 if [[ "$RESULT" =~ ^[0-9.]+$ ]]; then
 	if [ "$ROUNDED" == "true" ]; then
@@ -103,7 +113,7 @@ if [[ "$RESULT" =~ ^[0-9.]+$ ]]; then
 		printf "%.4f\n" "$RESULT"
 	fi
 else
-	XERR "$LINENO" "Unable to determine the correct result."
+	FAIL 1 "$LINENO" "Unable to determine the correct result."
 fi
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
