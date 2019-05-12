@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Fri 26 Apr 14:44:08 BST 2019
+# Last Change       - Sun 12 May 15:54:14 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,10 +11,13 @@
 # interested in, please let me know.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-04-26"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 #TODO - Currently won't download S01E01.
 #TODO - IMPORTANT: Fix filenames; they're a mess. :(
@@ -23,12 +26,12 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DL-UBUNTU-PODCASTS ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Simple program to download all of the old Ubuntu Podcast episodes.
 
-		SYNTAX:     dl-ubuntu-podcasts [OPTS] PAGE PAGE PAGE . . .
+		SYNTAX:     $_PROJECT_ [OPTS] PAGE PAGE PAGE . . .
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -54,8 +57,7 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
 		--debug)
@@ -65,7 +67,7 @@ while [ "$1" ]; do
 
 			ALTDEST="$1"
 			if ! [ -d "$ALTDEST" ]; then
-				XERR "Destination directory not found."
+				FAIL 1 "Destination directory not found."
 			fi ;;
 		--get-season-eight)
 			EXTRA="08 01 42" ;;
@@ -80,10 +82,10 @@ while [ "$1" ]; do
 done
 
 if ! [ -x /usr/bin/wget ]; then
-	XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+	FAIL 1 "$LINENO" "Dependency '/usr/bin/wget' not met."
 fi
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
 if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 	NOWARC="--no-warc-compression"
@@ -95,7 +97,7 @@ EXTRA_SEASON(){
 	}
 
 	URL="http://static.ubuntupodcast.org/ubuntupodcast"
-	/usr/bin/wget $NOWARC -qc --show-progress\
+	wget $NOWARC -qc --show-progress\
 		"$URL/s${1}/e${E}/ubuntupodcast_s${1}e${E}.mp3"
 }
 
@@ -113,9 +115,9 @@ fi
 if [ "$*" ]; then
 	USERPAGE="true"
 
-	while [ -n "$1" ]; do
+	while [ "$1" ]; do
 		if ! [[ "$1" =~ [0-9]+ ]]; then
-			XERR "$LINENO" "Incorrect page number specified."
+			FAIL 1 "$LINENO" "Incorrect page number specified."
 		else
 			[ $1 -eq 2 ] || NUM+=" $1"
 		fi
@@ -126,7 +128,7 @@ else
 	NUM=193
 fi
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
 while :; do
@@ -138,7 +140,7 @@ while :; do
 
 	#TODO - Fix custom pages not working.
 
-	PAGE=`/usr/bin/wget $NOWARC -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
+	PAGE=`wget $NOWARC -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
 	DL_LINK_MATCH="http://podcast\.ubuntu-uk\.org/download/.*\.ogg"
 	OUTNAME_MATCH="[Ss][0-9]+[Ee][0-9]+\s+–\s+[[:space:][:alnum:]]+"
 
@@ -152,23 +154,21 @@ while :; do
 		fi
 	done <<< "$PAGE"
 
-	if [ -z "$ALTDEST" ]; then
+	if ! [ "$ALTDEST" ]; then
 		printf "NUM:         %s\n" "$NUM"
 		printf "OUTNAME:     %s\n" "$OUTNAME"
-		[ -z "$OUTNAME" ] && break
-		/usr/bin/wget $NOWARC -cq --show-progress\
+		[ "$OUTNAME" ] || break
+		wget $NOWARC -cq --show-progress\
 			"$DL_LINK" -O "./${OUTNAME}.ogg"
 	else
-		[ -z "$OUTNAME" ] && break
-		/usr/bin/wget $NOWARC -cq --show-progress\
+		[ "$OUTNAME" ] || break
+		wget $NOWARC -cq --show-progress\
 			"$DL_LINK" -O "${ALTDEST%\/}/${OUTNAME}.ogg"
 	fi
 
 	[ "$USERPAGE" == "true" ] || NUM="${NUM/* }"
 
-	if ! [ "$NUM" ]; then
-		break
-	fi
+	[ "$NUM" ] || break
 done
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
