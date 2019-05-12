@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/noprtscr (No Print Screen)
 # Started On        - Sun 21 Jan 18:30:36 GMT 2018
-# Last Change       - Thu  9 May 00:58:18 BST 2019
+# Last Change       - Sun 12 May 23:19:31 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,34 +17,38 @@
 #             --prtsc-is-menu         - Use PrtSC to launch the Mint Menu.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
-if ! [ -x /usr/bin/gsettings ]; then
-	XERR "$LINENO" "Dependency '/usr/bin/gsettings' not met."
+if ! type -fP gsettings > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'gsettings' not met."
 fi
 
 while [ "$1" ]; do
 	case "$1" in
+		--help|-h|-\?)
+			printf "USAGE: cpufreq [[--help|-h|-?] | [--version|-v]] | [--prtsc-is-menu]\n" ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--prtsc-is-menu)
 			# Feature the OP in the thread requested.
 			SCHEMA="com.linuxmint.mintmenu"
-			/usr/bin/gsettings set "$SCHEMA" hot-key "Print" ;;
+			gsettings set "$SCHEMA" hot-key "Print" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 SCHEMA="org.cinnamon.desktop.keybindings.media-keys"
 for KEY in {area,window}-screenshot{,-clip} screenshot{,-clip}; {
-	if ! /usr/bin/gsettings set "$SCHEMA" "$KEY" "[]"; then
-		XERR "$LINENO" "Unable to clear: $KEY"
+	if ! gsettings set "$SCHEMA" "$KEY" "[]"; then
+		FAIL 1 "$LINENO" "Unable to clear: $KEY"
 	fi
 }
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
