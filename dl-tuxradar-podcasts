@@ -3,42 +3,40 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dl-tuxradar-podcasts
 # Started On        - Mon  9 Oct 19:08:27 BST 2017
-# Last Change       - Thu  9 May 00:56:40 BST 2019
+# Last Change       - Sun 12 May 15:49:56 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-declare -i DEPCOUNT=0
-for DEP in /usr/bin/{xargs,uniq,sort,wget} /bin/grep; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
 }
 
-[ $DEPCOUNT -eq 0 ] || exit 1
+DOM="http://www.tuxradar.com"
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DL-TUXRADAR-PODCASTS (19th December 2017)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Small shell program to download the TuxRadar podcasts.
 
-		SYNTAX:     dl-tuxradar-podcasts [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --debug                 - Enables the built-in bash debugging.
+		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --debug|-D              - Enables the built-in bash debugging.
 
 		NOTE:       All files (OGG) will be downloaded into the current directory.
 
-		SITE:       http://www.tuxradar.com
+		SITE:       $DOM
 	EOF
 }
 
@@ -46,36 +44,41 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
-		--debug)
-			DEBUGME="true" ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--debug)
+			DEBUGME="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
-
 	shift
 done
 
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
+declare -i DEPCOUNT=0
+for DEP in xargs uniq sort wget grep; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
-DOM="http://www.tuxradar.com"
-
 EPISODE_LIST(){
-	/usr/bin/wget -q "$DOM/podcast" -O -\
-		| /bin/grep -o "podcast-season-[0-9]\+-episode-[0-9]\+"\
-		| /usr/bin/uniq\
-		| /usr/bin/sort -t "-" -k 3 -k 5 -n
+	wget -q "$DOM/podcast" -O -\
+		| grep -o "podcast-season-[0-9]\+-episode-[0-9]\+"\
+		| uniq | sort -t "-" -k 3 -k 5 -n
 }
 
 for EPISODE in `EPISODE_LIST`; {
-	/usr/bin/wget -q $DOM/content/"$EPISODE" -O -\
-		| /bin/grep -o "/files/podcast/tuxradar_s[0-9]\+e[0-9]\+\.ogg"\
-		| /usr/bin/uniq\
-		| /usr/bin/xargs -I{} /usr/bin/wget -qc --show-progress ${DOM}"{}"
+	wget -q $DOM/content/"$EPISODE" -O -\
+		| grep -o "/files/podcast/tuxradar_s[0-9]\+e[0-9]\+\.ogg"\
+		| uniq | xargs -I{} wget -qc --show-progress ${DOM}"{}"
 }
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
