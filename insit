@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - Insit/insit
+# Project Name      - Extra/insit
 # Started On        - Wed 13 Dec 01:13:55 GMT 2017
-# Last Change       - Thu  9 May 00:22:23 BST 2019
+# Last Change       - Sun 12 May 22:48:03 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,20 +12,23 @@
 #          DEB packages. The transition will be a pain, but is better long-term.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
 #TODO - What if you're updating insit from a different branch?
 #TODO - Since the version file only goes by per day, there's no sense in checking
 #       multiple times per day, therefore, the check needs to be limited to one
 #       check per day, perhaps using a parameter file.
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 DOM="https://github.com"
 URL="$DOM/terminalforlife"
-MAINDIR="$HOME/.local/share/insit"
-LOGFILE="/var/log/tfl_insit.log"
+MAINDIR="$HOME/.local/share/$_PROJECT_"
+LOGFILE="/var/log/tfl_$_PROJECT_.log"
 BUPATH="$MAINDIR/backups"
 LASTFILE="${BUPATH%/*}/last"
 
@@ -33,19 +36,19 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            INSIT ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            An exhaustive handler of TFL or others' files stored on GitHub.
 
-		SYNTAX:     insit [OPTS] WHAT1 WHAT2 WHAT3 . . .
+		SYNTAX:     $_PROJECT_ [OPTS] WHAT1 WHAT2 WHAT3 . . .
 
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --verbose|-V            - Also display the log output.
 		            --version|-v            - Output only the version datestamp.
-		            --changelog             - Fetch and view the insit changelog.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 		            --debug|-D              - Enables the built-in bash debugging.
+		            --verbose|-V            - Also display the log output.
+		            --changelog             - Fetch and view the $_PROJECT_ changelog.
 		            --ignore-os             - Ignore the OS and LSB type; don't check.
 		            --restore|-R            - Restore automatically generated backups.
 		            --no-backup             - Do not back up chosen WHAT updates.
@@ -55,7 +58,7 @@ USAGE(){
 		            --uninstall|-u          - Uninstall files installed here.
 		            --available|-A          - Output all available programs.
 		            --branch|-B NAME        - Where NAME is the branch to use.
-		            --self-update|-S        - Update insit to the latest stable version.
+		            --self-update|-S        - Update $_PROJECT_ to the latest stable version.
 		            --ignore-root|-I        - Disregard whether you have root access.
 		            --source|-s NAME        - Use NAME instead of terminalforlife.
 		            --custom|-C             - Execute your own FILE function line.
@@ -73,21 +76,21 @@ USAGE(){
 		              5: The file's owner, such as 0 or \$USER.
 		              6: The file's group, such as 1000.
 
-		            By default, insit will always work with the master branch.
+		            By default, $_PROJECT_ will always work with the master branch.
 
-		EXAMPLE:    sudo insit -B dev -U -C Extra mfw /usr/bin/mfw 755 0 0
-		            sudo insit -U notify-upgrade lspkg lsbins apt-undo-install
-		            sudo insit -q --logfile ./test.log -L -u bl wcdl clean-locales
-		            sudo insit -s aktsbot -C dotfiles bashrc ~/.bashrc 600 1000 1000
+		EXAMPLE:    sudo $_PROJECT_ -B dev -U -C Extra mfw /usr/bin/mfw 755 0 0
+		            sudo $_PROJECT_ -U notify-upgrade lspkg lsbins apt-undo-install
+		            sudo $_PROJECT_ -q --logfile ./test.log -L -u bl wcdl clean-locales
+		            sudo $_PROJECT_ -s aktsbot -C dotfiles bashrc ~/.bashrc 600 1000 1000
 
 		WARNING:    Using the --update|-U flags will overwrite existing files.
 
 		            However, backups are (by default) made for all files replaced by one or
-		            more selected items, including when opting to update insit itself.
+		            more selected items, including when opting to update $_PROJECT_ itself.
 
-		            When updating items, ANY pre-existing insit back-ups will be DELETED.
+		            When updating items, ANY pre-existing $_PROJECT_ back-ups will be DELETED.
 
-		FILE:       Actions by insit are logged in: $LOGFILE
+		FILE:       Actions by $_PROJECT_ are logged in: $LOGFILE
 
 		            Backups are stored within:
 
@@ -99,9 +102,9 @@ USAGE(){
 
 if [ "$HOME" == "/root" ]; then
 	if [ "$SUDO_UID" ]; then
-		XERR "$LINENO" "The sudo '-E' flag must be used."
+		FAIL 1 "$LINENO" "The sudo '-E' flag must be used."
 	else
-		XERR "$LINENO" "Unable to interact with user whose HOME is '/root'."
+		FAIL 1 "$LINENO" "Unable to interact with user whose HOME is '/root'."
 	fi
 fi
 
@@ -114,7 +117,7 @@ if ! [ "$IGNOREOS" == "true" ]; then
 			while IFS="=" read -a X; do
 				if [ "${X[0]//\"}" == "ID_LIKE" ]; then
 					if ! [[ "${X[1]//\"}" =~ (debian|ubuntu) ]]; then
-						ERR "$LINENO" "Unsupported distribution base."
+						FAIL 0 "$LINENO" "Unsupported distribution base."
 						return 1
 					fi
 
@@ -122,19 +125,19 @@ if ! [ "$IGNOREOS" == "true" ]; then
 				fi
 			done < "$OSFILE"
 		else
-			XERR "$LINENO" "Unable to get LSB type. Use '--ignore-os' to disregard."
+			FAIL 1 "$LINENO" "Unable to get LSB type. Use '--ignore-os' to disregard."
 		fi
 	else
-		XERR "$LINENO" "Unsupported platform. Use '--ignore-os' to disregard."
+		FAIL 1 "$LINENO" "Unsupported platform. Use '--ignore-os' to disregard."
 	fi
 fi
 
 if [ $# -eq 0 ]; then
-	XERR "$LINENO" "Arguments are required. See: insit --help"
+	FAIL 1 "$LINENO" "Arguments are required. See: $_PROJECT_ --help"
 fi
 
 # This initial test is part of ensuring the user knows not to use one of these OPTs
-# alongside other OPTs; it's invalid syntax, basically. See XERRs for these flags.
+# alongside other OPTs; it's invalid syntax, basically. See FAILs for these flags.
 if [[ "$1" =~ ^(--just-check|-J)$ ]]; then
 	shift; JUST_CHECK="true"
 else
@@ -159,7 +162,7 @@ else
 				NO_VC="true" ;;
 			--just-check|-J)
 				# Catches invalid args to the left of these flags.
-				XERR "$LINENO" "OPT '--just-check|-J' can only be used on its own." ;;
+				FAIL 1 "$LINENO" "OPT '--just-check|-J' can only be used on its own." ;;
 			--quiet|-q)
 				BEQUIET="true" ;;
 			--update|-U)
@@ -178,9 +181,9 @@ else
 			--source|-s)
 				shift
 				if ! [ "$1" ]; then
-					XERR "$LINENO" "A GitHub username is required."
+					FAIL 1 "$LINENO" "A GitHub username is required."
 				elif [[ "$1" =~ terminalforlife ]]; then
-					XERR "$LINENO" "Erm, ..."
+					FAIL 1 "$LINENO" "Erm, ..."
 				else
 					URL="$DOM/$1"
 				fi ;;
@@ -189,15 +192,15 @@ else
 			--logfile)
 				shift; LOGFILE="$1"
 				if ! [ -d "${LOGFILE%/*}" ]; then
-					XERR "$LINENO" "Directory for logfile not found."
+					FAIL 1 "$LINENO" "Directory for logfile not found."
 				fi ;;
 			--log|-L)
 				LOGIT="true" ;;
 			-*)
-				XERR "$LINENO" "Incorrect argument(s) specified." ;;
+				FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 			*)
 				if [ ! "${URL##*/}" == "terminalforlife" -a ! "$CUSTOM" == "true" ]; then
-					XERR "$LINENO" "Can only choose a source with '--custom|-C' OPT."
+					FAIL 1 "$LINENO" "Can only choose a source with '--custom|-C' OPT."
 				else
 					break
 				fi ;;
@@ -207,24 +210,24 @@ else
 fi
 
 if [ "$NOBACKUP" -a "$RESTORE" ]; then
-	XERR "$LINENO" "Conflicting OPTs selected."
+	FAIL 1 "$LINENO" "Conflicting OPTs selected."
 fi
 
 if [ "$RESTORE" -a $# -gt 0 ]; then
-	XERR "$LINENO" "The '--restore|-R' flags cannot be used with WHATs."
+	FAIL 1 "$LINENO" "The '--restore|-R' flags cannot be used with WHATs."
 fi
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{dpkg-query,wget,find} /bin/{cp,mv,rm,chmod,chown,mkdir}; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in dpkg-query wget find cp mv rm chmod chown mkdir; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
 if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 	NOWARC="--no-warc-compression"
@@ -233,37 +236,37 @@ fi
 if ! [ "$JUST_CHECK" == "true" ]; then
 	if ! [ "$CLOG" == "true" -o "$AVAIL_SHOW" == "true" -o "$NOROOT" == "true" ]; then
 		if ! [ $UID -eq 0 ]; then
-			XERR "$LINENO" "Unable to continue -- do you have root access?"
+			FAIL 1 "$LINENO" "Unable to continue -- do you have root access?"
 		else
 			if ! [ "$SUDO_UID" -a "$SUDO_GID" ]; then
-				XERR "$LINENO" "Are you not using sudo?"
+				FAIL 1 "$LINENO" "Are you not using sudo?"
 			fi
 		fi
 	fi
 elif [ "$JUST_CHECK" == "true" -a $# -gt 0 ]; then
 	# Catches invalid args to the right of the --just-check|-J flags.
-	XERR "$LINENO" "OPT '--just-check|-J' can only be used on its own."
+	FAIL 1 "$LINENO" "OPT '--just-check|-J' can only be used on its own."
 fi
 
-[ "$BEQUIET" == "true" ] && exec 1>&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
 if ! [ -d "$MAINDIR" ]; then
-	if /bin/mkdir "$MAINDIR"; then
-		/bin/chown $SUDO_UID:$SUDO_UID "$MAINDIR"
+	if mkdir "$MAINDIR"; then
+		chown $SUDO_UID:$SUDO_UID "$MAINDIR"
 	else
-		XERR "$LINENO" "Failure to create '$MAINDIR' directory."
+		FAIL 1 "$LINENO" "Failure to create '$MAINDIR' directory."
 	fi
 fi
 
-[ -d "$BUPATH" ] || /bin/mkdir -p "$BUPATH" >&- 2>&-
+[ -d "$BUPATH" ] || mkdir -p "$BUPATH"
 
 if ! [ "$JUST_CHECK" == "true" ]; then
 	if [ "$CLOG" == "true" ]; then
 		CLOG_URL="$DOM/terminalforlife/Insit/raw/master/CHANGELOG.md"
-		CLOG_FILE=`/usr/bin/wget "$NOWARC" -q "$CLOG_URL" -O -`
-		if [ -x /usr/bin/less ]; then
-			/usr/bin/less <<< "$CLOG_FILE"
+		CLOG_FILE=`wget "$NOWARC" -q "$CLOG_URL" -O -`
+		if type -fP less > /dev/null 2>&1; then
+			less <<< "$CLOG_FILE"
 		else
 			printf "%s\n" "$CLOG_FILE"
 		fi
@@ -275,7 +278,7 @@ fi
 LOGIT(){
 	if [ $UID -eq 0 ]; then
 		if ! [ -d "${LOGFILE%/*}" ]; then
-			XERR "$LINENO" "System directory '/var/log' not found."
+			FAIL 1 "$LINENO" "System directory '/var/log' not found."
 		else
 			printf -v DATETIME "%(%F_%X)T" -1
 			if [ "$LOGIT" == "true" ]; then
@@ -284,8 +287,10 @@ LOGIT(){
 				#TODO - Could not logrotate handle this?
 				readarray A < "$LOGFILE"
 				if [ "${#A[@]}" -gt 4000 ]; then
-					/bin/mv "$LOGFILE"{,.old}
-					[ -x /bin/gzip ] && /bin/gzip "${LOGFILE}.old"
+					mv "$LOGFILE"{,.old}
+					if type -fP gzip > /dev/null 2>&1; then
+						gzip "${LOGFILE}.old"
+					fi
 				fi
 			fi
 
@@ -295,7 +300,7 @@ LOGIT(){
 }
 
 EXIT(){
-	LOGIT "Signal 'EXIT' trapped on line '$LINENO' -- insit quitting"
+	LOGIT "Signal 'EXIT' trapped on line '$LINENO' -- $_PROJECT_ quitting"
 }
 
 trap 'EXIT' EXIT
@@ -307,20 +312,20 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 			. "$LASTFILE"
 			exit 0
 		else
-			XERR "$LINENO" "Missing automatically generated backup restoration script."
+			FAIL 1 "$LINENO" "Missing automatically generated backup restoration script."
 		fi
 	fi
 
 	MK_LAST(){
 		if [ -f "$LASTFILE" ] && [ "$SUDO_USER" ]; then
 			LOGIT "Backup restoration script ownership corrected"
-			/bin/chown $SUDO_UID:$SUDO_UID "$LASTFILE"
+			chown $SUDO_UID:$SUDO_UID "$LASTFILE"
 
 			LOGIT "Backup restoration script permissions corrected"
-			/bin/chmod 600 "$LASTFILE"
+			chmod 600 "$LASTFILE"
 		elif [ -f "$LASTFILE" ] && ! [ -r "$LASTFILE" -a -w "$LASTFILE" ]; then
 			LOGIT "Backup restoration script has invalid permissions"
-			XERR "$LINENO" "Unable to write over the old backup restoration script."
+			FAIL 1 "$LINENO" "Unable to write over the old backup restoration script."
 		else
 			LOGIT "Generating a new backup restoration script"
 
@@ -329,7 +334,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 					printf "%s\n" "$REPLY"
 				done <<-EOF
 					#!/bin/bash
-					# Backup restoration script automatically generated and used by insit.
+					# Backup restoration script automatically generated and used by $_PROJECT_.
 					# Generated on `printf '%(%F (%X))T' -1` by $SUDO_USER ($SUDO_UID) @ $HOSTNAME.
 					#
 					# Do NOT make any changes to this script, unless you know what you're doing!
@@ -347,7 +352,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 
 		if [ $CHECK_BACKUP_ALREADY_MADE_COUNT -gt 5 ]; then
 			LOGIT "Detected previous backup in script '$LASTFILE'"
-			if /bin/rm "$LASTFILE" >&- 2>&-; then
+			if rm "$LASTFILE" > /dev/null 2>&1; then
 				LOGIT "Deleting old backup script '$LASTFILE'"
 			else
 				LOGIT "Failed to delete old backup script '$LASTFILE'"
@@ -355,7 +360,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 
 			if ! MK_LAST; then
 				LOGIT "Backup restoration script $LASTFILE not found or read-only"
-				ERR "$LINENO" "Unable to generate a backup restoration script."
+				FAIL 0 "$LINENO" "Unable to generate a backup restoration script."
 				BACKUP_PROMPT
 
 				HAS_FAILED_BACKUP="true"
@@ -363,7 +368,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 
 			if [ ! "$NOBACKUP" == "true" -a "$UPDATE" == "true" ]; then
 				LOGIT "Cleaning up old backups in $BUPATH"
-				/bin/rm -r "$BUPATH" >&- 2>&-
+				rm -r "$BUPATH" > /dev/null 2>&1
 			fi
 		fi
 	fi
@@ -395,7 +400,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 			if [ -f "$3" ]; then
 				if [ "$HASGVFS" == "true" ]; then
 					LOGIT "Trashing $3"
-					if /usr/bin/gvfs-trash "$3" >&- 2>&-; then
+					if gvfs-trash "$3" > /dev/null 2>&1; then
 						LOGIT "Successfully trashed $3"
 						printf "File '%s' sent to trash.\n" "$3"
 					else
@@ -403,7 +408,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 					fi
 				else
 					LOGIT "Deleting $3"
-					if /bin/rm "$3" >&- 2>&-; then
+					if rm "$3" > /dev/null 2>&1; then
 						LOGIT "Successfully deleted $3"
 						printf "File '%s' deleted.\n" "$3"
 					else
@@ -411,7 +416,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 					fi
 				fi
 			else
-				ERR "$LINENO" "File '$3' not found."
+				FAIL 0 "$LINENO" "File '$3' not found."
 				return 1
 			fi
 		else
@@ -423,12 +428,12 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 				while read; do
 					printf "%s\n" "$REPLY"
 				done <<-EOF
-					This item is no longer available for installation via insit. It may still be
+					This item is no longer available for installation via $_PROJECT_. It may still be
 					available on its associated repository on GitHub:
 
 					  $URL
 
-					Installation via insit may still be possible via the '--custom|-C' flags.
+					Installation via $_PROJECT_ may still be possible via the '--custom|-C' flags.
 
 					REASON: $3
 				EOF
@@ -438,26 +443,26 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 
 			if [ -f "$3" -a ! "$UPDATE" == "true" ]; then
 				LOGIT "File $3 already exists"
-				ERR "$LINENO" "File already exists: $3"
+				FAIL 0 "$LINENO" "File already exists: $3"
 				return 1
 			else
 				if [ -f "$3" ]; then
 					MK_BUP_DIR(){
 						LOGIT "Creating $BUFILE_DIR directory"
-						if ! /bin/mkdir -p "$BUFILE_DIR" >&- 2>&-; then
-							ERR "$LINENO" "Failed to create one or more backup directories."
+						if ! mkdir -p "$BUFILE_DIR" > /dev/null 2>&1; then
+							FAIL 0 "$LINENO" "Failed to create one or more backup directories."
 							BACKUP_PROMPT
 						else
 							LOGIT "Backing up $1 to $BUFILE"
-							if ! /bin/cp "$1" "$BUFILE" >&- 2>&-; then
+							if ! cp "$1" "$BUFILE" > /dev/null 2>&1; then
 								LOGIT "Failed to back up $1"
-								ERR "$LINENO" "Back up of '$1' failed.\n"
+								FAIL 0 "$LINENO" "Back up of '$1' failed.\n"
 								BACKUP_PROMPT
 							else
 								LOGIT "Setting correct permissions, UID, and GID for $BUFILE"
-								/bin/chmod 600 "$BUFILE" >&- 2>&-
-								/usr/bin/find $BUPATH/ -xdev -exec\
-								/bin/chown $SUDO_UID:$SUDO_GID "{}" \;
+								chmod 600 "$BUFILE" > /dev/null 2>&1
+								find $BUPATH/ -xdev -exec\
+								chown $SUDO_UID:$SUDO_GID "{}" \;
 
 							fi
 						fi
@@ -479,7 +484,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 								printf "CAUTION: Continuing without a backup.\n"
 							else
 								LOGIT "Unrecognised response at cautionary backup prompt"
-								ERR "$LINENO" "Unrecognised response."
+								FAIL 0 "$LINENO" "Unrecognised response."
 							fi
 						}
 
@@ -494,11 +499,11 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 								done <<-EOF
 									LOGIT "Restoring backed up $3"
 									printf "Restoring '%s' file.\n" "$3"
-									if /bin/cp "$BUFILE" "$3" >&- 2>&-; then
-									        /bin/chown $5:$6 "$3" >&- 2>&-
-									        /bin/chmod $4 "$3" >&- 2>&-
+									if cp "$BUFILE" "$3" > /dev/null 2>&1; then
+									        chown $5:$6 "$3" > /dev/null 2>&1
+									        chmod $4 "$3" > /dev/null 2>&1
 									else
-									        ERR "\$LINENO" "Failed to restore '$3' file."
+									        FAIL 0 "\$LINENO" "Failed to restore '$3' file."
 									fi
 
 								EOF
@@ -512,58 +517,58 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 					fi
 
 					LOGIT "Downloading $URL/$1/$BRANCH/$2 over $3"
-					if /usr/bin/wget -q $NOWARC "$URL/$1/raw/$BRANCH/$2" -O "$3" >&- 2>&-; then
+					if wget -q $NOWARC "$URL/$1/raw/$BRANCH/$2" -O "$3" > /dev/null 2>&1; then
 						LOGIT "Successfully downloaded $URL/$1/$BRANCH/$2 over $3"
 						printf "File '%s' downloaded and updated.\n" "$3"
 
 						LOGIT "Re-setting $3 to $5 UID and $6 GID"
-						if /bin/chown $5:$6 "$3" >&- 2>&-; then
+						if chown $5:$6 "$3" > /dev/null 2>&1; then
 							LOGIT "Successfully re-set $3 to $5 UID and $6 GID"
 							printf "File '%s' ownership re-set.\n" "$3"
 						else
 							LOGIT "Failed to re-set $3 to $5 UID and $6 GID"
-							ERR "$LINENO" "Unable to re-set the ownership of '$3' file."
+							FAIL 0 "$LINENO" "Unable to re-set the ownership of '$3' file."
 						fi
 
 						LOGIT "Re-setting $3 to $4 permissions"
-						if /bin/chmod "$4" "$3" >&- 2>&-; then
+						if chmod "$4" "$3" > /dev/null 2>&1; then
 							LOGIT "Successfully re-set $3 to $4 permissions"
 							printf "File '%s' mode re-set.\n" "$3"
 						else
 							LOGIT "Failed to re-set $3 to $4 permissions"
-							ERR "$LINENO" "Unable to re-set the mode of '$3' file."
+							FAIL 0 "$LINENO" "Unable to re-set the mode of '$3' file."
 						fi
 					else
 						LOGIT "Failed to download $URL/$1/$BRANCH/$2 over $3"
-						ERR "$LINENO" "Unable to download and/or update '$3' file."
+						FAIL 0 "$LINENO" "Unable to download and/or update '$3' file."
 						return 1
 					fi
 				else
 					LOGIT "Downloading $URL/$1/$BRANCH/$2 to $3"
-					if /usr/bin/wget -q $NOWARC "$URL/$1/raw/$BRANCH/$2" -O "$3" >&- 2>&-; then
+					if wget -q $NOWARC "$URL/$1/raw/$BRANCH/$2" -O "$3" > /dev/null 2>&1; then
 						LOGIT "Successfully downloaded $URL/$1/$BRANCH/$2 to $3"
 						printf "File '%s' successfully downloaded.\n" "$3"
 
 						LOGIT "Setting $3 to $6 UID and $5 GID"
-						if /bin/chown $5:$6 "$3" >&- 2>&-; then
+						if chown $5:$6 "$3" > /dev/null 2>&1; then
 							LOGIT "Successfully set $3 to $6 UID and $5 GID"
 							printf "File '%s' ownership set.\n" "$3"
 						else
 							LOGIT "Failed to set $3 to $6 UID and $5 GID"
-							ERR "$LINENO" "Unable to set the ownership of '$3' file."
+							FAIL 0 "$LINENO" "Unable to set the ownership of '$3' file."
 						fi
 
 						LOGIT "Setting $3 to $4 permissions"
-						if /bin/chmod "$4" "$3" >&- 2>&-; then
+						if chmod "$4" "$3" > /dev/null 2>&1; then
 							LOGIT "Successfully set $3 to $4 permissions"
 							printf "File '%s' mode successfully set.\n" "$3"
 						else
 							LOGIT "Failed to set $3 to $4 permissions"
-							ERR "$LINENO" "Unable to set the mode of '$3' file."
+							FAIL 0 "$LINENO" "Unable to set the mode of '$3' file."
 						fi
 					else
 						LOGIT "Failed to download $URL/$1/$BRANCH/$2 to $3"
-						ERR "$LINENO" "Unable to download '$3' file."
+						FAIL 0 "$LINENO" "Unable to download '$3' file."
 						return 1
 					fi
 				fi
@@ -579,11 +584,11 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 
 		if ! [ -x /usr/bin/apt-get ]; then
 			LOGIT "Failed to find dependency /usr/bin/apt-get"
-			ERR "$LINENO" "Dependency '/usr/bin/apt-get' not found."
+			FAIL 0 "$LINENO" "Dependency '/usr/bin/apt-get' not found."
 			return 1
 		elif ! [ -x /usr/bin/apt-mark ]; then
 			LOGIT "Failed to find dependency /usr/bin/apt-mark"
-			ERR "$LINENO" "Dependency '/usr/bin/apt-mark' not found."
+			FAIL 0 "$LINENO" "Dependency '/usr/bin/apt-mark' not found."
 			return 1
 		fi
 
@@ -595,7 +600,7 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 				exit 1
 			else
 				LOGIT "Telling APT to install $@"
-				if ! /usr/bin/apt-get --quiet --show-progress\
+				if ! apt-get --quiet --show-progress\
 					-o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
 					install $@; then
 					LOGIT "APT failed to install $@"
@@ -623,22 +628,22 @@ if ! [ "$JUST_CHECK" == "true" ]; then
 fi
 
 if [ ! $UID -eq 0 -a "$LOGIT" == "true" ]; then
-	ERR "$LINENO" "Logging disabled -- insufficient permissions."
+	FAIL 0 "$LINENO" "Logging disabled -- insufficient permissions."
 fi
 
 if ! [ "$JUST_CHECK" == "true" ]; then
 	if [ "$UPDATE" == "true" -a $# -eq 0 -a ! "$SELF" == "true" ]; then
-		XERR "$LINENO" "No items were selected for update."
+		FAIL 1 "$LINENO" "No items were selected for update."
 	fi
 fi
 
 if [ "$JUST_CHECK" == "true" ] || ! [ "$NO_VC" == "true" -o "$SELF" == "true" ]; then
 	LOGIT "Checking version for update availability"
 	VERSION_URL="$DOM/terminalforlife/Insit/raw/master/version"
-	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	LATEST=`wget $NOWARC -q "$VERSION_URL" -O -`
 	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
 		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-			LOGIT "A newer version of insit detected"
+			LOGIT "A newer version of $_PROJECT_ detected"
 			while read -r; do
 				printf "%s\n" "$REPLY"
 			done <<-EOF
@@ -646,11 +651,11 @@ if [ "$JUST_CHECK" == "true" ] || ! [ "$NO_VC" == "true" -o "$SELF" == "true" ];
 				Current version:          $_VERSION_
 			EOF
 		else
-			LOGIT "No new version of insit detected"
+			LOGIT "No new version of $_PROJECT_ detected"
 		fi
 	else
 		LOGIT "Update availability error(s) detected"
-		ERR "$LINENO" "Failed to check for available updates."
+		FAIL 0 "$LINENO" "Failed to check for available updates."
 	fi
 
 	[ "$JUST_CHECK" == "true" ] && exit 0
@@ -659,15 +664,15 @@ else
 fi
 
 if [ "$SELF" == "true" ]; then
-	FILE Insit insit /usr/bin/insit 755 0 0
-	FILE Insit completion /usr/share/bash-completion/completions/insit 644 0 0
+	FILE Insit $_PROJECT_ /usr/bin/$_PROJECT_ 755 0 0
+	FILE Insit completion /usr/share/bash-completion/completions/$_PROJECT_ 644 0 0
 	exit 0 # Had to do this, since UPDATE is true here; saves possible mistake.
 elif [ "$UNINSTALL" == "true" ]; then
-	if [ -x /usr/bin/gvfs-trash ]; then
+	if type -fP gvfs-trash > /dev/null 2>&1; then
 		read -e -n 1 -p "This will send installed files to the trash -- continue? "
 		HASGVFS="true"
 	else
-		LOGIT "Asking user if insit should continue with file deletion"
+		LOGIT "Asking user if $_PROJECT_ should continue with file deletion"
 		read -e -n 1 -p "This will delete installed files -- continue? "
 		HASGVFS="false"
 	fi
@@ -680,7 +685,7 @@ elif [ "$UNINSTALL" == "true" ]; then
 elif [ "$CUSTOM" == "true" ]; then
 	if [ "$1" == "NLA" ]; then
 		#TODO - What if the repository name (not TFL) is named 'NLA'? Fix!
-		XERR "$LINENO" "Special word 'NLA' is reserved by insit functionalty."
+		FAIL 1 "$LINENO" "Special word 'NLA' is reserved by $_PROJECT_ functionalty."
 	fi
 
 	LOGIT "Processing custom FILE '$@'"
@@ -692,9 +697,9 @@ while [ "$1" ]; do
 	case "$1" in
 		libtfl-perl)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "libtfl-perl's DEB package has already been installed."
+				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
 
 			FILE PerlProjects TFL.pm /usr/share/perl5/TFL.pm 644 0 0 ;;
@@ -703,9 +708,9 @@ while [ "$1" ]; do
 			FILE freema.chillout freema.chillout /usr/bin/freema.chillout 755 0 0 ;;
 		previewer)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show previewer 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show previewer 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "previewer's DEB package has already been installed."
+				FAIL 1 "$LINENO" "previewer's DEB package has already been installed."
 			fi
 
 			printf "NOTE: There is a DEB package available for 'previewer'\n"
@@ -713,9 +718,9 @@ while [ "$1" ]; do
 			FILE PerlProjects previewer /usr/bin/previewer 755 0 0
 			FILE PerlProjects Completions/previewer /usr/share/bash-completion/completions/previewer 644 0 0
 
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "libtfl-perl's DEB package has already been installed."
+				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
 
 			FILE PerlProjects TFL.pm /usr/share/perl5/TFL.pm 644 0 0 ;;
@@ -755,7 +760,7 @@ while [ "$1" ]; do
 			if [ -d /etc/lightdm ]; then
 				FILE Extra lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-greeter.conf 644 0 0
 			else
-				ERR "$LINENO" "Missing '/etc/lightdm' directory."
+				FAIL 0 "$LINENO" "Missing '/etc/lightdm' directory."
 			fi ;;
 		freelfm)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
@@ -893,9 +898,9 @@ while [ "$1" ]; do
 			FILE simplify-ubuntu completion /usr/share/bash-completion/completions/simplify-ubuntu 644 0 0
 			FILE Extra clean-locales /usr/bin/clean-locales 755 0 0
 
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show lspkg 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show lspkg 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "lspkg's DEB package has already been installed."
+				FAIL 1 "$LINENO" "lspkg's DEB package has already been installed."
 			fi
 
 			FILE lspkg lspkg-set /usr/bin/lspkg-set 755 0 0
@@ -910,9 +915,9 @@ while [ "$1" ]; do
 			FILE autoscrot completion /usr/share/bash-completion/completions/autoscrot 644 0 0 ;;
 		apt-undo-install)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show apt-undo-install 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show apt-undo-install 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "apt-undo-install's DEB package has already been installed."
+				FAIL 1 "$LINENO" "apt-undo-install's DEB package has already been installed."
 			fi
 
 			FILE apt-undo-install apt-undo-install /usr/bin/apt-undo-install 755 0 0
@@ -920,9 +925,9 @@ while [ "$1" ]; do
 
 			APT_INSTALL perl libapt-pkg-perl
 
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "libtfl-perl's DEB package has already been installed."
+				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
 
 			FILE PerlProjects TFL.pm /usr/share/perl5/TFL.pm 644 0 0 ;;
@@ -946,7 +951,7 @@ while [ "$1" ]; do
 		cpufreq)
 			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show cpufreq 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "cpufreq's DEB package has already been installed."
+				FAIL 1 "$LINENO" "cpufreq's DEB package has already been installed."
 			fi
 
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
@@ -1107,7 +1112,7 @@ while [ "$1" ]; do
 
 			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "libtfl-perl's DEB package has already been installed."
+				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
 
 			FILE PerlProjects TFL.pm /usr/share/perl5/TFL.pm 644 0 0 ;;
@@ -1119,7 +1124,7 @@ while [ "$1" ]; do
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
 			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show wcdl 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "wcdl's DEB package has already been installed."
+				FAIL 1 "$LINENO" "wcdl's DEB package has already been installed."
 			fi
 
 			FILE wcdl wcdl /usr/bin/wcdl 755 0 0
@@ -1144,7 +1149,7 @@ while [ "$1" ]; do
 
 					ASSUMPTION:
 
-					  You've previously installed them with insit, or manually, directly from GitHub.
+					  You've previously installed them with $_PROJECT_, or manually, directly from GitHub.
 					  Now you're either opting to update or uninstall them.
 
 					PROBLEM:
@@ -1173,7 +1178,7 @@ while [ "$1" ]; do
 					printf "\n"
 					break
 				else
-					ERR "$LINENO" "Invalid response detected."
+					FAIL 0 "$LINENO" "Invalid response detected."
 				fi
 			fi
 
@@ -1188,7 +1193,7 @@ while [ "$1" ]; do
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
 			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show lspkg 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "lspkg's DEB package has already been installed."
+				FAIL 1 "$LINENO" "lspkg's DEB package has already been installed."
 			fi
 
 			FILE lspkg lspkg /usr/bin/lspkg 755 0 0
@@ -1207,7 +1212,7 @@ while [ "$1" ]; do
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
 			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show getip 2>&-`
 			if [ "$II" == "ii" ]; then
-				XERR "$LINENO" "getip's DEB package has already been installed."
+				FAIL 1 "$LINENO" "getip's DEB package has already been installed."
 			fi
 
 			FILE PerlProjects getip /usr/bin/getip 755 0 0
@@ -1271,7 +1276,7 @@ while [ "$1" ]; do
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
 			FILE Extra dl-tuxradar-podcasts /usr/bin/dl-tuxradar-podcasts 755 0 0 ;;
 		*)
-			ERR "$LINENO" "Unavailable WHAT at: $1" ;;
+			FAIL 0 "$LINENO" "Unavailable WHAT at: $1" ;;
 	esac
 	shift
 done
