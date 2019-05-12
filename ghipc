@@ -3,14 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ghipc (GitHub IP Check)
 # Started On        - Wed 14 Feb 18:30:38 GMT 2018
-# Last Change       - Thu  9 May 00:57:22 BST 2019
+# Last Change       - Sun 12 May 22:25:24 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 URL='https://api.github.com/meta'
 
@@ -18,12 +22,12 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            GHIPC - GitHub IP Check ($_VERSION_)
+		            ${_PROJECT_^^} - GitHub IP Check ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Check the validity of IP addresses of GitHub servers.
 
-		SYNTAX:     ghipc [OPT] IP1 IP2 IP3 ...
+		SYNTAX:     $_PROJECT_ [OPT] IP1 IP2 IP3 ...
 
 		OPT:        --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output o ly the version datestamp.
@@ -43,7 +47,7 @@ while [ "$1" ]; do
 		--debug|-D)
 			DEBUGME="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -52,15 +56,17 @@ done
 
 IP_LIST="$@"
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+if ! type -fP wget > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'wget' not met."
+fi
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
 if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 	NOWARC="--no-warc-compression"
 fi
 
-[ "$IP_LIST" ] || XERR "$LINENO" "No IP addresses were provided."
+[ "$IP_LIST" ] || FAIL 1 "$LINENO" "No IP addresses were provided."
 
 [ "$DEBUGME" == "true" ] && set -x
 
@@ -71,6 +77,6 @@ while read LINE; do
 			printf "MATCH: %s\n" "${BUFFER%\/*}"
 		fi
 	}
-done <<< "$(/usr/bin/wget $NOWARC -q "$URL" -O -)"
+done <<< "$(wget $NOWARC -q "$URL" -O -)"
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
