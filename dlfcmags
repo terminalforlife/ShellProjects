@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dlfcmags
 # Started On        - Tue 28 Nov 00:02:33 GMT 2017
-# Last Change       - Sun 12 May 15:35:40 BST 2019
+# Last Change       - Sun 12 May 22:01:09 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -77,6 +77,6 @@ DL="/issue127_en.pdf"
 
 for ISSUE in $ISSUE_LIST; {
 	printf -v PRETTY_ISSUE "%0.3d" "$ISSUE"
-	/usr/bin/wget -qc --show-progress "$DOMAIN/issue${ISSUE}_en.pdf"\
+	wget -qc --show-progress "$DOMAIN/issue${ISSUE}_en.pdf"\
 		-O "$PRETTY_ISSUE - Full Circle.pdf"
 }
