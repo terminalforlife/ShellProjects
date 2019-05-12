@@ -3,61 +3,76 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dlfcmags
 # Started On        - Tue 28 Nov 00:02:33 GMT 2017
-# Last Change       - Thu  9 May 00:54:29 BST 2019
+# Last Change       - Sun 12 May 15:35:40 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Download the entire collection of the Full Circle magazine for Ubuntu Linux.
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
+DOMAIN="https://dl.fullcirclemagazine.org"
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DLFCMAGS (28th November 2017)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Download issues of the Full Circle magazine PDFs.
 
-		SYNTAX:     dlfcmags [OPTS] ISSUE1 ISSUE2 ISSUE3 . . .
+		SYNTAX:     $_PROJECT_ [OPTS] ISSUE1 ISSUE2 ISSUE3 . . .
 
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
 
-		EXAMPLE:    dlfcmags 7
-		            dlfcmags -q {20..76}
-		            dlfcmags 1 8 9 22 {24..27}
+		EXAMPLE:    $_PROJECT_ 7
+		            $_PROJECT_ -q {20..76}
+		            $_PROJECT_ 1 8 9 22 {24..27}
 
-		SITE:       https://fullcirclemagazine.org
+		SITE:       ${DOMAIN/\/dl.//}
 
 		NOTE:       There are currently versions 1-127 available.
 	EOF
 }
 
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
-
 	shift
 done
 
-[ "$*" ] || printf -v ISSUE_LIST " %d" {1..127} && ISSUE_LIST="$@"
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access isn't required."
-[ "$BEQUIET" == "true" ] && exec >&-
+if ! type -fP wget > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency '/usr/bin/wget' not met."
+fi
 
-DOMAIN="http://dl.fullcirclemagazine.org"
+if ! [ "$*" ]; then
+	printf -v ISSUE_LIST " %d" {1..127}
+else
+	ISSUE_LIST="$@"
+fi
+
+[ "$BEQUIET" == "true" ] && exec > /dev/null
+
 DL="/issue127_en.pdf"
 
 for ISSUE in $ISSUE_LIST; {
