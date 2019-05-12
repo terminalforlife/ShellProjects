@@ -3,15 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Thu  9 May 00:58:04 BST 2019
+# Last Change       - Sun 12 May 23:13:01 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 DOM="https://github.com"
 
@@ -19,16 +22,15 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            MIF - Movie Index Filter ($_VERSION_)
+		            ${_PROJECT_^^} - Movie Index Filter ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Shell program to filter films by year and whether seen or not.
 
-		SYNTAX:     mif [OPTS] [YEAR]
+		SYNTAX:     $_PROJECT_ [OPTS] [YEAR]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to mif.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --file|-f FILE          - Use FILE path instead of the saved path.
 		            --seen|-s               - Filter by movies marked as seen.
@@ -38,11 +40,11 @@ USAGE(){
 		            --mark M                - Where M is - or + for whether seen or not.
 		            --organize|-O           - Organise files in the CWD by year. This
 		                                      This has the potential to be destructive!
-		            --mklist|-M[:N]         - Output a mif-usable movie list from CWD.
+		            --mklist|-M[:N]         - Output a ${_PROJECT_}-usable movie list from CWD.
 		                                      If :N is appended, then omit [+] and [-].
 
-		NOTE:       The file which mif parses must be in a strict layout in order for
-		            mif to work correctly. An example of such a file's contents:
+		NOTE:       The file which $_PROJECT_ parses must be in a strict layout in order for
+		            $_PROJECT_ to work correctly. An example of such a file's contents:
 
 		              # Comment lines will be ignored.
 		              1972[+]: The Godfather
@@ -56,7 +58,7 @@ USAGE(){
 
 		            Where + is unseen (new) and - is seen.
 
-		FILE:       Default is $HOME/.mif but use --file|-f FILE to specify your own.
+		FILE:       Default is $HOME/.$_PROJECT_ but use --file|-f FILE to specify your own.
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
@@ -65,10 +67,10 @@ USAGE(){
 if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then
 	shopt -s extglob globstar
 else
-	XERR "$LINENO" "Bash version 4.0 or greater is required."
+	FAIL 1 "$LINENO" "Bash version 4.0 or greater is required."
 fi
 
-INDEX="$HOME/.mif"
+INDEX="$HOME/.$_PROJECT_"
 SEEN="false"
 TTL="false"
 
@@ -77,10 +79,7 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
-		--update|-U)
-			UPDATE="true" ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--mklist|-M)
@@ -108,33 +107,14 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in /bin/{mkdir,mv} /usr/bin/wget; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in mkdir mv; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
-
-if [ "$UPDATE" == "true" ]; then
-	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/mif-version"
-	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
-	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
-		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-			while read -r; do
-				printf "%s\n" "$REPLY"
-			done <<-EOF
-				New version available:    $LATEST
-				Current version:          $_VERSION_
-			EOF
-		fi
-	else
-		XERR "$LINENO" "Failed to check for available updates."
-	fi
-
-	exit 0
-fi
 
 if [[ "$MAKE_LIST_OPT" =~ (:|:\[+\]) ]]; then
 	for FILE in **; {
@@ -150,11 +130,13 @@ if ! [ "$ORGANIZE" == "true" ]; then
 	if [[ "$1" =~ ^[0-9]+$ ]]; then
 		YEAR="$1"; shift
 	else
-		[ "$SEEN" == "all" ] || XERR "$LINENO" "Invalid year specified."
+		if ! [ "$SEEN" == "all" ]; then
+			FAIL 1 "$LINENO" "Invalid year specified."
+		fi
 	fi
 fi
 
-[ "$*" ] && XERR "$LINENO" "Incorrect argument(s) specified."
+[ "$*" ] && FAIL 1 "$LINENO" "Incorrect argument(s) specified."
 
 [ "$DEBUGME" == "true" ] && set -x
 
@@ -164,13 +146,13 @@ if [ "$ORGANIZE" == "true" ]; then
 
 		[[ "${Y%\)*}" =~ ^[0-9]+$ ]] || continue
 
-		if /bin/mkdir "${Y%\)*}"; then
+		if mkdir "${Y%\)*}"; then
 			printf "%s\n" "MAKE: ${Y%\)*}"
 		else
 			printf "%s\n" "FAIL: ${Y%\)*}"
 		fi
 
-		if /bin/mv "$X" ${Y%\)*}/; then
+		if mv "$X" ${Y%\)*}/; then
 			printf "%s\n" "MOVE: ${Y%\)*}/${X//*\/}"
 		else
 			printf "%s\n" "FAIL: ${Y%\)*}/${X//*\/}"
@@ -180,7 +162,7 @@ if [ "$ORGANIZE" == "true" ]; then
 	exit 0
 fi
 
-[ -f "$INDEX" ] || XERR "$LINENO" "Index file '$INDEX' not found."
+[ -f "$INDEX" ] || FAIL 1 "$LINENO" "Index file '$INDEX' not found."
 
 declare -i LINE=0
 while read -r; do
@@ -201,7 +183,7 @@ while read -r; do
 	fi
 done < "$INDEX"
 
-[ $LINE -eq 0 ] && XERR "$LINENO" "Unable to find year $YEAR."
+[ $LINE -eq 0 ] && FAIL 1 "$LINENO" "Unable to find year $YEAR."
 [ "$TTL" == "true" ] && printf "\nTotal: %d\n" "$LINE"
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
