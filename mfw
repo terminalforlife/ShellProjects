@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mfw (Mint Forum Watch)
 # Started On        - Sun 21 Jan 14:15:13 GMT 2018
-# Last Change       - Thu  9 May 00:57:58 BST 2019
+# Last Change       - Sun 12 May 23:08:48 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,18 +14,13 @@
 # At some point, I may introduce the ability to watch different forums.
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-declare -i DEPCOUNT=0
-for DEP in /bin/sleep /usr/bin/{notify-send,wget}; {
-	[ -x "$DEP" ] || {
-		ERR "$LINENO" "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	}
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
 }
-
-[ $DEPCOUNT -eq 0 ] || exit 1
 
 USAGE(){
 	while read -r; do
@@ -36,15 +31,16 @@ USAGE(){
 
 		            Notifier for page-one threads on the Newbie Questions Linux Mint forum.
 
-		SYNTAX:     mfw [OPTS] [INTERVAL]
+		SYNTAX:     $_PROJECT_ [OPTS] [INTERVAL]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --filter|-F ID          - Omit threads by their ID number. (See URL)
 		            --no-notify-wait        - Display all notifications at once.
 		            --run-once|-O           - Don't run in the background; run only once.
 
-		EXAMPLE:    mfw -F 12345 -F 54321 --no-notify-wait 30
+		EXAMPLE:    $_PROJECT_ -F 12345 -F 54321 --no-notify-wait 30
 
 		NOTE:       Where INTERVAL is the time between each check, in minutes.
 
@@ -56,6 +52,8 @@ while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--filter|-F)
@@ -65,17 +63,26 @@ while [ "$1" ]; do
 		--run-once|-O)
 			RUN_ONCE="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
-
 	shift
 done
 
 INTERVAL="$1"
 
-[ "$DEBUGME" == "true" ] && set -xeu
+declare -i DEPCOUNT=0
+for DEP in sleep notify-send wget; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ "$DEBUGME" == "true" ] && set -x
 
 URL='https://forums.linuxmint.com/viewforum.php?f=90'
 REGEX='\?f=90\&amp\;t=[0-9]+\&amp;sid=[0-9a-z]+\"\sclass=\"topictitle\">.*<'
@@ -100,7 +107,7 @@ while :; do
 
 				printf "%6d[%0.2d]: %s\n" "$T_ID" "$T_REP" "$T_STR"
 			fi
-		done <<< "$(/usr/bin/wget -q "$URL" -O -)"
+		done <<< "$(wget -q "$URL" -O -)"
 	}
 
 	while read -a R; do
@@ -108,14 +115,14 @@ while :; do
 
 		if ! [ "$NO_NOTIFY_WAIT" == "true" ]; then
 			printf -v SECS "%0.5d" "$RANDOM"
-			/bin/sleep ${SECS%???}s
+			sleep ${SECS%???}s
 		fi
 
-		/usr/bin/notify-send "${R[*]}"
+		notify-send "${R[*]}"
 	done <<< "$(PARSE)"
 
 	if ! [ "$RUN_ONCE" == "true" ]; then
-		/bin/sleep ${INTERVAL}m
+		sleep ${INTERVAL}m
 	else
 		break
 	fi
