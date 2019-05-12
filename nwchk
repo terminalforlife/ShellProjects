@@ -3,17 +3,20 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Thu  9 May 00:58:21 BST 2019
+# Last Change       - Sun 12 May 23:28:16 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Written by inspiration of YouTube and Arch user, 'S3NTYN3L'.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 SADDR="https://www.google.co.uk/"
 
@@ -21,12 +24,12 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            NWCHK ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Check, once or periodically, for network and/or Internet connectivity.
 
-		SYNTAX:     nwchk [OPTS] IFACE
+		SYNTAX:     $_PROJECT_ [OPTS] IFACE
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -44,7 +47,7 @@ USAGE(){
 
 		NOTE:       This is a daemon-like shell program, written to be executed once, and
 		            left running, like a typical daemon, unless otherwise instructed. One
-		            example of a place to execute nwchk, would be rc.local in /etc.
+		            example of a place to execute $_PROJECT_, would be rc.local in /etc.
 
 		            Where IFACE is the network interface to check.
 
@@ -52,10 +55,10 @@ USAGE(){
 
 		FILE:       By default, the following log file is used:
 
-		              \$HOME/.nwchk.log
+		              \$HOME/.$_PROJECT_.log
 
-		EXAMPLE:    nwchk -i 60 --internet -b -l -L /tmp/nwchk_tmp.log wlp4s0
-		            nwchk --bell -p 1.1.1.1 -S 'https://duckduckgo.com/' enp3s0
+		EXAMPLE:    $_PROJECT_ -i 60 --internet -b -l -L /tmp/${_PROJECT_}_tmp.log wlp4s0
+		            $_PROJECT_ --bell -p 1.1.1.1 -S 'https://duckduckgo.com/' enp3s0
 
 		SITE:       The default address for the wget spider:
 
@@ -80,7 +83,7 @@ while [ "$1" ]; do
 			shift
 
 			if ! [[ "$1" =~ ^[0-9]+$ ]] || [ $1 -lt 3 ]; then
-				XERR "$LINENO" "Invalid seconds of interval provided."
+				FAIL 1 "$LINENO" "Invalid seconds of interval provided."
 			fi
 
 			declare -i INT=$1 ;;
@@ -96,7 +99,7 @@ while [ "$1" ]; do
 			shift
 
 			if ! [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-				XERR "$LINENO" "Invalid ping IP address provided."
+				FAIL 1 "$LINENO" "Invalid ping IP address provided."
 			fi
 
 			IP="$1" ;;
@@ -105,7 +108,7 @@ while [ "$1" ]; do
 		--no-notify|-N)
 			NO_NOTIFY="true" ;;
 		--*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -115,18 +118,18 @@ done
 #TODO - Check for -S and/or -p but no -I.
 
 if [ "$INT" -a "$ONCE" == "true" ]; then
-	XERR "$LINENO" "Interval specified, but nwchk was told to run once."
+	FAIL 1 "$LINENO" "Interval specified, but $_PROJECT_ was told to run once."
 fi
 
 if ! [ "$LOG" == "true" ] && [ "$LOGFILE" ]; then
-	XERR "$LINENO" "Logfile specified, but nwchk wasn't told to log."
+	FAIL 1 "$LINENO" "Logfile specified, but $_PROJECT_ wasn't told to log."
 fi
 
 if ! [ "$*" ]; then
-	XERR "$LINENO" "Missing user-specified network interface."
+	FAIL 1 "$LINENO" "Missing user-specified network interface."
 else
 	if [ "${#@}" -gt 1 ]; then
-		XERR "$LINENO" "Only one interface may be specified at one time."
+		FAIL 1 "$LINENO" "Only one interface may be specified at one time."
 	else
 		IFACE="$1"
 	fi
@@ -134,30 +137,30 @@ fi
 
 declare -i DEPCOUNT=0
 for DEP in dirname sleep ping notify-send; {
-	if ! type -Pf "$DEP" >&- 2>&-; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+	if ! type -Pf "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-if type -Pf ip >&- 2>&-; then
+if type -Pf ip > /dev/null 2>&1; then
 	USEIP="true"
-elif type -Pf ifconfig >&- 2>&-; then
+elif type -Pf ifconfig > /dev/null 2>&1; then
 	USEIF="true"
 else
-	XERR "$LINENO" "Unable to find applicable executable."
+	FAIL 1 "$LINENO" "Unable to find applicable executable."
 fi
 
-if [ "$INTERNET" == "true" ] && ! type -Pf ping >&- 2>&-; then
-	XERR "$LINENO" "Dependency 'ping' not met."
+if [ "$INTERNET" == "true" ] && ! type -Pf ping > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'ping' not met."
 fi
 
 # Prefer ip, if both are found, as ifconfig is deprecated.
 [ "$USEIP" == "true" -a "$USEIF" == "true" ] && unset USEIF
 
-[ "$BEQUIET" == "true" ] && exec 1>&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
 NOTIFY(){
@@ -165,7 +168,7 @@ NOTIFY(){
 		#TODO - Add exclamation or other type of alert icon.
 		if ! notify-send --urgency=$1 "$2"; then
 			LOGIT="Unable to send a notification."
-			XERR "$LINENO" "Unable to send a notification -- quitting."
+			FAIL 1 "$LINENO" "Unable to send a notification -- quitting."
 		fi
 	fi
 
@@ -176,7 +179,7 @@ NOTIFY(){
 
 LOGIT(){
 	# If logfile is or becomes invalid during loop, go with the default.
-	[ "$LOGFILE" ] || LOGFILE="$HOME/.nwchk.log"
+	[ "$LOGFILE" ] || LOGFILE="$HOME/.$_PROJECT_.log"
 
 	if [ "$LOG" == "true" ]; then
 		printf "%(%F_%X)T: %s\n" -1 "$1" >> "$LOGFILE"
@@ -222,7 +225,7 @@ while :; do
 	fi
 
 	if [ "$INTERNET" == "true" ]; then
-		if type -Pf wget >&- 2>&-; then
+		if type -Pf wget > /dev/null 2>&1; then
 			if ! wget -q -T 3 --spider "$SADDR"; then
 				LOGIT "Unable to confirm server availability."
 
