@@ -3,26 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Thu  9 May 00:59:25 BST 2019
+# Last Change       - Sun 12 May 13:21:43 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            TOZERO ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Simple program to display a countdown for a target date.
 
-		SYNTAX:     tozero [OPTS] TARGET
+		SYNTAX:     $_PROJECT_ [OPTS] TARGET
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -41,12 +44,12 @@ USAGE(){
 
 		EXAMPLE:    Display countdown until December the 11th, 2017:
 
-		              $ tozero 2018-10-02
-		              S: 3,893,051
-		              M: 64,884
-		              H: 1,081
-		              D: 45
-		              W: 6
+		              $ $_PROJECT_ 2019-05-14
+		              S: 125,324
+		              M: 2,088
+		              H: 34
+		              D: 1
+		              W: 0
 	EOF
 }
 
@@ -64,7 +67,7 @@ while [ "$1" ]; do
 		--int-only|-I)
 			INTONLY="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -73,11 +76,13 @@ done
 
 DATE="$1"
 
-[ -x /bin/date ] || XERR "$LINENO" "Dependency '/bin/date' not met."
+[ -x /bin/date ] || FAIL 1 "$LINENO" "Dependency '/bin/date' not met."
 
 [ "$DEBUGME" == "true" ] && set -x
 
-/bin/date -d "$DATE" >&- 2>&- || XERR "$LINENO" "Incorrect TARGET string."
+if ! /bin/date -d "$DATE" > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Incorrect TARGET string."
+fi
 
 TARGET="${DATE:-tomorrow}"
 
