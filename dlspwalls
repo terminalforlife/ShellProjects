@@ -3,26 +3,31 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dlspwalls
 # Started On        - Sun 15 Oct 20:48:22 BST 2017
-# Last Change       - Thu  9 May 00:56:35 BST 2019
+# Last Change       - Sun 12 May 15:45:24 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-05-12"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
+URL="https://wallpapercave.com/download/steampunk-wallpaper"
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            DLSPWALLS ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Download a collection of steampunk wallpapers.
 
-		SYNTAX:     dlspwalls [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -31,7 +36,7 @@ USAGE(){
 
 		NOTE:       Files will be download to the current directory, as JPGs.
 
-		SITE:       https://wallpapercave.com
+		SITE:       ${URL%/download/*}
 	EOF
 }
 
@@ -40,32 +45,31 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
-
 	shift
 done
 
-[ -x /usr/bin/wget ] || ERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+if ! type -fP wget > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'wget' not met."
+fi
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
 if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 	NOWARC="--no-warc-compression"
 fi
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
-URL="https://wallpapercave.com/download/steampunk-wallpaper"
-HTML=`/usr/bin/wget -q $NOWARC "${URL%/down*}/steampunk-wallpaper-1920x1080" -O -`
+HTML=`wget -q $NOWARC "${URL%/down*}/steampunk-wallpaper-1920x1080" -O -`
 
 GETID=()
 while read -a Y; do
@@ -89,7 +93,7 @@ for ID in ${GETID[@]//\/}; {
 
 	printf "%s\n" "DOWNLOADING: steampunk-wallpaper-1920x1080-${ID}.jpg"
 	printf -v FNAME "./steampunk-wallpaper-1920x1080-%0.2d.jpg" "${N}"
-	/usr/bin/wget -qc $NOWARC "${URL}-1920x1080-${ID}" -O "$FNAME"
+	wget -qc $NOWARC "${URL}-1920x1080-${ID}" -O "$FNAME"
 }
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: expandtab colorcolumn=84 tabstop=8 noswapfile nobackup
