@@ -1,9 +1,9 @@
-#!/usr/bin/fish
+#!/usr/bin/env fish
 
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/.config/fish/config.fish
 # Started On        - Thu 14 Sep 12:44:56 BST 2017
-# Last Change       - Fri 26 Apr 14:38:20 BST 2019
+# Last Change       - Mon 13 May 01:37:51 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -42,19 +42,19 @@ export LESSSECURE=1
 export COLUMNS
 export LINES
 
-if type -P /usr/bin/sudo >&- 2>&-
-	if type -P /usr/bin/vim >&- 2>&-
+if type -P sudo > /dev/null 2>&1
+	if type -fP vim > /dev/null 2>&1
 		export SUDO_EDITOR="rvim"
-	else if type -P /usr/bin/nano >&- 2>&-
+	else if type -fP nano > /dev/null 2>&1
 		export SUDO_EDITOR="rnano"
 	end
 end
 
 #----------------------------------------------------------------------------------
 
-if type -P /bin/date /usr/bin/tty >&- 2>&-
+if type -fP date tty > /dev/null 2>&1
 	set TERMWATCH_LOGFILE "$HOME/.termwatch.log"
-	set CURTERM `/usr/bin/tty`
+	set CURTERM `tty`
 
 	if [ -f "$TERMWATCH_LOGFILE" ]; and [ -w "$TERMWATCH_LOGFILE" ]
 		echo "Using $CURTERM:-Unknown ($TERM-unknown)"\
