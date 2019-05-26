@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Sun 12 May 13:21:43 BST 2019
+# Last Change       - Sat 18 May 21:43:00 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-05-18"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -122,4 +122,4 @@ case "$TYPE" in
 		SHOW W $WEEKS ;;
 esac
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
+# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
