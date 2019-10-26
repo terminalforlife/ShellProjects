@@ -3,15 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ubuntu-syschk
 # Started On        - Mon 22 Jan 12:03:01 GMT 2018
-# Last Change       - Thu  9 May 00:59:29 BST 2019
+# Last Change       - Sun 27 Oct 00:06:35 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-10-27"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
 INFO(){ [ "$VERBOSE" == "true" ] && printf "%s\n" "$1"; }
 ALERT(){ AC+=1; printf "ALERT: %s\n" "$1"; }
 
@@ -95,7 +98,7 @@ while [ "$1" ]; do
 		--verbose|-V)
 			VERBOSE="true" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -155,7 +158,7 @@ while [ "$1" ]; do
 		logchk=[01])
 			LOGCHK=${1/*=} ;;
 		*)
-			XERR "$LINENO" "Incorrect CHECK value(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect CHECK value(s) specified." ;;
 	esac
 	shift
 done
@@ -163,11 +166,11 @@ done
 [ "$BEQUIET" == "true" ] && exec 1> /dev/null
 [ "$DEBUGME" == "true" ] && set -x
 
-if ! [ -x /usr/bin/wget ]; then
-	XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+if ! type -fP wget &> /dev/null; then
+	FAIL 1 "$LINENO" "Dependency 'wget' not met."
 fi
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
+read -a WGET_VER_LINE <<< "$(wget --version)"
 WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
 if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 	NOWARC="--no-warc-compression"
@@ -176,7 +179,7 @@ fi
 if [ "$UPDATE" == "true" ]; then
 	INFO "Checking for available updates to ubuntu-syschk."
 	VERSION_URL="$DOM/terminalforlife/ubuntu-syschk/raw/master/version"
-	LATEST=`/usr/bin/wget $NOWARC -q "$VERSION_URL" -O -`
+	LATEST=`wget $NOWARC -q "$VERSION_URL" -O -`
 	if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
 		if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
 			while read -r; do
@@ -189,7 +192,7 @@ if [ "$UPDATE" == "true" ]; then
 			INFO "No updates are available."
 		fi
 	else
-		XERR "$LINENO" "Failed to check for available updates."
+		FAIL 1 "$LINENO" "Failed to check for available updates."
 	fi
 
 	exit 0
@@ -201,24 +204,24 @@ if ! [ "$IGNORE_DISTRO" == "true" ]; then
 		while IFS="=" read -a X; do
 			if [ "${X[0]//\"}" == "ID_LIKE" ]; then
 				if ! [[ "${X[1]//\"}" =~ (debian|ubuntu) ]]; then
-					XERR "$LINENO" "Unsupported distribution base."
+					FAIL 1 "$LINENO" "Unsupported distribution base."
 				fi
 
 				break
 			fi
 		done < /etc/os-release
 	else
-		XERR "$LINENO" "Unable to determine the distribution ID."
+		FAIL 1 "$LINENO" "Unable to determine the distribution ID."
 	fi
 fi
 
 declare -i AC=0
 
 if [ $SERVICES -eq 0 ]; then
-	if [ -x /bin/systemctl ]; then
+	if type -fP systemctl &> /dev/null; then
 		if [ $FIREWALL -eq 0 ]; then
 			INFO "Asking SystemD if the UFW service is active."
-			if ! /bin/systemctl -q is-active ufw; then
+			if ! systemctl -q is-active ufw; then
 				ALERT "SystemD detects the UFW service is inactive."
 			fi
 		fi
@@ -235,44 +238,40 @@ if [ $SERVICES -eq 0 ]; then
 				ALERT "The operational state could not be determined." ;;
 		esac
 	else
-		ERR "$LINENO" "Unable to find or access: /bin/systemctl"
+		FAIL 0 "$LINENO" "Unable to find or access: systemctl"
 	fi
 
-	if [ -x /usr/bin/systemd-analyze ]; then
+	if type -fP systemd-analyze &> /dev/null; then
 		INFO "Loading and checking unit files with SystemD."
-		if ! /usr/bin/systemd-analyze verify; then
-			ALERT "SystemD detected one or more unit-related errors."
-		fi
+		systemd-analyze verify || ALERT "SystemD detected one or more unit-related errors."
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/systemd-analyze"
+		FAIL 0 "$LINENO" "Unable to find or access: systemd-analyze"
 	fi
 fi
 
 if [ $PASSWORD -eq 0 ]; then
-	if [ -x /usr/bin/expiry ]; then
+	if type -fP expiry &> /dev/null; then
 		INFO "Checking current user's password expiration."
-		if ! /usr/bin/expiry -c; then
-			ALERT "Error(s) detected while checking password expiration."
-		fi
+		expiry -c || ALERT "Error(s) detected while checking password expiration."
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/expiry"
+		FAIL 0 "$LINENO" "Unable to find or access: expiry"
 	fi
 fi
 
 if [ $SWAP -eq 0 ]; then
-	if [ -x /sbin/swapon ]; then
+	if type -fP /sbin/swapon &> /dev/null; then
 		INFO "Looking for active swap files or partitions."
 		readarray ARRAY <<< "$(/sbin/swapon --noheadings)"
 		if [ ${#ARRAY[@]} -eq 0 ]; then
 			ALERT "Unable to detect an active swap file/partition."
 		fi
 	else
-		ERR "$LINENO" "Unable to find or access: /sbin/swapon"
+		FAIL 0 "$LINENO" "Unable to find or access: /sbin/swapon"
 	fi
 fi
 
 if [ $STORAGE -eq 0 ]; then
-	if [ -x /bin/df ]; then
+	if type -fP df &> /dev/null; then
 		while read -a X; do
 			if [[ "${X[0]}" == /dev/* ]]; then
 				INFO "Querying ${X[0]} for usage greater than 90%."
@@ -280,9 +279,9 @@ if [ $STORAGE -eq 0 ]; then
 					ALERT "Low remaining storage space detected: ${X[0]}"
 				fi
 			fi
-		done <<< "$(/bin/df --output=source,pcent)"
+		done <<< "$(df --output=source,pcent)"
 	else
-		ERR "$LINENO" "Unable to find or access: /bin/df"
+		FAIL 0 "$LINENO" "Unable to find or access: /bin/df"
 	fi
 
 	#TODO - Experimental, unfinished pure-shell approach.
@@ -298,12 +297,12 @@ if [ $STORAGE -eq 0 ]; then
 	#		fi
 	#	done < /proc/partitions
 	#else
-	#	ERR "$LINENO" "Unable to find or access: /sys/block"
+	#	FAIL 0 "$LINENO" "Unable to find or access: /sys/block"
 	#fi
 fi
 
 if [ $PERMS -eq 0 ]; then
-	if [ -x /usr/bin/stat ]; then
+	if type -fP stat &> /dev/null; then
 		STAT(){
 			if [ -e "$1" ]; then
 				if [ -d "$1" ]; then
@@ -312,8 +311,8 @@ if [ $PERMS -eq 0 ]; then
 					INFO "Checking metadata for file: $1"
 				fi
 
-				STAT=`/usr/bin/stat --print "%a" "$1"`
-				OG=`/usr/bin/stat --print "%u %g" "$1"`
+				STAT=`stat --print "%a" "$1"`
+				OG=`stat --print "%u %g" "$1"`
 				read OWNER GROUP <<< "$OG"
 
 				if ! [ "$3" == "X" ] && ! [ $OWNER -eq $3 ]; then
@@ -372,63 +371,61 @@ if [ $PERMS -eq 0 ]; then
 			fi
 		}
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/stat"
+		FAIL 0 "$LINENO" "Unable to find or access: stat"
 	fi
 fi
 
 if [ $PACKAGES -eq 0 ]; then
-	if [ -x /usr/bin/apt-get ]; then
+	if type -fP apt-get &> /dev/null; then
 		INFO "Asking APT if there are any package changes."
 		OPT='APT::Get::Show-User-Simulation-Note=0'
 		while read -a X; do
 			if [[ "${X[*]}" == *not\ to\ upgrade. ]]; then
 				SUM="$((${X[0]}+${X[3]}))"
 				if ! [[ "$SUM" =~ ^[0-9]+$ ]]; then
-					ERR "$LINENO" "Invalid SUM detected."
+					FAIL 0 "$LINENO" "Invalid SUM detected."
 				elif [ $SUM -gt 0 ]; then
 					ALERT "APT has detected $SUM package change(s)."
 				fi
 
 				break
 			fi
-		done <<< "$(/usr/bin/apt-get -o "$OPT" -q -s dist-upgrade)"
+		done <<< "$(apt-get -o "$OPT" -q -s dist-upgrade)"
 
 		INFO "Asking APT if there are any missing dependencies."
-		INSCHK=`/usr/bin/apt-get -o "$OPT" -qq -s install -f`
+		INSCHK=`apt-get -o "$OPT" -qq -s install -f`
 		[ -n "$INSCHK" ] && ALERT "Missing dependencies are available to be fixed."
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/apt-get"
+		FAIL 0 "$LINENO" "Unable to find or access: apt-get"
 	fi
 
-	if [ -x /usr/bin/dpkg ]; then
+	if type -fP dpkg &> /dev/null; then
 		INFO "Performing database sanity and consistency checks."
-		if ! /usr/bin/dpkg --audit; then
+		if ! dpkg --audit; then
 			ALERT "One or more APT database checks have failed."
 		fi
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/dpkg"
+		FAIL 0 "$LINENO" "Unable to find or access: dpkg"
 	fi
 fi
 
 if [ $TEMPS -eq 0 ]; then
-	if [ -x /usr/bin/sensors ]; then
+	if type -fP sensors &> /dev/null; then
 		INFO "Checking hardware sensors for high CPU temperature."
 		while read -a X; do
 			if [ "${X[0]}${X[1]}${X[2]}" == "Physicalid0:" ]; then
 				TEMP="${X[3]//[!0-9]}"
 				if [[ "$TEMP" =~ ^[0-9]+$ ]]; then
-					if [ $TEMP -gt 800 ]; then
-						ALERT "Current CPU temperature exceeding 80°C!"
-					fi
+					[ $TEMP -gt 800 ] && ALERT "Current CPU temperature exceeding 80°C!"
 				else
-					ERR "$LINENO" "Unable to determine the temperature of the CPU."
+					FAIL 0 "$LINENO" "Unable to determine the temperature of the CPU."
 				fi
 
 				break
 			fi
-		done <<< "$(/usr/bin/sensors -A)"
+		done <<< "$(sensors -A)"
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/sensors"
+		FAIL 0 "$LINENO" "Unable to find or access: sensors"
 	fi
 fi
 
@@ -492,27 +489,27 @@ if [ $SWAPPINESS -eq 0 ]; then
 			ALERT "Potentially unsuitable swappiness: $SWAP"
 		fi
 	else
-		ERR "$LINENO" "Unable to find or access: $FILE"
+		FAIL 0 "$LINENO" "Unable to find or access: $FILE"
 	fi
 fi
 
 if [ $GRUB -eq 0 ]; then
-	if [ -x /usr/bin/grub-script-check ]; then
+	if type -fP grub-script-check &> /dev/null; then
 		if [ -r /boot/grub/grub.cfg ]; then
 			INFO "Checking /boot/grub/grub.cfg for errors."
-			if ! /usr/bin/grub-script-check /boot/grub/grub.cfg; then
+			if ! grub-script-check /boot/grub/grub.cfg; then
 				ALERT "One or more errors found in: /boot/grub/grub.cfg"
 			fi
 		else
-			ERR "$LINENO" "Unable to find or access: /boot/grub/grub.cfg"
+			FAIL 0 "$LINENO" "Unable to find or access: /boot/grub/grub.cfg"
 		fi
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/grub-script-check"
+		FAIL 0 "$LINENO" "Unable to find or access: grub-script-check"
 	fi
 fi
 
 if [ $SHMCHK -eq 0 ]; then
-	if [ -x /bin/mount ]; then
+	if type -fP /bin/mount &> /dev/null; then
 		# Ubuntu-recommended settings.
 		while read -a X; do
 			if [ "${X[0]}${X[2]}" == "tmpfs/dev/shm" ]; then
@@ -536,21 +533,21 @@ if [ $SHMCHK -eq 0 ]; then
 			fi
 		done <<< "$(/bin/mount)"
 	else
-		ERR "$LINENO" "Unable to find or access: /bin/mount"
+		FAIL 0 "$LINENO" "Unable to find or access: /bin/mount"
 	fi
 fi
 
 if [ $DPKGRC -eq 0 ]; then
-	if [ -x /usr/bin/dpkg ]; then
+	if type -fP dpkg &> /dev/null; then
 		#TODO - Add a blacklist for the user!
 		INFO "Querying DPKG for packages with an 'rc' status."
 		while read -ra REPLY; do
 			if [ "${REPLY[0]}" == rc ]; then
 				ALERT "DPKG reports 'rc' package: ${REPLY[1]}"
 			fi
-		done <<< "$(/usr/bin/dpkg -l 2> /dev/null)"
+		done <<< "$(dpkg -l 2> /dev/null)"
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/dpkg"
+		FAIL 0 "$LINENO" "Unable to find or access: dpkg"
 	fi
 fi
 
@@ -578,15 +575,15 @@ if [ $IPSPOOF -eq 0 ]; then
 			ALERT "Safer setting 'nospoof on' not found: $FILE"
 		fi
 	else
-		ERR "$LINENO" "Unable to find or access: $FILE"
+		FAIL 0 "$LINENO" "Unable to find or access: $FILE"
 	fi
 fi
 
 if [ $SSHSRV -eq 0 ]; then
-	if [ -x /usr/bin/dpkg-query ]; then
+	if type -fP dpkg-query &> /dev/null; then
 		INFO "Checking for safer SSH server settings: $FILE"
-		if ! /usr/bin/dpkg-query -W openssh-server &> /dev/null; then
-			ERR "$LINENO" "Is the OpenSSH server installed?"
+		if ! dpkg-query -W openssh-server &> /dev/null; then
+			FAIL 0 "$LINENO" "Is the OpenSSH server installed?"
 		else
 			MATCH1="^[Pp]ermit[Rr]oot[Ll]ogin no$"
 			MATCH2="^[Pp]ort [0-9]+$"
@@ -605,7 +602,7 @@ if [ $SSHSRV -eq 0 ]; then
 			fi
 		fi
 	else
-		ERR "$LINENO" "Unable to find or access: /usr/bin/ssh"
+		FAIL 0 "$LINENO" "Unable to find or access: ssh"
 	fi
 fi
 
@@ -632,7 +629,7 @@ if [ $LOGCHK -eq 0 ]; then
 				ALERT "File ${FILE##*/} has `printf "%'d" "$ERROR"` line(s) with 'ERROR' in it."
 			fi
 		else
-			ERR "$LINENO" "Unable to find or access: $FILE"
+			FAIL 0 "$LINENO" "Unable to find or access: $FILE"
 		fi
 	}
 fi
