@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - update_versions.sh
 # Started On        - Fri 25 Oct 12:41:34 BST 2019
-# Last Change       - Sat 26 Oct 23:52:15 BST 2019
+# Last Change       - Sun 27 Oct 00:16:50 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,6 +12,12 @@
 #----------------------------------------------------------------------------------
 
 VER_FILE='./versions'
+
+declare -a EXCEPTIONS=(
+	autostart
+	update_links.sh
+	update_versions.sh
+)
 
 FAIL(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
@@ -31,7 +37,12 @@ printf "%s " "Gathering version strings..."
 DATA="$(\
 	for F in *; {
 		MIME=`mimetype -b "$F" 2> /dev/null`
-		if [[ "$MIME" == *x-shellscript && ! "$F" == update_*.sh ]]; then
+
+		for EXCEPT in ${EXCEPTIONS[@]}; {
+			[ "$F" == "$EXCEPT" ] && continue 2
+		}
+
+		if [[ "$MIME" == *x-shellscript ]]; then
 			while IFS='=' read -a L; do
 				[ "${L[0]}" == '_VERSION_' ] && V="${L[1]}"
 			done < "$F"
