@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ubuntu-syschk
 # Started On        - Mon 22 Jan 12:03:01 GMT 2018
-# Last Change       - Sun 27 Oct 13:13:33 GMT 2019
+# Last Change       - Sun 27 Oct 13:16:36 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ USAGE(){
 		CAVEAT:     The sshsrv check assumes OpenSSH; other SSH server software will NOT
 		            be picked up! Check with the software you installed.
 
-		SITE:       $DOM/terminalforlife/ubuntu-syschk
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
