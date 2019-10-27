@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Thu  9 May 16:35:36 BST 2019
+# Last Change       - Sun 27 Oct 14:33:06 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-10-27"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -29,6 +29,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to rmne.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --no-purge              - Do not purge any remaining package files.
 
@@ -47,6 +48,8 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--no-purge)
@@ -58,6 +61,34 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+if [ "$UPDATE" == "true" ]; then
+	if ! type -fP wget > /dev/null 2>&1; then
+		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	fi
+
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
+	while IFS='=' read -a LINE; do
+		if  [ "${LINE[0]}" == 'rmne' ]; then
+			LATEST="${LINE[1]}"
+
+			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+					while read -r; do
+						printf "%s\n" "$REPLY"
+					done <<-EOF
+						New version available:    $LATEST
+						Current version:          $_VERSION_
+					EOF
+				fi
+			else
+				FAIL 1 "$LINENO" "Failed to check for available updates."
+			fi
+		fi
+	done <<< "$(wget -q "$VERSION_URL" -O -)"
+
+	exit 0
+fi
 
 KEEP=($@)
 
