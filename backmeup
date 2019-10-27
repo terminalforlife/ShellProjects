@@ -3,18 +3,20 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun 12 May 15:13:13 BST 2019
+# Last Change       - Sun 27 Oct 16:06:39 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-10-27"
 _PROJECT_="${0##*/}"
 
 FAIL(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
+
+DOM="https://github.com"
 
 USAGE(){
 	while read -r; do
@@ -30,6 +32,7 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --reset|-R              - Re-run the initial setting prompts.
 		            --notify|-N             - Notify after completion, via notify-send.
@@ -39,6 +42,8 @@ USAGE(){
 		FILE:       User settings saved in and read from: \$HOME/.$_PROJECT_/settings
 
 		NOTE:       When entering your settings, ensure that no variables are used.
+
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
@@ -50,6 +55,8 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--reset|-R)
@@ -74,6 +81,35 @@ for DEP in gzip tar sync mkdir; {
 
 [ "$BEQUIET" == "true" ] && exec >&-
 [ "$DEBUGME" == "true" ] && set -xeu
+
+
+if [ "$UPDATE" == "true" ]; then
+	if ! type -fP wget > /dev/null 2>&1; then
+		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	fi
+
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
+	while IFS='=' read -a LINE; do
+		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
+			LATEST="${LINE[1]}"
+
+			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+					while read -r; do
+						printf "%s\n" "$REPLY"
+					done <<-EOF
+						New version available:    $LATEST
+						Current version:          $_VERSION_
+					EOF
+				fi
+			else
+				FAIL 1 "$LINENO" "Failed to check for available updates."
+			fi
+		fi
+	done <<< "$(wget -q "$VERSION_URL" -O -)"
+
+	exit 0
+fi
 
 MAIN_DIR="$HOME/.$_PROJECT_"
 SETTINGS="$MAIN_DIR/settings"
