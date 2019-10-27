@@ -3,13 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Sun 12 May 23:16:40 BST 2019
+# Last Change       - Sun 27 Oct 15:00:52 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-10-27"
 _PROJECT_="${0##*/}"
+
+DOM="https://github.com"
 
 FAIL(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
@@ -31,6 +33,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to mplay.
 		            --run-once|-o           - Exit the MOC server when closed.
 
 		NOTE:       Where PATH is the location in which music is found.
@@ -43,6 +46,8 @@ USAGE(){
 		            address, in the Extra repository.
 
 		            The latest version of $_PROJECT_ includes this theme, however.
+
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
@@ -59,6 +64,34 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+if [ "$UPDATE" == "true" ]; then
+	if ! type -fP wget > /dev/null 2>&1; then
+		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	fi
+
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
+	while IFS='=' read -a LINE; do
+		if  [ "${LINE[0]}" == 'mplay' ]; then
+			LATEST="${LINE[1]}"
+
+			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+					while read -r; do
+						printf "%s\n" "$REPLY"
+					done <<-EOF
+						New version available:    $LATEST
+						Current version:          $_VERSION_
+					EOF
+				fi
+			else
+				FAIL 1 "$LINENO" "Failed to check for available updates."
+			fi
+		fi
+	done <<< "$(wget -q "$VERSION_URL" -O -)"
+
+	exit 0
+fi
 
 [ "$1" -a ! -d "$1" ] && FAIL 1 "$LINENO" "Unable to find the given music directory."
 
