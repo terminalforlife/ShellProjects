@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Sun 12 May 23:38:30 BST 2019
+# Last Change       - Sun 27 Oct 23:18:28 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-10-27"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -32,10 +32,11 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
+		            --update|-U             - Check for updates to $_PROJECT_.
 
 		NOTE:       If executed without root permissions, simulation mode is used.
 
-		SITE:       $DOM/Extra
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
@@ -45,21 +46,51 @@ while [ "$1" ]; do
 			USAGE; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--quiet|-q)
 			BEQUIET="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 declare -i DEPCOUNT=0
 for DEP in dpkg apt-get; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
+
+if [ "$UPDATE" == "true" ]; then
+	if ! type -fP wget > /dev/null 2>&1; then
+		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	fi
+
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
+	while IFS='=' read -a LINE; do
+		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
+			LATEST="${LINE[1]}"
+
+			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+					while read -r; do
+						printf "%s\n" "$REPLY"
+					done <<-EOF
+						New version available:    $LATEST
+						Current version:          $_VERSION_
+					EOF
+				fi
+			else
+				FAIL 1 "$LINENO" "Failed to check for available updates."
+			fi
+		fi
+	done <<< "$(wget -q "$VERSION_URL" -O -)"
+
+	exit 0
+fi
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
