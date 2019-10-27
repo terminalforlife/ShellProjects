@@ -3,14 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Thu  9 May 21:08:39 BST 2019
+# Last Change       - Sun 27 Oct 14:18:38 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Q-COUNT = 168
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-10-27"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -31,6 +31,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to simplify-ubuntu.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --purge|-p              - Purge package's global configuration files.
 		            --ignore-fonts|-F       - Don't ask any questions about fonts.
@@ -49,7 +50,7 @@ USAGE(){
 		            one time. If you choose to do so, note that you will likely run into
 		            conflicts.
 
-		SITE:       $DOM/terminalforlife/simplify-ubuntu
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
@@ -60,6 +61,8 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--ignore-fonts|-F)
@@ -89,6 +92,34 @@ for DEP in /bin/rm /usr/bin/{lspkg,clean-locales,apt-get}; {
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
+
+if [ "$UPDATE" == "true" ]; then
+	if ! type -fP wget > /dev/null 2>&1; then
+		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	fi
+
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
+	while IFS='=' read -a LINE; do
+		if  [ "${LINE[0]}" == 'simplify-ubuntu' ]; then
+			LATEST="${LINE[1]}"
+
+			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+					while read -r; do
+						printf "%s\n" "$REPLY"
+					done <<-EOF
+						New version available:    $LATEST
+						Current version:          $_VERSION_
+					EOF
+				fi
+			else
+				FAIL 1 "$LINENO" "Failed to check for available updates."
+			fi
+		fi
+	done <<< "$(wget -q "$VERSION_URL" -O -)"
+
+	exit 0
+fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
