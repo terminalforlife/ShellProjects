@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Sun 27 Oct 14:18:38 GMT 2019
+# Last Change       - Sun 27 Oct 16:04:02 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,6 +11,7 @@
 #----------------------------------------------------------------------------------
 
 _VERSION_="2019-10-27"
+_PROJECT_="${0##*/}"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -22,16 +23,16 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            SIMPLIFY-UBUNTU ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Project to lighten Ubuntu 16.04.* LTS installations.
 
-		SYNTAX:     simplify-ubuntu [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to simplify-ubuntu.
+		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --purge|-p              - Purge package's global configuration files.
 		            --ignore-fonts|-F       - Don't ask any questions about fonts.
@@ -40,12 +41,12 @@ USAGE(){
 		            --yes-apt|-Y            - Put APT in the driving seat. Dangerous! This
 		                                      is the equivalent of apt-get's -qq flag.
 
-		NOTE:       Simplify-ubuntu also supports Linux Mint.
+		NOTE:       Linux Mint is supported, and potentially other distros.
 
 		CAVEAT:     This utility will not be suitable if you're compiling software, -
 		            yourself, or heavily relying on another package manager, such as PIP.
 
-		WARNING:    It's recommended that you don't run simplify-ubuntu on a system with
+		WARNING:    It's recommended that you don't run $_PROJECT_ on a system with
 		            more than one of the supported desktop environments installed at any
 		            one time. If you choose to do so, note that you will likely run into
 		            conflicts.
@@ -100,7 +101,7 @@ if [ "$UPDATE" == "true" ]; then
 
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
-		if  [ "${LINE[0]}" == 'simplify-ubuntu' ]; then
+		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
 			LATEST="${LINE[1]}"
 
 			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
@@ -130,7 +131,7 @@ while read -r; do
 done <<-EOF
 
 	Simplify-ubuntu will assume that you have a fresh installation from an official
-	ISO. Although simplify-ubuntu should run on an old setup, there's no guarantee
+	ISO. Although $_PROJECT_ should run on an old setup, there's no guarantee
 	it'll go without a hitch.
 
 	What will follow is a series of prompts which will ascertain how you would like to
@@ -148,7 +149,7 @@ done <<-EOF
 	  Q        - You're opting to immediately quit the program.
 
 	WARNING: Since unforeseen changes can and probably will occur, it's therefore very
-	         important that you take great care using simplify-ubuntu.
+	         important that you take great care using $_PROJECT_.
 
 EOF
 
@@ -210,7 +211,7 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 				printf "%s\n" "$REPLY"
 			done <<-EOF
 				WARNING: Simplify-ubuntu has detected an installation of Linux Mint. Although your
-				         chosen distribution was not the initial target for simplify-ubuntu, there
+				         chosen distribution was not the initial target for $_PROJECT_, there
 				         is ample support given.
 
 				         However, this could be considered 'experimental', so be sure to take even
@@ -218,7 +219,7 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 
 				CAUTION: The --no-ask-de|-N flags may be ignored if Mint is detected.
 
-				NOTE: Installations of Mint were tested with simplify-ubuntu:
+				NOTE: Installations of Mint were tested with $_PROJECT_:
 
 				      TIMESTAMP   x86  x64  DISTRIBUTION     DE
 				      2018-01-14  N    Y    Linux Mint 18.2  Cinnamon
@@ -402,7 +403,7 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 			while read -r; do
 				printf "%s\n" "$REPLY"
 			done <<-EOF
-				NOTE: Installations of Ubuntu were tested with simplify-ubuntu:
+				NOTE: Installations of Ubuntu were tested with $_PROJECT_:
 
 				      TIMESTAMP   x86  x64  DISTRIBUTION    DE
 				      2018-04-10  N    Y    Ubuntu 16.04.4  N/A
@@ -418,13 +419,13 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 				printf "%s\n" "$REPLY"
 			done <<-EOF
 				WARNING: Simplify-ubuntu has detected an installation of Zorin OS. Although your
-				         chosen distribution was not the initial target for simplify-ubuntu, it's
+				         chosen distribution was not the initial target for $_PROJECT_, it's
 				         still built on Ubuntu.
 
 				         However, this should be considered 'experimental', so be sure to take even
 				         greater care with your answers.
 
-				NOTE: Installations of Zorin OS were tested with simplify-ubuntu:
+				NOTE: Installations of Zorin OS were tested with $_PROJECT_:
 
 				      TIMESTAMP   x86  x64  DISTRIBUTION    DE
 				      2018-01-18  N    Y    Zorin OS 12.2   GNOME
@@ -456,13 +457,13 @@ if [ "$ISLINUXLITE" == "true" ]; then
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		WARNING: Simplify-ubuntu has detected an installation of Linux Lite. Although your
-		         chosen distribution was not the initial target for simplify-ubuntu, it's
+		         chosen distribution was not the initial target for $_PROJECT_, it's
 		         still built on Ubuntu.
 
 		         However, this should be considered 'experimental', so be sure to take even
 		         greater care with your answers.
 
-		NOTE: Installations of Linux Lite were tested with simplify-ubuntu:
+		NOTE: Installations of Linux Lite were tested with $_PROJECT_:
 
 		      TIMESTAMP   x86  x64  DISTRIBUTION    DE
 		      2018-04-10  N    Y    Linux Lite 3.8  XFCE
