@@ -3,18 +3,20 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Sun 12 May 23:14:45 BST 2019
+# Last Change       - Sun 27 Oct 15:11:05 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-10-27"
 _PROJECT_="${0##*/}"
 
 FAIL(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
+
+DOM="https://github.com"
 
 USAGE(){
 	while read -r; do
@@ -29,6 +31,7 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to mkpass.
 		            --type|-t TYPE          - Where T is the type. See below.
 
 		NOTE:       This small program uses /dev/urandom to generate a wide range of
@@ -48,6 +51,8 @@ USAGE(){
 		            | alnum      | Letters and Digits   | [[:alnum:]]      |
 		            | alphapunct | All of the above.    | [[:alphapunct:]] |
 		            +-----------------------------------+------------------+
+
+		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
@@ -57,6 +62,8 @@ while [ "$1" ]; do
 			USAGE; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--type|-t)
 			shift; TYPE="$1" ;;
 		-*)
@@ -66,6 +73,34 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+if [ "$UPDATE" == "true" ]; then
+	if ! type -fP wget > /dev/null 2>&1; then
+		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	fi
+
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
+	while IFS='=' read -a LINE; do
+		if  [ "${LINE[0]}" == 'mkpass' ]; then
+			LATEST="${LINE[1]}"
+
+			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+					while read -r; do
+						printf "%s\n" "$REPLY"
+					done <<-EOF
+						New version available:    $LATEST
+						Current version:          $_VERSION_
+					EOF
+				fi
+			else
+				FAIL 1 "$LINENO" "Failed to check for available updates."
+			fi
+		fi
+	done <<< "$(wget -q "$VERSION_URL" -O -)"
+
+	exit 0
+fi
 
 if [[ "$1" =~ [0-9]+ ]]; then
 	INT=$1
