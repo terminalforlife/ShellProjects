@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Thu  9 May 00:58:55 BST 2019
+# Last Change       - Sun 27 Oct 23:27:47 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,10 +14,13 @@
 #TODO - Fix clash between snotes' arguments and when searching with notes for those
 #       arguments. Also, --edit/-e CMD is not working.
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-10-27"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 COM="#"
 
@@ -25,23 +28,24 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            SNOTES - SEARCH NOTES ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Search your programming notes on-the-fly with this simple tool.
 
-		SYNTAX:     snotes [OPTS] MATCH
+		SYNTAX:     $_PROJECT_ [OPTS] MATCH
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --file|-f PATH          - Specify and remember the notes file to use.
 		            --edit|-e CMD           - Open up the notes file with CMD for editing.
 		                                      If no CMD is provided, the one saved in the
-		                                      snotes configuration file will be used.
+		                                      $_PROJECT_ configuration file will be used.
 
 		NOTE:       Uses regular expressions for MATCH. Comment lines are ignored. To tell
-		            snotes when you wish to stop searching for the MATCH, have a line in
+		            $_PROJECT_ when you wish to stop searching for the MATCH, have a line in
 		            the notes file which contains only:
 
 		            When using --edit|-e for editing a file, the editor used will be the
@@ -58,6 +62,8 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
+		--update|-U)
+			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
 		--file|-f)
@@ -65,7 +71,7 @@ while [ "$1" ]; do
 		--edit|-e)
 			shift; EDIT="$1" ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -74,18 +80,18 @@ while [ "$1" ]; do
 done
 
 if [ "$2" ]; then
-	XERR "$LINENO" "Argument error -- is your match correct?"
+	FAIL 1 "$LINENO" "Argument error -- is your match correct?"
 fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
 SNOTESCHK(){
 	if ! [ -f "$FILE" -a -r "$FILE" ]; then
-		XERR "$LINENO" "Notes file inaccessible or not found."
+		FAIL 1 "$LINENO" "Notes file inaccessible or not found."
 	fi
 }
 
-if [ -f $HOME/.config/snotes.conf ]; then
+if [ -f $HOME/.config/$_PROJECT_.conf ]; then
 	if [ "$FILE" ]; then
 		SNOTESCHK
 		read -n 1 -e -p "Notes file already exists -- replace? "
@@ -94,20 +100,20 @@ if [ -f $HOME/.config/snotes.conf ]; then
 			exit 0
 		else
 			if ! [ -d $HOME/.config ]; then
-				if [ -x /bin/mkdir ]; then
-					/bin/mkdir $HOME/.config
+				if type -fP mkdir > /dev/null 2>&1; then
+					mkdir $HOME/.config
 				else
-					XERR "$LINENO" "Dependency '/bin/mkdir' not met."
+					FAIL 1 "$LINENO" "Dependency 'mkdir' not met."
 				fi
 			fi
 
-			printf "%q\n" "$FILE" > $HOME/.config/snotes.conf
+			printf "%q\n" "$FILE" > $HOME/.config/$_PROJECT_.conf
 		fi
 	else
-		FILE="$(< $HOME/.config/snotes.conf)"
+		FILE="$(< $HOME/.config/$_PROJECT_.conf)"
 	fi
 else
-	printf "$FILE\n" > $HOME/.config/snotes.conf
+	printf "$FILE\n" > $HOME/.config/$_PROJECT_.conf
 fi
 
 SNOTESCHK
