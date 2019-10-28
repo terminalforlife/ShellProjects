@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Sun 27 Oct 23:27:47 GMT 2019
+# Last Change       - Mon 28 Oct 12:51:20 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 #TODO - Fix clash between snotes' arguments and when searching with notes for those
 #       arguments. Also, --edit/-e CMD is not working.
 
-_VERSION_="2019-10-27"
+_VERSION_="2019-10-28"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -33,12 +33,12 @@ USAGE(){
 
 		            Search your programming notes on-the-fly with this simple tool.
 
-		SYNTAX:     $_PROJECT_ [OPTS] MATCH
+		SYNTAX:     $_PROJECT_ [OPTS] MATCH1 MATCH2 MATCH3 . . .
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
+		            --comment|-C STR        - Where STR is the (single) comment character.
 		            --file|-f PATH          - Specify and remember the notes file to use.
 		            --edit|-e CMD           - Open up the notes file with CMD for editing.
 		                                      If no CMD is provided, the one saved in the
@@ -48,10 +48,12 @@ USAGE(){
 		            $_PROJECT_ when you wish to stop searching for the MATCH, have a line in
 		            the notes file which contains only:
 
+		              ${COM}END
+
 		            When using --edit|-e for editing a file, the editor used will be the
 		            one pointed to within the
 
-		              ${COM}END
+		            The default comment notation is '#' but is modifiable.
 	EOF
 }
 
@@ -62,10 +64,10 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
-		--update|-U)
-			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
+		--comment|-C)
+			shift; COM="${1:0:1}" ;;
 		--file|-f)
 			shift; FILE="$1" ;;
 		--edit|-e)
