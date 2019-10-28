@@ -3,15 +3,19 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sun 27 Oct 14:33:06 GMT 2019
+# Last Change       - Mon 28 Oct 12:15:16 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-10-27"
+_VERSION_="2019-10-28"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
 INFO(){ printf "INFO: %s\n" "$1"; }
 
 DOM="https://github.com"
@@ -20,16 +24,16 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            RMNE - REMOVE NON-ESSENTIAL ($_VERSION_)
+		            ${_PROJECT_^^} - REMOVE NON-ESSENTIAL ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Remove all non-essential packages from Ubuntu or Debian installations.
 
-		SYNTAX:     rmne [OPTS] PKG1 PKG2 PKG3 ...
+		SYNTAX:     $_PROJECT_ [OPTS] PKG1 PKG2 PKG3 ...
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to rmne.
+		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --no-purge              - Do not purge any remaining package files.
 
@@ -55,7 +59,7 @@ while [ "$1" ]; do
 		--no-purge)
 			unset PURGE ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -69,7 +73,7 @@ if [ "$UPDATE" == "true" ]; then
 
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
-		if  [ "${LINE[0]}" == 'rmne' ]; then
+		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
 			LATEST="${LINE[1]}"
 
 			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
@@ -93,9 +97,9 @@ fi
 KEEP=($@)
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{apt-get,apt-cache,dpkg-query}; {
-	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+for DEP in apt-get apt-cache dpkg-query; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -131,7 +135,7 @@ done <<-EOF
 
 EOF
 
-[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+[ $UID -eq 0 ] || FAIL 1 "$LINENO" "Root access is required."
 
 [ "$DEBUGME" == "true" ] && set -x
 
@@ -167,7 +171,7 @@ while read STATUS PRIORITY PKG; do
 		INFO "Package '$PKG' set for initial list."
 		LIST+=("$PKG")
 	fi
-done <<< "$(/usr/bin/dpkg-query -Wf "$FORMAT" \*)"
+done <<< "$(dpkg-query -Wf "$FORMAT" \*)"
 
 FILTERED(){
 	while read -a X; do
@@ -178,7 +182,7 @@ FILTERED(){
 				fi
 			}
 		fi
-	done <<< "$(/usr/bin/apt-cache show $1)"
+	done <<< "$(apt-cache show $1)"
 }
 
 for PKG in ${LIST[@]}; {
@@ -194,5 +198,5 @@ for PKG in ${LIST[@]}; {
 }
 
 INFO "Initiating removal of final package list."
-/usr/bin/apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
+apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
 	remove $PURGE --autoremove ${END_LIST[@]}
