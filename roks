@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Fri  1 Nov 19:20:50 GMT 2019
+# Last Change       - Fri  1 Nov 19:26:18 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -89,8 +89,8 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in /usr/bin/{apt-get,linux-version}; {
-	if ! [ -x "$DEP" ]; then
+for DEP in apt-get linux-version; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
 		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
@@ -103,8 +103,8 @@ for DEP in /usr/bin/{apt-get,linux-version}; {
 if [ -f /proc/version -a -r /proc/version ]; then
 	read -a X < /proc/version
 	printf -v CKERN "%s" "${X[2]}"
-elif [ -x /bin/uname ]; then
-	CKERN=`/bin/uname -r`
+elif ! type -fP uname > /dev/null 2>&1; then
+	CKERN=`uname -r`
 else
 	FAIL 1 "$LINENO" "Unable to determine current kernel version."
 fi
@@ -114,7 +114,7 @@ if ! [ $UID -eq 0 ]; then
 fi
 
 NUM_TO_KEEP+=2
-KLIST=`/usr/bin/linux-version list`
+KLIST=`linux-version list`
 if ! [ "$KLIST" ]; then
 	FAIL 1 "$LINENO" "No kernels were found."
 elif ! [ "$KLIST" ]; then
@@ -128,7 +128,7 @@ else
 		fi
 	}
 
-	/usr/bin/apt-get -q $APTGETOPTS -o Dpkg::Progress=true\
+	apt-get -q $APTGETOPTS -o Dpkg::Progress=true\
 		-o Dpkg::Progress-Fancy=true remove $PURGE ${TO_GO[@]}
 
 	if [ $? -ne 0 ]; then
