@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/autosh
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Fri  1 Nov 00:15:59 GMT 2019
+# Last Change       - Fri  1 Nov 00:16:33 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ for DEP in clear sleep stat ${SHELL##*/}; {
 # SSE = Seconds Since Epoch. (used to figure if and when modified)
 
 TRAP(){
-	printf "\r  \nExiting autoshell...\n"
+	printf "\r  \nExiting autosh...\n"
 	exit 0
 }
 
