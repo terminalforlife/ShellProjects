@@ -25,7 +25,7 @@ USAGE(){
 
 		            Development tool for shell programmers needing live updates.
 
-		SYNTAX:     $_PROJECT_ [OPTS] FILE
+		SYNTAX:     $_PROJECT_ [OPTS] SCRIPT ARGUMENTS
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -90,7 +90,7 @@ while :; do
 		if [ 0${SSE_OLD//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
 			clear
 
-			$SHELL "$1"
+			$SHELL $1 $2
 		fi
 
 		SSE_OLD=${SSE//[!0-9]}
