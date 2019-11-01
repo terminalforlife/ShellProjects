@@ -1,0 +1,89 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/autosh
+# Started On        - Thu 31 Oct 22:49:41 GMT 2019
+# Last Change       - Fri  1 Nov 00:15:59 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-11-01"
+_PROJECT_="${0##*/}"
+
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            ${_PROJECT_^^} ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Development tool for shell programmers needing live updates.
+
+		SYNTAX:     $_PROJECT_ [OPTS] SHELL FILE
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+	EOF
+}
+
+SHELL='bash'
+
+while [ "$1" ]; do
+	case "$1" in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
+		-*)
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+declare -i DEPCOUNT=0
+for DEP in clear sleep stat ${SHELL##*/}; {
+	if ! type -fP "$DEP" > /dev/null 2>&1; then
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		DEPCOUNT+=1
+	fi
+}
+
+[ $DEPCOUNT -eq 0 ] || exit 1
+
+[ "$BEQUIET" == "true" ] && exec > /dev/null
+[ "$DEBUGME" == "true" ] && set -x
+
+# SSE = Seconds Since Epoch. (used to figure if and when modified)
+
+TRAP(){
+	printf "\r  \nExiting autoshell...\n"
+	exit 0
+}
+
+trap 'TRAP' SIGINT
+
+while :; do
+	if [ -f "$1" -a -r "$1" ]; then
+		SSE=`stat -c '%Y' "$1" 2> /dev/null`
+
+		if [ 0${SSE_OLD//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
+			clear
+
+			$SHELL "$1"
+		fi
+
+		SSE_OLD=${SSE//[!0-9]}
+	else
+		FAIL 1 "$LINENO" "File not found or inaccessible."
+	fi
+
+	sleep 0.5s # Half-second to help compensate for misalignment.
+done
