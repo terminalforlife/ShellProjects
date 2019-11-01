@@ -3,26 +3,29 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu  9 May 20:24:51 BST 2019
+# Last Change       - Fri  1 Nov 19:18:16 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-11-01"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ROKS - Remove Old Kernels ($_VERSION_)
+		            ${_PROJECT_^^} - Remove Old Kernels ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Remove old kernel versions on an Ubuntu- or Debian-based system.
 
-		SYNTAX:     roks [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -42,9 +45,9 @@ USAGE(){
 
 		           Unrecognised short or long flags will be passed to apt or apt-get.
 
-		           As of 2019-03-31, roks no longer supports handling older kernel versions
+		           As of 2019-03-31, $_PROJECT_ no longer supports handling older kernel versions
 		           in Debian- or Ubuntu-based systems. I recommend taking extra care when
-		           using roks on systems with kernels older than 4.15; it might work, but
+		           using $_PROJECT_ on systems with kernels older than 4.15; it might work, but
 		           not necessarily as intended.
 	EOF
 }
@@ -66,12 +69,12 @@ while [ "$1" ]; do
 			shift
 			if [[ "$1" =~ [0-9]+ ]]; then
 				if [ $1 -eq 0 ]; then
-					XERR "$LINENO" "Invalid number of kernels selected."
+					FAIL 1 "$LINENO" "Invalid number of kernels selected."
 				else
 					declare -i NUM_TO_KEEP=$1
 				fi
 			else
-				XERR "$LINENO" "Invalid expression specified."
+				FAIL 1 "$LINENO" "Invalid expression specified."
 			fi ;;
 		--type)
 			shift; KTYPE="-${1}" ;;
@@ -80,7 +83,7 @@ while [ "$1" ]; do
 		-*|--*)
 			APTGETOPTS+=" $1" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) provided." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) provided." ;;
 	esac
 	shift
 done
@@ -88,7 +91,7 @@ done
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/{apt-get,linux-version}; {
 	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -103,15 +106,19 @@ if [ -f /proc/version -a -r /proc/version ]; then
 elif [ -x /bin/uname ]; then
 	CKERN=`/bin/uname -r`
 else
-	XERR "$LINENO" "Unable to determine current kernel version."
+	FAIL 1 "$LINENO" "Unable to determine current kernel version."
+fi
+
+if ! [ $UID -eq 0 ]; then
+	FAIL 1 "$LINENO" "Root access is required for system-wide changes."
 fi
 
 NUM_TO_KEEP+=2
 KLIST=`/usr/bin/linux-version list`
 if ! [ "$KLIST" ]; then
-	XERR "$LINENO" "No kernels were found -- do you have root access?"
+	FAIL 1 "$LINENO" "No kernels were found -- do you have root access?"
 elif ! [ "$KLIST" ]; then
-	XERR "$LINENO" "No kernels were selected for removal."
+	FAIL 1 "$LINENO" "No kernels were selected for removal."
 else
 	declare -a TO_GO=()
 	for LOOP in $KLIST; {
@@ -125,7 +132,7 @@ else
 		-o Dpkg::Progress-Fancy=true remove $PURGE ${TO_GO[@]}
 
 	if [ $? -ne 0 ]; then
-		XERR "$LINENO" "Non-zero exit status while removing old kernels."
+		FAIL 1 "$LINENO" "Non-zero exit status while removing old kernels."
 	fi
 fi
 
