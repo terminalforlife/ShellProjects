@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/autosh
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Fri  1 Nov 00:16:33 GMT 2019
+# Last Change       - Fri  1 Nov 00:26:59 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -25,10 +25,11 @@ USAGE(){
 
 		            Development tool for shell programmers needing live updates.
 
-		SYNTAX:     $_PROJECT_ [OPTS] SHELL FILE
+		SYNTAX:     $_PROJECT_ [OPTS] FILE
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
+		            --shell|-S NAME         - Use NAME instead of Bourne Again Shell.
 	EOF
 }
 
@@ -40,6 +41,18 @@ while [ "$1" ]; do
 			USAGE; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
+		--shell|-S)
+			shift
+
+			if [ -z "$1" ]; then
+				FAIL 1 "$LINENO" "Name of shell not provided."
+			elif [ "$1" == 'bash' ]; then
+				FAIL 1 "$LINENO" "The Bourne Again Shell is the default."
+			elif ! type -fP "$1" > /dev/null 2>&1; then
+				FAIL 1 "$LINENO" "Provided shell not found in PATH."
+			else
+				SHELL="$1"
+			fi ;;
 		-*)
 			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 		*)
