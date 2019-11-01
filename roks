@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Fri  1 Nov 19:18:16 GMT 2019
+# Last Change       - Fri  1 Nov 19:20:50 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ fi
 NUM_TO_KEEP+=2
 KLIST=`/usr/bin/linux-version list`
 if ! [ "$KLIST" ]; then
-	FAIL 1 "$LINENO" "No kernels were found -- do you have root access?"
+	FAIL 1 "$LINENO" "No kernels were found."
 elif ! [ "$KLIST" ]; then
 	FAIL 1 "$LINENO" "No kernels were selected for removal."
 else
