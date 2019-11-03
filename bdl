@@ -3,18 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/bdl (Batch Downloader)
 # Started On        - Sat 16 Sep 22:34:12 BST 2017
-# Last Change       - Sun 12 May 21:51:46 BST 2019
+# Last Change       - Sun  3 Nov 15:44:01 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-#TODO - Seeing: ./: Is a directory
-#       This is down to URLs ending in /, which ends up detecting the following
-#       parameter given in the lists file as the target location, which is the CWD.
-#       An exception for this needs to be put in place. This is probably why this
-#       target directory feature was buggy and probably unfinished as a result.
-
-_VERSION_="2019-05-12"
+_VERSION_="2019-11-03"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -46,14 +40,6 @@ USAGE(){
 		            --clear|-C              - Empty the $_PROJECT_ download list entirely.
 
 		FILE:       All files are found in '\$HOME/.$_PROJECT_'.
-
-		TIP:        You can specify the destination for your downloads on a per-download
-		            basis, all you need to do is append the destination path to the end of
-		            the line with the direct download URL. This feature is currently still
-		            in development, so it be buggy.
-
-		            Those destination paths given (per the above tip) currently do not
-		            support variables, such as the environment variables \$HOME and \$USER.
 	EOF
 }
 
@@ -127,12 +113,6 @@ for DEP in wget shutdown mv systemctl sleep sync mkdir; {
 
 [ $DEPCOUNT -gt 0 ] && exit 1
 
-read -a WGET_VER_LINE <<< "$(wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
-
 [ "$DEBUGME" == "true" ] && set -x
 
 if [ "$CLEAR" == "true" ]; then
@@ -152,28 +132,8 @@ INIT_MAIN(){
 	while read -a LINE; do
 		if ! [[ "${LINE[0]}" =~ ^#+ ]]; then
 			WARGS="-qc $NOWARC --show-progress"
-			if ! [ "${LINE[1]}" ]; then
-				wget $WARGS "${LINE[0]}"\
-					-O "./${LINE[0]//*\/}"
-				sync "./${LINE[0]//*\/}"
-			else
-				FIELD_NUMBER=0
-				for I in ${LINE[@]}; {
-					let FIELD_NUMBER++
-					if [ $FIELD_NUMBER -ge 2 ]; then
-						TARGET+=(${LINE[FIELD_NUMBER]})
-					fi
-				}
-
-				#TODO - Fix TARGET evaluating to null value.
-				if ! [ -d "${TARGET%\/}" ]; then
-					FAIL 1 "$LINENO" "Invalid target directory."
-				else
-					wget $WARGS "${LINE[0]}"\
-						-O "${TARGET%\/}/${LINE[0]//*\/}"
-					sync "$TARGET"
-				fi
-			fi
+			wget $WARGS "${LINE[0]}" -O "./${LINE[0]//*\/}"
+			sync "./${LINE[0]//*\/}"
 		fi
 	done < "$BDL_FILE"
 
