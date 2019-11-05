@@ -3,12 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ubuntu-syschk
 # Started On        - Mon 22 Jan 12:03:01 GMT 2018
-# Last Change       - Sun 27 Oct 13:16:36 GMT 2019
+# Last Change       - Tue  5 Nov 14:48:06 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-10-27"
+_VERSION_="2019-11-05"
+_PROJECT_="${0##*/}"
 
 FAIL(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
@@ -24,21 +25,21 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            UBUNTU-SYSCHK ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Performs various non-root system health checks on Ubuntu and similar.
 
-		SYNTAX:     ubuntu-syschk [OPTS] [CHECK1] [CHECK2] [CHECK3] ...
+		SYNTAX:     $_PROJECT_ [OPTS] [CHECK1] [CHECK2] [CHECK3] ...
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --update|-U             - Check for updates to ubuntu-syschk.
+		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --no-summary|-S         - Disables the post-checks summary.
 		            --ignore-distro|-I      - Ignores the distribution ID.
-		            --verbose|-V            - Makes ubuntu-syschk verbose.
+		            --verbose|-V            - Makes $_PROJECT_ verbose.
 
 		CHECKS:     The following list contains toggle-able check methods:
 
@@ -59,8 +60,8 @@ USAGE(){
 		            swappiness=0|1          - Check for swappiness value.
 		            temps=0|1               - Temperature checks.
 
-		EXAMPLE:    ubuntu-syschk firewall=1 storage=1 swap=1 temps=1
-		            ubuntu-syschk -V --no-summary packages=1
+		EXAMPLE:    $_PROJECT_ firewall=1 storage=1 swap=1 temps=1
+		            $_PROJECT_ -V --no-summary packages=1
 
 		NOTE:       Some features on some setups may fail due to needing root access. By
 		            default though, as of Ubuntu 16.04.3, a standard setup should be OK.
@@ -171,7 +172,7 @@ if [ "$UPDATE" == "true" ]; then
 		FAIL 1 "$LINENO" "Dependency 'wget' not met."
 	fi
 
-	INFO "Checking for available updates to ubuntu-syschk."
+	INFO "Checking for available updates to $_PROJECT_."
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
 		if  [ "${LINE[0]}" == "$0" ]; then
