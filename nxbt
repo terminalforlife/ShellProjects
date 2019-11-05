@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/nxbt (New XBT)
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Sun 12 May 23:33:04 BST 2019
+# Last Change       - Tue  5 Nov 14:41:56 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-11-05"
 _PROJECT_="${0##*/}"
 
 declare -i SECONDS=0
@@ -27,7 +27,7 @@ USAGE(){
 		            ${_PROJECT_^^} - NEW XBT ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            A fork and improvement of the XBT program written by Joe Collins.
+		            A fork of and improvement over Joe Collins' XBT.
 
 		SYNTAX:     $_PROJECT_ [OPTS] TARGET
 
@@ -67,7 +67,7 @@ while [ "$1" ]; do
 			if [ -d "${1%\/*}" ]; then
 				LOGFILE="$1"
 			else
-				XERR "$LINENO" "Logfile directory not found."
+				FAIL 1 "$LINENO" "Logfile directory not found."
 			fi ;;
 #		--source|-s)
 #			shift
