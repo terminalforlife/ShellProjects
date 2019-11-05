@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/noprtscr (No Print Screen)
 # Started On        - Sun 21 Jan 18:30:36 GMT 2018
-# Last Change       - Sun 12 May 23:19:31 BST 2019
+# Last Change       - Tue  5 Nov 15:00:05 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,8 @@
 #             --prtsc-is-menu         - Use PrtSC to launch the Mint Menu.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-11-05"
+_PROJECT_="${0##*/}"
 
 FAIL(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
@@ -31,13 +32,15 @@ fi
 while [ "$1" ]; do
 	case "$1" in
 		--help|-h|-\?)
-			printf "USAGE: cpufreq [[--help|-h|-?] | [--version|-v]] | [--prtsc-is-menu]\n" ;;
+			printf "USAGE: %s [[--help|-h|-?] | [--version|-v]] | [--prtsc-is-menu]\n" "$_PROJECT_" ;;
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--prtsc-is-menu)
 			# Feature the OP in the thread requested.
 			SCHEMA="com.linuxmint.mintmenu"
-			gsettings set "$SCHEMA" hot-key "Print" ;;
+			if ! gsettings set "$SCHEMA" hot-key "Print" 2> /dev/null; then
+				FAIL 1 "$LINENO" "Unable to set 'hot-key' to 'Print' in: $SCHEMA"
+			fi ;;
 		*)
 			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
@@ -46,7 +49,7 @@ done
 
 SCHEMA="org.cinnamon.desktop.keybindings.media-keys"
 for KEY in {area,window}-screenshot{,-clip} screenshot{,-clip}; {
-	if ! gsettings set "$SCHEMA" "$KEY" "[]"; then
+	if ! gsettings set "$SCHEMA" "$KEY" "[]" 2> /dev/null; then
 		FAIL 1 "$LINENO" "Unable to clear: $KEY"
 	fi
 }
