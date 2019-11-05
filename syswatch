@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/syswatch
 # Started On        - Thu  9 Nov 14:33:34 GMT 2017
-# Last Change       - Thu  9 May 00:59:02 BST 2019
+# Last Change       - Tue  5 Nov 14:51:42 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,9 +15,12 @@
 # Wrote this for use with dunst, but could work well with other daemons.
 #----------------------------------------------------------------------------------
 
+_VERSION_="2019-11-05"
+_PROJECT_="${0##*/}"
+
 declare -i DEPCOUNT=0
-for DEP in /bin/{dmesg,grep,sleep} /usr/bin/{tail,notify-send}; {
-	[ -x "$DEP" ] || exit 1
+for DEP in dmesg grep sleep tail notify-send; {
+	type -fP "$DEP" > /dev/null 2>&1 || exit 1
 }
 
 #TODO - Ignore the entries already there on log-in.
@@ -26,14 +29,14 @@ while :; do
 		# Not using pure-shell approach here, due to performance issues.
 		#TODO - The mount and unmount notifications aren't showing.
 		ERE='(link (down|up)$|disconnect|detected)'
-		/bin/dmesg -tl 6 | /bin/grep -E "$ERE" | /usr/bin/tail -n 1
+		dmesg -tl 6 | grep -E "$ERE" | tail -n 1
 	}
 
 	if ! [ "$(LAST)" == "$LAST_BUFFER" ]; then
 		printf -v NS "[%(%F_%X)T]: %s" "-1" "$(LAST)"
 
 		if ! [ "$BUF" == "$NS" ]; then
-			/usr/bin/notify-send --urgency=critical "$NS"
+			notify-send --urgency=critical "$NS"
 		fi
 	fi
 
@@ -41,7 +44,7 @@ while :; do
 
 	# Avoids excessive processing. This interval should probably be increased
 	# on older and/or otherwise slower machines.
-	/bin/sleep 0.1s
+	sleep 0.1s
 done
 
 # vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
