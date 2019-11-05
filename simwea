@@ -1,17 +1,20 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - simwea
+# Project Name      - Extra/simwea (Simple Weather)
 # Started On        - Sun 17 Sep 22:16:30 BST 2017
-# Last Change       - Sun  5 May 23:21:34 BST 2019
+# Last Change       - Tue  5 Nov 14:21:35 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-05"
+_VERSION_="2019-11-05"
+_PROJECT_="${0##*/}"
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
 
 DOM="https://darksky.net"
 
@@ -19,12 +22,12 @@ USAGE(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            SIMWEA ($_VERSION_)
+		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Display various weather statistics on a terminal.
 
-		SYNTAX:     simwea [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -33,13 +36,13 @@ USAGE(){
 		            --long|-l N             - Where N is the longitude coordinate.
 		            --lat|-L N              - Where N is the latitude coordinate.
 
-		CAVEAT:     Currently, simwea only supports UK and US localisations.
+		CAVEAT:     Currently, $_PROJECT_ only supports UK and US localisations.
 
 		SITE:       $DOM
 	EOF
 }
 
-[ $# -eq 0 ] && XERR "$LINENO" "Arguments are required."
+[ $# -eq 0 ] && FAIL 1 "$LINENO" "Arguments are required."
 
 while [ "$1" ]; do
 	case "$1" in
@@ -59,14 +62,14 @@ while [ "$1" ]; do
 			if [[ "$1" =~ [-0-9.]+ ]]; then
 				LONG="$1"
 			else
-				XERR "$LINENO" "Invalid longitude."
+				FAIL 1 "$LINENO" "Invalid longitude."
 			fi ;;
 		--lat|-L)
 			shift
 			if [[ "$1" =~ [-0-9.]+ ]]; then
 				LAT="$1"
 			else
-				XERR "$LINENO" "Invalid latitude."
+				FAIL 1 "$LINENO" "Invalid latitude."
 			fi ;;
 		*)
 			break ;;
@@ -74,20 +77,14 @@ while [ "$1" ]; do
 	shift
 done
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+type -fP wget > /dev/null 2>&1 || FAIL 1 "$LINENO" "Dependency 'wget' not met."
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
-
-if [ -n "$*" ]; then
-	XERR "$LINENO" "Incorrect argument(s) given."
+if ! [ "$#" ]; then
+	FAIL 1 "$LINENO" "Incorrect argument(s) given."
 elif [ -z "$UKUS" ] || [ -z "$SYM" ]; then
-	XERR "$LINENO" "Missing Fahrenheit or Celsius arguments."
+	FAIL 1 "$LINENO" "Missing Fahrenheit or Celsius arguments."
 elif [ -z "$LONG" ] || [ -z "$LAT" ]; then
-	XERR "$LINENO" "Missing longitude and latitude arguments."
+	FAIL 1 "$LINENO" "Missing longitude and latitude arguments."
 fi
 
 [ "$DEBUGME" == "true" ] && set -x
@@ -140,4 +137,4 @@ while read LINE; do
 		done <<< "$RESULT"
 		break
 	fi
-done <<< "$(/usr/bin/wget $NOWARC -q "$PAGE" -O -)"
+done <<< "$(wget $NOWARC -q "$PAGE" -O -)"
