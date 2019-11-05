@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simwea (Simple Weather)
 # Started On        - Sun 17 Sep 22:16:30 BST 2017
-# Last Change       - Tue  5 Nov 14:21:35 GMT 2019
+# Last Change       - Tue  5 Nov 14:32:37 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,7 +36,11 @@ USAGE(){
 		            --long|-l N             - Where N is the longitude coordinate.
 		            --lat|-L N              - Where N is the latitude coordinate.
 
-		CAVEAT:     Currently, $_PROJECT_ only supports UK and US localisations.
+		NOTE:       Only British and American localizations are supported.
+
+		EXAMPLE:    View the weather for London, United Kingdom:
+
+		              $_PROJECT_ -C --lat 51.5085300 --long -0.1257400
 
 		SITE:       $DOM
 	EOF
@@ -89,7 +93,7 @@ fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
-PAGE="$DOM/forecast/${LONG},${LAT}/${UKUS}12/en"
+PAGE="$DOM/forecast/${LAT},${LONG}/${UKUS}12/en"
 
 while read LINE; do
 	if [[ "$LINE" == *currently\ =* ]]; then
