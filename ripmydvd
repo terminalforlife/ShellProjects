@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ripmydvd
 # Started On        - Fri 29 Sep 21:19:47 BST 2017
-# Last Change       - Sun 12 May 23:44:19 BST 2019
+# Last Change       - Wed  6 Nov 13:35:21 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-11-06"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -44,7 +44,7 @@ USAGE(){
 		            --alang X               - Where X is the audio language; en or eng?
 		            --combine|-C            - Wrong language? This option should work.
 
-		NOTE:       You may wish to use lsdvd to help you especially with audio.
+		NOTE:       You may wish to use lsdvd to help you, especially with audio.
 
 		            The --combine|-C option requires --aid or --alang. This will rip the
 		            audio and video separately, then they will be combined into TARGET.
