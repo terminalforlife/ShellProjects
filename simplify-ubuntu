@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Thu  7 Nov 23:12:29 GMT 2019
+# Last Change       - Thu  7 Nov 23:31:52 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -133,9 +133,8 @@ while read -r; do
 	printf "%s\n" "$REPLY"
 done <<-EOF
 
-	Simplify-ubuntu will assume that you have a fresh installation from an official
-	ISO. Although $_PROJECT_ should run on an old setup, there's no guarantee
-	it'll go without a hitch.
+	Simplify-ubuntu works best on a fresh installation from an official ISO, as it's
+	less likely to try to bring in other, needed packages upon package removals.
 
 	What will follow is a series of prompts which will ascertain how you would like to
 	tweak (lighten) your Ubuntu installation of Linux, based on your needs.
@@ -153,6 +152,11 @@ done <<-EOF
 
 	WARNING: Since unforeseen changes can and probably will occur, it's therefore very
 	         important that you take great care using $_PROJECT_.
+
+	         The most direct issue you're likely to come across, is that packages
+	         described here, or deemed by you, to be worthy of removal, will try to
+	         kick out other packages you need or want; in this case, either keep the
+	         unwanted package(s) or try something else after $_PROJECT_ finishes.
 
 EOF
 
@@ -218,12 +222,6 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 				         greater care with your answers.
 
 				CAUTION: The --no-ask-de|-N flags may be ignored if Mint is detected.
-
-				NOTE: Installations of Mint were tested with $_PROJECT_:
-
-				      TIMESTAMP   x86  x64  DISTRIBUTION     DE
-				      2018-01-14  N    Y    Linux Mint 18.2  Cinnamon
-				      2018-02-17  N    Y    Linux Mint 18.3  Cinnamon
 
 			EOF
 
@@ -398,20 +396,7 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 
 			;;
 		ubuntu)
-			IS_UBUNTU="true"
-
-			while read -r; do
-				printf "%s\n" "$REPLY"
-			done <<-EOF
-				NOTE: Installations of Ubuntu were tested with $_PROJECT_:
-
-				      TIMESTAMP   x86  x64  DISTRIBUTION    DE
-				      2018-04-10  N    Y    Ubuntu 16.04.4  N/A
-				      2018-02-17  N    Y    Ubuntu 16.04.3  N/A
-
-			EOF
-
-			;;
+			IS_UBUNTU="true" ;;
 		zorin)
 			IS_ZORIN="true"
 
@@ -424,11 +409,6 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 
 				         However, this should be considered 'experimental', so be sure to take even
 				         greater care with your answers.
-
-				NOTE: Installations of Zorin OS were tested with $_PROJECT_:
-
-				      TIMESTAMP   x86  x64  DISTRIBUTION    DE
-				      2018-01-18  N    Y    Zorin OS 12.2   GNOME
 
 			EOF
 
@@ -462,11 +442,6 @@ if [ "$ISLINUXLITE" == "true" ]; then
 
 		         However, this should be considered 'experimental', so be sure to take even
 		         greater care with your answers.
-
-		NOTE: Installations of Linux Lite were tested with $_PROJECT_:
-
-		      TIMESTAMP   x86  x64  DISTRIBUTION    DE
-		      2018-04-10  N    Y    Linux Lite 3.8  XFCE
 
 	EOF
 
@@ -1111,7 +1086,7 @@ fi
 
 if ! [ "$NO_ASK_DE" == "true" ]; then
 	PROMPT\
-		"[028]: Are you using the KDE desktop environmnt?"\
+		"[028]: Are you using the KDE desktop environment?"\
 		"If you enter 'Y', you'll be asked KDE-specific questions."\
 	&& {
 		if FIND kubuntu-driver-manager\*; then
@@ -1163,7 +1138,7 @@ if ! [ "$NO_ASK_DE" == "true" ]; then
 	}
 
 	PROMPT\
-		"[032]: Are you using the XFCE desktop environmnt?"\
+		"[032]: Are you using the XFCE desktop environment?"\
 		"If you enter 'Y', you'll be asked XFCE-specific questions."\
 	&& {
 		if PATHLOOK xfdesktop4\*; then
@@ -1206,7 +1181,7 @@ if ! [ "$NO_ASK_DE" == "true" ]; then
 	}
 
 	PROMPT\
-		"[035]: Are you using the Mate desktop environmnt?"\
+		"[035]: Are you using the Mate desktop environment?"\
 		"If you enter 'Y', you'll be asked Mate-specific questions."\
 	&& {
 		IS_MATE="true"
@@ -1220,7 +1195,7 @@ if ! [ "$NO_ASK_DE" == "true" ]; then
 	}
 
 	PROMPT\
-		"[037]: Are you using the GNOME desktop environmnt?"\
+		"[037]: Are you using the GNOME desktop environment?"\
 		"If you enter 'Y', you'll be asked Gnome-specific questions."\
 	&& {
 		IS_GNOME="true"
