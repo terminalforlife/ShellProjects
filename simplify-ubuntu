@@ -3,11 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Thu  7 Nov 23:31:52 GMT 2019
+# Last Change       - Thu  7 Nov 23:46:49 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# Q-COUNT = 168
+# Q-COUNT = 169
 #----------------------------------------------------------------------------------
 
 _VERSION_="2019-11-07"
@@ -1768,6 +1768,17 @@ if PATHLOOK zip || PATHLOOK unzip; then
 	|| {
 		SAY "Calling APT to remove the zip package."
 		DEL zip unzip
+	}
+fi
+
+if PATHLOOK rar; then
+	PROMPT\
+		"[169]: Do you need support for rar archives (Enter 'Y' if unsure)?"\
+		"If you enter 'N', the rar package will be removed."\
+		"Create and extract rar files."\
+	|| {
+		SAY "Calling APT to remove the rar package."
+		DEL rar
 	}
 fi
 
