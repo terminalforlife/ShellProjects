@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Sun 12 May 22:54:44 BST 2019
+# Last Change       - Fri  8 Nov 23:07:24 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
+_VERSION_="2019-11-08"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -63,7 +63,7 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in tee wget fold tput; {
+for DEP in tee wget fold; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
 		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -72,9 +72,9 @@ for DEP in tee wget fold tput; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-# Newer versions of wget by default request unwanted server-side compression.
-read -a WGET_VER_LINE <<< "$(wget --version)"
-[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+if [ "$COLUMNS" ] && ! type -fP tput > /dev/null 2>&1; then
+	FAIL 1 "$LINENO" "Dependency 'tput' not met."
+fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
@@ -82,6 +82,14 @@ URL="$DOM/jokes/joke-of-the-day"
 FILE="/tmp/${_PROJECT_}_store.txt"
 
 MAIN(){
+	if type -fP curl > /dev/null 2>&1; then
+		JOKE_RAW=`curl -s -C - "$URL"`
+	elif type -fP wget > /dev/null 2>&1; then
+		JOKE_RAW=`wget -q -t 1 "$URL" -O -`
+	else
+		FAIL 0 "$LINENO" "Dependency 'wget' or 'curl' not met."
+	fi
+
 	declare -i C=1
 	while read X; do
 		if [[ "$X" =~ \<p\ id\=\"joke_[0-9]+\"\> ]]; then
@@ -101,8 +109,7 @@ MAIN(){
 			printf "\n"
 			break
 		fi
-	done <<< "$(wget "$NOWARC" -q -t 1 "$URL" -O -)"\
-		| fold -s --width=${COL:-`tput cols`}
+	done <<< "$JOKE_RAW" | fold -s --width=${COLUMNS:-`tput cols`}
 }
 
 if ! [ "$(MAIN)" ]; then
