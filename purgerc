@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Sun 27 Oct 23:18:28 GMT 2019
+# Last Change       - Fri  8 Nov 23:55:50 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-10-27"
+_VERSION_="2019-11-08"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -106,10 +106,10 @@ while read -a X; do
 done <<< "$(dpkg -l)"
 
 if [ "$LIST" ]; then
-	apt-get -q $SIM -o Dpkg::Progress=true\
-		-o Dpkg::Progress-Fancy=true -o APT::Get::AutomaticRemove=true\
-		remove --purge $LIST
+	apt-get -q $SIM -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
+		-o APT::Get::AutomaticRemove=true remove --purge $LIST
 else
+	# Not an error, but how the below is handled allows for testing.
 	printf "No 'rc' packages detected by APT.\n" 1>&2
 	exit 1
 fi
