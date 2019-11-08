@@ -12,7 +12,7 @@
 #----------------------------------------------------------------------------------
 
 [Configuration]
-FontName=Oxygen Mono Bold 10
+FontName=Oxygen Mono Bold 17
 FontAllowBold=FALSE
 MiscAlwaysShowTabs=FALSE
 MiscBell=TRUE
