@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 22:54:06 GMT 2019
+# Last Change       - Mon 11 Nov 23:06:21 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -96,44 +96,49 @@ if [ -f "$NAME" ]; then
 	done
 fi
 
-printf "Creating %dMB swap file: %s\n" "$SIZE" "$NAME"
+printf "[1/7] Generating file to use for swap space...\n"
 
-{
-	dd if=/dev/zero of="$NAME" bs=1024K count="$SIZE" status=none
-	sync "$NAME"
+dd if=/dev/zero of="$NAME" bs=1024K count="$SIZE" status=none > /dev/null
 
-	chown -v 0:0 "$NAME"
-	chmod -v 600 "$NAME"
-	mkswap "$NAME"
+printf "[2/7] Synchronising cached writes to storage...\n"
 
-	cp -v "$FST"{,.bak}
-} > /dev/null
+sync "$NAME" > /dev/null
 
-printf "Updating the file system table: %s\n" "$FST"
+printf "[3/7] Setting file attributes...\n"
 
-{
-	sed -i '/^UUID=.*\s.*\sswap/s/^/#/' "$FST"
+chown 0:0 "$NAME" > /dev/null
+chmod 600 "$NAME" > /dev/null
 
-	if [ -f "$FST" ]; then
-		while read; do
-			if [[ "$REPLY" =~ /"$NAME"\s+none\s+swap\s+sw\s+0\s+0 ]]; then
-				FOUND='true'; break
-			fi
-		done < "$FST"
+printf "[4/7] Setting file attributes...\n"
 
-		if [ "$FOUND" == 'true' ]; then
-			FAIL 1 "$LINENO" "Current entry already present in: $FST"
-		else
-			printf "/%s none swap sw 0 0\n" "$NAME" >> "$FST" > /dev/null
+mkswap "$NAME" > /dev/null
+
+printf "[5/7] Backing up filesystem table...\n"
+
+cp "$FST"{,.bak} > /dev/null
+
+printf "[6/7] Updating the filesystem table...\n" "$FST"
+
+sed -i '/^UUID=.*\s.*\sswap/s/^/#/' "$FST" > /dev/null
+
+if [ -f "$FST" ]; then
+	while read; do
+		if [[ "$REPLY" =~ /"$NAME"\s+none\s+swap\s+sw\s+0\s+0 ]]; then
+			FOUND='true'; break
 		fi
+	done < "$FST"
+
+	if [ "$FOUND" == 'true' ]; then
+		FAIL 1 "$LINENO" "Current entry already present in: $FST"
 	else
-		FAIL 1 "$LINENO" "Unable to find or access: $FST"
+		printf "/%s none swap sw 0 0\n" "$NAME" >> "$FST"
 	fi
+else
+	FAIL 1 "$LINENO" "Unable to find or access: $FST"
+fi
 
-	swapoff -va
-	swapon -v "$NAME"
-} > /dev/null
+printf "[7/7] Activating swap file...\n"
 
-printf "Swap file generated and should now be active.\n"
+swapon "$NAME" > /dev/null
 
 # vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
