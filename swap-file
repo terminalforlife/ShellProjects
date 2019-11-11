@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 23:19:37 GMT 2019
+# Last Change       - Mon 11 Nov 23:26:40 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ printf "[6/7] Updating the filesystem table...\n" "$FST"
 
 if [ -f "$FST" ]; then
 	while read; do
-		if [[ "$REPLY" =~ "$NAME"\ +none\ +swap\ +sw\ +0\s+0 ]]; then
+		if [[ "$REPLY" =~ "$NAME"\ +none\ +swap\ +sw\ +0\ +0 ]]; then
 			FOUND='true'; break
 		fi
 	done < "$FST"
