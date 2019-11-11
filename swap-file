@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 23:14:32 GMT 2019
+# Last Change       - Mon 11 Nov 23:19:37 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ NAME="/${1//[!_-.[:alnum:]]}"
 SIZE="${2//[!0-9]}"
 
 declare -i DEPCOUNT=0
-for DEP in sync cp ch{own,mod} sed dd swap{on,off} mkswap; {
+for DEP in sync cp ch{own,mod} dd swapon mkswap; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
 		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -111,17 +111,15 @@ cp "$FST"{,.bak} > /dev/null
 
 printf "[6/7] Updating the filesystem table...\n" "$FST"
 
-sed -i '/^UUID=.*\s.*\sswap/s/^/#/' "$FST" > /dev/null
-
 if [ -f "$FST" ]; then
 	while read; do
-		if [[ "$REPLY" =~ /"$NAME"\s+none\s+swap\s+sw\s+0\s+0 ]]; then
+		if [[ "$REPLY" =~ "$NAME"\s+none\s+swap\s+sw\s+0\s+0 ]]; then
 			FOUND='true'; break
 		fi
 	done < "$FST"
 
 	if [ "$FOUND" == 'true' ]; then
-		FAIL 1 "$LINENO" "Current entry already present in: $FST"
+		printf "Pre-existing entry found in filesystem table.\n"
 	else
 		printf "%s none swap sw 0 0\n" "$NAME" >> "$FST"
 	fi
