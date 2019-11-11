@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - nts (Note to Self)
 # Started On        - Sun 10 Nov 23:54:20 GMT 2019
-# Last Change       - Mon 11 Nov 01:27:49 GMT 2019
+# Last Change       - Mon 11 Nov 02:10:49 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -35,13 +35,17 @@ USAGE(){
 		            --version|-v            - Output only the version datestamp.
 		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
-		            --read-all|-ra          - Display all notes found in database.
+		            --make|-m NOTE          - Make note; saves for later reading.
+		            --raw|-R                - Display notes as-is, without formatting.
+		            --delete                - Irrevocably delete database file.
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
+SHOW="true"
 FANCY="true"
+SHOWALL="true"
 
 while [ "$1" ]; do
 	case "$1" in
@@ -55,26 +59,24 @@ while [ "$1" ]; do
 			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		--read-all|-ra)
-			SHOWALL="true"; SHOW="true" ;;
-		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+		--make|-m)
+			shift; NOTE="$1"
+
+			if [ -z "$NOTE" ]; then
+				FAIL 1 "$LINENO" "Text missing while making note."
+			fi ;;
+		--raw|-R)
+			FANCY="false" ;;
+		--delete|-D)
+			DELETE="true" ;;
 		*)
-			break ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-if ! [ "$SHOW" == 'true' ]; then
-	if [ -z "$*" ]; then
-		FAIL 1 "$LINENO" "Please enter text to note down."
-	elif [[ "$*" == *'~~~'* ]]; then
-		FAIL 1 "$LINENO" "Invalid string '~~~' found in note."
-	fi
-fi
-
 declare -i DEPCOUNT=0
-for DEP in mkdir fold tput; {
+for DEP in rm mkdir fold tput; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
 		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -132,32 +134,42 @@ GENDB(){
 	EOF
 }
 
-if ! [ -f "$DB" ]; then
-	GENDB > "$DB" || FAIL 1 "$LINENO" "Unable to generate a database."
+if [ "$DELETE" == "true" ]; then
+	rm -v "$DB" || FAIL 1 "$LINENO" "Unable to delete the database."
+	exit 0
 else
-	[ -r "$DB" ] || FAIL 1 "$LINENO" "Unable to read the database."
+	if ! [ -f "$DB" ]; then
+		GENDB > "$DB" || FAIL 1 "$LINENO" "Unable to generate a database."
+	else
+		[ -r "$DB" ] || FAIL 1 "$LINENO" "Unable to read the database."
+	fi
 fi
 
 # Arguments apply to formatting of the output.
 PARSEDB(){
 	# Expected format: DATE~UID[USER]~HOSTNAME~NOTE
-	while IFS='~' read -a LINE; do
+	while IFS='~' read -ra LINE; do
 		if ! [[ "${LINE[0]}" == \#* ]] && [ -n "${LINE[*]}" ]; then
 			if [ "$SHOWALL" == "true" ]; then
 				if [ "$FANCY" == "true" ]; then
-					printf "DATE:   %s\nUSER:   %s\nHOST:   %s\n\n%s\n\n" "${LINE[0]}" "${LINE[1]}" "${LINE[2]}" "${LINE[3]}" | fold -sw "${COLUMNS:-`tput cols`}"
+					printf "DATE:   %s\nUSER:   %s\nHOST:   %s\n\n%s\n\n"\
+						"${LINE[0]}" "${LINE[1]}" "${LINE[2]}" "${LINE[3]}"\
+						| fold -sw "${COLUMNS:-`tput cols`}"
 				else
-					printf "%s\n" "${LINE[3]}"
+					printf "%s~%s~%s~%s\n" "${LINE[0]}" "${LINE[1]}"\
+						"${LINE[2]}" "${LINE[3]}"
 				fi
 			fi
 		fi
 	done < "$DB"
 }
 
-if [ "$SHOW" == 'true' ]; then
-	PARSEDB
-else
+if [ -n "$NOTE" ]; then
 	HOSTNAME="${HOSTNAME//~/?}" # <-- Sanitize, just in-case.
-	printf "%(%F_%X)T~%s~%s~%s\n" -1 "${UID:-\!}[${USER:-\!}]"\
-		"${HOSTNAME:-\!}" "${*:-\!}" >> "$DB"
+	NOTE="${NOTE/$'\n'/\\n}" # <-- Sanitize, in-case the user enters a new line.
+	printf "%(%F_%X)T~%s~%s~%s\n" -1 "${UID:-N/A}[${USER:-N/A}]"\
+		"${HOSTNAME:-N/A}" "${NOTE:-N/A}" >> "$DB"
+	exit 0
 fi
+
+PARSEDB
