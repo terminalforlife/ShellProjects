@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 22:48:52 GMT 2019
+# Last Change       - Mon 11 Nov 22:51:10 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -78,8 +78,8 @@ for DEP in sync cp ch{own,mod} sed dd swap{on,off} mkswap; {
 
 [ $# -eq 2 ] || FAIL 1 "$LINENO" "Incorrect argument(s) specified."
 [[ "$SIZE" =~ [0-9]+ ]] || FAIL 1 "$LINENO" "Incorrect swap file size specified."
-
 [ $UID -eq 0 ] || FAIL 1 "$LINENO" "Setting up a swap file requires root access."
+[ -f "$NAME" ] && FAIL 1 "$LINENO" "File already exists."
 
 [ "$DEBUGME" == "true" ] && set -x
 
