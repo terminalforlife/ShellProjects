@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 22:51:10 GMT 2019
+# Last Change       - Mon 11 Nov 22:52:13 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ printf "Creating %dMB swap file: %s\n" "$SIZE" "$NAME"
 	chmod -v 600 "$NAME"
 	mkswap "$NAME"
 
-	cp -iv "$FST"{,.bak}
+	cp -v "$FST"{,.bak}
 } > /dev/null
 
 printf "Updating the file system table: %s\n" "$FST"
