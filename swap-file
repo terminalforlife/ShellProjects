@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 23:08:50 GMT 2019
+# Last Change       - Mon 11 Nov 23:10:32 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -83,19 +83,6 @@ for DEP in sync cp ch{own,mod} sed dd swap{on,off} mkswap; {
 
 [ "$DEBUGME" == "true" ] && set -x
 
-if [ -f "$NAME" ]; then
-	while read -e -p "File '$NAME' already exists -- replace? "; do
-		case "$REPLY" in
-			[Yy])
-				break ;;
-			[Nn])
-				printf "No action taken -- quitting.\n"; exit 1 ;;
-			*)
-				FAIL 1 "$LINENO" "Invalid response. Enter 'Y' or 'N' to continue." ;;
-		esac
-	done
-fi
-
 printf "[1/7] Generating file to use for swap space...\n"
 
 dd if=/dev/zero of="$NAME" bs=1024K count="$SIZE" status=none > /dev/null
@@ -131,7 +118,7 @@ if [ -f "$FST" ]; then
 	if [ "$FOUND" == 'true' ]; then
 		FAIL 1 "$LINENO" "Current entry already present in: $FST"
 	else
-		printf "/%s none swap sw 0 0\n" "$NAME" >> "$FST"
+		printf "%s none swap sw 0 0\n" "$NAME" >> "$FST"
 	fi
 else
 	FAIL 1 "$LINENO" "Unable to find or access: $FST"
