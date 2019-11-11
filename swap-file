@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 22:52:13 GMT 2019
+# Last Change       - Mon 11 Nov 22:54:06 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ fi
 printf "Creating %dMB swap file: %s\n" "$SIZE" "$NAME"
 
 {
-	dd if=/dev/zero of="$NAME" bs=1024K count="$SIZE"
+	dd if=/dev/zero of="$NAME" bs=1024K count="$SIZE" status=none
 	sync "$NAME"
 
 	chown -v 0:0 "$NAME"
