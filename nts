@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - nts (Note to Self)
 # Started On        - Sun 10 Nov 23:54:20 GMT 2019
-# Last Change       - Mon 11 Nov 00:28:49 GMT 2019
+# Last Change       - Mon 11 Nov 01:27:49 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -29,16 +29,19 @@ USAGE(){
 
 		            Dummy description for this template.
 
-		SYNTAX:     $_PROJECT_ [OPTS]
+		SYNTAX:     $_PROJECT_ [OPTS] NOTE
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables the built-in bash debugging.
+		            --read-all|-ra          - Display all notes found in database.
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
+
+FANCY="true"
 
 while [ "$1" ]; do
 	case "$1" in
@@ -52,14 +55,26 @@ while [ "$1" ]; do
 			UPDATE="true" ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		*)
+		--read-all|-ra)
+			SHOWALL="true"; SHOW="true" ;;
+		-*)
 			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
 	esac
 	shift
 done
 
+if ! [ "$SHOW" == 'true' ]; then
+	if [ -z "$*" ]; then
+		FAIL 1 "$LINENO" "Please enter text to note down."
+	elif [[ "$*" == *'~~~'* ]]; then
+		FAIL 1 "$LINENO" "Invalid string '~~~' found in note."
+	fi
+fi
+
 declare -i DEPCOUNT=0
-for DEP in mkdir; {
+for DEP in mkdir fold tput; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
 		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -105,14 +120,44 @@ if ! [ -d "$MAIN_DIR" ]; then
 	mkdir -p "$MAIN_DIR" || FAIL 1 "$LINENO" "Unable to make 'nts' directory."
 fi
 
+GENDB(){
+	printf -v DATE "%(%X %F)T"
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		# Generated NTS (Note to Self) database.
+		# DATE:    $DATE
+		# USER:    $USER (UID: $UID)
+		# HOST:    $HOSTNAME
+	EOF
+}
+
 if ! [ -f "$DB" ]; then
-	> "$DB" || FAIL 1 "$LINENO" "Unable to generate a database."
+	GENDB > "$DB" || FAIL 1 "$LINENO" "Unable to generate a database."
 else
-	if ! [ -r "$DEB" ]; then
-		FAIL 1 "$LINENO" "Unable to read the database."
-	fi
+	[ -r "$DB" ] || FAIL 1 "$LINENO" "Unable to read the database."
 fi
 
+# Arguments apply to formatting of the output.
 PARSEDB(){
-	:
+	# Expected format: DATE~UID[USER]~HOSTNAME~NOTE
+	while IFS='~' read -a LINE; do
+		if ! [[ "${LINE[0]}" == \#* ]] && [ -n "${LINE[*]}" ]; then
+			if [ "$SHOWALL" == "true" ]; then
+				if [ "$FANCY" == "true" ]; then
+					printf "DATE:   %s\nUSER:   %s\nHOST:   %s\n\n%s\n\n" "${LINE[0]}" "${LINE[1]}" "${LINE[2]}" "${LINE[3]}" | fold -sw "${COLUMNS:-`tput cols`}"
+				else
+					printf "%s\n" "${LINE[3]}"
+				fi
+			fi
+		fi
+	done < "$DB"
 }
+
+if [ "$SHOW" == 'true' ]; then
+	PARSEDB
+else
+	HOSTNAME="${HOSTNAME//~/?}" # <-- Sanitize, just in-case.
+	printf "%(%F_%X)T~%s~%s~%s\n" -1 "${UID:-\!}[${USER:-\!}]"\
+		"${HOSTNAME:-\!}" "${*:-\!}" >> "$DB"
+fi
