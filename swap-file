@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 22:37:06 GMT 2019
+# Last Change       - Mon 11 Nov 22:40:30 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ sync "$NAME"
 
 chown -v 0:0 "$NAME"
 chmod -v 600 "$NAME"
-LIBBLKID_DEBUG='all' mkswap -v "$NAME"
+LIBBLKID_DEBUG='all' mkswap "$NAME"
 #TODO - Why does mkswap fail here, saying it can't read the swap header? Yet when
 #       I run the command separately on the terminal, all is fine.
 
