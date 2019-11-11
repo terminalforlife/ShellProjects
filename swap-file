@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 22:26:37 GMT 2019
+# Last Change       - Mon 11 Nov 22:34:28 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ while [ "$1" ]; do
 		--debug|-D)
 			DEBUGME="true" ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
@@ -67,19 +67,19 @@ NAME="/${1//[![:alnum:]]}"
 SIZE="${2//[!0-9]}"
 
 declare -i DEPCOUNT=0
-for DEP in sync grep cp ch{own,mod} sed dd swap{on,off} mkswap; {
+for DEP in sync cp ch{own,mod} sed dd swap{on,off} mkswap; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $# -eq 2 ] || XERR "$LINENO" "Incorrect argument(s) specified."
-[[ "$SIZE" =~ [0-9]+ ]] || XERR "$LINENO" "Incorrect swap file size specified."
+[ $# -eq 2 ] || FAIL 1 "$LINENO" "Incorrect argument(s) specified."
+[[ "$SIZE" =~ [0-9]+ ]] || FAIL 1 "$LINENO" "Incorrect swap file size specified."
 
-[ $UID -eq 0 ] || XERR "$LINENO" "Setting up a swap file requires root access."
+[ $UID -eq 0 ] || FAIL 1 "$LINENO" "Setting up a swap file requires root access."
 
 [ "$DEBUGME" == "true" ] && set -x
 
@@ -91,7 +91,7 @@ if [ -f "$NAME" ]; then
 			[Nn])
 				printf "No action taken -- quitting.\n"; exit 1 ;;
 			*)
-				XERR "$LINENO" "Invalid response. Enter 'Y' or 'N' to continue." ;;
+				FAIL 1 "$LINENO" "Invalid response. Enter 'Y' or 'N' to continue." ;;
 		esac
 	done
 fi
@@ -112,13 +112,19 @@ printf "Updating the file system table: %s\n" "$FST"
 sed -i '/^UUID=.*\s.*\sswap/s/^/#/' "$FST"
 
 if [ -f "$FST" ]; then
-	if ! grep -q "/$NAME none swap sw 0 0" "$FST"; then
-		printf "/%s none swap sw 0 0\n" "$NAME" >> "$FST" >&-
+	while read; do
+		if [[ "$REPLY" =~ /"$NAME"\s+none\s+swap\s+sw\s+0\s+0 ]]; then
+			FOUND='true'; break
+		fi
+	done < "$FST"
+
+	if [ "$FOUND" == 'true' ]; then
+		FAIL 1 "$LINENO" "Current entry already present in: $FST"
 	else
-		XERR "$LINENO" "Current entry already present in: $FST"
+		printf "/%s none swap sw 0 0\n" "$NAME" >> "$FST" >&-
 	fi
 else
-	XERR "$LINENO" "Unable to find or access: $FST"
+	FAIL 1 "$LINENO" "Unable to find or access: $FST"
 fi
 
 LIBBLKID_DEBUG='all' swapoff -va
