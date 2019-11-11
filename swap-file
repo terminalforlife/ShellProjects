@@ -113,7 +113,7 @@ printf "[6/7] Updating the filesystem table...\n" "$FST"
 
 if [ -f "$FST" ]; then
 	while read; do
-		if [[ "$REPLY" =~ "$NAME"\s+none\s+swap\s+sw\s+0\s+0 ]]; then
+		if [[ "$REPLY" =~ "$NAME"\ +none\ +swap\ +sw\ +0\s+0 ]]; then
 			FOUND='true'; break
 		fi
 	done < "$FST"
