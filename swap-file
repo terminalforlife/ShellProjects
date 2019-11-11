@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 23:06:21 GMT 2019
+# Last Change       - Mon 11 Nov 23:08:50 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ printf "[3/7] Setting file attributes...\n"
 chown 0:0 "$NAME" > /dev/null
 chmod 600 "$NAME" > /dev/null
 
-printf "[4/7] Setting file attributes...\n"
+printf "[4/7] Setting up the Linux swap area...\n"
 
 mkswap "$NAME" > /dev/null
 
