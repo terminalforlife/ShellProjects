@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 22:34:28 GMT 2019
+# Last Change       - Mon 11 Nov 22:37:06 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -56,14 +56,16 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--debug|-D)
 			DEBUGME="true" ;;
-		*)
+		-*)
 			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
 	esac
 	shift
 done
 
 FST="/etc/fstab"
-NAME="/${1//[![:alnum:]]}"
+NAME="/${1//[!_-.[:alnum:]]}"
 SIZE="${2//[!0-9]}"
 
 declare -i DEPCOUNT=0
