@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 23:10:32 GMT 2019
+# Last Change       - Mon 11 Nov 23:14:32 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ USAGE(){
 		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Dummy description for this template.
+		            Generate a file, make it a swap area, then activate it.
 
 		SYNTAX:     $_PROJECT_ [OPTS] [NAME] [SIZE]
 
@@ -76,10 +76,15 @@ for DEP in sync cp ch{own,mod} sed dd swap{on,off} mkswap; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $# -eq 2 ] || FAIL 1 "$LINENO" "Incorrect argument(s) specified."
-[[ "$SIZE" =~ [0-9]+ ]] || FAIL 1 "$LINENO" "Incorrect swap file size specified."
-[ $UID -eq 0 ] || FAIL 1 "$LINENO" "Setting up a swap file requires root access."
-[ -f "$NAME" ] && FAIL 1 "$LINENO" "File already exists."
+if ! [ $# -eq 2 ]; then
+	FAIL 1 "$LINENO" "Incorrect argument(s) specified."
+elif ! [[ "$SIZE" =~ [0-9]+ ]]; then
+	FAIL 1 "$LINENO" "Incorrect swap file size specified."
+elif ! [ $UID -eq 0 ]; then
+	FAIL 1 "$LINENO" "Setting up a swap file requires root access."
+elif [ -f "$NAME" ]; then
+	FAIL 1 "$LINENO" "File already exists."
+fi
 
 [ "$DEBUGME" == "true" ] && set -x
 
