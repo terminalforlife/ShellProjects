@@ -53,7 +53,7 @@ USAGE(){
 }
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
