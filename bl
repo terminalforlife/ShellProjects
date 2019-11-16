@@ -51,7 +51,7 @@ LSBLK_FORMAT="name,label,uuid,fstype,partuuid"
 declare -i A=0 # The number of short or long arguments.
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
