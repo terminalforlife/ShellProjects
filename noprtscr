@@ -30,7 +30,7 @@ if ! type -fP gsettings > /dev/null 2>&1; then
 fi
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		--help|-h|-\?)
 			printf "USAGE: %s [[--help|-h|-?] | [--version|-v]] | [--prtsc-is-menu]\n" "$_PROJECT_" ;;
 		--version|-v)
