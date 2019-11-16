@@ -142,7 +142,7 @@ if [[ "$1" =~ ^(--just-check|-J)$ ]]; then
 	shift; JUST_CHECK="true"
 else
 	while [ "$1" ]; do
-		case "$1" in
+		case $1 in
 			--help|-h|-\?)
 				USAGE; exit 0 ;;
 			--verbose|-V)
@@ -694,7 +694,7 @@ elif [ "$CUSTOM" == "true" ]; then
 fi
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		libtfl-perl)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
 			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
