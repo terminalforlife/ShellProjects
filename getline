@@ -66,7 +66,7 @@ LINE_NUMBERS="false"
 COLOR_MODE="true"
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
@@ -94,7 +94,7 @@ while [ "$1" ]; do
 done
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		read)
 			ACTION_COUNT+=1
 			INSTRUCT="read" ;;
