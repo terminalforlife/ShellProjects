@@ -80,7 +80,7 @@ USAGE(){
 }
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--version|-v)
@@ -125,7 +125,7 @@ SWAPPINESS=0
 TEMPS=0
 
 while [ "$1" ]; do
-	case "$1" in
+	case $1 in
 		firewall=[01])
 			FIREWALL=${1/*=} ;;
 		services=[01])
