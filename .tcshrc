@@ -46,4 +46,3 @@ set watch = (1 any any)
 
 unset ALIAS
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
