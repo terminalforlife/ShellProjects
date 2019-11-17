@@ -96,4 +96,3 @@ for ID in ${GETID[@]//\/}; {
 	wget -qc $NOWARC "${URL}-1920x1080-${ID}" -O "$FNAME"
 }
 
-# vim: expandtab colorcolumn=84 tabstop=8 noswapfile nobackup
