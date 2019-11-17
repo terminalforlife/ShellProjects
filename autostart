@@ -173,4 +173,3 @@ hc pad 0 0
 #hc pad 0 20
 #/bin/bash $HOME/.config/herbstluftwm/panel.sh &
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
