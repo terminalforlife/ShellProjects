@@ -66,4 +66,3 @@ while :; do
 	sleep 0.${1//[!0-9]}s
 done
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
