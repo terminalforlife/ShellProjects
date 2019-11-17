@@ -130,4 +130,3 @@ done <<< "$(
 
 rm -f "$TEMP"
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
