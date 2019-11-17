@@ -78,4 +78,3 @@ while read LINE; do
 	}
 done <<< "$(wget $NOWARC -q "$URL" -O -)"
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
