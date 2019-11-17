@@ -122,4 +122,3 @@ if ! on_ac_power; then
 	sleep ${INTERVAL}s
 fi
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
