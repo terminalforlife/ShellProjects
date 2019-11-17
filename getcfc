@@ -81,4 +81,3 @@ for SEL in $@; {
 	wget -qc --show-progress $NOWARC "$DOM${URL}-${SEL}/ClassicFond${SEL}.iso"
 }
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
