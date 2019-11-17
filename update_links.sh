@@ -56,4 +56,3 @@ else
 	ln -v panel.sh $HOME/.config/herbstluftwm/ 2>&-
 fi
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
