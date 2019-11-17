@@ -131,4 +131,3 @@ printf "[7/7] Activating swap file...\n"
 
 swapon "$NAME" > /dev/null
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
