@@ -135,4 +135,3 @@ while read -r LINE; do
 	fi
 done < "$FILE"
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
