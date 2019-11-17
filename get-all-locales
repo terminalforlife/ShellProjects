@@ -28,4 +28,3 @@ PKGS=$(
 
 apt-get install -q --show-progress $PKGS
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
