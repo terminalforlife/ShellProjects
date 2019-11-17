@@ -641,4 +641,3 @@ if ! [ "$NO_SUMMARY" == "true" ]; then
 	printf "ALERTS     - %d\n" "$AC"
 fi
 
-# vim: ft=sh noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
