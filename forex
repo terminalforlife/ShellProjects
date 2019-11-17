@@ -116,4 +116,3 @@ else
 	FAIL 1 "$LINENO" "Unable to determine the correct result."
 fi
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
