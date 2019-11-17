@@ -86,4 +86,3 @@ while read -a X; do
 	fi
 done <<< "$(dpkg-query -Wf="${FMT1}${FMT2}\n" \*)"
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
