@@ -72,4 +72,3 @@ while IFS="" read -r X; do
 	[[ "$X" =~ ^(Weather|New|Follow) ]] || printf "%s\n" "$X"
 done <<< "$(/usr/bin/wget -q http://wttr.in/"${LOCATION}" -O -)"
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
