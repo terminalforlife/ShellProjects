@@ -81,4 +81,3 @@ for EPISODE in `EPISODE_LIST`; {
 		| uniq | xargs -I{} wget -qc --show-progress ${DOM}"{}"
 }
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
