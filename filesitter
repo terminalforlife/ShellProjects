@@ -106,4 +106,3 @@ if ! systemctl $ACTION; then
 	FAIL 1 "$LINENO" "System $ACTION failed."
 fi
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
