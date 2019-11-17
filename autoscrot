@@ -101,4 +101,3 @@ while :; do
 done
 printf "\n"
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
