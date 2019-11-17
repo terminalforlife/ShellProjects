@@ -122,4 +122,3 @@ case "$TYPE" in
 		SHOW W $WEEKS ;;
 esac
 
-# vim: noexpandtab colorcolumn=84 tabstop=8 noswapfile nobackup
