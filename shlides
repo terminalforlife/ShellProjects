@@ -3,15 +3,10 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Mon 18 Nov 01:52:04 GMT 2019
+# Last Change       - Mon 18 Nov 01:57:35 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# Work in progress...
-#----------------------------------------------------------------------------------
-
-#TODO - Check for lines in project file being too long.
-#TODO - Add ability to load multiple slides in one project.
 
 _VERSION_="2019-11-18"
 _PROJECT_="${0##*/}"
@@ -42,7 +37,7 @@ USAGE(){
 		            ${_PROJECT_^^} ($_VERSION_)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Dummy description for this template.
+		            Present a project on your terminal via formatted slides.
 
 		SYNTAX:     $_PROJECT_ [OPTS] FILE
 
