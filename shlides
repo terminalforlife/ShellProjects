@@ -1,0 +1,309 @@
+#!/usr/bin/env bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/shlides
+# Started On        - Sun 17 Nov 16:27:40 GMT 2019
+# Last Change       - Sun 17 Nov 23:55:07 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Work in progress...
+#----------------------------------------------------------------------------------
+
+#TODO - Check for lines in project file being too long.
+#TODO - Add ability to load multiple slides in one project.
+
+_VERSION_="2019-11-17"
+_PROJECT_="${0##*/}"
+
+FAIL(){
+	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
+DEBUG(){
+	if [ "$DEBUGME" == "true" ]; then
+		if [ $# -eq 3 ]; then
+			printf "[L%0.4d] DEBUG(\$%s): '%s'\n" "$1" "$2" "$3"
+		elif [ $# -eq 2 ]; then
+			printf "[L%0.4d] DEBUG: %s\n" "$1" "$2"
+		else
+			FAIL 1 "$LINENO" "Invalid 'DEBUG()' argument(s)."
+		fi
+	fi
+}
+
+DOM="https://github.com"
+
+USAGE(){
+	while read -r; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		            ${_PROJECT_^^} ($_VERSION_)
+		            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		            Dummy description for this template.
+
+		SYNTAX:     $_PROJECT_ [OPTS] FILE
+
+		OPTS:       --help|-h|-?            - Displays this help information.
+		            --version|-v            - Output only the version datestamp.
+		            --update|-U             - Check for updates to $_PROJECT_.
+		            --debug|-D              - Enables debugging information.
+		            --tildes|-T             - Use the EOF tildes like in vim.
+
+		SITE:       $DOM/terminalforlife/Extra
+	EOF
+}
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			USAGE; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$_VERSION_"; exit 0 ;;
+		--update|-U)
+			UPDATE='true'
+
+			DEBUG "$LINENO" "UPDATE" "$UPDATE" ;;
+		--debug|-D)
+			DEBUGME='true'
+
+			DEBUG "$LINENO" "DEBUGME" "$DEBUGME" ;;
+		--tildes|-T)
+			USETILDES='true'
+
+			DEBUG "$LINENO" "USETILDES" "$USETILDES" ;;
+		-*)
+			DEBUG "$LINENO" "1" "$1"
+
+			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+		*)
+			DEBUG "$LINENO" "1" "$1"
+			DEBUG "$LINENO" "Breaking from parameter while loop."
+
+			break ;;
+	esac
+
+	DEBUG "$LINENO" "*" "$*"
+	DEBUG "$LINENO" "Shifting positional parameters."
+
+	shift
+done
+
+DEBUG "$LINENO" "Checking for 'tput' PATH executable."
+
+if ! type -fP tput > /dev/null 2>&1; then
+	FAIL 0 "$LINENO" "Dependency 'tput' not met."
+fi
+
+if [ "$UPDATE" == "true" ]; then
+	DEBUG "$LINENO" "Beginning procedure to check for an update."
+
+	if ! type -fP wget > /dev/null 2>&1; then
+		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	fi
+
+	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
+	while IFS='=' read -a LINE; do
+		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
+			LATEST="${LINE[1]}"
+			DEBUG "$LINENO" "LATEST" "$LATEST"
+
+			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+				DEBUG "$LINENO" "Self version detection successful."
+
+				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
+					while read -r; do
+						printf "%s\n" "$REPLY"
+					done <<-EOF
+						New version available:    $LATEST
+						Current version:          $_VERSION_
+					EOF
+				fi
+			else
+				FAIL 1 "$LINENO" "Failed to check for available updates."
+			fi
+		fi
+	done <<< "$(wget -q "$VERSION_URL" -O -)"
+
+	exit 0
+fi
+
+DEBUG "$LINENO" "1" "$1"
+
+if [ -z "$1" ]; then
+	FAIL 1 "$LINENO" "A project file wasn't provided."
+elif [ -f "$1" ] && [ -r "$1" ]; then
+	ProjectFile=$1
+
+	DEBUG "$LINENO" "ProjectFile" "$ProjectFile"
+	DEBUG "$LINENO" "Shifting positional parameters."
+
+	shift
+
+	if [ $# -gt 0 ]; then
+		FAIL 1 "$LINENO" "Only one project may run at a time."
+	fi
+else
+	FAIL 1 "$LINENO" "Project file missing or unreadable."
+fi
+
+Cols=${COLUMNS:-`tput cols`}
+Lines=${LINES:-`tput lines`}
+ColsSubstr=${Cols:$[${#Cols} - 1]:1}
+[[ $ColsSubstr == [13579] ]] && let Cols++
+
+
+DEBUG "$LINENO" "COLUMNS" "$COLUMNS"
+DEBUG "$LINENO" "LINES" "$LINES"
+DEBUG "$LINENO" "Cols" "$Cols"
+DEBUG "$LINENO" "Lines" "$Lines"
+
+PAKTC(){
+	if ! [ "$DEBUGME" == "true" ]; then
+		clear
+	else
+		DEBUG "$LINENO" "Because of 'DEBUG()', skipping screen clear."
+	fi
+
+	read -sn 1 -p "Press any key to ${1:-continue}... "
+	printf "\n"
+}
+
+#PAKTC "begin"
+
+Header(){
+	DEBUG "$LINENO" "Function 'Header()' called."
+	DEBUG "$LINENO" "1" "$1"
+	DEBUG "$LINENO" "2" "$2"
+	DEBUG "$LINENO" "3" "$3"
+
+	# Function for handling the correct number of line characters.
+	UnderLine(){
+		DEBUG "$LINENO" "Function 'UnderLine()' called."
+		DEBUG "$LINENO" "1" "$1"
+		DEBUG "$LINENO" "2" "$2"
+		DEBUG "$LINENO" "3" "$3"
+
+		for ((I=1; I<Cols; I++)); {
+			if [ $I -eq 1 ]; then
+				printf "%s" ${1:0:1}
+			elif [ $I -eq $((Cols - 1)) ]; then
+				printf "%s" ${3:0:1}
+			else
+				printf "%s" ${2:0:1}
+			fi
+		}
+
+		printf "\n"
+	}
+
+	# Handle the header, its title, and its slide counter, with pretty borders.
+	UnderLine '╭' '─' '╮'
+	printf -v Title "%#.3d: %s" ${1//[!0-9]} "${2//_/ }"
+
+	TitleLen=${#Title}
+	DEBUG "$LINENO" "TitleLen" "$TitleLen"
+
+	TitleHalf=$[TitleLen / 2]
+	DEBUG "$LINENO" "TitleHalf" "$TitleHalf"
+
+	TitleEndAlign=$[(Cols - TitleLen) + 1]
+	DEBUG "$LINENO" "TitleEndAlign" "$TitleEndAlign"
+
+	TitlePush=$TitleEndAlign
+	DEBUG "$LINENO" "TitlePush" "$TitlePush"
+
+	printf "│%*s%*s\n" $[((Cols / 2) + TitleHalf) - 2] "$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
+	UnderLine '╰' '─' '╯'
+	printf "\n"
+}
+
+# Output and parse lines of body, based on STDIN, and tally up lines.
+while read; do
+	if [[ $REPLY == \#\ * ]]; then
+		# Skip user's own comments.
+		continue
+	elif [[ $REPLY =~ ^###\  ]]; then
+		MainLines=1
+	fi
+
+	DEBUG "$LINENO" "MainLines" "$MainLines"
+
+	if [ $MainLines -eq 1 ]; then
+		# Gather header commands (key=value), and catch errors.
+		FieldCount=0
+		for Field in $REPLY; {
+			let FieldCount++
+
+			DEBUG "$LINENO" "Field" "$Field"
+
+			if [ ! "$HeaderPrefixFound" == 'true' -a "$Field" == '###' ]; then
+				HeaderPrefixFound='true'
+				continue
+			elif [ "$HeaderPrefixFound" == 'true' -a "$Field" == '###' ]; then
+				FAIL 1 "$LINENO" "Only one header prefix is required."
+			else
+				unset HeaderPrefixFound
+				#PAKTC 'go to the next slide'
+			fi
+
+			if [[ $Field =~ ^.*=.*$ ]]; then
+				DEBUG "$LINENO" "Valid field found."
+
+				IFS='=' read -a FieldArray <<< "$Field"
+
+				DEBUG "$LINENO" "FieldArray" "$FieldArray"
+				if [ "${FieldArray[0]}" == "SLIDE" ]; then
+					SlideNumber=${FieldArray[1]}
+
+					DEBUG "$LINENO" "SlideNumber" "$SlideNumber"
+				elif [ "${FieldArray[0]}" == "TITLE" ]; then
+					SlideTitle=${FieldArray[1]//\"}
+					DEBUG "$LINENO" "SlideTitle" "$SlideTitle"
+				else
+					FAIL 1 "$LINENO" "Invalid header command at field $FieldCount."
+				fi
+			else
+				FAIL 1 "$LINENO" "Invalid header field at position $FieldCount."
+			fi
+		}
+
+		# Actually display the header, based on `*.shl` header commands.
+		Header $SlideNumber "$SlideTitle"
+	elif [ $MainLines -eq 2 ]; then
+		if [ -n "$REPLY" ]; then
+			DEBUG "$LINENO" "REPLY" "$REPLY"
+
+			FAIL 1 "$LINENO" "Line 2 is non-empty."
+		fi
+	elif [ $MainLines -gt 2 ]; then
+		# Display the body of the current slide.
+		if ! [ ${#REPLY} -gt $Cols ]; then
+			printf "  %s\n" "$REPLY"
+		else
+			printf "\e[1;31m  ERROR: Line %d is too long!\e[0m\n" $MainLines >&2
+		fi
+	fi
+
+	let MainLines++
+done < "$ProjectFile"
+
+#if ! [ "$DEBUGME" == "true" ]; then
+#	# Create correct amount of empty lines to keep cursor at the bottom.
+#	Lines2Push=$[Lines - (MainLines + 3)]
+#
+#	# For testing with a 2-line prompt.
+#	Lines2Push=$[Lines - (MainLines + 4)]
+#
+#	DEBUG "$LINENO" "Lines2Push" "$Lines2Push"
+#
+#	for ((I=1; I<Lines2Push; I++)); {
+#		if [ "$USETILDES" == 'true' ]; then
+#			printf "\e[2;37m~\e[0m\n"
+#		else
+#			printf "\n"
+#		fi
+#	}
+#fi
