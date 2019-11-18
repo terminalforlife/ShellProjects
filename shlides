@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Mon 18 Nov 13:31:48 GMT 2019
+# Last Change       - Mon 18 Nov 14:36:11 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -51,6 +51,7 @@ USAGE(){
 		            --borders|-b            - Pretty borders around the header.
 		            --wait|-w INT           - Wait INT second(s) between slides.
 		            --skip-start|-s         - Skip the message at project start.
+		            --only-slide|-o INT     - Show only slide INT; ideal for testing.
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
@@ -104,6 +105,16 @@ while [ "$1" ]; do
 			SKIPSTART='true'
 
 			DEBUG "$LINENO" "SKIPSTART" "$SKIPSTART" ;;
+		--only-slide|-o)
+			shift
+
+			if [[ $1 =~ ^[0-9]+$ ]]; then
+				OnlySlide=$1
+
+				DEBUG "$LINENO" "OnlySlide" "$OnlySlide"
+			else
+				FAIL 1 "$LINENO" "Specified wait time is invalid."
+			fi ;;
 		-*)
 			DEBUG "$LINENO" "1" "$1"
 
@@ -257,6 +268,8 @@ Header(){
 }
 
 PushLines(){
+	[ "$DEBUGME" == 'true' ] && return 0
+
 	# Keep cursor at the bottom of the screen.
 	#Lines2Push=$[Lines - (BodyLines + 4)]
 	Lines2Push=$1
@@ -269,7 +282,9 @@ PushLines(){
 	}
 }
 
-clear
+if ! [ "$DEBUGME" == 'true' ]; then
+	clear
+fi
 
 if ! [ "$SKIPSTART" == 'true' ]; then
 	while read; do
@@ -294,8 +309,7 @@ fi
 FirstLineFromBuffArr='false'
 readarray BuffArr < "$ProjectFile"
 for CurLine in "${BuffArr[@]%$'\n'}"; {
-	if [[ $CurLine == \#\ * ]]; then
-		# Skip user's own comments.
+	if [ "$DoSkipSlide" == 'true' ] || [[ $CurLine == \#\ * ]]; then
 		continue
 	elif [[ $CurLine =~ ^###\  ]]; then
 		if [ "$FirstLineFromBuffArr" == 'true' ]; then
@@ -317,7 +331,9 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 			sleep ${WaitTime}s
 		fi
 
-		clear
+		if ! [ "$DEBUGME" == 'true' ]; then
+			clear
+		fi
 
 		MainLines=1
 		BodyLines=0
@@ -351,8 +367,16 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 				DEBUG "$LINENO" "FieldArray" "$FieldArray"
 				if [ "${FieldArray[0]}" == "SLIDE" ]; then
 					SlideNumber=${FieldArray[1]}
-
 					DEBUG "$LINENO" "SlideNumber" "$SlideNumber"
+
+					if [ -n "$OnlySlide" ]; then
+						if ! [ $SlideNumber -eq $OnlySlide ]; then
+							DEBUG "$LINENO" "Skipping slide number $SlideNumber."
+							continue 2
+						else
+							DEBUG "$LINENO" "Desired slide number $SlideNumber found."
+						fi
+					fi
 				elif [ "${FieldArray[0]}" == "TITLE" ]; then
 					SlideTitle=${FieldArray[1]//\"}
 					DEBUG "$LINENO" "SlideTitle" "$SlideTitle"
@@ -401,7 +425,7 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 			let BodyLines++
 			OldLine=$CurLine
 		else
-			printf "\e[1;31m  ERROR: Line %d is too long!\e[0m\n" $MainLines >&2
+			printf "\e[1;31m  ERROR: Line %d of slide %d is too long!\e[0m\n" $BodyLines $SlideNumber >&2
 		fi
 	fi
 
@@ -416,4 +440,6 @@ else
 	sleep ${WaitTime}s
 fi
 
-clear
+if ! [ "$DEBUGME" == 'true' ]; then
+	clear
+fi
