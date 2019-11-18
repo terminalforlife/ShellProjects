@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Mon 18 Nov 01:57:35 GMT 2019
+# Last Change       - Mon 18 Nov 02:15:55 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -46,6 +46,8 @@ USAGE(){
 		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables debugging information.
 		            --tildes|-T             - Use the EOF tildes like in vim.
+		            --no-header|-N          - Omit the header from each slide.
+		            --borders|-b            - Pretty borders around the header.
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
@@ -69,6 +71,14 @@ while [ "$1" ]; do
 			USETILDES='true'
 
 			DEBUG "$LINENO" "USETILDES" "$USETILDES" ;;
+		--no-header|-N)
+			NOHEADER='true'
+
+			DEBUG "$LINENO" "NOHEADER" "$NOHEADER" ;;
+		--borders|-b)
+			BORDERS='true'
+
+			DEBUG "$LINENO" "BORDERS" "$BORDERS" ;;
 		-*)
 			DEBUG "$LINENO" "1" "$1"
 
@@ -149,7 +159,6 @@ Lines=${LINES:-`tput lines`}
 ColsSubstr=${Cols:$[${#Cols} - 1]:1}
 [[ $ColsSubstr == [13579] ]] && let Cols++
 
-
 DEBUG "$LINENO" "COLUMNS" "$COLUMNS"
 DEBUG "$LINENO" "LINES" "$LINES"
 DEBUG "$LINENO" "Cols" "$Cols"
@@ -187,7 +196,7 @@ Header(){
 	}
 
 	# Handle the header, its title, and its slide counter, with pretty borders.
-	UnderLine '╭' '─' '╮'
+	[ "$BORDERS" == 'true' ] && UnderLine '╭' '─' '╮' || printf "\n"
 	printf -v Title "%#.3d: %s" ${1//[!0-9]} "${2//_/ }"
 
 	TitleLen=${#Title}
@@ -202,8 +211,9 @@ Header(){
 	TitlePush=$TitleEndAlign
 	DEBUG "$LINENO" "TitlePush" "$TitlePush"
 
-	printf "│%*s%*s\n" $[((Cols / 2) + TitleHalf) - 2] "$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
-	UnderLine '╰' '─' '╯'
+	[ "$BORDERS" == 'true' ] && printf "│"
+	printf "%*s%*s\n" $[((Cols / 2) + TitleHalf) - 2] "$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
+	[ "$BORDERS" == 'true' ] && UnderLine '╰' '─' '╯' || printf "\n"
 	printf "\n"
 }
 
@@ -268,7 +278,12 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		}
 
 		# Actually display the header, based on `*.shl` header commands.
-		Header $SlideNumber "$SlideTitle"
+		if ! [ "$NOHEADER" == 'true' ]; then
+			Header $SlideNumber "$SlideTitle"
+		else
+			# Or, if disabled, just ensure a blank line for tidiness.
+			printf "\n"
+		fi
 	elif [[ $CurLine == \#\#\#\ * ]]; then
 		if ! [ "$DEBUGME" == "true" ]; then
 			# Create correct amount of empty lines to keep cursor at the bottom.
