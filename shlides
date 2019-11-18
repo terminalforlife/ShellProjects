@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Sun 17 Nov 23:55:07 GMT 2019
+# Last Change       - Mon 18 Nov 01:52:04 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 #TODO - Check for lines in project file being too long.
 #TODO - Add ability to load multiple slides in one project.
 
-_VERSION_="2019-11-17"
+_VERSION_="2019-11-18"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -161,17 +161,9 @@ DEBUG "$LINENO" "Cols" "$Cols"
 DEBUG "$LINENO" "Lines" "$Lines"
 
 PAKTC(){
-	if ! [ "$DEBUGME" == "true" ]; then
-		clear
-	else
-		DEBUG "$LINENO" "Because of 'DEBUG()', skipping screen clear."
-	fi
-
-	read -sn 1 -p "Press any key to ${1:-continue}... "
+	read -sn 1
 	printf "\n"
 }
-
-#PAKTC "begin"
 
 Header(){
 	DEBUG "$LINENO" "Function 'Header()' called."
@@ -220,21 +212,32 @@ Header(){
 	printf "\n"
 }
 
-# Output and parse lines of body, based on STDIN, and tally up lines.
-while read; do
-	if [[ $REPLY == \#\ * ]]; then
+# Output and parse lines of body.
+readarray BuffArr < "$ProjectFile"
+for CurLine in "${BuffArr[@]%$'\n'}"; {
+	if [[ $CurLine == \#\ * ]]; then
 		# Skip user's own comments.
 		continue
-	elif [[ $REPLY =~ ^###\  ]]; then
+	elif [[ $CurLine =~ ^###\  ]]; then
+		if [ -n "$OldLine" ]; then
+			FAIL 1 "$LINENO" "Line '$BodyLines' is non-empty."
+		fi
+
+		sleep 0.4
+	  	#PAKTC
+		clear
+
 		MainLines=1
+		BodyLines=0
 	fi
 
 	DEBUG "$LINENO" "MainLines" "$MainLines"
 
+	#printf "M%d:" "$MainLines"
 	if [ $MainLines -eq 1 ]; then
 		# Gather header commands (key=value), and catch errors.
 		FieldCount=0
-		for Field in $REPLY; {
+		for Field in $CurLine; {
 			let FieldCount++
 
 			DEBUG "$LINENO" "Field" "$Field"
@@ -246,10 +249,9 @@ while read; do
 				FAIL 1 "$LINENO" "Only one header prefix is required."
 			else
 				unset HeaderPrefixFound
-				#PAKTC 'go to the next slide'
 			fi
 
-			if [[ $Field =~ ^.*=.*$ ]]; then
+			if [[ $Field == *=* ]]; then
 				DEBUG "$LINENO" "Valid field found."
 
 				IFS='=' read -a FieldArray <<< "$Field"
@@ -272,38 +274,41 @@ while read; do
 
 		# Actually display the header, based on `*.shl` header commands.
 		Header $SlideNumber "$SlideTitle"
+	elif [[ $CurLine == \#\#\#\ * ]]; then
+		if ! [ "$DEBUGME" == "true" ]; then
+			# Create correct amount of empty lines to keep cursor at the bottom.
+			Lines2Push=$[Lines - (BodyLines + 3)]
+
+			# For testing with a 2-line prompt.
+			#Lines2Push=$[Lines - (BodyLines + 4)]
+
+			DEBUG "$LINENO" "Lines2Push" "$Lines2Push"
+
+			for ((I=1; I<Lines2Push; I++)); {
+				if [ "$USETILDES" == 'true' ]; then
+					printf "\e[2;37m~\e[0m\n"
+				else
+					printf "\n"
+				fi
+			}
+		fi
 	elif [ $MainLines -eq 2 ]; then
-		if [ -n "$REPLY" ]; then
-			DEBUG "$LINENO" "REPLY" "$REPLY"
+		if [ -n "$CurLine" ]; then
+			DEBUG "$LINENO" "CurLine" "$CurLine"
 
 			FAIL 1 "$LINENO" "Line 2 is non-empty."
 		fi
 	elif [ $MainLines -gt 2 ]; then
 		# Display the body of the current slide.
-		if ! [ ${#REPLY} -gt $Cols ]; then
-			printf "  %s\n" "$REPLY"
+		if ! [ ${#CurLine} -gt $[Cols - 5] ]; then
+			#printf "B%d" "$BodyLines"
+			printf "  %s\n" "$CurLine"
+			let BodyLines++
+			OldLine=$CurLine
 		else
 			printf "\e[1;31m  ERROR: Line %d is too long!\e[0m\n" $MainLines >&2
 		fi
 	fi
 
 	let MainLines++
-done < "$ProjectFile"
-
-#if ! [ "$DEBUGME" == "true" ]; then
-#	# Create correct amount of empty lines to keep cursor at the bottom.
-#	Lines2Push=$[Lines - (MainLines + 3)]
-#
-#	# For testing with a 2-line prompt.
-#	Lines2Push=$[Lines - (MainLines + 4)]
-#
-#	DEBUG "$LINENO" "Lines2Push" "$Lines2Push"
-#
-#	for ((I=1; I<Lines2Push; I++)); {
-#		if [ "$USETILDES" == 'true' ]; then
-#			printf "\e[2;37m~\e[0m\n"
-#		else
-#			printf "\n"
-#		fi
-#	}
-#fi
+}
