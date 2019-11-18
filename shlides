@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Mon 18 Nov 02:15:55 GMT 2019
+# Last Change       - Mon 18 Nov 03:52:55 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -45,6 +45,7 @@ USAGE(){
 		            --version|-v            - Output only the version datestamp.
 		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables debugging information.
+		            --interactive|-i        - Wait for the user to press a key.
 		            --tildes|-T             - Use the EOF tildes like in vim.
 		            --no-header|-N          - Omit the header from each slide.
 		            --borders|-b            - Pretty borders around the header.
@@ -67,6 +68,10 @@ while [ "$1" ]; do
 			DEBUGME='true'
 
 			DEBUG "$LINENO" "DEBUGME" "$DEBUGME" ;;
+		--interactive|-i)
+			INTERACTIVE='true'
+
+			DEBUG "$LINENO" "INTERACTIVE" "$INTERACTIVE" ;;
 		--tildes|-T)
 			USETILDES='true'
 
@@ -196,7 +201,6 @@ Header(){
 	}
 
 	# Handle the header, its title, and its slide counter, with pretty borders.
-	[ "$BORDERS" == 'true' ] && UnderLine '╭' '─' '╮' || printf "\n"
 	printf -v Title "%#.3d: %s" ${1//[!0-9]} "${2//_/ }"
 
 	TitleLen=${#Title}
@@ -211,25 +215,78 @@ Header(){
 	TitlePush=$TitleEndAlign
 	DEBUG "$LINENO" "TitlePush" "$TitlePush"
 
-	[ "$BORDERS" == 'true' ] && printf "│"
-	printf "%*s%*s\n" $[((Cols / 2) + TitleHalf) - 2] "$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
-	[ "$BORDERS" == 'true' ] && UnderLine '╰' '─' '╯' || printf "\n"
+	if [ "$BORDERS" == 'true' ]; then
+		UnderLine '╭' '─' '╮'
+
+		printf "│"
+		printf "%*s%*s\n" $[((Cols / 2) + TitleHalf) - 2]\
+			"$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
+
+		UnderLine '╰' '─' '╯' || printf "\n"
+	else
+		printf "\n%*s\n" $[((Cols / 2) + TitleHalf) - 2] "$Title"
+	fi
+
 	printf "\n"
 }
 
+PushLines(){
+	# Keep cursor at the bottom of the screen.
+	#Lines2Push=$[Lines - (BodyLines + 4)]
+	Lines2Push=$1
+	for ((I=1; I<Lines2Push; I++)); {
+		if [ "$USETILDES" == 'true' ]; then
+			printf "\e[2;37m~\e[0m\n"
+		else
+			printf "\n"
+		fi
+	}
+}
+
+clear
+
+while read; do
+	printf "%s\n" "$REPLY"
+done <<-EOF
+
+	  Project started!
+
+	    FILE: $ProjectFile
+	    USER: $USER ($UID)
+	    HOST: ${HOSTNAME:-$HOST}
+	    DATE: `printf '%(%F %X)T' -1`
+
+EOF
+
+printf '  Press any key to begin... '
+
 # Output and parse lines of body.
+FirstLineFromBuffArr='false'
 readarray BuffArr < "$ProjectFile"
 for CurLine in "${BuffArr[@]%$'\n'}"; {
 	if [[ $CurLine == \#\ * ]]; then
 		# Skip user's own comments.
 		continue
 	elif [[ $CurLine =~ ^###\  ]]; then
-		if [ -n "$OldLine" ]; then
-			FAIL 1 "$LINENO" "Line '$BodyLines' is non-empty."
+		if [ "$FirstLineFromBuffArr" == 'true' ]; then
+			FirstLineFromBuffArr='true'
+		else
+			PushLines $[(Lines - BodyLines) - 8]
+			unset FirstLineFromBuffArr
 		fi
 
-		sleep 0.4
-	  	#PAKTC
+		if [ -n "$OldLine" ]; then
+			FAIL 1 "$LINENO" "Line '$BodyLines' is non-empty."
+		elif [ ${BodyLines:-0} -gt $[Lines - 9] ]; then
+			printf "\e[1;31m  ERROR: Too many lines in body!\e[0m\n" >&2
+		fi
+
+		if [ "$INTERACTIVE" == 'true' ]; then
+	  		PAKTC
+		else
+			sleep 0.3
+		fi
+
 		clear
 
 		MainLines=1
@@ -284,24 +341,6 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 			# Or, if disabled, just ensure a blank line for tidiness.
 			printf "\n"
 		fi
-	elif [[ $CurLine == \#\#\#\ * ]]; then
-		if ! [ "$DEBUGME" == "true" ]; then
-			# Create correct amount of empty lines to keep cursor at the bottom.
-			Lines2Push=$[Lines - (BodyLines + 3)]
-
-			# For testing with a 2-line prompt.
-			#Lines2Push=$[Lines - (BodyLines + 4)]
-
-			DEBUG "$LINENO" "Lines2Push" "$Lines2Push"
-
-			for ((I=1; I<Lines2Push; I++)); {
-				if [ "$USETILDES" == 'true' ]; then
-					printf "\e[2;37m~\e[0m\n"
-				else
-					printf "\n"
-				fi
-			}
-		fi
 	elif [ $MainLines -eq 2 ]; then
 		if [ -n "$CurLine" ]; then
 			DEBUG "$LINENO" "CurLine" "$CurLine"
@@ -312,7 +351,23 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		# Display the body of the current slide.
 		if ! [ ${#CurLine} -gt $[Cols - 5] ]; then
 			#printf "B%d" "$BodyLines"
-			printf "  %s\n" "$CurLine"
+
+			if [ "$BORDERS" == 'true' ]; then
+				if [ $BodyLines -eq 0 ]; then
+					printf "╿ %s" "$CurLine"
+				else
+					printf "│ %s" "$CurLine"
+				fi
+
+				if [ $BodyLines -eq 0 ]; then
+					printf "%*s\n" $[($Cols - ${#CurLine}) - 1] "╿"
+				else
+					printf "%*s\n" $[($Cols - ${#CurLine}) - 1] "│"
+				fi
+			else
+				printf "  %s\n" "$CurLine"
+			fi
+
 			let BodyLines++
 			OldLine=$CurLine
 		else
@@ -322,3 +377,13 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 
 	let MainLines++
 }
+
+PushLines $[(Lines - BodyLines) - 4]
+
+if [ "$INTERACTIVE" == 'true' ]; then
+	PAKTC
+else
+	sleep 0.3
+fi
+
+clear
