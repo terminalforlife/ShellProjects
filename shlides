@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Wed 20 Nov 14:31:09 GMT 2019
+# Last Change       - Wed 20 Nov 16:49:07 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -207,8 +207,8 @@ else
 	FAIL 1 "$LINENO" "Project file missing or unreadable."
 fi
 
-RED=`tput setaf 1`; BLUE=`tput setaf 4`; GREEN=`tput setaf 3`
-BOLD=`tput bold` WHITE=`tput setaf 7`; YELLOW=`tput setaf 2`
+RED=`tput setaf 1`; BLUE=`tput setaf 4`; GREEN=`tput setaf 2`
+BOLD=`tput bold` WHITE=`tput setaf 7`; YELLOW=`tput setaf 3`
 GREY=`tput setaf 0` NORM=`tput cnorm`
 
 PAKTC(){
@@ -295,23 +295,23 @@ Footer(){
 	DEBUG "$LINENO" "2" "$2"
 	DEBUG "$LINENO" "3" "$3"
 
-	FooterTextHalf=$[${#Title} / 2]
-	FooterTextEndAlign=$[(Cols - ${#Title}) + 1]
-	FooterTextPush=$TitleEndAlign
-
-	DEBUG "$LINENO" "FooterTextHalf" "$FooterTextHalf"
-	DEBUG "$LINENO" "FooterTextEndAlign" "$FooterTextEndAlign"
-	DEBUG "$LINENO" "FooterTextPush" "$FooterTextPush"
-
 	if [ "$BORDERS" == 'true' ]; then
 		UnderLine '╭' '─' '╮'
 
-		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber ⟐ BODY: L$[Cols - 2] C$[Lines - 8] "
-		FooterTextRight="USER: $USER ⟐ UID: $UID ⟐ HOST: $HOSTNAME"
-		tput cup $Lines
-		printf "│ $FooterTextLeft"
-		tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
-		printf "$FooterTextRight │"
+		# Combined, the Left and Right variables can handle another ~25 spaces, if
+		# the terminal session's columns available is at 95.
+		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber "
+		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] ⟐ HOST: $HOSTNAME"
+
+		if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
+			tput cup $Lines
+			printf "│ $FooterTextLeft"
+			tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
+			printf "$FooterTextRight │"
+		else
+			tput clear
+			FAIL 1 "$LINENO" "Insufficent space for the footer."
+		fi
 
 		UnderLine '╰' '─' '╯' || printf "\n"
 	else
@@ -325,15 +325,19 @@ Footer(){
 if ! [ "$SKIPSTART" == 'true' ]; then
 	tput cup $[(Lines / 2) - 1]
 	Text="Presentation created with shlides, version $_VERSION_."
-	printf "%*s" $[(Cols / 2) + (${#Text} / 2)] "$Text"
+	printf "${RED}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 
-	tput cup $[Lines / 2]
+	tput cup $[(Lines / 2) - 0]
 	Text="Written by 'terminalforlife', also known as 'Learn Linux'."
-	printf "%*s" $[(Cols / 2) + (${#Text} / 2)] "$Text"
+	printf "${YELLOW}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 
-	tput cup $[(Lines / 2) + 2]
+	tput cup $[(Lines / 2) + 1]
+	Text="Licensed under the 'GNU General Public License v3.0'."
+	printf "${YELLOW}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
+
+	tput cup $[(Lines / 2) + 3]
 	Text="https://github.com/terminalforlife"
-	printf "%*s" $[(Cols / 2) + (${#Text} / 2)] "$Text"
+	printf "${WHITE}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 fi
 
 # Output and parse lines of body.
