@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Wed 20 Nov 13:08:17 GMT 2019
+# Last Change       - Wed 20 Nov 14:31:09 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -49,7 +49,8 @@ USAGE(){
 		            --debug|-D              - Enables debugging information.
 		            --interactive|-i        - Wait for the user to press a key.
 		            --tildes|-T             - Use the EOF tildes like in vim.
-		            --no-header|-N          - Omit the header from each slide.
+		            --no-header             - Omit the header from each slide.
+		            --no-footer             - Omit the footer from each slide.
 		            --borders|-b            - Pretty borders around the header.
 		            --wait|-w INT           - Wait INT second(s) between slides.
 		            --skip-start|-s         - Skip the message at project start.
@@ -60,6 +61,8 @@ USAGE(){
 }
 
 WaitTime=0.1
+EffectDelay=0.03
+ScrollEffect='true'
 
 while [ "$1" ]; do
 	case $1 in
@@ -83,10 +86,14 @@ while [ "$1" ]; do
 			USETILDES='true'
 
 			DEBUG "$LINENO" "USETILDES" "$USETILDES" ;;
-		--no-header|-N)
+		--no-header)
 			NOHEADER='true'
 
 			DEBUG "$LINENO" "NOHEADER" "$NOHEADER" ;;
+		--no-footer)
+			NOFOOTER='true'
+
+			DEBUG "$LINENO" "NOFOOTER" "$NOFOOTER" ;;
 		--borders|-b)
 			BORDERS='true'
 
@@ -299,7 +306,7 @@ Footer(){
 	if [ "$BORDERS" == 'true' ]; then
 		UnderLine '╭' '─' '╮'
 
-		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber"
+		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber ⟐ BODY: L$[Cols - 2] C$[Lines - 8] "
 		FooterTextRight="USER: $USER ⟐ UID: $UID ⟐ HOST: $HOSTNAME"
 		tput cup $Lines
 		printf "│ $FooterTextLeft"
@@ -314,23 +321,19 @@ Footer(){
 
 [ "$DEBUGME" == 'true' ] || tput clear
 
+# Short, optional introduction of shlides.
 if ! [ "$SKIPSTART" == 'true' ]; then
-	while read; do
-		printf "%s\n" "$REPLY"
-	done <<-EOF
+	tput cup $[(Lines / 2) - 1]
+	Text="Presentation created with shlides, version $_VERSION_."
+	printf "%*s" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 
-		  Project started!
+	tput cup $[Lines / 2]
+	Text="Written by 'terminalforlife', also known as 'Learn Linux'."
+	printf "%*s" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 
-		    FILE: $ProjectFile
-		    USER: $USER ($UID)
-		    HOST: ${HOSTNAME:-$HOST}
-		    DATE: `printf '%(%F %X)T' -1`
-
-	EOF
-fi
-
-if [ "$INTERACTIVE" == 'true' ]; then
-	printf '\n  Press any key to begin... '
+	tput cup $[(Lines / 2) + 2]
+	Text="https://github.com/terminalforlife"
+	printf "%*s" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 fi
 
 # Output and parse lines of body.
@@ -343,6 +346,7 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		if [ "$FirstLineFromBuffArr" == 'true' ]; then
 			FirstLineFromBuffArr='true'
 		else
+			let BodyLines--
 			CursorDown
 			unset FirstLineFromBuffArr
 		fi
@@ -350,9 +354,9 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		if [ -n "$OldLine" ]; then
 			tput clear
 			FAIL 1 "$LINENO" "Line '$BodyLines' is non-empty."
-		elif [ ${BodyLines:-0} -gt $[Lines - 9] ]; then
+		elif [ ${BodyLines:-0} -gt $[Lines - 8] ]; then
 			tput clear
-			FAIL 1 "$LINENO" "Line overflow ($BodyLines/$Lines) in the body of slide $SlideNumber."
+			FAIL 1 "$LINENO" "Line overflow ($BodyLines/$[Lines - 8]) in the body of slide $SlideNumber."
 		fi
 
 		if [ "$INTERACTIVE" == 'true' ]; then
@@ -427,10 +431,10 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 			printf "\n"
 		fi
 
-		Footer
+		[ "$NOFOOTER" == 'true' ] || Footer
 		CursorDown 4 0
 	elif [ $MainLines -eq 2 ]; then
-		printf "│%*s" $[$Cols - ${#CurLine}] "│"
+		#printf "│%*s" $[$Cols - ${#CurLine}] "│"
 		if [ -n "$CurLine" ]; then
 			DEBUG "$LINENO" "CurLine" "$CurLine"
 
@@ -440,15 +444,8 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 	elif [ $MainLines -gt 2 ]; then
 		# Display the body of the current slide.
 		if ! [ ${#CurLine} -gt $[Cols - 5] ]; then
-			#printf "B%d" "$BodyLines"
-
-			#TODO - Right border is mis-aligned.
-			if [ "$BORDERS" == 'true' ]; then
-				printf "│ %s" "$CurLine"
-				printf "%*s\n" $[($Cols - ${#CurLine}) - 1] "│"
-			else
-				printf "  %s\n" "$CurLine"
-			fi
+			[ "$ScrollEffect" == 'true' ] && sleep $EffectDelay
+			printf "  %s\n" "$CurLine"
 
 			let BodyLines++
 			OldLine=$CurLine
