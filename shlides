@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Wed 20 Nov 08:16:01 GMT 2019
+# Last Change       - Wed 20 Nov 13:08:17 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ USAGE(){
 	EOF
 }
 
-WaitTime=30
+WaitTime=0.1
 
 while [ "$1" ]; do
 	case $1 in
@@ -194,58 +194,68 @@ elif [ -f "$1" ] && [ -r "$1" ]; then
 	if [ $# -gt 0 ]; then
 		FAIL 1 "$LINENO" "Only one project may run at a time."
 	fi
+elif [[ "$1" ]]; then
+	FAIL 1 "$LINENO" "A project file wasn't provided."
 else
 	FAIL 1 "$LINENO" "Project file missing or unreadable."
 fi
 
-Cols=${COLUMNS:-`tput cols`}
-Lines=${LINES:-`tput lines`}
-ColsSubstr=${Cols:$[${#Cols} - 1]:1}
-[[ $ColsSubstr == [13579] ]] && let Cols++
-
-DEBUG "$LINENO" "COLUMNS" "$COLUMNS"
-DEBUG "$LINENO" "LINES" "$LINES"
-DEBUG "$LINENO" "Cols" "$Cols"
-DEBUG "$LINENO" "Lines" "$Lines"
+RED=`tput setaf 1`; BLUE=`tput setaf 4`; GREEN=`tput setaf 3`
+BOLD=`tput bold` WHITE=`tput setaf 7`; YELLOW=`tput setaf 2`
+GREY=`tput setaf 0` NORM=`tput cnorm`
 
 PAKTC(){
 	read -sn 1
 	printf "\n"
 }
 
+Cols=${COLUMNS:-`tput cols`}
+Lines=${LINES:-`tput lines`}
+
+DEBUG "$LINENO" "COLUMNS" "$COLUMNS"
+DEBUG "$LINENO" "LINES" "$LINES"
+DEBUG "$LINENO" "Cols" "$Cols"
+DEBUG "$LINENO" "Lines" "$Lines"
+
+# Ensure column and line counts are updated, even after window resizing.
+trap 'Cols=${COLUMNS:-`tput cols`}; Lines=${LINES:-`tput lines`}' WINCH
+
+# Function for handling the correct number of line characters.
+UnderLine(){
+	DEBUG "$LINENO" "Function 'UnderLine()' called."
+	DEBUG "$LINENO" "1" "$1"
+	DEBUG "$LINENO" "2" "$2"
+	DEBUG "$LINENO" "3" "$3"
+
+	for ((I=1; I<Cols; I++)); {
+		if [ $I -eq 1 ]; then
+			printf "%s" ${1:0:1}
+		elif [ $I -eq $((Cols - 1)) ]; then
+			printf "%s" ${3:0:1}
+		else
+			printf "%s" ${2:0:1}
+		fi
+	}
+}
+
 Header(){
+	printf "\n" # <-- Fixes weird missing line 1 bug in header.
+
+	ColsSubstr=${Cols:$[${#Cols} - 1]:1}
+	[[ $ColsSubstr == [13579] ]] && let Cols++
+
 	DEBUG "$LINENO" "Function 'Header()' called."
 	DEBUG "$LINENO" "1" "$1"
 	DEBUG "$LINENO" "2" "$2"
 	DEBUG "$LINENO" "3" "$3"
 
-	# Function for handling the correct number of line characters.
-	UnderLine(){
-		DEBUG "$LINENO" "Function 'UnderLine()' called."
-		DEBUG "$LINENO" "1" "$1"
-		DEBUG "$LINENO" "2" "$2"
-		DEBUG "$LINENO" "3" "$3"
-
-		for ((I=1; I<Cols; I++)); {
-			if [ $I -eq 1 ]; then
-				printf "%s" ${1:0:1}
-			elif [ $I -eq $((Cols - 1)) ]; then
-				printf "%s" ${3:0:1}
-			else
-				printf "%s" ${2:0:1}
-			fi
-		}
-
-		printf "\n"
-	}
-
 	# Handle the header, its title, and its slide counter, with pretty borders.
-	printf -v Title "%#.3d: %s" ${1//[!0-9]} "${2//_/ }"
-
+	Title="'${2//_/ }'"
 	TitleHalf=$[${#Title} / 2]
 	TitleEndAlign=$[(Cols - ${#Title}) + 1]
 	TitlePush=$TitleEndAlign
 
+	DEBUG "$LINENO" "Title" "$Title"
 	DEBUG "$LINENO" "TitleHalf" "$TitleHalf"
 	DEBUG "$LINENO" "TitleEndAlign" "$TitleEndAlign"
 	DEBUG "$LINENO" "TitlePush" "$TitlePush"
@@ -253,27 +263,56 @@ Header(){
 	if [ "$BORDERS" == 'true' ]; then
 		UnderLine '╭' '─' '╮'
 
-		printf "│"
-		printf "%*s%*s\n" $[((Cols / 2) + TitleHalf) - 2]\
+		printf "%s%*s%*s\n" '│' $[((Cols / 2) + TitleHalf) - 2]\
 			"$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
 
-		UnderLine '╰' '─' '╯' || printf "\n"
+		UnderLine '╰' '─' '╯'
 	else
-		printf "\n%*s\n" $[((Cols / 2) + TitleHalf) - 2] "$Title"
+		printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
 	fi
-
-	printf "\n"
 }
 
 CursorDown(){
-	[ "$DEBUGME" == 'true' ] && return 0
-
-	tput cup $Lines $Cols
+	[ "$DEBUGME" == 'true' ] || tput cup ${1:-$Lines} ${2:-$Cols}
 }
 
-if ! [ "$DEBUGME" == 'true' ]; then
-	clear
-fi
+Footer(){
+	CursorDown $[Lines - 3] $Cols
+	printf " " # <-- Seems to correct mis-algnment.
+
+	ColsSubstr=${Cols:$[${#Cols} - 1]:1}
+	[[ $ColsSubstr == [13579] ]] && let Cols++
+
+	DEBUG "$LINENO" "Function 'Footer()' called."
+	DEBUG "$LINENO" "1" "$1"
+	DEBUG "$LINENO" "2" "$2"
+	DEBUG "$LINENO" "3" "$3"
+
+	FooterTextHalf=$[${#Title} / 2]
+	FooterTextEndAlign=$[(Cols - ${#Title}) + 1]
+	FooterTextPush=$TitleEndAlign
+
+	DEBUG "$LINENO" "FooterTextHalf" "$FooterTextHalf"
+	DEBUG "$LINENO" "FooterTextEndAlign" "$FooterTextEndAlign"
+	DEBUG "$LINENO" "FooterTextPush" "$FooterTextPush"
+
+	if [ "$BORDERS" == 'true' ]; then
+		UnderLine '╭' '─' '╮'
+
+		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber"
+		FooterTextRight="USER: $USER ⟐ UID: $UID ⟐ HOST: $HOSTNAME"
+		tput cup $Lines
+		printf "│ $FooterTextLeft"
+		tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
+		printf "$FooterTextRight │"
+
+		UnderLine '╰' '─' '╯' || printf "\n"
+	else
+		printf "\n%*s\n" $[((Cols / 2) + FooterTextHalf) - 2] "$Title"
+	fi
+}
+
+[ "$DEBUGME" == 'true' ] || tput clear
 
 if ! [ "$SKIPSTART" == 'true' ]; then
 	while read; do
@@ -309,9 +348,11 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		fi
 
 		if [ -n "$OldLine" ]; then
+			tput clear
 			FAIL 1 "$LINENO" "Line '$BodyLines' is non-empty."
 		elif [ ${BodyLines:-0} -gt $[Lines - 9] ]; then
-			printf "\e[1;31m  ERROR: Too many lines in body!\e[0m\n" >&2
+			tput clear
+			FAIL 1 "$LINENO" "Line overflow ($BodyLines/$Lines) in the body of slide $SlideNumber."
 		fi
 
 		if [ "$INTERACTIVE" == 'true' ]; then
@@ -320,9 +361,7 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 			sleep ${WaitTime}s
 		fi
 
-		if ! [ "$DEBUGME" == 'true' ]; then
-			clear
-		fi
+		[ "$DEBUGME" == 'true' ] || tput clear
 
 		MainLines=1
 		BodyLines=0
@@ -343,6 +382,7 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 				HeaderPrefixFound='true'
 				continue
 			elif [ "$HeaderPrefixFound" == 'true' -a "$Field" == '###' ]; then
+				tput clear
 				FAIL 1 "$LINENO" "Only one header prefix is required."
 			else
 				unset HeaderPrefixFound
@@ -370,9 +410,11 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 					SlideTitle=${FieldArray[1]//\"}
 					DEBUG "$LINENO" "SlideTitle" "$SlideTitle"
 				else
+					tput clear
 					FAIL 1 "$LINENO" "Invalid header command at field $FieldCount."
 				fi
 			else
+				tput clear
 				FAIL 1 "$LINENO" "Invalid header field at position $FieldCount."
 			fi
 		}
@@ -384,10 +426,15 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 			# Or, if disabled, just ensure a blank line for tidiness.
 			printf "\n"
 		fi
+
+		Footer
+		CursorDown 4 0
 	elif [ $MainLines -eq 2 ]; then
+		printf "│%*s" $[$Cols - ${#CurLine}] "│"
 		if [ -n "$CurLine" ]; then
 			DEBUG "$LINENO" "CurLine" "$CurLine"
 
+			tput clear
 			FAIL 1 "$LINENO" "Line 2 is non-empty."
 		fi
 	elif [ $MainLines -gt 2 ]; then
@@ -395,18 +442,10 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		if ! [ ${#CurLine} -gt $[Cols - 5] ]; then
 			#printf "B%d" "$BodyLines"
 
+			#TODO - Right border is mis-aligned.
 			if [ "$BORDERS" == 'true' ]; then
-				if [ $BodyLines -eq 0 ]; then
-					printf "╿ %s" "$CurLine"
-				else
-					printf "│ %s" "$CurLine"
-				fi
-
-				if [ $BodyLines -eq 0 ]; then
-					printf "%*s\n" $[($Cols - ${#CurLine}) - 1] "╿"
-				else
-					printf "%*s\n" $[($Cols - ${#CurLine}) - 1] "│"
-				fi
+				printf "│ %s" "$CurLine"
+				printf "%*s\n" $[($Cols - ${#CurLine}) - 1] "│"
 			else
 				printf "  %s\n" "$CurLine"
 			fi
@@ -414,7 +453,8 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 			let BodyLines++
 			OldLine=$CurLine
 		else
-			printf "\e[1;31m  ERROR: Line %d of slide %d is too long!\e[0m\n" $BodyLines $SlideNumber >&2
+			tput clear
+			FAIL 1 "$LINENO" "Line $BodyLines of slide $SlideNumber is too long."
 		fi
 	fi
 
@@ -429,6 +469,4 @@ else
 	sleep ${WaitTime}s
 fi
 
-if ! [ "$DEBUGME" == 'true' ]; then
-	clear
-fi
+[ "$DEBUGME" == 'true' ] || tput clear
