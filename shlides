@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Wed 20 Nov 16:49:07 GMT 2019
+# Last Change       - Wed 20 Nov 22:53:54 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,8 +18,12 @@ FAIL(){
 	[ $1 -eq 1 ] && exit 1
 }
 
+BASHDEBUG='false'
+
 DEBUG(){
-	if [ "$DEBUGME" == "true" ]; then
+	if [ "$BASHDEBUG" == 'true' ]; then
+		set -x
+	elif [ "$DEBUGME" == "true" ]; then
 		if [ $# -eq 3 ]; then
 			printf "[L%0.4d] DEBUG(\$%s): '%s'\n" "$1" "$2" "$3"
 		elif [ $# -eq 2 ]; then
@@ -51,18 +55,17 @@ USAGE(){
 		            --tildes|-T             - Use the EOF tildes like in vim.
 		            --no-header             - Omit the header from each slide.
 		            --no-footer             - Omit the footer from each slide.
+		            --effect|-e             - Apply a downward sweeping effect.
 		            --borders|-b            - Pretty borders around the header.
 		            --wait|-w INT           - Wait INT second(s) between slides.
 		            --skip-start|-s         - Skip the message at project start.
-		            --only-slide|-o INT     - Show only slide INT; ideal for testing.
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
 }
 
-WaitTime=0.1
+WaitTime=0.5
 EffectDelay=0.03
-ScrollEffect='true'
 
 while [ "$1" ]; do
 	case $1 in
@@ -94,6 +97,10 @@ while [ "$1" ]; do
 			NOFOOTER='true'
 
 			DEBUG "$LINENO" "NOFOOTER" "$NOFOOTER" ;;
+		--effect|-e)
+			EFFECT='true'
+
+			DEBUG "$LINENO" "EFFECT" "$EFFECT" ;;
 		--borders|-b)
 			BORDERS='true'
 
@@ -114,16 +121,6 @@ while [ "$1" ]; do
 			SKIPSTART='true'
 
 			DEBUG "$LINENO" "SKIPSTART" "$SKIPSTART" ;;
-		--only-slide|-o)
-			shift
-
-			if [[ $1 =~ ^[0-9]+$ ]]; then
-				OnlySlide=$1
-
-				DEBUG "$LINENO" "OnlySlide" "$OnlySlide"
-			else
-				FAIL 1 "$LINENO" "Specified wait time is invalid."
-			fi ;;
 		-*)
 			DEBUG "$LINENO" "1" "$1"
 
@@ -143,8 +140,12 @@ done
 
 if [ "$WAIT" == 'true' -a "$INTERACTIVE" == 'true' ]; then
 	FAIL 1 "$LINENO" "Either '--wait|-w' or '--interactive|-i', not both."
-elif [ "$NOHEADER" == 'true' -a "$BORDERS" == 'true' ]; then
-	FAIL 1 "$LINENO" "Option '--borders|-b' used but headers disabled."
+elif [ "$BORDERS" == 'true' ]; then
+	if [ "$NOHEADER" == 'true' ]; then
+		FAIL 1 "$LINENO" "Option '--borders|-b' used but header disabled."
+	elif [ "$NOFOOTER" == 'true' ]; then
+		FAIL 1 "$LINENO" "Option '--borders|-b' used but footer disabled."
+	fi
 fi
 
 DEBUG "$LINENO" "Checking for 'tput' PATH executable."
@@ -256,26 +257,31 @@ Header(){
 	DEBUG "$LINENO" "2" "$2"
 	DEBUG "$LINENO" "3" "$3"
 
-	# Handle the header, its title, and its slide counter, with pretty borders.
 	Title="'${2//_/ }'"
-	TitleHalf=$[${#Title} / 2]
-	TitleEndAlign=$[(Cols - ${#Title}) + 1]
-	TitlePush=$TitleEndAlign
 
-	DEBUG "$LINENO" "Title" "$Title"
-	DEBUG "$LINENO" "TitleHalf" "$TitleHalf"
-	DEBUG "$LINENO" "TitleEndAlign" "$TitleEndAlign"
-	DEBUG "$LINENO" "TitlePush" "$TitlePush"
+	if [ -n "${Title//\'}" ]; then
+		TitleHalf=$[${#Title} / 2]
+		TitleEndAlign=$[(Cols - ${#Title}) + 1]
+		TitlePush=$TitleEndAlign
 
-	if [ "$BORDERS" == 'true' ]; then
-		UnderLine '╭' '─' '╮'
+		DEBUG "$LINENO" "Title" "$Title"
+		DEBUG "$LINENO" "TitleHalf" "$TitleHalf"
+		DEBUG "$LINENO" "TitleEndAlign" "$TitleEndAlign"
+		DEBUG "$LINENO" "TitlePush" "$TitlePush"
 
-		printf "%s%*s%*s\n" '│' $[((Cols / 2) + TitleHalf) - 2]\
-			"$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
+		if [ "$BORDERS" == 'true' ]; then
+			UnderLine '╭' '─' '╮'
 
-		UnderLine '╰' '─' '╯'
+			printf "%s%*s%*s\n" '│' $[((Cols / 2) + TitleHalf) - 2]\
+				"$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
+
+			UnderLine '╰' '─' '╯'
+		else
+			printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
+		fi
 	else
-		printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
+		tput clear
+		FAIL 1 "$LINENO" "Slide $SlideNumber has no header title."
 	fi
 }
 
@@ -309,13 +315,24 @@ Footer(){
 			tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
 			printf "$FooterTextRight │"
 		else
-			tput clear
+			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Insufficent space for the footer."
 		fi
 
 		UnderLine '╰' '─' '╯' || printf "\n"
 	else
-		printf "\n%*s\n" $[((Cols / 2) + FooterTextHalf) - 2] "$Title"
+		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber "
+		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] ⟐ HOST: $HOSTNAME"
+
+		if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
+			tput cup $Lines
+			printf "  $FooterTextLeft"
+			tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
+			printf "$FooterTextRight  "
+		else
+			[ "$DEBUGME" == 'true' ] || tput clear
+			FAIL 1 "$LINENO" "Insufficent space for the footer."
+		fi
 	fi
 }
 
@@ -350,16 +367,15 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		if [ "$FirstLineFromBuffArr" == 'true' ]; then
 			FirstLineFromBuffArr='true'
 		else
-			let BodyLines--
 			CursorDown
 			unset FirstLineFromBuffArr
 		fi
 
 		if [ -n "$OldLine" ]; then
-			tput clear
+			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Line '$BodyLines' is non-empty."
 		elif [ ${BodyLines:-0} -gt $[Lines - 8] ]; then
-			tput clear
+			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Line overflow ($BodyLines/$[Lines - 8]) in the body of slide $SlideNumber."
 		fi
 
@@ -390,7 +406,7 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 				HeaderPrefixFound='true'
 				continue
 			elif [ "$HeaderPrefixFound" == 'true' -a "$Field" == '###' ]; then
-				tput clear
+				[ "$DEBUGME" == 'true' ] || tput clear
 				FAIL 1 "$LINENO" "Only one header prefix is required."
 			else
 				unset HeaderPrefixFound
@@ -405,56 +421,47 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 				if [ "${FieldArray[0]}" == "SLIDE" ]; then
 					SlideNumber=${FieldArray[1]}
 					DEBUG "$LINENO" "SlideNumber" "$SlideNumber"
-
-					if [ -n "$OnlySlide" ]; then
-						if ! [ $SlideNumber -eq $OnlySlide ]; then
-							DEBUG "$LINENO" "Skipping slide number $SlideNumber."
-							continue 2
-						else
-							DEBUG "$LINENO" "Desired slide number $SlideNumber found."
-						fi
-					fi
 				elif [ "${FieldArray[0]}" == "TITLE" ]; then
 					SlideTitle=${FieldArray[1]//\"}
 					DEBUG "$LINENO" "SlideTitle" "$SlideTitle"
 				else
-					tput clear
+					[ "$DEBUGME" == 'true' ] || tput clear
 					FAIL 1 "$LINENO" "Invalid header command at field $FieldCount."
 				fi
 			else
-				tput clear
+				[ "$DEBUGME" == 'true' ] || tput clear
 				FAIL 1 "$LINENO" "Invalid header field at position $FieldCount."
 			fi
 		}
 
 		# Actually display the header, based on `*.shl` header commands.
-		if ! [ "$NOHEADER" == 'true' ]; then
-			Header $SlideNumber "$SlideTitle"
-		else
-			# Or, if disabled, just ensure a blank line for tidiness.
+		if [ "$NOHEADER" == 'true' ]; then
+			# If disabled, just ensure a blank line for tidiness.
 			printf "\n"
+		else
+			Header $SlideNumber "$SlideTitle"
 		fi
 
 		[ "$NOFOOTER" == 'true' ] || Footer
 		CursorDown 4 0
 	elif [ $MainLines -eq 2 ]; then
-		#printf "│%*s" $[$Cols - ${#CurLine}] "│"
 		if [ -n "$CurLine" ]; then
 			DEBUG "$LINENO" "CurLine" "$CurLine"
 
-			tput clear
+			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Line 2 is non-empty."
 		fi
 	elif [ $MainLines -gt 2 ]; then
 		# Display the body of the current slide.
 		if ! [ ${#CurLine} -gt $[Cols - 5] ]; then
-			[ "$ScrollEffect" == 'true' ] && sleep $EffectDelay
+			[ "$EFFECT" == 'true' ] && sleep $EffectDelay
+
 			printf "  %s\n" "$CurLine"
 
 			let BodyLines++
 			OldLine=$CurLine
 		else
-			tput clear
+			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Line $BodyLines of slide $SlideNumber is too long."
 		fi
 	fi
