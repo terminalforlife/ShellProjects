@@ -3,12 +3,10 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Thu 21 Nov 22:05:33 GMT 2019
+# Last Change       - Thu 21 Nov 22:52:57 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-
-#TODO - Catch executing shlides on a non-shlides file.
 
 _VERSION_="2019-11-21"
 _PROJECT_="${0##*/}"
@@ -58,6 +56,7 @@ USAGE(){
 		            --no-footer             - Omit the footer from each slide.
 		            --effect|-e             - Apply a downward sweeping effect.
 		            --borders|-b            - Pretty borders around the header.
+		            --ascii|-A              - Interface uses only ASCII characters.
 		            --wait|-w INT           - Wait INT second(s) between slides.
 		            --skip-start|-s         - Skip the message at project start.
 
@@ -112,6 +111,10 @@ while [ "$1" ]; do
 			BORDERS='true'
 
 			DEBUG "$LINENO" "BORDERS" "$BORDERS" ;;
+		--ascii|-A)
+			ASCII='true'
+
+			DEBUG "$LINENO" "ASCII" "$ASCII" ;;
 		--wait|-w)
 			shift
 
@@ -219,6 +222,14 @@ RED=`tput setaf 1`; BLUE=`tput setaf 4`; GREEN=`tput setaf 2`
 BOLD=`tput bold` WHITE=`tput setaf 7`; YELLOW=`tput setaf 3`
 GREY=`tput setaf 0` NORM=`tput cnorm`
 
+if ! [ "$ASCII" == 'true' ]; then
+	BP='⟐' # <-- Non-ASCII Bullet Point.
+	SB='│' # <-- Non-ASCII Side Border.
+else
+	BP='*' # <-- ASCII Bullet Point.
+	SB='|' # <-- ASCII Side Border.
+fi
+
 PAKTC(){
 	read -sn 1
 	printf "\n"
@@ -242,13 +253,18 @@ UnderLine(){
 	DEBUG "$LINENO" "2" "$2"
 	DEBUG "$LINENO" "3" "$3"
 
+	[ "$ASCII" == 'true' ] && { A=1; B=2; } || { A=0; B=1; }
+
+	DEBUG "$LINENO" "A" "$A"
+	DEBUG "$LINENO" "B" "$B"
+
 	for ((I=1; I<Cols; I++)); {
 		if [ $I -eq 1 ]; then
-			printf "%s" ${1:0:1}
+			printf "%s" ${1:A:B}
 		elif [ $I -eq $((Cols - 1)) ]; then
-			printf "%s" ${3:0:1}
+			printf "%s" ${3:A:B}
 		else
-			printf "%s" ${2:0:1}
+			printf "%s" ${2:A:B}
 		fi
 	}
 }
@@ -256,7 +272,7 @@ UnderLine(){
 Header(){
 	printf "\n" # <-- Fixes weird missing line 1 bug in header.
 
-	ColsSubstr=${Cols:$[${#Cols} - 1]:1}
+	ColsSubstr=${Cols:$[${#Cols} - 2]:1}
 	[[ $ColsSubstr == [13579] ]] && let Cols++
 
 	DEBUG "$LINENO" "Function 'Header()' called."
@@ -277,18 +293,21 @@ Header(){
 		DEBUG "$LINENO" "TitlePush" "$TitlePush"
 
 		if [ "$BORDERS" == 'true' ]; then
-			UnderLine '╭' '─' '╮'
+			UnderLine '╭+' '─-' '╮+'
 
-			printf "%s%*s%*s\n" '│' $[((Cols / 2) + TitleHalf) - 2]\
-				"$Title" $[((Cols / 2) - TitleHalf) + 2] '│'
+			# Addresses bizarre bug with non-ASCII header. (right side)
+			[ "$ASCII" == 'true' ] && local A=0 || local A=2
 
-			UnderLine '╰' '─' '╯'
+			printf "%s%*s%*s\n" "$SB" $[((Cols / 2) + TitleHalf) - 2]\
+				"$Title" $[((Cols / 2) - TitleHalf) + A] "$SB"
+
+			UnderLine '╰+' '─-' '╯+'
 		else
 			printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
 		fi
 	else
 		tput clear
-		FAIL 1 "$LINENO" "Slide $SlideNumber has no header title."
+		FAIL 1 "$LINENO" "Slide #${SlideNumber:-?} has no header title."
 	fi
 }
 
@@ -309,27 +328,27 @@ Footer(){
 	DEBUG "$LINENO" "3" "$3"
 
 	if [ "$BORDERS" == 'true' ]; then
-		UnderLine '╭' '─' '╮'
+		UnderLine '╭+' '─-' '╮+'
 
 		# Combined, the Left and Right variables can handle another ~25 spaces, if
 		# the terminal session's columns available is at 95.
-		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber "
-		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] ⟐ HOST: $HOSTNAME"
+		FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber "
+		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME"
 
 		if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
 			tput cup $Lines
-			printf "│ $FooterTextLeft"
+			printf "$SB $FooterTextLeft"
 			tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
-			printf "$FooterTextRight │"
+			printf "$FooterTextRight $SB"
 		else
 			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Insufficent space for the footer."
 		fi
 
-		UnderLine '╰' '─' '╯' || printf "\n"
+		UnderLine '╰+' '─-' '╯+' || printf "\n"
 	else
-		FooterTextLeft="FILE: '${ProjectFile##*/}' ⟐ SLIDE: $SlideNumber "
-		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] ⟐ HOST: $HOSTNAME"
+		FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber "
+		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME"
 
 		if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
 			tput cup $Lines
@@ -383,7 +402,7 @@ for L in "${BuffArr[@]%$'\n'}"; {
 			FAIL 1 "$LINENO" "Line '$BodyLines' is non-empty."
 		elif [ ${BodyLines:-0} -gt $[Lines - 8] ]; then
 			[ "$DEBUGME" == 'true' ] || tput clear
-			FAIL 1 "$LINENO" "Line overflow ($BodyLines/$[Lines - 8]) in the body of slide $SlideNumber."
+			FAIL 1 "$LINENO" "Line overflow ($BodyLines/$[Lines - 8]) in the body of slide #$SlideNumber."
 		fi
 
 		if [ "$INTERACTIVE" == 'true' ]; then
@@ -488,7 +507,7 @@ for L in "${BuffArr[@]%$'\n'}"; {
 			OldLine=$L
 		else
 			[ "$DEBUGME" == 'true' ] || tput clear
-			FAIL 1 "$LINENO" "Line $BodyLines of slide $SlideNumber is too long."
+			FAIL 1 "$LINENO" "Line $BodyLines of slide #$SlideNumber is too long."
 		fi
 	fi
 
