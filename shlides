@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Thu 21 Nov 00:24:04 GMT 2019
+# Last Change       - Thu 21 Nov 22:05:33 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -367,10 +367,10 @@ fi
 # Output and parse lines of body.
 FirstLineFromBuffArr='false'
 readarray BuffArr < "$ProjectFile"
-for CurLine in "${BuffArr[@]%$'\n'}"; {
-	if [ "$DoSkipSlide" == 'true' ] || [[ $CurLine == \#\ * ]]; then
+for L in "${BuffArr[@]%$'\n'}"; {
+	if [ "$DoSkipSlide" == 'true' ] || [[ $L == \#\ * ]]; then
 		continue
-	elif [[ $CurLine =~ ^###\  ]]; then
+	elif [[ $L =~ ^###\  ]]; then
 		if [ "$FirstLineFromBuffArr" == 'true' ]; then
 			FirstLineFromBuffArr='true'
 		else
@@ -404,7 +404,7 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 	if [ $MainLines -eq 1 ]; then
 		# Gather header commands (key=value), and catch errors.
 		FieldCount=0
-		for Field in $CurLine; {
+		for Field in $L; {
 			let FieldCount++
 
 			DEBUG "$LINENO" "Field" "$Field"
@@ -452,46 +452,40 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		[ "$NOFOOTER" == 'true' ] || Footer
 		CursorDown 4 0
 	elif [ $MainLines -eq 2 ]; then
-		if [ -n "$CurLine" ]; then
-			DEBUG "$LINENO" "CurLine" "$CurLine"
+		if [ -n "$L" ]; then
+			DEBUG "$LINENO" "L" "$L"
 
 			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Line 2 is non-empty."
 		fi
 	elif [ $MainLines -gt 2 ]; then
 		# Display the body of the current slide.
-		if ! [ ${#CurLine} -gt $[Cols - 5] ]; then
+		if ! [ ${#L} -gt $[Cols - 5] ]; then
 			[ "$EFFECT" == 'true' ] && sleep $EffectDelay
 
-			CurLineNoTrail=${CurLine%%[[:space:]]}
-			CurLineHalf=$[${#CurLine} / 2]
-			CurLineNoSpace=${CurLine//[[:space:]]/}
-			if [ "${CurLineNoSpace:0:3}" == '<C>' ]; then
-				CurLine=${CurLineNoTrail//<C>}
+			EscapeCondition(){
+				[ "$ESCAPE" == 'true' ] && Format='b'
+				printf "%*${Format:-s}\n" $1 "$2"
+			}
 
-				if [ "$ESCAPE" == 'true' ]; then
-					printf "%*b\n" $[((Cols / 2) + CurLineHalf) - 2] "$CurLine"
-				else
-					printf "%*s\n" $[((Cols / 2) + CurLineHalf) - 2] "$CurLine"
-				fi
-			elif [ "${CurLineNoSpace:0:3}" == '<R>' ]; then
-				CurLine=${CurLineNoTrail//<R>}
+			LNoTrail=${L%%[[:space:]]}
+			LHalf=$[${#L} / 2]
+			LNoSpace=${L//[[:space:]]/}
 
-				if [ "$ESCAPE" == 'true' ]; then
-					printf "%*b\n" $[Cols - ${#CurLineHalf}] "$CurLine"
-				else
-					printf "%*s\n" $[Cols - ${#CurLineHalf}] "$CurLine"
-				fi
+			if [ "${LNoSpace:0:3}" == '<C>' ]; then
+				EscapeCondition $[((Cols / 2) + LHalf) - 2] "${LNoTrail//<C>}"
+			elif [ "${LNoSpace:0:3}" == '<R>' ]; then
+				EscapeCondition $[Cols - 2] "${LNoTrail//<R>}"
 			else
 				if [ "$ESCAPE" == 'true' ]; then
-					printf "  %b\n" "$CurLineNoTrail"
+					printf "  %b\n" "$LNoTrail"
 				else
-					printf "  %s\n" "$CurLineNoTrail"
+					printf "  %s\n" "$LNoTrail"
 				fi
 			fi
 
 			let BodyLines++
-			OldLine=$CurLine
+			OldLine=$L
 		else
 			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 "$LINENO" "Line $BodyLines of slide $SlideNumber is too long."
