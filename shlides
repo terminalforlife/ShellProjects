@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Thu 21 Nov 23:11:06 GMT 2019
+# Last Change       - Thu 21 Nov 23:15:48 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -220,6 +220,8 @@ elif [[ "$1" ]]; then
 else
 	FAIL 1 "$LINENO" "Project file missing or unreadable."
 fi
+
+tput smcup
 
 RED=`tput setaf 1`; BLUE=`tput setaf 4`; GREEN=`tput setaf 2`
 BOLD=`tput bold` WHITE=`tput setaf 7`; YELLOW=`tput setaf 3`
@@ -525,4 +527,4 @@ else
 	sleep ${WaitTime}s
 fi
 
-[ "$DEBUGME" == 'true' ] || tput clear
+[ "$DEBUGME" == 'true' ] || tput rmcup
