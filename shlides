@@ -3,10 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Thu 21 Nov 22:52:57 GMT 2019
+# Last Change       - Thu 21 Nov 23:04:15 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+
+if [ -z "$BASH" ]; then
+	printf "The Bourne Again Shell is required to run shlides.\n" 1>&2
+	exit 1
+fi
 
 _VERSION_="2019-11-21"
 _PROJECT_="${0##*/}"
