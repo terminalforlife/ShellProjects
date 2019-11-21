@@ -3,14 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Wed 20 Nov 22:53:54 GMT 2019
+# Last Change       - Thu 21 Nov 00:24:04 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
 #TODO - Catch executing shlides on a non-shlides file.
 
-_VERSION_="2019-11-20"
+_VERSION_="2019-11-21"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -53,6 +53,7 @@ USAGE(){
 		            --debug|-D              - Enables debugging information.
 		            --interactive|-i        - Wait for the user to press a key.
 		            --tildes|-T             - Use the EOF tildes like in vim.
+		            --escape|-E             - Allow terminal escape sequences.
 		            --no-header             - Omit the header from each slide.
 		            --no-footer             - Omit the footer from each slide.
 		            --effect|-e             - Apply a downward sweeping effect.
@@ -62,6 +63,8 @@ USAGE(){
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
+
+#		            --bstyle|-B STYLE       - Replace the default border style.
 }
 
 WaitTime=0.5
@@ -89,6 +92,10 @@ while [ "$1" ]; do
 			USETILDES='true'
 
 			DEBUG "$LINENO" "USETILDES" "$USETILDES" ;;
+		--escape|-E)
+			ESCAPE='true'
+
+			DEBUG "$LINENO" "ESCAPE" "$ESCAPE" ;;
 		--no-header)
 			NOHEADER='true'
 
@@ -456,7 +463,32 @@ for CurLine in "${BuffArr[@]%$'\n'}"; {
 		if ! [ ${#CurLine} -gt $[Cols - 5] ]; then
 			[ "$EFFECT" == 'true' ] && sleep $EffectDelay
 
-			printf "  %s\n" "$CurLine"
+			CurLineNoTrail=${CurLine%%[[:space:]]}
+			CurLineHalf=$[${#CurLine} / 2]
+			CurLineNoSpace=${CurLine//[[:space:]]/}
+			if [ "${CurLineNoSpace:0:3}" == '<C>' ]; then
+				CurLine=${CurLineNoTrail//<C>}
+
+				if [ "$ESCAPE" == 'true' ]; then
+					printf "%*b\n" $[((Cols / 2) + CurLineHalf) - 2] "$CurLine"
+				else
+					printf "%*s\n" $[((Cols / 2) + CurLineHalf) - 2] "$CurLine"
+				fi
+			elif [ "${CurLineNoSpace:0:3}" == '<R>' ]; then
+				CurLine=${CurLineNoTrail//<R>}
+
+				if [ "$ESCAPE" == 'true' ]; then
+					printf "%*b\n" $[Cols - ${#CurLineHalf}] "$CurLine"
+				else
+					printf "%*s\n" $[Cols - ${#CurLineHalf}] "$CurLine"
+				fi
+			else
+				if [ "$ESCAPE" == 'true' ]; then
+					printf "  %b\n" "$CurLineNoTrail"
+				else
+					printf "  %s\n" "$CurLineNoTrail"
+				fi
+			fi
 
 			let BodyLines++
 			OldLine=$CurLine
