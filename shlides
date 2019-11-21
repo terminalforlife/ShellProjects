@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Thu 21 Nov 23:04:15 GMT 2019
+# Last Change       - Thu 21 Nov 23:11:06 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -214,9 +214,7 @@ elif [ -f "$1" ] && [ -r "$1" ]; then
 
 	shift
 
-	if [ $# -gt 0 ]; then
-		FAIL 1 "$LINENO" "Only one project may run at a time."
-	fi
+	[ $# -gt 0 ] && FAIL 1 "$LINENO" "Only one project may run at a time."
 elif [[ "$1" ]]; then
 	FAIL 1 "$LINENO" "A project file wasn't provided."
 else
@@ -497,9 +495,9 @@ for L in "${BuffArr[@]%$'\n'}"; {
 			LNoSpace=${L//[[:space:]]/}
 
 			if [ "${LNoSpace:0:3}" == '<C>' ]; then
-				EscapeCondition $[((Cols / 2) + LHalf) - 2] "${LNoTrail//<C>}"
+				EscapeCondition $[((Cols / 2) + LHalf) - 3] "${LNoTrail//<C>}"
 			elif [ "${LNoSpace:0:3}" == '<R>' ]; then
-				EscapeCondition $[Cols - 2] "${LNoTrail//<R>}"
+				EscapeCondition $[Cols - 3] "${LNoTrail//<R>}"
 			else
 				if [ "$ESCAPE" == 'true' ]; then
 					printf "  %b\n" "$LNoTrail"
