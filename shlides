@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Fri 22 Nov 00:27:33 GMT 2019
+# Last Change       - Fri 22 Nov 01:31:10 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ USAGE(){
 }
 
 BSTYLE='default'
-WaitTime=0.5
+WaitTime=1
 EffectDelay=0.03
 
 while [ "$1" ]; do
@@ -315,10 +315,10 @@ Header(){
 	DEBUG $LINENO "2" "$2"
 	DEBUG $LINENO "3" "$3"
 
+	Title="'${2//_/ }'"
+
 	if [ "$BORDERS" == 'true' ]; then
-		if [ "$BSTYLE" == 'default' ]; then
-			Title="'${2//_/ }'"
-		elif [ "$BSTYLE" == 'oneline' ]; then
+		if [ "$BSTYLE" == 'oneline' ]; then
 			[ "$ASCII" == 'true' ] && Y='-' || Y='─'
 			for ((I=1; I<Cols; I++)); {
 				printf "%s" "$Y"
@@ -328,7 +328,9 @@ Header(){
 		fi
 	fi
 
-	if [ -n "${Title//\'}" ]; then
+	TitleTest=${2//_/ }
+
+	if [ -n "$TitleTest" ]; then
 		TitleHalf=$[${#Title} / 2]
 		TitleEndAlign=$[(Cols - ${#Title}) + 1]
 		TitlePush=$TitleEndAlign
@@ -424,9 +426,9 @@ Footer(){
 		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME"
 
 		if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
-			tput cup $Lines
+			tput cup $[$Lines - 2]
 			printf "  $FooterTextLeft"
-			tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
+			tput cup $[$Lines - 2] $[(Cols - ${#FooterTextRight}) - 3]
 			printf "$FooterTextRight  "
 		else
 			[ "$DEBUGME" == 'true' ] || tput clear
