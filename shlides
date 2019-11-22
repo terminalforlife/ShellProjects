@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Fri 22 Nov 01:31:10 GMT 2019
+# Last Change       - Fri 22 Nov 12:42:51 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -342,6 +342,8 @@ Header(){
 
 		if [ "$BORDERS" == 'true' ]; then
 			if [ "$BSTYLE" == 'default' ]; then
+				DEBUG $LINENO "Processing the 'default' header border style."
+
 				UnderLine '╭+' '─-' '╮+'
 
 				# Addresses bizarre bug with non-ASCII header. (right side)
@@ -352,10 +354,14 @@ Header(){
 
 				UnderLine '╰+' '─-' '╯+'
 			elif [ "$BSTYLE" == 'oneline' ]; then
+				DEBUG $LINENO "Processing the 'oneline' header border style."
+
 				tput cup 1 $[((Cols / 2) - TitleHalf) - 2]
 				printf "%s" "$Title"
 			fi
 		else
+			DEBUG $LINENO "Processing the borderless header."
+
 			printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
 		fi
 	else
@@ -383,6 +389,8 @@ Footer(){
 	if [ "$BORDERS" == 'true' ]; then
 		if [ "$BORDERS" == 'true' ]; then
 			if [ "$BSTYLE" == 'default' ]; then
+				DEBUG $LINENO "Processing the 'default' footer border style."
+
 				FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber "
 				FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME"
 
@@ -400,6 +408,8 @@ Footer(){
 
 				UnderLine '╰+' '─-' '╯+' || printf "\n"
 			elif [ "$BSTYLE" == 'oneline' ]; then
+				DEBUG $LINENO "Processing the 'online' footer border style."
+
 				tput cup $[$Lines - 2] 0
 				[ "$ASCII" == 'true' ] && Y='-' || Y='─'
 				for ((I=1; I<Cols; I++)); {
@@ -422,6 +432,8 @@ Footer(){
 			fi
 		fi
 	else
+		DEBUG $LINENO "Processing the borderless footer."
+
 		FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber "
 		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME"
 
@@ -435,6 +447,9 @@ Footer(){
 			FAIL 1 $LINENO "Insufficent space for the footer."
 		fi
 	fi
+
+	DEBUG $LINENO "FooterTextLeft" "$FooterTextLeft"
+	DEBUG $LINENO "FooterTextRight" "$FooterTextRight"
 }
 
 [ "$DEBUGME" == 'true' ] || tput clear
@@ -456,6 +471,8 @@ if ! [ "$SKIPSTART" == 'true' ]; then
 	tput cup $[(Lines / 2) + 3]
 	Text="https://github.com/terminalforlife"
 	printf "${WHITE}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
+else
+	DEBUG $LINENO "Skipping the splash screen."
 fi
 
 # Output and parse lines of body.
