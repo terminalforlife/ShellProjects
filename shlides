@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Fri 22 Nov 13:02:59 GMT 2019
+# Last Change       - Fri 22 Nov 13:21:44 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -506,14 +506,6 @@ for L in "${BuffArr[@]%$'\n'}"; {
 		if [ -n "$OldLine" ]; then
 			[ "$DEBUGME" == 'true' ] || tput clear
 			FAIL 1 $LINENO "Line '$BodyLines' is non-empty."
-		elif [ ${BodyLines:-0} -gt $[Lines - 8] ]; then
-			[ "$DEBUGME" == 'true' ] || tput clear
-
-			if [[ $BodyLines =~ ^[0-9]+$ ]]; then
-				FAIL 1 $LINENO "Line overflow ($BodyLines/$[Lines - 8]) in the body of slide #$SlideNumber."
-			else
-				FAIL 1 $LINENO "Unrecognisable line overflow detected."
-			fi
 		fi
 
 		if [ "$INTERACTIVE" == 'true' ]; then
@@ -591,6 +583,11 @@ for L in "${BuffArr[@]%$'\n'}"; {
 	elif [ $MainLines -gt 2 ]; then
 		# Display the body of the current slide.
 		if ! [ ${#L} -gt $[Cols - 5] ]; then
+			if [ $BodyLines -gt $[Lines - 9] ]; then
+				[ "$DEBUGME" == 'true' ] || tput clear
+				FAIL 1 $LINENO "Line overflow detected on slide #$SlideNumber."
+			fi
+
 			[ "$EFFECT" == 'true' ] && sleep $EffectDelay
 
 			EscapeCondition(){
