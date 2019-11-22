@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Fri 22 Nov 00:22:55 GMT 2019
+# Last Change       - Fri 22 Nov 00:27:33 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ USAGE(){
 		            --no-footer             - Omit the footer from each slide.
 		            --effect|-e             - Apply a downward sweeping effect.
 		            --borders|-b            - Pretty borders around the header.
-		            --bstyle|-B STYLE       - Replace the default border style.
+		            --bstyle|-B STYLE       - Select the border STYLE to use.
 		            --ascii|-A              - Interface uses only ASCII characters.
 		            --wait|-w INT           - Wait INT second(s) between slides.
 		            --skip-start|-s         - Skip the message at project start.
