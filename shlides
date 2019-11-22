@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Fri 22 Nov 13:21:44 GMT 2019
+# Last Change       - Fri 22 Nov 21:27:53 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -55,11 +55,11 @@ USAGE(){
 		            --update|-U             - Check for updates to $_PROJECT_.
 		            --debug|-D              - Enables debugging information.
 		            --interactive|-i        - Wait for the user to press a key.
-		            --tildes|-T             - Use the EOF tildes like in vim.
 		            --escape|-E             - Allow terminal escape sequences.
 		            --no-header             - Omit the header from each slide.
 		            --no-footer             - Omit the footer from each slide.
 		            --effect|-e             - Apply a downward sweeping effect.
+		            --espeed|-S N           - Change the speed of the effect to N.
 		            --borders|-b            - Pretty borders around the header.
 		            --bstyle|-B STYLE       - Select the border STYLE to use.
 		            --ascii|-A              - Interface uses only ASCII characters.
@@ -71,21 +71,24 @@ USAGE(){
 		              'default'
 
 		                 +-------------------------------------------------------+
-		                 |                        'header'                       |
+		                 |                       'header'                        |
 		                 +-------------------------------------------------------+
 
 		                 +-------------------------------------------------------+
-		                 |  footer left                            footer right  |
+		                 | footer left                              footer right |
 		                 +-------------------------------------------------------+
 
 		              'oneline'             -
 
-		                 -----------------------| 'header' |----------------------
+		                 ----------------------| 'header' |-----------------------
 
 		                 --| footer left |----------------------| footer right |--
 
 		            Border styles do not impact the position of the slide body, in
 		            order to keep things as consistent as possible.
+
+		NOTE:       The '--espeed|-S' option supports floating-point numbers, -
+		            should you want a finer adjustment. Set to 0.03, by default.
 
 		SITE:       $DOM/terminalforlife/Extra
 	EOF
@@ -113,10 +116,6 @@ while [ "$1" ]; do
 			INTERACTIVE='true'
 
 			DEBUG $LINENO "INTERACTIVE" "$INTERACTIVE" ;;
-		--tildes|-T)
-			USETILDES='true'
-
-			DEBUG $LINENO "USETILDES" "$USETILDES" ;;
 		--escape|-E)
 			ESCAPE='true'
 
@@ -133,6 +132,16 @@ while [ "$1" ]; do
 			EFFECT='true'
 
 			DEBUG $LINENO "EFFECT" "$EFFECT" ;;
+		--espeed|-S)
+			shift
+
+			if [[ $1 =~ ^([0-9]+|[0-9]+\.[0-9]+)$ ]]; then
+				EffectDelay=$1
+			else
+				FAIL 1 $LINENO "Specified effect speed is invalid."
+			fi
+
+			DEBUG $LINENO "EffectDelay" "$EffectDelay" ;;
 		--borders|-b)
 			BORDERS='true'
 
@@ -284,20 +293,21 @@ PAKTC(){
 	printf "\n"
 }
 
-Cols=${COLUMNS:-`tput cols`}
-Lines=${LINES:-`tput lines`}
+WINCH(){
+	Cols=`tput cols`
+	Lines=`tput lines`
 
-DEBUG $LINENO "COLUMNS" "$COLUMNS"
-DEBUG $LINENO "LINES" "$LINES"
-DEBUG $LINENO "Cols" "$Cols"
-DEBUG $LINENO "Lines" "$Lines"
+	DEBUG $LINENO "Cols" "$Cols"
+	DEBUG $LINENO "Lines" "$Lines"
+}
+
+WINCH
 
 # Ensure column and line counts are updated, even after window resizing.
-trap 'Cols=${COLUMNS:-`tput cols`}; Lines=${LINES:-`tput lines`}' WINCH
+trap 'WINCH' WINCH
 
-# Function for handling the correct number of line characters.
-UnderLine(){
-	DEBUG $LINENO "Function 'UnderLine()' called."
+LongLine(){
+	DEBUG $LINENO "Function 'LongLine()' called."
 	DEBUG $LINENO "1" "$1"
 	DEBUG $LINENO "2" "$2"
 	DEBUG $LINENO "3" "$3"
@@ -307,23 +317,12 @@ UnderLine(){
 	DEBUG $LINENO "A" "$A"
 	DEBUG $LINENO "B" "$B"
 
-	for ((I=1; I<Cols; I++)); {
-		if [ $I -eq 1 ]; then
-			printf "%s" ${1:A:B}
-		elif [ $I -eq $((Cols - 1)) ]; then
-			printf "%s" ${3:A:B}
-		else
-			printf "%s" ${2:A:B}
-		fi
-	}
+	printf "%s" ${1:A:B}
+	for ((I=3; I<=Cols; I++)); { printf "%s" ${2:A:B}; }
+	printf "%s" ${3:A:B}
 }
 
 Header(){
-	printf "\n" # <-- Fixes weird missing line 1 bug in header.
-
-	ColsSubstr=${Cols:$[${#Cols} - 2]:1}
-	[[ $ColsSubstr == [13579] ]] && let Cols++
-
 	DEBUG $LINENO "Function 'Header()' called."
 	DEBUG $LINENO "1" "$1"
 	DEBUG $LINENO "2" "$2"
@@ -333,8 +332,9 @@ Header(){
 
 	if [ "$BORDERS" == 'true' ]; then
 		if [ "$BSTYLE" == 'oneline' ]; then
+			tput cup 1 0
 			[ "$ASCII" == 'true' ] && Y='-' || Y='─'
-			for ((I=1; I<Cols; I++)); {
+			for ((I=0; I<Cols; I++)); {
 				printf "%s" "$Y"
 			}
 
@@ -346,27 +346,28 @@ Header(){
 
 	if [ -n "$TitleTest" ]; then
 		TitleHalf=$[${#Title} / 2]
-		TitleEndAlign=$[(Cols - ${#Title}) + 1]
-		TitlePush=$TitleEndAlign
 
 		DEBUG $LINENO "Title" "$Title"
 		DEBUG $LINENO "TitleHalf" "$TitleHalf"
-		DEBUG $LINENO "TitleEndAlign" "$TitleEndAlign"
-		DEBUG $LINENO "TitlePush" "$TitlePush"
 
 		if [ "$BORDERS" == 'true' ]; then
 			if [ "$BSTYLE" == 'default' ]; then
 				DEBUG $LINENO "Processing the 'default' header border style."
 
-				UnderLine '╭+' '─-' '╮+'
+				tput cup 0 0
+				LongLine '╭+' '─-' '╮+'
 
-				# Addresses bizarre bug with non-ASCII header. (right side)
-				[ "$ASCII" == 'true' ] && local A=0 || local A=2
+				tput cup 1 0
+				printf "%s" "$SB"
 
-				printf "%s%*s%*s\n" "$SB" $[((Cols / 2) + TitleHalf) - 2]\
-					"$Title" $[((Cols / 2) - TitleHalf) + A] "$SB"
+				tput cup 1 3
+				printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
 
-				UnderLine '╰+' '─-' '╯+'
+				tput cup 1 $[Cols - 1]
+				printf "%s" "$SB"
+
+				tput cup 2 0
+				LongLine '╰+' '─-' '╯+'
 			elif [ "$BSTYLE" == 'oneline' ]; then
 				DEBUG $LINENO "Processing the 'oneline' header border style."
 
@@ -376,7 +377,8 @@ Header(){
 		else
 			DEBUG $LINENO "Processing the borderless header."
 
-			printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
+			tput cup 1 $[(Cols / 2) - $[TitleHalf + 2]]
+			printf "%s"  "$Title"
 		fi
 	else
 		tput clear
@@ -389,12 +391,6 @@ CursorDown(){
 }
 
 Footer(){
-	CursorDown $[Lines - 3] $Cols
-	printf " " # <-- Seems to correct mis-algnment.
-
-	ColsSubstr=${Cols:$[${#Cols} - 1]:1}
-	[[ $ColsSubstr == [13579] ]] && let Cols++
-
 	DEBUG $LINENO "Function 'Footer()' called."
 	DEBUG $LINENO "1" "$1"
 	DEBUG $LINENO "2" "$2"
@@ -405,38 +401,47 @@ Footer(){
 			if [ "$BSTYLE" == 'default' ]; then
 				DEBUG $LINENO "Processing the 'default' footer border style."
 
-				FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber "
-				FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME"
-
-				UnderLine '╭+' '─-' '╮+'
+				FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber"
+				FooterTextRight="TERM: L$Lines C$Cols $BP HOST: $HOSTNAME"
 
 				if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
-					tput cup $Lines
-					printf "$SB $FooterTextLeft"
-					tput cup $Lines $[(Cols - ${#FooterTextRight}) - 3]
-					printf "$FooterTextRight $SB"
+					tput cup $[Lines - 3] 0
+					LongLine '╭+' '─-' '╮+'
+
+					tput cup $[Lines - 2] 0
+					printf "%s" "$SB"
+
+					tput cup $[Lines - 2] 2
+					printf "$FooterTextLeft"
+
+					tput cup $[Lines - 2] $[Cols - (${#FooterTextRight} + 2)]
+					printf "$FooterTextRight"
+
+					tput cup $[Lines - 2] $[Cols + 2]
+					printf "%s" "$SB"
+
+					tput cup $Lines 0
+					LongLine '╰+' '─-' '╯+'
 				else
 					[ "$DEBUGME" == 'true' ] || tput clear
 					FAIL 1 $LINENO "Insufficent space for the footer."
 				fi
-
-				UnderLine '╰+' '─-' '╯+' || printf "\n"
 			elif [ "$BSTYLE" == 'oneline' ]; then
 				DEBUG $LINENO "Processing the 'online' footer border style."
 
 				tput cup $[$Lines - 2] 0
 				[ "$ASCII" == 'true' ] && Y='-' || Y='─'
-				for ((I=1; I<Cols; I++)); {
+				for ((I=0; I<Cols; I++)); {
 					printf "%s" "$Y"
 				}
 
 				FooterTextLeft="$SB FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber $SB"
-				FooterTextRight="$SB BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME $SB"
+				FooterTextRight="$SB TERM: L$Lines C$Cols $BP HOST: $HOSTNAME $SB"
 
 				if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
 					tput cup $[$Lines - 2] 2
 					printf "$FooterTextLeft"
-					tput cup $[$Lines - 2] $[(Cols - ${#FooterTextRight}) - 3]
+					tput cup $[$Lines - 2] $[(Cols - ${#FooterTextRight}) - 2]
 					printf "$FooterTextRight"
 				else
 					[ "$DEBUGME" == 'true' ] || tput clear
@@ -448,13 +453,14 @@ Footer(){
 	else
 		DEBUG $LINENO "Processing the borderless footer."
 
-		FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber "
-		FooterTextRight="BODY: L$[Cols - 2] C$[Lines - 8] $BP HOST: $HOSTNAME"
+		FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber"
+		FooterTextRight="TERM: L$Lines C$Cols $BP HOST: $HOSTNAME"
 
 		if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
-			tput cup $[$Lines - 2]
+			tput cup $[$Lines - 2] 0
 			printf "  $FooterTextLeft"
-			tput cup $[$Lines - 2] $[(Cols - ${#FooterTextRight}) - 3]
+
+			tput cup $[$Lines - 2] $[(Cols - ${#FooterTextRight}) - 2]
 			printf "$FooterTextRight  "
 		else
 			[ "$DEBUGME" == 'true' ] || tput clear
@@ -493,6 +499,8 @@ fi
 FirstLineFromBuffArr='false'
 readarray BuffArr < "$ProjectFile"
 for L in "${BuffArr[@]%$'\n'}"; {
+	WINCH
+
 	if [ "$DoSkipSlide" == 'true' ] || [[ $L == \#\ * ]]; then
 		continue
 	elif [[ $L =~ ^###\  ]]; then
