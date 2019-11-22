@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/completions/shlides
+# Started On        - Fri 22 Nov 13:38:05 GMT 2019
+# Last Change       - Fri 22 Nov 13:41:01 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This is the bash completion script for shlides.
+#----------------------------------------------------------------------------------
+
+_arg_list_shlides(){
+	local X
+
+	while read -a X; do
+		if [ "$IS_OPTS_LINE" == "true" ]\
+		&& [[ "$OLD" =~ ^[A-Z]+:$ ]]; then
+			break
+		fi
+
+		case "${X[0]}" in
+			OPTS:)
+				IS_OPTS_LINE="true"
+				printf "%s " "${X[1]//|/ }" ;;
+			-*)
+				printf "%s " "${X[0]//|/ }" ;;
+		esac
+
+		local OLD="${X[0]/OPTS:}"
+	done <<< "$(/usr/bin/shlides -h)"
+}
+
+_option_shlides(){
+	COMPREPLY=($(compgen -W "$(_arg_list_shlides)" -- "$2"))
+}
+
+complete -F _option_shlides -o default shlides
