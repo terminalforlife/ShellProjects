@@ -181,7 +181,7 @@ PROMPT(){
 	done
 }
 
-FIND(){ lspkg --match-with glob -n $@ >&- 2>&- || return 4; }
+FIND(){ lspkg --match-with glob -n $@ > /dev/null 2>&- || return 4; }
 
 DEL(){
 	apt-get ${YES_APT:--q} $SIM --show-progress remove $PURGE --autoremove\

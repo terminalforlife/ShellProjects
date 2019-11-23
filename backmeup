@@ -79,7 +79,7 @@ for DEP in gzip tar sync mkdir; {
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
 

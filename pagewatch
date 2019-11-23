@@ -102,7 +102,7 @@ wget -q "$URL" -O - | md5sum > "$BUFFER" 2>&-
 
 declare -i COUNT=0
 while :; do
-	wget -q "$URL" -O - | md5sum -c "$BUFFER" >&- 2>&- || ($COMMANDS)
+	wget -q "$URL" -O - | md5sum -c "$BUFFER" > /dev/null 2>&- || ($COMMANDS)
 
 	COUNT+=1
 

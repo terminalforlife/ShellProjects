@@ -62,7 +62,7 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--quiet|-q)
-			exec >&- 2>&- ;;
+			exec > /dev/null 2>&- ;;
 		--debug|-D)
 			DEBUG_MODE="true" ;;
 		--keep|-k)

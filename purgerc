@@ -99,7 +99,7 @@ if ! [ $UID -eq 0 ]; then
 	SIM='-s -o APT::Get::Show-User-Simulation-Note=0'
 fi
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 
 while read -a X; do
 	[ "${X[0]}" == "rc" ] && LIST+=" ${X[1]}"

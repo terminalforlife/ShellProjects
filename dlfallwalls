@@ -59,7 +59,7 @@ fi
 read -a WGET_VER_LINE <<< "$(wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
-[ "$BEQUIET" == "true" ] && exec >&-
+[ "$BEQUIET" == "true" ] && exec > /dev/null
 [ "$DEBUGME" == "true" ] && set -xeu
 
 URL="$DOM/download/fall-wallpapers"
