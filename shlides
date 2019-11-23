@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Sat 23 Nov 00:10:23 GMT 2019
+# Last Change       - Sat 23 Nov 22:11:10 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -23,22 +23,6 @@ FAIL(){
 	[ $1 -eq 1 ] && exit 1
 }
 
-BASHDEBUG='false'
-
-DEBUG(){
-	if [ "$BASHDEBUG" == 'true' ]; then
-		set -x
-	elif [ "$DEBUGME" == "true" ]; then
-		if [ $# -eq 3 ]; then
-			printf "[L%0.4d] DEBUG(\$%s): '%s'\n" "$1" "$2" "$3"
-		elif [ $# -eq 2 ]; then
-			printf "[L%0.4d] DEBUG: %s\n" "$1" "$2"
-		else
-			FAIL 1 $LINENO "Invalid 'DEBUG()' argument(s)."
-		fi
-	fi
-}
-
 DOM="https://github.com"
 
 USAGE(){
@@ -55,9 +39,7 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --update|-U             - Check for updates to $_PROJECT_.
-		            --debug|-D              - Enables debugging information.
 		            --interactive|-i        - Wait for the user to press a key.
-		            --escape|-E             - Allow terminal escape sequences.
 		            --no-header             - Omit the header from each slide.
 		            --no-footer             - Omit the footer from each slide.
 		            --effect|-e             - Apply a downward sweeping effect.
@@ -80,7 +62,7 @@ USAGE(){
 		                 | footer left                              footer right |
 		                 +-------------------------------------------------------+
 
-		              'oneline'             -
+		              'oneline'
 
 		                 ----------------------| 'header' |-----------------------
 
@@ -96,6 +78,8 @@ USAGE(){
 	EOF
 }
 
+#		            --escape|-E             - Allow terminal escape sequences.
+
 BSTYLE='default'
 WaitTime=1
 EffectDelay=0.03
@@ -107,33 +91,15 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--update|-U)
-			UPDATE='true'
-
-			DEBUG $LINENO "UPDATE" "$UPDATE" ;;
-		--debug|-D)
-			DEBUGME='true'
-
-			DEBUG $LINENO "DEBUGME" "$DEBUGME" ;;
+			UPDATE='true' ;;
 		--interactive|-i)
-			INTERACTIVE='true'
-
-			DEBUG $LINENO "INTERACTIVE" "$INTERACTIVE" ;;
-		--escape|-E)
-			ESCAPE='true'
-
-			DEBUG $LINENO "ESCAPE" "$ESCAPE" ;;
+			INTERACTIVE='true' ;;
 		--no-header)
-			NOHEADER='true'
-
-			DEBUG $LINENO "NOHEADER" "$NOHEADER" ;;
+			NOHEADER='true' ;;
 		--no-footer)
-			NOFOOTER='true'
-
-			DEBUG $LINENO "NOFOOTER" "$NOFOOTER" ;;
+			NOFOOTER='true' ;;
 		--effect|-e)
-			EFFECT='true'
-
-			DEBUG $LINENO "EFFECT" "$EFFECT" ;;
+			EFFECT='true' ;;
 		--espeed|-S)
 			shift
 
@@ -141,58 +107,39 @@ while [ "$1" ]; do
 				EffectDelay=$1
 			else
 				FAIL 1 $LINENO "Specified effect speed is invalid."
-			fi
-
-			DEBUG $LINENO "EffectDelay" "$EffectDelay" ;;
+			fi ;;
 		--borders|-b)
-			BORDERS='true'
-
-			DEBUG $LINENO "BORDERS" "$BORDERS" ;;
+			BORDERS='true' ;;
 		--bstyle|-B)
 			shift
 
 			case $1 in
 				default|oneline) BSTYLE=$1 ;;
 				*) FAIL 1 $LINENO "Unrecognised border style." ;;
-			esac
-
-			DEBUG $LINENO "BSTYLE" "$BSTYLE" ;;
+			esac ;;
 		--ascii|-A)
-			ASCII='true'
-
-			DEBUG $LINENO "ASCII" "$ASCII" ;;
+			ASCII='true' ;;
 		--wait|-w)
 			shift
 
 			if [[ $1 =~ ^([0-9]+|[0-9]+\.[0-9]+)$ ]]; then
 				WaitTime=$1
 				WAIT='true'
-
-				DEBUG $LINENO "WaitTime" "$WaitTime"
-				DEBUG $LINENO "WAIT" "$WAIT"
 			else
 				FAIL 1 $LINENO "Specified wait time is invalid."
 			fi ;;
 		--skip-start|-s)
-			SKIPSTART='true'
-
-			DEBUG $LINENO "SKIPSTART" "$SKIPSTART" ;;
+			SKIPSTART='true' ;;
 		-*)
-			DEBUG $LINENO "1" "$1"
-
 			FAIL 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
-			DEBUG $LINENO "1" "$1"
-			DEBUG $LINENO "Breaking from parameter while loop."
-
 			break ;;
 	esac
-
-	DEBUG $LINENO "*" "$*"
-	DEBUG $LINENO "Shifting positional parameters."
-
 	shift
 done
+
+#		--escape|-E)
+#			ESCAPE='true' ;;
 
 if [ "$WAIT" == 'true' -a "$INTERACTIVE" == 'true' ]; then
 	FAIL 1 $LINENO "Either '--wait|-w' or '--interactive|-i', not both."
@@ -204,26 +151,16 @@ elif [ "$BORDERS" == 'true' ]; then
 	fi
 fi
 
-DEBUG $LINENO "Checking for 'tput' PATH executable."
-
 if ! type -fP tput > /dev/null 2>&1; then
 	FAIL 0 $LINENO "Dependency 'tput' not met."
 else
 	if [ -t 1 ]; then
-		DEBUG $LINENO "STDOUT is available on a terminal."
-
 		declare -i NumberofColors=`tput colors`
 		[ ${NumberofColors:-0} -gt 8 ] && ColorsSupported='true'
-
-		DEBUG $LINENO "NumberofColors" "$NumberofColors"
-	else
-		DEBUG $LINENO "STDOUT is not available on a terminal."
 	fi
 fi
 
 if [ "$UPDATE" == "true" ]; then
-	DEBUG $LINENO "Beginning procedure to check for an update."
-
 	if ! type -fP wget > /dev/null 2>&1; then
 		FAIL 1 $LINENO "Dependency 'wget' not met."
 	fi
@@ -232,11 +169,7 @@ if [ "$UPDATE" == "true" ]; then
 	while IFS='=' read -a LINE; do
 		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
 			LATEST="${LINE[1]}"
-			DEBUG $LINENO "LATEST" "$LATEST"
-
 			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
-				DEBUG $LINENO "Self version detection successful."
-
 				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
 					while read -r; do
 						printf "%s\n" "$REPLY"
@@ -254,15 +187,10 @@ if [ "$UPDATE" == "true" ]; then
 	exit 0
 fi
 
-DEBUG $LINENO "1" "$1"
-
 if [ -z "$1" ]; then
 	FAIL 1 $LINENO "A project file wasn't provided."
 elif [ -f "$1" ] && [ -r "$1" ]; then
 	ProjectFile=$1
-
-	DEBUG $LINENO "ProjectFile" "$ProjectFile"
-	DEBUG $LINENO "Shifting positional parameters."
 
 	shift
 
@@ -275,11 +203,13 @@ fi
 
 tput smcup
 
+trap 'tput rmcup; exit 130' SIGINT
+
 # This is more of a placeholder for future use, but is somewhat used.
 if [ "$ColorsSupported" == 'true' ]; then
-	RED=`tput setaf 1`; BLUE=`tput setaf 4`; GREEN=`tput setaf 2`
-	BOLD=`tput bold` WHITE=`tput setaf 7`; YELLOW=`tput setaf 3`
-	GREY=`tput setaf 0` NORM=`tput cnorm`
+	RED=`tput setaf 1`; GREEN=`tput setaf 2`; BOLD=`tput bold`
+	WHITE=`tput setaf 7`; YELLOW=`tput setaf 3`; GREY=`tput setaf 0`
+	NORM=`tput cnorm`
 fi
 
 if ! [ "$ASCII" == 'true' ]; then
@@ -310,9 +240,6 @@ PAKTC(){
 WINCH(){
 	Cols=`tput cols`
 	Lines=`tput lines`
-
-	DEBUG $LINENO "Cols" "$Cols"
-	DEBUG $LINENO "Lines" "$Lines"
 }
 
 WINCH
@@ -321,25 +248,12 @@ WINCH
 trap 'WINCH' WINCH
 
 LongLine(){
-	DEBUG $LINENO "Function 'LongLine()' called."
-	DEBUG $LINENO "1" "$1"
-	DEBUG $LINENO "2" "$2"
-	DEBUG $LINENO "3" "$3"
-
-	DEBUG $LINENO "A" "$A"
-	DEBUG $LINENO "B" "$B"
-
 	printf "%s" "$1"
 	for ((I=3; I<=Cols; I++)); { printf "%s" "$2"; }
 	printf "%s" "$3"
 }
 
 Header(){
-	DEBUG $LINENO "Function 'Header()' called."
-	DEBUG $LINENO "1" "$1"
-	DEBUG $LINENO "2" "$2"
-	DEBUG $LINENO "3" "$3"
-
 	Title="'${2//_/ }'"
 
 	if [ "$BORDERS" == 'true' ]; then
@@ -357,22 +271,16 @@ Header(){
 
 	if [ -n "$TitleTest" ]; then
 		TitleHalf=$[${#Title} / 2]
-
-		DEBUG $LINENO "Title" "$Title"
-		DEBUG $LINENO "TitleHalf" "$TitleHalf"
-
 		if [ "$BORDERS" == 'true' ]; then
 			if [ "$BSTYLE" == 'default' ]; then
-				DEBUG $LINENO "Processing the 'default' header border style."
-
-				tput cup 0 0
+				tput home
 				LongLine "$UL" "$NB" "$UR"
 
 				tput cup 1 0
 				printf "%s" "$SBL"
 
 				tput cup 1 3
-				printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
+				printf "%*s" $[((Cols / 2) + TitleHalf) - 4] "$Title"
 
 				tput cup 1 $[Cols - 1]
 				printf "%s" "$SBR"
@@ -380,38 +288,25 @@ Header(){
 				tput cup 2 0
 				LongLine "$LL" "$NB" "$LR"
 			elif [ "$BSTYLE" == 'oneline' ]; then
-				DEBUG $LINENO "Processing the 'oneline' header border style."
-
-				tput cup 1 $[((Cols / 2) - TitleHalf) - 2]
+				tput cup 1 $[((Cols / 2) - TitleHalf) - 1]
 				printf "%s" "$Title"
 			fi
 		else
-			DEBUG $LINENO "Processing the borderless header."
-
 			tput cup 1 $[(Cols / 2) - $[TitleHalf + 2]]
 			printf "%s"  "$Title"
 		fi
 	else
-		tput clear
+		tput ed; tput rmcup; printf "\n"
 		FAIL 1 $LINENO "Slide #${SlideNumber:-?} has no header title."
 	fi
 }
 
-CursorDown(){
-	[ "$DEBUGME" == 'true' ] || tput cup ${1:-$Lines} ${2:-$Cols}
-}
+CursorDown(){ tput cup ${1:-$Lines} ${2:-$Cols}; }
 
 Footer(){
-	DEBUG $LINENO "Function 'Footer()' called."
-	DEBUG $LINENO "1" "$1"
-	DEBUG $LINENO "2" "$2"
-	DEBUG $LINENO "3" "$3"
-
 	if [ "$BORDERS" == 'true' ]; then
 		if [ "$BORDERS" == 'true' ]; then
 			if [ "$BSTYLE" == 'default' ]; then
-				DEBUG $LINENO "Processing the 'default' footer border style."
-
 				FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber"
 				FooterTextRight="TERM: L$Lines C$Cols $BP HOST: $HOSTNAME"
 
@@ -434,12 +329,10 @@ Footer(){
 					tput cup $Lines 0
 					LongLine "$LL" "$NB" "$LR"
 				else
-					[ "$DEBUGME" == 'true' ] || tput clear
+					tput ed; tput rmcup; printf "\n"
 					FAIL 1 $LINENO "Insufficent space for the footer."
 				fi
 			elif [ "$BSTYLE" == 'oneline' ]; then
-				DEBUG $LINENO "Processing the 'online' footer border style."
-
 				tput cup $[$Lines - 2] 0
 				for ((I=0; I<Cols; I++)); {
 					printf "%s" "$NB"
@@ -454,35 +347,30 @@ Footer(){
 					tput cup $[$Lines - 2] $[(Cols - ${#FooterTextRight}) - 2]
 					printf "$FooterTextRight"
 				else
-					[ "$DEBUGME" == 'true' ] || tput clear
+					tput ed; tput rmcup; printf "\n"
 					FAIL 1 $LINENO "Insufficent space for the footer."
 				fi
 
 			fi
 		fi
 	else
-		DEBUG $LINENO "Processing the borderless footer."
-
 		FooterTextLeft="FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber"
 		FooterTextRight="TERM: L$Lines C$Cols $BP HOST: $HOSTNAME"
 
 		if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
-			tput cup $[$Lines - 2] 0
-			printf "  $FooterTextLeft"
+			tput cup $[$Lines - 2] 2
+			printf "$FooterTextLeft"
 
 			tput cup $[$Lines - 2] $[(Cols - ${#FooterTextRight}) - 2]
-			printf "$FooterTextRight  "
+			printf "$FooterTextRight"
 		else
-			[ "$DEBUGME" == 'true' ] || tput clear
+			tput ed; tput rmcup; printf "\n"
 			FAIL 1 $LINENO "Insufficent space for the footer."
 		fi
 	fi
-
-	DEBUG $LINENO "FooterTextLeft" "$FooterTextLeft"
-	DEBUG $LINENO "FooterTextRight" "$FooterTextRight"
 }
 
-[ "$DEBUGME" == 'true' ] || tput clear
+tput clear
 
 # Short, optional introduction of shlides.
 if ! [ "$SKIPSTART" == 'true' ]; then
@@ -501,8 +389,6 @@ if ! [ "$SKIPSTART" == 'true' ]; then
 	tput cup $[(Lines / 2) + 3]
 	Text="https://github.com/terminalforlife"
 	printf "${WHITE}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
-else
-	DEBUG $LINENO "Skipping the splash screen."
 fi
 
 # Output and parse lines of body.
@@ -522,7 +408,7 @@ for L in "${BuffArr[@]%$'\n'}"; {
 		fi
 
 		if [ -n "$OldLine" ]; then
-			[ "$DEBUGME" == 'true' ] || tput clear
+			tput ed; tput rmcup; printf "\n"
 			FAIL 1 $LINENO "Line '$BodyLines' is non-empty."
 		fi
 
@@ -532,13 +418,11 @@ for L in "${BuffArr[@]%$'\n'}"; {
 			sleep ${WaitTime}s
 		fi
 
-		[ "$DEBUGME" == 'true' ] || tput clear
+		tput clear
 
 		MainLines=1
 		BodyLines=0
 	fi
-
-	DEBUG $LINENO "MainLines" "$MainLines"
 
 	#printf "M%d:" "$MainLines"
 	if [ $MainLines -eq 1 ]; then
@@ -547,36 +431,29 @@ for L in "${BuffArr[@]%$'\n'}"; {
 		for Field in $L; {
 			let FieldCount++
 
-			DEBUG $LINENO "Field" "$Field"
-
 			if [ ! "$HeaderPrefixFound" == 'true' -a "$Field" == '###' ]; then
 				HeaderPrefixFound='true'
 				continue
 			elif [ "$HeaderPrefixFound" == 'true' -a "$Field" == '###' ]; then
-				[ "$DEBUGME" == 'true' ] || tput clear
+				tput ed; tput rmcup; printf "\n"
 				FAIL 1 $LINENO "Only one header prefix is required."
 			else
 				unset HeaderPrefixFound
 			fi
 
 			if [[ $Field == *=* ]]; then
-				DEBUG $LINENO "Valid field found."
-
 				IFS='=' read -a FieldArray <<< "$Field"
 
-				DEBUG $LINENO "FieldArray" "$FieldArray"
 				if [ "${FieldArray[0]}" == "SLIDE" ]; then
 					SlideNumber=${FieldArray[1]}
-					DEBUG $LINENO "SlideNumber" "$SlideNumber"
 				elif [ "${FieldArray[0]}" == "TITLE" ]; then
 					SlideTitle=${FieldArray[1]//\"}
-					DEBUG $LINENO "SlideTitle" "$SlideTitle"
 				else
-					[ "$DEBUGME" == 'true' ] || tput clear
+					tput ed; tput rmcup; printf "\n"
 					FAIL 1 $LINENO "Invalid header command at field $FieldCount."
 				fi
 			else
-				[ "$DEBUGME" == 'true' ] || tput clear
+				tput ed; tput rmcup; printf "\n"
 				FAIL 1 $LINENO "Invalid header field at position $FieldCount."
 			fi
 		}
@@ -593,46 +470,60 @@ for L in "${BuffArr[@]%$'\n'}"; {
 		CursorDown 4 0
 	elif [ $MainLines -eq 2 ]; then
 		if [ -n "$L" ]; then
-			DEBUG $LINENO "L" "$L"
 
-			[ "$DEBUGME" == 'true' ] || tput clear
+			tput ed; tput rmcup; printf "\n"
 			FAIL 1 $LINENO "Line 2 is non-empty."
 		fi
 	elif [ $MainLines -gt 2 ]; then
 		# Display the body of the current slide.
 		if ! [ ${#L} -gt $[Cols - 5] ]; then
 			if [ $BodyLines -gt $[Lines - 9] ]; then
-				[ "$DEBUGME" == 'true' ] || tput clear
+				tput ed; tput rmcup
 				FAIL 1 $LINENO "Line overflow detected on slide #$SlideNumber."
 			fi
 
 			[ "$EFFECT" == 'true' ] && sleep $EffectDelay
 
-			EscapeCondition(){
-				[ "$ESCAPE" == 'true' ] && Format='b'
-				printf "%*${Format:-s}\n" $1 "$2"
-			}
+			# Need both values for comparison to compensate for weird alignment
+			# when escape sequences are used (at least for color). This mainly or
+			# only affects the center alignment.
+			printf -v LNoTrail "%b" "${L%%[[:space:]]}"
+			declare -i LNoTrailLen_B=${#LNoTrail}
+			printf -v LNoTrail "%s" "${L%%[[:space:]]}"
+			declare -i LNoTrailLen_S=${#LNoTrail}
+			declare -i EscDiff=$[LNoTrailLen_S - LNoTrailLen_B]
 
-			LNoTrail=${L%%[[:space:]]}
-			LHalf=$[${#L} / 2]
-			LNoSpace=${L//[[:space:]]/}
+			LNoSpace=${LNoTrail##[[:space:]]}
+			LHalf=$[${#LNoSpace} / 2]
 
-			if [ "${LNoSpace:0:3}" == '<C>' ]; then
-				EscapeCondition $[((Cols / 2) + LHalf) - 3] "${LNoTrail//<C>}"
-			elif [ "${LNoSpace:0:3}" == '<R>' ]; then
-				EscapeCondition $[Cols - 3] "${LNoTrail//<R>}"
-			else
-				if [ "$ESCAPE" == 'true' ]; then
-					printf "  %b\n" "$LNoTrail"
+			#if [ "$ESCAPE" == 'true' ]; then
+			#	if [ "${LNoSpace:0:3}" == '<C>' ]; then
+			#		tput cuf $[(Cols / 2) - LHalf]
+			#		printf "%b\n" "${LNoTrail##<C>}"
+			#	elif [ "${LNoSpace:0:3}" == '<R>' ]; then
+			#		tput cuf $[Cols - ${#LNoTrail}]
+			#		printf "%b\n" "${LNoTrail##<R>}"
+			#	else
+			#		tput cuf 2
+			#		printf "%b\n" "$LNoTrail"
+			#	fi
+			#else
+				if [ "${LNoSpace:0:3}" == '<C>' ]; then
+					tput cuf $[(Cols / 2) - LHalf]
+					printf "%s\n" "${LNoTrail##<C>}"
+				elif [ "${LNoSpace:0:3}" == '<R>' ]; then
+					tput cuf $[Cols - ${#LNoTrail}]
+					printf "%s\n" "${LNoTrail##<R>}"
 				else
-					printf "  %s\n" "$LNoTrail"
+					tput cuf 2
+					printf "%s\n" "$LNoTrail"
 				fi
-			fi
+			#fi
 
 			let BodyLines++
 			OldLine=$L
 		else
-			[ "$DEBUGME" == 'true' ] || tput clear
+			tput ed; tput rmcup; printf "\n"
 			FAIL 1 $LINENO "Line $BodyLines of slide #$SlideNumber is too long."
 		fi
 	fi
@@ -648,4 +539,4 @@ else
 	sleep ${WaitTime}s
 fi
 
-[ "$DEBUGME" == 'true' ] || tput rmcup
+tput rmcup
