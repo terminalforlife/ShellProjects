@@ -3,9 +3,11 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Fri 22 Nov 21:27:53 GMT 2019
+# Last Change       - Sat 23 Nov 00:10:23 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Some fonts which work well with shlides are FreeMono, Monospace, and Oxygen Mono.
 #----------------------------------------------------------------------------------
 
 if [ -z "$BASH" ]; then
@@ -13,7 +15,7 @@ if [ -z "$BASH" ]; then
 	exit 1
 fi
 
-_VERSION_="2019-11-22"
+_VERSION_="2019-11-23"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -282,10 +284,22 @@ fi
 
 if ! [ "$ASCII" == 'true' ]; then
 	BP='⟐' # <-- Non-ASCII Bullet Point.
-	SB='│' # <-- Non-ASCII Side Border.
+	SBL='│' # <-- Non-ASCII Side Border. (Left-Lean)
+	SBR='│' # <-- Non-ASCII Side Border. (Right-Lean)
+	UL='┌' # <-- Non-ASCII Upper-left corner.
+	UR='┐' # <-- Non-ASCII Upper-right corner.
+	LL='└' # <-- Non-ASCII Lower-left corner.
+	LR='┘' # <-- Non-ASCII Lower-right corner.
+	NB='─' # <-- Non-ASCII Normal Bar.
 else
 	BP='*' # <-- ASCII Bullet Point.
-	SB='|' # <-- ASCII Side Border.
+	SBL='|' # <-- Non-ASCII Side Border. (Left-Lean)
+	SBR='|' # <-- Non-ASCII Side Border. (Right-Lean)
+	UL='+' # <-- ASCII Upper-left corner.
+	UR='+' # <-- ASCII Upper-right corner.
+	LL='+' # <-- ASCII Lower-left corner.
+	LR='+' # <-- ASCII Lower-right corner.
+	NB='-' # <-- ASCII Normal Bar.
 fi
 
 PAKTC(){
@@ -312,14 +326,12 @@ LongLine(){
 	DEBUG $LINENO "2" "$2"
 	DEBUG $LINENO "3" "$3"
 
-	[ "$ASCII" == 'true' ] && { A=1; B=2; } || { A=0; B=1; }
-
 	DEBUG $LINENO "A" "$A"
 	DEBUG $LINENO "B" "$B"
 
-	printf "%s" ${1:A:B}
-	for ((I=3; I<=Cols; I++)); { printf "%s" ${2:A:B}; }
-	printf "%s" ${3:A:B}
+	printf "%s" "$1"
+	for ((I=3; I<=Cols; I++)); { printf "%s" "$2"; }
+	printf "%s" "$3"
 }
 
 Header(){
@@ -333,12 +345,11 @@ Header(){
 	if [ "$BORDERS" == 'true' ]; then
 		if [ "$BSTYLE" == 'oneline' ]; then
 			tput cup 1 0
-			[ "$ASCII" == 'true' ] && Y='-' || Y='─'
 			for ((I=0; I<Cols; I++)); {
-				printf "%s" "$Y"
+				printf "%s" "$NB"
 			}
 
-			Title="| '${2//_/ }' |"
+			Title="$SBL '${2//_/ }' $SBR"
 		fi
 	fi
 
@@ -355,19 +366,19 @@ Header(){
 				DEBUG $LINENO "Processing the 'default' header border style."
 
 				tput cup 0 0
-				LongLine '╭+' '─-' '╮+'
+				LongLine "$UL" "$NB" "$UR"
 
 				tput cup 1 0
-				printf "%s" "$SB"
+				printf "%s" "$SBL"
 
 				tput cup 1 3
 				printf "%*s" $[((Cols / 2) + TitleHalf) - 2] "$Title"
 
 				tput cup 1 $[Cols - 1]
-				printf "%s" "$SB"
+				printf "%s" "$SBR"
 
 				tput cup 2 0
-				LongLine '╰+' '─-' '╯+'
+				LongLine "$LL" "$NB" "$LR"
 			elif [ "$BSTYLE" == 'oneline' ]; then
 				DEBUG $LINENO "Processing the 'oneline' header border style."
 
@@ -406,10 +417,10 @@ Footer(){
 
 				if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
 					tput cup $[Lines - 3] 0
-					LongLine '╭+' '─-' '╮+'
+					LongLine "$UL" "$NB" "$UR"
 
 					tput cup $[Lines - 2] 0
-					printf "%s" "$SB"
+					printf "%s" "$SBL"
 
 					tput cup $[Lines - 2] 2
 					printf "$FooterTextLeft"
@@ -418,10 +429,10 @@ Footer(){
 					printf "$FooterTextRight"
 
 					tput cup $[Lines - 2] $[Cols + 2]
-					printf "%s" "$SB"
+					printf "%s" "$SBR"
 
 					tput cup $Lines 0
-					LongLine '╰+' '─-' '╯+'
+					LongLine "$LL" "$NB" "$LR"
 				else
 					[ "$DEBUGME" == 'true' ] || tput clear
 					FAIL 1 $LINENO "Insufficent space for the footer."
@@ -430,13 +441,12 @@ Footer(){
 				DEBUG $LINENO "Processing the 'online' footer border style."
 
 				tput cup $[$Lines - 2] 0
-				[ "$ASCII" == 'true' ] && Y='-' || Y='─'
 				for ((I=0; I<Cols; I++)); {
-					printf "%s" "$Y"
+					printf "%s" "$NB"
 				}
 
-				FooterTextLeft="$SB FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber $SB"
-				FooterTextRight="$SB TERM: L$Lines C$Cols $BP HOST: $HOSTNAME $SB"
+				FooterTextLeft="$SBL FILE: '${ProjectFile##*/}' $BP SLIDE: $SlideNumber $SBR"
+				FooterTextRight="$SBL TERM: L$Lines C$Cols $BP HOST: $HOSTNAME $SBR"
 
 				if [ $[${#FooterTextLeft} + ${#FooterTextRight}] -lt $[Cols - 10] ]; then
 					tput cup $[$Lines - 2] 2
