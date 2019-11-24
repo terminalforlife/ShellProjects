@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Sat 23 Nov 22:11:10 GMT 2019
+# Last Change       - Sun 24 Nov 19:07:28 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ if [ -z "$BASH" ]; then
 	exit 1
 fi
 
-_VERSION_="2019-11-23"
+_VERSION_="2019-11-24"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -144,10 +144,8 @@ done
 if [ "$WAIT" == 'true' -a "$INTERACTIVE" == 'true' ]; then
 	FAIL 1 $LINENO "Either '--wait|-w' or '--interactive|-i', not both."
 elif [ "$BORDERS" == 'true' ]; then
-	if [ "$NOHEADER" == 'true' ]; then
-		FAIL 1 $LINENO "Option '--borders|-b' used but header disabled."
-	elif [ "$NOFOOTER" == 'true' ]; then
-		FAIL 1 $LINENO "Option '--borders|-b' used but footer disabled."
+	if [ "$NOHEADER" == 'true' -a "$NOFOOTER" == 'true' ]; then
+		FAIL 1 $LINENO "Option '--borders|-b' used but header and footer disabled."
 	fi
 fi
 
@@ -374,19 +372,19 @@ tput clear
 
 # Short, optional introduction of shlides.
 if ! [ "$SKIPSTART" == 'true' ]; then
-	tput cup $[(Lines / 2) - 1]
-	Text="Presentation created with shlides, version $_VERSION_."
+	tput cup $[(Lines / 2) - 2]
+	Text="Presentation created with $_PROJECT_, version $_VERSION_."
 	printf "${RED}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 
-	tput cup $[(Lines / 2) - 0]
+	tput cup $[(Lines / 2) - 1]
 	Text="Written by 'terminalforlife', also known as 'Learn Linux'."
 	printf "${YELLOW}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 
-	tput cup $[(Lines / 2) + 1]
+	tput cup $[(Lines / 2) + 0]
 	Text="Licensed under the 'GNU General Public License v3.0'."
 	printf "${YELLOW}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 
-	tput cup $[(Lines / 2) + 3]
+	tput cup $[(Lines / 2) + 2]
 	Text="https://github.com/terminalforlife"
 	printf "${WHITE}%*s${WHITE}" $[(Cols / 2) + (${#Text} / 2)] "$Text"
 fi
@@ -470,7 +468,6 @@ for L in "${BuffArr[@]%$'\n'}"; {
 		CursorDown 4 0
 	elif [ $MainLines -eq 2 ]; then
 		if [ -n "$L" ]; then
-
 			tput ed; tput rmcup; printf "\n"
 			FAIL 1 $LINENO "Line 2 is non-empty."
 		fi
@@ -487,11 +484,11 @@ for L in "${BuffArr[@]%$'\n'}"; {
 			# Need both values for comparison to compensate for weird alignment
 			# when escape sequences are used (at least for color). This mainly or
 			# only affects the center alignment.
-			printf -v LNoTrail "%b" "${L%%[[:space:]]}"
-			declare -i LNoTrailLen_B=${#LNoTrail}
+			#printf -v LNoTrail "%b" "${L%%[[:space:]]}"
+			#declare -i LNoTrailLen_B=${#LNoTrail}
 			printf -v LNoTrail "%s" "${L%%[[:space:]]}"
-			declare -i LNoTrailLen_S=${#LNoTrail}
-			declare -i EscDiff=$[LNoTrailLen_S - LNoTrailLen_B]
+			#declare -i LNoTrailLen_S=${#LNoTrail}
+			#declare -i EscDiff=$[LNoTrailLen_S - LNoTrailLen_B]
 
 			LNoSpace=${LNoTrail##[[:space:]]}
 			LHalf=$[${#LNoSpace} / 2]
@@ -509,7 +506,7 @@ for L in "${BuffArr[@]%$'\n'}"; {
 			#	fi
 			#else
 				if [ "${LNoSpace:0:3}" == '<C>' ]; then
-					tput cuf $[(Cols / 2) - LHalf]
+					tput cuf $[(Cols / 2) - (LHalf - 1)]
 					printf "%s\n" "${LNoTrail##<C>}"
 				elif [ "${LNoSpace:0:3}" == '<R>' ]; then
 					tput cuf $[Cols - ${#LNoTrail}]
@@ -519,6 +516,9 @@ for L in "${BuffArr[@]%$'\n'}"; {
 					printf "%s\n" "$LNoTrail"
 				fi
 			#fi
+
+			# Show the length of each line, for debugging.
+			#printf "${RED}%-3.d${WHITE}\n" ${#LNoTrail}
 
 			let BodyLines++
 			OldLine=$L
