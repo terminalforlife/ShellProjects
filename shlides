@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Sun 24 Nov 19:07:28 GMT 2019
+# Last Change       - Sun 24 Nov 22:45:09 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -39,6 +39,7 @@ USAGE(){
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --update|-U             - Check for updates to $_PROJECT_.
+		            --debug|-D              - Enables the built-in bash debugging.
 		            --interactive|-i        - Wait for the user to press a key.
 		            --no-header             - Omit the header from each slide.
 		            --no-footer             - Omit the footer from each slide.
@@ -92,6 +93,8 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--update|-U)
 			UPDATE='true' ;;
+		--debug|-D)
+			DEBUGME='true' ;;
 		--interactive|-i)
 			INTERACTIVE='true' ;;
 		--no-header)
@@ -198,6 +201,8 @@ elif [[ "$1" ]]; then
 else
 	FAIL 1 $LINENO "Project file missing or unreadable."
 fi
+
+[ "$DEBUGME" == "true" ] && set -x
 
 tput smcup
 
