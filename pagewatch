@@ -98,11 +98,11 @@ for DEP in sleep md5sum wget; {
 printf -v BUFFER "/tmp/${_PROJECT_}_%(%F_%X)T.md5" "-1"
 [ -d /tmp ] || FAIL 1 "$LINENO" "Directory /tmp is missing or inaccessible."
 
-wget -q "$URL" -O - | md5sum > "$BUFFER" 2>&-
+wget -q "$URL" -O - | md5sum > "$BUFFER" 2> /dev/null
 
 declare -i COUNT=0
 while :; do
-	wget -q "$URL" -O - | md5sum -c "$BUFFER" > /dev/null 2>&- || ($COMMANDS)
+	wget -q "$URL" -O - | md5sum -c "$BUFFER" > /dev/null 2>&1 || ($COMMANDS)
 
 	COUNT+=1
 
