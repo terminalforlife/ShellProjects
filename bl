@@ -103,7 +103,7 @@ fi
 
 MAIN_FUNC(){
 	LSBLK(){
-		lsblk ${PORNOT:--P} -po $LSBLK_FORMAT ${SHOWDEV} 2>&-
+		lsblk ${PORNOT:--P} -po $LSBLK_FORMAT ${SHOWDEV} 2> /dev/null
 	}
 
 	# Format the output appropriately based on how lsblk is called.
