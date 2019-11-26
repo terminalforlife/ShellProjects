@@ -28,31 +28,31 @@ for DEP in ln rm; {
 if [ "${PWD//*\/}" != "Extra" ]; then
 	FAIL 1 "$LINENO" "Not in the repository's root directory."
 else
-	rm -v $HOME/.config/compton.conf 2>&-
-	ln -v compton.conf $HOME/.config/ 2>&-
+	rm -v $HOME/.config/compton.conf 2> /dev/null
+	ln -v compton.conf $HOME/.config/ 2> /dev/null
 
-	#rm -v $HOME/.keynavrc 2>&-
-	#ln -v .keynavrc $HOME/ 2>&-
+	#rm -v $HOME/.keynavrc 2> /dev/null
+	#ln -v .keynavrc $HOME/ 2> /dev/null
 
-	rm -v $HOME/.config/dunst/dunstrc 2>&-
-	ln -v dunstrc $HOME/.config/dunst/ 2>&-
+	rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
+	ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
 
-	#rm -v $HOME/.config/tint2/tint2rc 2>&-
-	#ln -v tint2rc $HOME/.config/tint2/tint2rc 2>&-
+	#rm -v $HOME/.config/tint2/tint2rc 2> /dev/null
+	#ln -v tint2rc $HOME/.config/tint2/tint2rc 2> /dev/null
 
-	#rm -v $HOME/.config/gpicview/gpicview.conf 2>&-
-	#ln -v gpicview.conf $HOME/.config/gpicview/gpicview.conf 2>&-
+	#rm -v $HOME/.config/gpicview/gpicview.conf 2> /dev/null
+	#ln -v gpicview.conf $HOME/.config/gpicview/gpicview.conf 2> /dev/null
 
-	#rm -v $HOME/.config/pcmanfm/default/pcmanfm.conf 2>&-
-	#ln -v pcmanfm.conf $HOME/.config/pcmanfm/default/pcmanfm.conf 2>&-
+	#rm -v $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
+	#ln -v pcmanfm.conf $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
 
-	rm -v $HOME/.config/xfce4/terminal/terminalrc 2>&-
-	ln -v terminalrc $HOME/.config/xfce4/terminal/terminalrc 2>&-
+	rm -v $HOME/.config/xfce4/terminal/terminalrc 2> /dev/null
+	ln -v terminalrc $HOME/.config/xfce4/terminal/terminalrc 2> /dev/null
 
-	rm -v $HOME/.config/herbstluftwm/autostart 2>&-
-	ln -v autostart $HOME/.config/herbstluftwm/ 2>&-
+	rm -v $HOME/.config/herbstluftwm/autostart 2> /dev/null
+	ln -v autostart $HOME/.config/herbstluftwm/ 2> /dev/null
 
-	rm -v $HOME/.config/herbstluftwm/panel.sh 2>&-
-	ln -v panel.sh $HOME/.config/herbstluftwm/ 2>&-
+	rm -v $HOME/.config/herbstluftwm/panel.sh 2> /dev/null
+	ln -v panel.sh $HOME/.config/herbstluftwm/ 2> /dev/null
 fi
 
