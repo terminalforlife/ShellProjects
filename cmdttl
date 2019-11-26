@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/cmdttl
 # Started On        - Tue 26 Nov 18:15:54 GMT 2019
-# Last Change       - Tue 26 Nov 19:07:41 GMT 2019
+# Last Change       - Tue 26 Nov 20:24:36 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -32,28 +32,53 @@ fi
 # by the shebang on line #1. Currently cmdttl supports only `#!/bin/bash` method.
 UserShell='bash'
 
-# Ignore these files and/or directories, as separated by line.
-Exceptions='
+# Ignore these files and/or directories.
+ItemExceptions='
 	LICENSE
 	README.md
 	.git
 	-
 '
 
-ReadFile(){
+# Ignore these commands.
+ExecExceptions='
+'
+
+ChkPath(){
 	SplitStr(){
 		local IFS=$1
 		set -- $2
 		printf "%s\n" "$@"
 	}
 
+	for Dir in `SplitStr ':' "$PATH"`; do
+		for File in "${Dir#\*}"/*; do
+			for CurExecExcept in $ExecExceptions; do
+				[ "$CurExecExcept" = ${1:-0} ] && return 2
+			done
+
+			[ "$1" = "${File##*/}" ] && return 0
+		done
+	done
+
+	return 1
+}
+
+ReadFile(){
 	while read CurLine; do
-		:
+		for CurField in $CurLine; do
+			BaseName=${CurField##*/}
+			if ! [ "${CurField%#*}" = '' ]; then
+				if ChkPath "$BaseName" && ! [ "$1" = $BaseName ]; then
+					printf "  %s\n" "$BaseName"
+				fi
+			fi
+		done
 	done < "$1"
 }
 
 for Item in *; do
-	for CurExcept in $Exceptions; do
+	for CurExcept in $ItemExceptions; do
 		[ "$Item" = $CurExcept ] && continue 2
 	done
 
@@ -62,6 +87,7 @@ for Item in *; do
 		if [ "${FirstLine%!/*}" = '#' ]; then
 			if [ "${FirstLine##*/}" = $UserShell ]; then
 				printf "Parsing: %s\n" "$Item"
+				ReadFile "$Item"
 			fi
 		fi
 	elif [ -d "$Item" ]; then
