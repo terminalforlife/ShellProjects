@@ -229,7 +229,7 @@ while :; do
 			if ! wget -q -T 3 --spider "$SADDR"; then
 				LOGIT "Unable to confirm server availability."
 
-				if ! ping -q -c 1 ${IP:-8.8.8.8} > /dev/null 2>&-; then
+				if ! ping -q -c 1 ${IP:-8.8.8.8} > /dev/null 2>&1; then
 					LOGIT "Error(s) detected when pinging IP address."
 					NOTIFY critical "Internet connectivity error(s) detected."
 				fi
