@@ -1,0 +1,74 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/cmdttl
+# Started On        - Tue 26 Nov 18:15:54 GMT 2019
+# Last Change       - Tue 26 Nov 19:07:41 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# Tally up the number of times each executable has been used in all shell scripts
+# within the current working directory, and up to 1 level down. Each command will
+# be uniquely listed out alongside its total number of instances.
+#
+# While the concept has mostly worked in draft-form, this script will build on it.
+#
+# This is using `sh` for portability, and I'll attempt to keep it POSIX-ly correct.
+#----------------------------------------------------------------------------------
+
+_VERSION_="2019-11-26"
+_PROJECT_=${0##*/}
+
+Err(){
+	printf "ERROR: %s\n" "$2"
+	[ $1 -eq 1 ] && exit 1
+}
+
+if [ $# -ne 0 ]; then
+	Err 1 "Bourne Shell program '$_PROJECT_' takes no arguments."
+fi
+
+# The name of the shell in which the scripts are written. This is detected entirely
+# by the shebang on line #1. Currently cmdttl supports only `#!/bin/bash` method.
+UserShell='bash'
+
+# Ignore these files and/or directories, as separated by line.
+Exceptions='
+	LICENSE
+	README.md
+	.git
+	-
+'
+
+ReadFile(){
+	SplitStr(){
+		local IFS=$1
+		set -- $2
+		printf "%s\n" "$@"
+	}
+
+	while read CurLine; do
+		:
+	done < "$1"
+}
+
+for Item in *; do
+	for CurExcept in $Exceptions; do
+		[ "$Item" = $CurExcept ] && continue 2
+	done
+
+	if [ -f "$Item" ]; then
+		read FirstLine < "$Item"
+		if [ "${FirstLine%!/*}" = '#' ]; then
+			if [ "${FirstLine##*/}" = $UserShell ]; then
+				printf "Parsing: %s\n" "$Item"
+			fi
+		fi
+	elif [ -d "$Item" ]; then
+		for SubDir in "$Item"/*; do
+			:
+		done
+	fi
+
+	break # <-- Remove when done testing.
+done
