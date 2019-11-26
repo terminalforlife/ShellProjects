@@ -91,7 +91,7 @@ while [ "$GO" == "yes" ]; do
 
 	for FILE in $@; {
 		[ -f "$FILE" ] || continue
-		NEW+=`stat --printf="%s" "$FILE" 2>&-`
+		NEW+=`stat --printf="%s" "$FILE" 2> /dev/null`
 	}
 
 	if [ ${OLD:-0} -eq $NEW ]; then
