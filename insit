@@ -697,7 +697,7 @@ while [ "$1" ]; do
 	case $1 in
 		libtfl-perl)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
@@ -708,7 +708,7 @@ while [ "$1" ]; do
 			FILE freema.chillout freema.chillout /usr/bin/freema.chillout 755 0 0 ;;
 		previewer)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show previewer 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show previewer 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "previewer's DEB package has already been installed."
 			fi
@@ -718,7 +718,7 @@ while [ "$1" ]; do
 			FILE PerlProjects previewer /usr/bin/previewer 755 0 0
 			FILE PerlProjects Completions/previewer /usr/share/bash-completion/completions/previewer 644 0 0
 
-			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
@@ -898,7 +898,7 @@ while [ "$1" ]; do
 			FILE simplify-ubuntu completion /usr/share/bash-completion/completions/simplify-ubuntu 644 0 0
 			FILE Extra clean-locales /usr/bin/clean-locales 755 0 0
 
-			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show lspkg 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show lspkg 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "lspkg's DEB package has already been installed."
 			fi
@@ -915,7 +915,7 @@ while [ "$1" ]; do
 			FILE autoscrot completion /usr/share/bash-completion/completions/autoscrot 644 0 0 ;;
 		apt-undo-install)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show apt-undo-install 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show apt-undo-install 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "apt-undo-install's DEB package has already been installed."
 			fi
@@ -925,7 +925,7 @@ while [ "$1" ]; do
 
 			APT_INSTALL perl libapt-pkg-perl
 
-			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
+			read II <<< `dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
@@ -949,7 +949,7 @@ while [ "$1" ]; do
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
 			FILE Extra catmedia /usr/bin/catmedia 755 0 0 ;;
 		cpufreq)
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show cpufreq 2>&-`
+			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show cpufreq 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "cpufreq's DEB package has already been installed."
 			fi
@@ -1110,7 +1110,7 @@ while [ "$1" ]; do
 
 			APT_INSTALL perl libgtk2-notify-perl
 
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2>&-`
+			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show libtfl-perl 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "libtfl-perl's DEB package has already been installed."
 			fi
@@ -1122,7 +1122,7 @@ while [ "$1" ]; do
 			FILE get-uuid get-uuid.desktop /usr/share/applications/get-uuid.desktop 644 0 0 ;;
 		wcdl)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show wcdl 2>&-`
+			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show wcdl 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "wcdl's DEB package has already been installed."
 			fi
@@ -1191,7 +1191,7 @@ while [ "$1" ]; do
 			FILE mansaver mansaver /usr/bin/mansaver 755 0 0 ;;
 		lspkg)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show lspkg 2>&-`
+			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show lspkg 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "lspkg's DEB package has already been installed."
 			fi
@@ -1210,7 +1210,7 @@ while [ "$1" ]; do
 			FILE homewatch homewatch /usr/bin/homewatch 755 0 0 ;;
 		getip)
 			FILE NLA '[N/A]' 'Transitioning to DEB packages.'
-			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show getip 2>&-`
+			read II <<< `/usr/bin/dpkg-query -f='${db:Status-Abbrev}' --show getip 2> /dev/null`
 			if [ "$II" == "ii" ]; then
 				FAIL 1 "$LINENO" "getip's DEB package has already been installed."
 			fi
