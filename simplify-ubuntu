@@ -181,7 +181,7 @@ PROMPT(){
 	done
 }
 
-FIND(){ lspkg --match-with glob -n $@ > /dev/null 2>&- || return 4; }
+FIND(){ lspkg --match-with glob -n $@ > /dev/null 2>&1 || return 4; }
 
 DEL(){
 	apt-get ${YES_APT:--q} $SIM --show-progress remove $PURGE --autoremove\
@@ -2133,7 +2133,7 @@ PROMPT\
 	"If you do this, these packages would have to be re-downloaded."\
 && {
 	SAY "Removing leftover cached DEB packages."
-	rm -vf 2>&-\
+	rm -vf 2> /dev/null\
 		/var/cache/apt/archives/*\
 		/var/cache/apt/archives/partial/*\
 		/var/lib/apt/lists/partial/*\
