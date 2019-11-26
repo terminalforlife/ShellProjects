@@ -96,7 +96,7 @@ fi
 
 if [ "$EDITFLAG" == "true" ]; then
 	if [ -x "$LIST_EDITOR" ]; then
-		$LIST_EDITOR "$BDL_FILE" 2>&-
+		$LIST_EDITOR "$BDL_FILE" 2> /dev/null
 		exit 0
 	else
 		FAIL 1 "$LINENO" "Unable to execute: $LIST_EDITOR"
