@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simwea (Simple Weather)
 # Started On        - Sun 17 Sep 22:16:30 BST 2017
-# Last Change       - Tue  5 Nov 14:32:37 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:43 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-05"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -46,7 +46,7 @@ USAGE(){
 	EOF
 }
 
-[ $# -eq 0 ] && FAIL 1 "$LINENO" "Arguments are required."
+[ $# -eq 0 ] && Err 1 $LINENO "Arguments are required."
 
 while [ "$1" ]; do
 	case $1 in
@@ -56,24 +56,24 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--fahrenheit|-F)
 			UKUS="us"; SYM="°F" ;;
 		--celsius|-C)
 			UKUS="uk"; SYM="°C" ;;
 		--long|-l)
 			shift
-			if [[ "$1" =~ [-0-9.]+ ]]; then
-				LONG="$1"
+			if [[ $1 =~ [-0-9.]+ ]]; then
+				LONG=$1
 			else
-				FAIL 1 "$LINENO" "Invalid longitude."
+				Err 1 $LINENO "Invalid longitude."
 			fi ;;
 		--lat|-L)
 			shift
-			if [[ "$1" =~ [-0-9.]+ ]]; then
-				LAT="$1"
+			if [[ $1 =~ [-0-9.]+ ]]; then
+				LAT=$1
 			else
-				FAIL 1 "$LINENO" "Invalid latitude."
+				Err 1 $LINENO "Invalid latitude."
 			fi ;;
 		*)
 			break ;;
@@ -81,22 +81,22 @@ while [ "$1" ]; do
 	shift
 done
 
-type -fP wget > /dev/null 2>&1 || FAIL 1 "$LINENO" "Dependency 'wget' not met."
+type -fP wget > /dev/null 2>&1 || Err 1 $LINENO "Dependency 'wget' not met."
 
 if ! [ "$#" ]; then
-	FAIL 1 "$LINENO" "Incorrect argument(s) given."
+	Err 1 $LINENO "Incorrect argument(s) given."
 elif [ -z "$UKUS" ] || [ -z "$SYM" ]; then
-	FAIL 1 "$LINENO" "Missing Fahrenheit or Celsius arguments."
+	Err 1 $LINENO "Missing Fahrenheit or Celsius arguments."
 elif [ -z "$LONG" ] || [ -z "$LAT" ]; then
-	FAIL 1 "$LINENO" "Missing longitude and latitude arguments."
+	Err 1 $LINENO "Missing longitude and latitude arguments."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 PAGE="$DOM/forecast/${LAT},${LONG}/${UKUS}12/en"
 
 while read LINE; do
-	if [[ "$LINE" == *currently\ =* ]]; then
+	if [[ $LINE == *currently\ =* ]]; then
 		RESULT="$(
 			IFS="," read -a FIELD <<< "${LINE//['{}"=']}"
 			if ! [ "${FIELD[0]}" == "currently" ]; then
@@ -105,7 +105,7 @@ while read LINE; do
 		)"
 
 		while IFS=":" read -a LINE; do
-			DONE="${LINE[1]//%20/ }"
+			DONE=${LINE[1]//%20/ }
 			case ${LINE[0]} in
 				summary)
 					printf "%-20s%s\n" "Summary:" "$DONE" ;;
