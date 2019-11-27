@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/lspkg-set (List Packages Set)
 # Started On        - Wed 24 Jan 17:31:41 GMT 2018
-# Last Change       - Sun 12 May 23:02:09 BST 2019
+# Last Change       - Wed 27 Nov 15:56:15 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -57,11 +57,11 @@ case $* in
 	--important|-I)
 		TYPE="Priority:important" ;;
 	*)
-		FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+		Err 1 $LINENO "Incorrect argument(s) specified." ;;
 esac
 
 if ! type -fP dpkg-query > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency 'dpkg-query' not met."
+	Err 1 $LINENO "Dependency 'dpkg-query' not met."
 fi
 
 #TODO - Not seeing the Binary:Summary of the packages.
@@ -73,7 +73,7 @@ while read -a X; do
 	if [ "${X[0]}" == "ii" -a "${X[1]}" == "${TYPE/*:}" ]; then
 		printf -v INUM "%d" "$((${#X[@]}-1))"
 
-		OLD="$NEW"
+		OLD=$NEW
 		NEW=$(
 			for FIELD in `eval printf {2..$INUM}`; {
 				printf "%s " "${X[FIELD]}"
