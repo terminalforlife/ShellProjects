@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Wed 27 Nov 15:59:11 GMT 2019
+# Last Change       - Wed 27 Nov 16:16:54 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,9 +36,6 @@ else
 
 	rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
 	ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
-
-	#rm -v $HOME/.config/tint2/tint2rc 2> /dev/null
-	#ln -v tint2rc $HOME/.config/tint2/tint2rc 2> /dev/null
 
 	#rm -v $HOME/.config/gpicview/gpicview.conf 2> /dev/null
 	#ln -v gpicview.conf $HOME/.config/gpicview/gpicview.conf 2> /dev/null
