@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ccfiles (Cross-Check Files)
 # Started On        - Wed 13 Dec 13:45:22 GMT 2017
-# Last Change       - Sun 12 May 15:20:31 BST 2019
+# Last Change       - Wed 27 Nov 15:53:59 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,10 +15,10 @@
 #       seems to have gone a different direction.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -51,25 +51,25 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--nopause|-N)
-			NOPAUSE="true" ;;
+			NOPAUSE='true' ;;
 		--nobell|-B)
-			NOBELL="true" ;;
+			NOBELL='true' ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 if ! type -fP readlink > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency 'readlink' not met."
+	Err 1 $LINENO "Dependency 'readlink' not met."
 fi
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -x
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -x
 
 #TODO - Check for Debian/Ubuntu base.
 
@@ -80,13 +80,13 @@ if [ -d $DIR/ ]; then
 				RESOLVED=`readlink --quiet "$EXE"`
 
 				if ! [ -x "$RESOLVED" ]; then
-					if ! [ "$NOBELL" == "true" ]; then
+					if ! [ "$NOBELL" == 'true' ]; then
 						printf "WARNING: %s\n" "$RESOLVED"
 					else
 						printf "\aWARNING: %s\n" "$RESOLVED"
 					fi
 
-					if ! [ "$NOPAUSE" == "true" ]; then
+					if ! [ "$NOPAUSE" == 'true' ]; then
 						read -n 1 -s -p "Press any key to continue... "
 					fi
 				else
@@ -96,6 +96,6 @@ if [ -d $DIR/ ]; then
 		done < "$FILE"
 	}
 else
-	FAIL 1 "$LINENO" "Directory '$DIR' not found."
+	Err 1 $LINENO "Directory '$DIR' not found."
 fi
 
