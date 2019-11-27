@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/jotd (Joke of the Day)
 # Started On        - Fri  2 Mar 13:27:44 GMT 2018
-# Last Change       - Tue 26 Nov 17:42:59 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:13 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-26"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -55,9 +55,9 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
@@ -65,7 +65,7 @@ done
 declare -i DEPCOUNT=0
 for DEP in tee wget fold; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -73,10 +73,10 @@ for DEP in tee wget fold; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 if [ "$COLUMNS" ] && ! type -fP tput > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency 'tput' not met."
+	Err 1 $LINENO "Dependency 'tput' not met."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 URL="$DOM/jokes/joke-of-the-day"
 FILE="/tmp/${_PROJECT_}_store.txt"
@@ -87,19 +87,19 @@ MAIN(){
 	elif type -fP wget > /dev/null 2>&1; then
 		JOKE_RAW=`wget -q -t 1 "$URL" -O -`
 	else
-		FAIL 0 "$LINENO" "Dependency 'wget' or 'curl' not met."
+		Err 0 $LINENO "Dependency 'wget' or 'curl' not met."
 	fi
 
 	declare -i C=1
 	while read X; do
-		if [[ "$X" =~ \<p\ id\=\"joke_[0-9]+\"\> ]]; then
+		if [[ $X =~ \<p\ id\=\"joke_[0-9]+\"\> ]]; then
 			printf -v JID "%d" "${X//[!0-9]}"
-			[[ "$JID" =~ ^[0-9]+$ ]] && C+=1
+		 [[ $JID =~ ^[0-9]+$ ]] && C+=1
 		elif [ $C -eq 2 ]; then
 			for F in $X; {
-				if [[ "$F" == *\<br\>* ]]; then
+				if [[ $F == *\<br\>* ]]; then
 					printf "${F//<br>/$'\n'} "
-				elif [[ "$F" == *\</p\>* ]]; then
+				elif [[ $F == *\</p\>* ]]; then
 					break
 				else
 					printf "%s " "$F"
@@ -113,7 +113,7 @@ MAIN(){
 }
 
 if [ -z "$(MAIN)" ]; then
-	FAIL 1 "$LINENO" "Fetching the JOTD is currently unavailable."
+	Err 1 $LINENO "Fetching the JOTD is currently unavailable."
 elif ! [ -f "$FILE" ]; then
 	MAIN | tee "$FILE"
 else
