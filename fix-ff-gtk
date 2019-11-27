@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/fix-ff-gtk
 # Started On        - Fri 29 Mar 13:12:04 GMT 2019
-# Last Change       - Sun 12 May 22:06:14 BST 2019
+# Last Change       - Wed 27 Nov 15:54:12 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -62,21 +62,21 @@ while [ "$1" ]; do
 		--theme|-t)
 			THEME="$2" ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 [ "$THEME" ] || THEME="Adwaita"
 
-[ $UID -eq 0 ] || FAIL 1 "$LINENO" "Root access is required."
+[ $UID -eq 0 ] || Err 1 $LINENO "Root access is required."
 
 if ! type -fP sed > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency '/bin/sed' not met."
+	Err 1 $LINENO "Dependency '/bin/sed' not met."
 fi
 
 if ! [ -f "$FF" -a -r "$FF" -a -w "$FF" ]; then
-	FAIL 1 "$LINENO" "File "$FF" not found or inaccessible."
+	Err 1 $LINENO "File "$FF" not found or inaccessible."
 fi
 
 declare -i LINE=0
@@ -85,17 +85,17 @@ STRING='exec\ \$MOZ_LIBDIR\/\$MOZ_APP_NAME\ \"\$\@\"'
 while read; do
 	LINE+=1
 
-	if [[ "$REPLY" =~ ^\ +$STRING ]] && [ $LINE -eq 110 ]; then
+	if [[ $REPLY =~ ^\ +$STRING ]] && [ $LINE -eq 110 ]; then
 		if sed -in 110s/'^\(\s\+\)'"$STRING"/'\1GTK_THEME="'$THEME'" '"$STRING"/ "$FF"; then
 			printf "File '%s' modified.\n" "$FF"
 			exit 0
 		else
-			FAIL 1 "$LINENO" "File '$FF' failed during editing."
+			Err 1 $LINENO "File '$FF' failed during editing."
 		fi
-	elif [[ "$REPLY" =~ ^\ +GTK_THEME\=\"$THEME\"\ $STRING ]]; then
+	elif [[ $REPLY =~ ^\ +GTK_THEME\=\"$THEME\"\ $STRING ]]; then
 		printf "File '%s' already modified.\n" "$FF"
 		exit 1
 	fi
 done < "$FF"
 
-FAIL 1 "$LINENO" "File '$FF' contents unexpected."
+Err 1 $LINENO "File '$FF' contents unexpected."
