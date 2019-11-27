@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Sun 12 May 22:20:38 BST 2019
+# Last Change       - Wed 27 Nov 15:56:08 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -60,10 +60,10 @@ USAGE(){
 }
 
 declare -i ACTION_COUNT=0
-SHOW_NAMES="false"
-TOTAL_ONLY="false"
-LINE_NUMBERS="false"
-COLOR_MODE="true"
+SHOW_NAMES='false'
+TOTAL_ONLY='false'
+LINE_NUMBERS='false'
+COLOR_MODE='true'
 
 while [ "$1" ]; do
 	case $1 in
@@ -73,20 +73,20 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--nums|-n)
-			LINE_NUMBERS="true" ;;
+			LINE_NUMBERS='true' ;;
 		--ttl|-t)
-			TOTAL_ONLY="true" ;;
+			TOTAL_ONLY='true' ;;
 		--nocolor|-c)
-			COLOR_MODE="false" ;;
+			COLOR_MODE='false' ;;
 		--names|-N)
-			SHOW_NAMES="true" ;;
+			SHOW_NAMES='true' ;;
 		--sum|-S)
-			XERR "$LINENO" "Feature not yet available."
-			SHOW_SUM="true" ;;
+			XERR $LINENO "Feature not yet available."
+			SHOW_SUM='true' ;;
 		-*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			XERR $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -102,30 +102,30 @@ while [ "$1" ]; do
 			ACTION_COUNT+=1
 			INSTRUCT="read:${1/*:}" ;;
 		start)
-			XERR "$LINENO" "Feature not yet available."
+			XERR $LINENO "Feature not yet available."
 
 			#TODO - Finish this feature.
 			shift
 
 			ACTION_COUNT+=1
 			INSTRUCT="start"
-			STARTNUM="$1"
+			STARTNUM=$1
 
-			if [[ "$STARTNUM" =~ [0-9]+ ]]; then
-				XERR "$LINENO" "Incorrect start number chosen."
+			if [[ $STARTNUM =~ [0-9]+ ]]; then
+				XERR $LINENO "Incorrect start number chosen."
 			fi ;;
 		end)
-			XERR "$LINENO" "Feature not yet available."
+			XERR $LINENO "Feature not yet available."
 
 			#TODO - Finish this feature.
 			shift
 
 			ACTION_COUNT+=1
 			INSTRUCT="end"
-			ENDNUM="$1"
+			ENDNUM=$1
 
-			if ! [[ "$ENDNUM" =~ ^[0-9]+$ ]]; then
-				XERR "$LINENO" "Incorrect end number chosen."
+			if ! [[ $ENDNUM =~ ^[0-9]+$ ]]; then
+				XERR $LINENO "Incorrect end number chosen."
 			fi ;;
 		line)
 			#TODO - Why won't this display >1 line at a time?
@@ -136,8 +136,8 @@ while [ "$1" ]; do
 
 			#TODO - Add ranges, like: line 2-50,57-59,70-74
 			for L in ${1//,/ }; {
-				if ! [[ "$L" =~ ^[0-9]+$ ]]; then
-					XERR "$LINENO" "Incorrect line number: $L"
+				if ! [[ $L =~ ^[0-9]+$ ]]; then
+					XERR $LINENO "Incorrect line number: $L"
 				fi
 
 				# This is to ensure the user doesn't get confused
@@ -152,10 +152,10 @@ while [ "$1" ]; do
 
 			ACTION_COUNT+=1
 			INSTRUCT="showfield"
-			CUTLINE="$1"
+			CUTLINE=$1
 
-			if ! [[ "$CUTLINE" =~ [0-9]+:[0-9]+ ]]; then
-				XERR "$LINENO" "Incorrect cut line/field selected"
+			if ! [[ $CUTLINE =~ [0-9]+:[0-9]+ ]]; then
+				XERR $LINENO "Incorrect cut line/field selected"
 			fi ;;
 		lcount)
 			ACTION_COUNT+=1
@@ -181,19 +181,19 @@ while [ "$1" ]; do
 	shift
 done
 
-if [ "$COLOR_MODE" == "true" ]; then
+if [ "$COLOR_MODE" == 'true' ]; then
 	GREY="\e[1;30m"
 	NORMAL="\e[0m"
 fi
 
 if [ $ACTION_COUNT -gt 1 ]; then
-	XERR "$LINENO" "Only one action at a time may be specified."
+	XERR $LINENO "Only one action at a time may be specified."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 if ! [ "$INSTRUCT" ]; then
-	XERR "$LINENO" "Missing or incorrect action argument."
+	XERR $LINENO "Missing or incorrect action argument."
 else
 	[ "$*" ] && FILELIST+="$@ "
 fi
@@ -203,18 +203,18 @@ if [ "$INSTRUCT" == "showfield" ]; then
 	CUTFIELD=${CUTLINE/*:}
 	let CUTFIELD--
 
-	[ $CUTFIELD -lt 0 ] && XERR "$LINENO" "Incorrect field selected."
+	[ $CUTFIELD -lt 0 ] && XERR $LINENO "Incorrect field selected."
 fi
 
-if ! [[ "$INSTRUCT" == [wlc]count ]] && [ "$TOTAL_ONLY" == "true"  ]; then
-	XERR "$LINENO" "Missing paired argument for --total-only."
+if ! [[ $INSTRUCT == [wlc]count ]] && [ "$TOTAL_ONLY" == 'true'  ]; then
+	XERR $LINENO "Missing paired argument for --total-only."
 fi
 
 # This function saves repetition when a line or lines need to be displayed. Use
 # $1 for the variable which contains the line number, $2 for the actual file's
 # data, and use $3 for the newline \n character, if desired.
 LINE_NUM_FUNC(){
-	if [ "$LINE_NUMBERS" == "false" ]; then
+	if [ "$LINE_NUMBERS" == 'false' ]; then
 		printf "%s$3" "$2"
 	else
 		[ "$2" ] || continue
@@ -227,14 +227,14 @@ for FILE in $FILELIST; {
 	# working with a new file in FILELIST, the variables don't carry over.
 	CHARCOUNT=0; LINECOUNT=0; WORDCOUNT=0; GETWORDS=""
 
-	if ! [[ "$INSTRUCT" == [wlc]count ]] && [ "$SHOW_NAMES" == "true" ]; then
+	if ! [[ $INSTRUCT == [wlc]count ]] && [ "$SHOW_NAMES" == 'true' ]; then
 		printf "FILE: %s\n" "$FILE"
 	fi
 
 	if ! [ "$FILE" ]; then
-		XERR "$LINENO" "No filename(s) specified."
+		XERR $LINENO "No filename(s) specified."
 	elif ! [ -f "$FILE" -a -r "$FILE" ]; then
-		XERR "$LINENO" "File missing or inaccessible: $FILE"
+		XERR $LINENO "File missing or inaccessible: $FILE"
 	fi
 
 	if [ "$INSTRUCT" == "showline" ]; then
@@ -257,7 +257,7 @@ for FILE in $FILELIST; {
 		# Remove newline characters from the current line. This fixes the
 		# issue whereby using \ in files (particularly code) to continue
 		# a long command on the next line, would not display correctly.
-		REPLY="${REPLY//}"
+		REPLY=${REPLY//}
 
 		# Fixes issue whereby empty lines were being ignored. This converts
 		# empty lines to a literal new line character. (\n doesn't work)
@@ -299,12 +299,12 @@ for FILE in $FILELIST; {
 			gmatch=*)
 				# If the current line contains the match given by
 				# the user and stored in INSTRUCT=*. Uses globbing.
-				if [[ "$REPLY" == *${INSTRUCT/*=}* ]]; then
+				if [[ $REPLY == *${INSTRUCT/*=}* ]]; then
 					LINE_NUM_FUNC "$LINECOUNT" "$REPLY" "\\n"
 				fi ;;
 			rmatch=*)
 				# As gmatch, but uses extended regex.
-				if [[ "$REPLY" =~ ${INSTRUCT/*=} ]]; then
+				if [[ $REPLY =~ ${INSTRUCT/*=} ]]; then
 					LINE_NUM_FUNC "$LINECOUNT" "$REPLY" "\\n"
 				fi ;;
 		esac
@@ -314,7 +314,7 @@ for FILE in $FILELIST; {
 	# Supply the first positional parameter with the variable from which to get
 	# the total. Easier to add to.
 	TTL_OUTPUT(){
-		if ! [ "$TOTAL_ONLY" == "true" ]; then
+		if ! [ "$TOTAL_ONLY" == 'true' ]; then
 			printf "%s %s\n" "$1" "$FILE"
 		else
 			printf "%s\n" "$1"
@@ -337,7 +337,7 @@ for FILE in $FILELIST; {
 	esac
 
 	#TODO - Finish this. Target: show sum of concatenated "count" results.
-	if [ "$SHOW_SUM" == "true" ]; then
+	if [ "$SHOW_SUM" == 'true' ]; then
 		:
 	fi
 }
