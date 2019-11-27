@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/freelfm
 # Started On        - Fri 15 Sep 21:19:42 BST 2017
-# Last Change       - Sun 12 May 22:12:30 BST 2019
+# Last Change       - Wed 27 Nov 15:54:14 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -55,7 +55,7 @@ USAGE(){
 	EOF
 }
 
-LINKSONLY="false"
+LINKSONLY='false'
 
 while [ "$1" ]; do
 	case $1 in
@@ -64,15 +64,15 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--suspend|-s)
-			SUSPEND="true" ;;
+			SUSPEND='true' ;;
 		--shutdown|-S)
-			SHUTDOWN="true" ;;
+			SHUTDOWN='true' ;;
 		--links-only)
-			LINKSONLY="true" ;;
+			LINKSONLY='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -82,7 +82,7 @@ done
 declare -i DEPCOUNT=0
 for DEP in tee wget sync sleep sed grep mkdir; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -91,12 +91,12 @@ for DEP in tee wget sync sleep sed grep mkdir; {
 
 
 if ! [ "$*" ]; then
-	FAIL 1 "$LINENO" "One or more page numbers missing."
+	Err 1 $LINENO "One or more page numbers missing."
 else
 	PAGENUM="$@"
 	for NUM in $PAGENUM; {
-		if ! [[ "$NUM" == [0-9] ]]; then
-			FAIL 1 "$LINENO" "Invalid page number at: $NUM"
+		if ! [[ $NUM == [0-9] ]]; then
+			Err 1 $LINENO "Invalid page number at: $NUM"
 		fi
 	}
 fi
@@ -105,7 +105,7 @@ fi
 read -a WGET_VER_LINE <<< "$(wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 DLDIR="./"
 printf -v CURDATE "%(%F_%X)T" -1
@@ -125,18 +125,18 @@ for PAGE in $PAGENUM; {
 	)
 
 	for LINK in $TITLELINK; {
-		if [[ "$LINK" == title=* ]]; then
+		if [[ $LINK == title=* ]]; then
 			TITLE=$(
 				printf "%s\n" "${LINK//_/ }"\
 					| sed -e s/\&amp\;/\&/ -e s/^title=//\
 						   -e s/\"//g -e s/\&\#39\;/\'/g
 			)
 		else
-			if ! [ "$LINKSONLY" == "true" ]; then
+			if ! [ "$LINKSONLY" == 'true' ]; then
 				printf "%s\n" "FILE: ${TITLE}.mp3"
 				wget -qc --no-cookies $NOWARC \
 					"$LINK" -O "$DLDIR/${TITLE//\"}.mp3" || {
-					FAIL 0 "$LINENO" "Track '${TITLE}.mp3' failed."
+					Err 0 $LINENO "Track '${TITLE}.mp3' failed."
 				}
 			else
 				printf "%s\n" "LINK: ${TITLE}.mp3"
@@ -146,7 +146,7 @@ for PAGE in $PAGENUM; {
 	}
 } |& tee "$LOGFILE"
 
-if [ "$SHUTDOWN" == "true" ]; then
+if [ "$SHUTDOWN" == 'true' ]; then
 	shutdown +3 > /dev/null 2>&1
 	printf "%s\n" "Shutting down in 3 minutes..."
 	MSG="Type 'C' to cancel, or 'N' to shutdown now: "
@@ -163,7 +163,7 @@ if [ "$SHUTDOWN" == "true" ]; then
 	esac
 fi
 
-if [ "$SUSPEND" == "true" ]; then
+if [ "$SUSPEND" == 'true' ]; then
 	/bin/sync
 	printf "%s\n" "System will suspend in 3s; type Ctrl+C to cancel."
 	/bin/sleep 3
@@ -173,7 +173,7 @@ if [ "$SUSPEND" == "true" ]; then
 	elif type -fP pm-suspend > /dev/null 2>&1; then
 		pm-suspend
 	else
-		FAIL 1 "$LINENO" "Unable to find a supported suspend method."
+		Err 1 $LINENO "Unable to find a supported suspend method."
 	fi
 fi
 
