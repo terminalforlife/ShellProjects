@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Fri  1 Nov 19:26:18 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:37 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-01"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -64,17 +64,17 @@ while [ "$1" ]; do
 		--quiet|-q)
 			exec > /dev/null 2>&1 ;;
 		--debug|-D)
-			DEBUG_MODE="true" ;;
+			DEBUG_MODE='true' ;;
 		--keep|-k)
 			shift
-			if [[ "$1" =~ [0-9]+ ]]; then
+			if [[ $1 =~ [0-9]+ ]]; then
 				if [ $1 -eq 0 ]; then
-					FAIL 1 "$LINENO" "Invalid number of kernels selected."
+					Err 1 $LINENO "Invalid number of kernels selected."
 				else
 					declare -i NUM_TO_KEEP=$1
 				fi
 			else
-				FAIL 1 "$LINENO" "Invalid expression specified."
+				Err 1 $LINENO "Invalid expression specified."
 			fi ;;
 		--type)
 			shift; KTYPE="-${1}" ;;
@@ -83,7 +83,7 @@ while [ "$1" ]; do
 		-*|--*)
 			APTGETOPTS+=" $1" ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) provided." ;;
+			Err 1 $LINENO "Incorrect argument(s) provided." ;;
 	esac
 	shift
 done
@@ -91,14 +91,14 @@ done
 declare -i DEPCOUNT=0
 for DEP in apt-get linux-version; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$DEBUG_MODE" == "true" ] && set -x
+[ "$DEBUG_MODE" == 'true' ] && set -x
 
 if [ -f /proc/version -a -r /proc/version ]; then
 	read -a X < /proc/version
@@ -106,25 +106,25 @@ if [ -f /proc/version -a -r /proc/version ]; then
 elif ! type -fP uname > /dev/null 2>&1; then
 	CKERN=`uname -r`
 else
-	FAIL 1 "$LINENO" "Unable to determine current kernel version."
+	Err 1 $LINENO "Unable to determine current kernel version."
 fi
 
 if ! [ $UID -eq 0 ]; then
-	FAIL 1 "$LINENO" "Root access is required for system-wide changes."
+	Err 1 $LINENO "Root access is required for system-wide changes."
 fi
 
 NUM_TO_KEEP+=2
 KLIST=`linux-version list`
 if ! [ "$KLIST" ]; then
-	FAIL 1 "$LINENO" "No kernels were found."
+	Err 1 $LINENO "No kernels were found."
 elif ! [ "$KLIST" ]; then
-	FAIL 1 "$LINENO" "No kernels were selected for removal."
+	Err 1 $LINENO "No kernels were selected for removal."
 else
 	declare -a TO_GO=()
 	for LOOP in $KLIST; {
-		[ -n "$KTYPE" ] && LOOP="${LOOP%-*}${KTYPE}"
+		[ -n "$KTYPE" ] && LOOP=${LOOP%-*}${KTYPE}
 		if ! [ "$LOOP" == "$CKERN" ]; then
-			TO_GO+="${LOOP%-*}${KTYPE}"
+			TO_GO+=${LOOP%-*}${KTYPE}
 		fi
 	}
 
@@ -132,7 +132,7 @@ else
 		-o Dpkg::Progress-Fancy=true remove $PURGE ${TO_GO[@]}
 
 	if [ $? -ne 0 ]; then
-		FAIL 1 "$LINENO" "Non-zero exit status while removing old kernels."
+		Err 1 $LINENO "Non-zero exit status while removing old kernels."
 	fi
 fi
 
