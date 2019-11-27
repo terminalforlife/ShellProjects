@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/autosh
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Fri  1 Nov 00:26:59 GMT 2019
+# Last Change       - Wed 27 Nov 15:53:49 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-01"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -45,16 +45,16 @@ while [ "$1" ]; do
 			shift
 
 			if [ -z "$1" ]; then
-				FAIL 1 "$LINENO" "Name of shell not provided."
+				Err 1 $LINENO "Name of shell not provided."
 			elif [ "$1" == 'bash' ]; then
-				FAIL 1 "$LINENO" "The Bourne Again Shell is the default."
+				Err 1 $LINENO "The Bourne Again Shell is the default."
 			elif ! type -fP "$1" > /dev/null 2>&1; then
-				FAIL 1 "$LINENO" "Provided shell not found in PATH."
+				Err 1 $LINENO "Provided shell not found in PATH."
 			else
-				SHELL="$1"
+				SHELL=$1
 			fi ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -64,15 +64,15 @@ done
 declare -i DEPCOUNT=0
 for DEP in clear sleep stat ${SHELL##*/}; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -x
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -x
 
 # SSE = Seconds Since Epoch. (used to figure if and when modified)
 
@@ -95,7 +95,7 @@ while :; do
 
 		SSE_OLD=${SSE//[!0-9]}
 	else
-		FAIL 1 "$LINENO" "File not found or inaccessible."
+		Err 1 $LINENO "File not found or inaccessible."
 	fi
 
 	sleep 0.5s # Half-second to help compensate for misalignment.
