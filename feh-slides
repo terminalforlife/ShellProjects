@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Sun 12 May 16:10:01 BST 2019
+# Last Change       - Wed 27 Nov 15:54:09 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -47,13 +47,13 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--interval|-i)
 			shift; INTERVAL="$1" ;;
 		--trap|-T)
-			TRAP="true" ;;
+			TRAP='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -63,7 +63,7 @@ done
 declare -i DEPCOUNT=0
 for DEP in sleep feh; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -71,12 +71,12 @@ for DEP in sleep feh; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 if [ $# -gt 1 ]; then
-	FAIL 1 "$LINENO" "Only one wallpaper directory may be specified."
+	Err 1 $LINENO "Only one wallpaper directory may be specified."
 elif [ $# -eq 0 ]; then
-	FAIL 1 "$LINENO" "A wallpaper directory must be specified."
+	Err 1 $LINENO "A wallpaper directory must be specified."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 # Room for easy expansion.
 EXIT(){
@@ -85,20 +85,20 @@ EXIT(){
 }
 
 if [ -d "$1" ]; then
-	[ "$TRAP" == "true" ] && trap 'EXIT' 10 # <-- SIGUSR1
+	[ "$TRAP" == 'true' ] && trap 'EXIT' 10 # <-- SIGUSR1
 
 	while :; do
 		for FILE in "${1%\/}"/*; {
 			if [ -f "$FILE" ]; then
 				if ! feh --no-fehbg --bg-center "$FILE"; then
-					FAIL 1 "$LINENO" "One or more errors detected while setting wallpaper with feh."
+					Err 1 $LINENO "One or more errors detected while setting wallpaper with feh."
 				elif ! sleep ${INTERVAL:-5}s > /dev/null 2>&1; then
-					FAIL 1 "$LINENO" "Invalid interval time specified."
+					Err 1 $LINENO "Invalid interval time specified."
 				fi
 			fi
 		}
 	done
 else
-	FAIL 1 "$LINENO" "Directory '$1' not found."
+	Err 1 $LINENO "Directory '$1' not found."
 fi
 
