@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Sun 12 May 22:51:50 BST 2019
+# Last Change       - Wed 27 Nov 15:56:12 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -55,31 +55,31 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--interval|-I)
 			shift
-			if [[ "$1" =~ ^[0-9]+$ ]] && [ $1 -gt 0 ]; then
+			if [[ $1 =~ ^[0-9]+$ ]] && [ $1 -gt 0 ]; then
 				LIMIT=$1
 			else
-				FAIL 1 "$LINENO" "Invalid interval specified."
+				Err 1 $LINENO "Invalid interval specified."
 			fi ;;
 		--limit|-L)
 			shift
-			if [[ "$1" =~ ^[0-9]+$ ]]\
+			if [[ $1 =~ ^[0-9]+$ ]]\
 			&& [ $1 -gt 0 -a $1 -lt 100 ]; then
 				LIMIT=$1
 			else
-				FAIL 1 "$LINENO" "Invalid limit specified."
+				Err 1 $LINENO "Invalid limit specified."
 			fi ;;
 		--battery|-B)
 			shift
 			if ! [ "$1" ]; then
-				FAIL 1 "$LINENO" "Missing battery specification."
+				Err 1 $LINENO "Missing battery specification."
 			else
-				BATTERY="$1"
+				BATTERY=$1
 			fi ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -91,22 +91,22 @@ CMD="$@"
 declare -i DEPCOUNT=0
 for DEP in notify-send on_ac_power wget sleep; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 if ! on_ac_power; then
 	while IFS=":" read -a X; do
 		if [ "${X[0]// }" == "percentage" ]; then
-			if ! [[ "${X[1]// }" =~ ^[0-9]+%$ ]]; then
+			if ! [[ ${X[1]// } =~ ^[0-9]+%$ ]]; then
 				notify-send --urgency=critical\
 					"Unable to get valid battery value."
-				FAIL 0 "$LINENO" "Unable to get valid percentile."
+				Err 0 $LINENO "Unable to get valid percentile."
 			else
 				if [ ${X[1]%\%} -le $LIMIT ]; then
 					notify-send --urgency=critical\
