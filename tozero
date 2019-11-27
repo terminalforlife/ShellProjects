@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Sat 18 May 21:43:00 BST 2019
+# Last Change       - Wed 27 Nov 15:56:51 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-18"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -61,30 +61,30 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--only|-o)
 			shift; TYPE="$1" ;;
 		--int-only|-I)
-			INTONLY="true" ;;
+			INTONLY='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-DATE="$1"
+DATE=$1
 
-[ -x /bin/date ] || FAIL 1 "$LINENO" "Dependency '/bin/date' not met."
+[ -x /bin/date ] || Err 1 $LINENO "Dependency '/bin/date' not met."
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 if ! /bin/date -d "$DATE" > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Incorrect TARGET string."
+	Err 1 $LINENO "Incorrect TARGET string."
 fi
 
-TARGET="${DATE:-tomorrow}"
+TARGET=${DATE:-tomorrow}
 
 BUF1=`/bin/date -d "$TARGET" +%s`
 BUF2=`/bin/date +%s`
@@ -96,7 +96,7 @@ DAYS=$(((BUF1-BUF2)/60/60/24))
 WEEKS=$(((BUF1-BUF2)/60/60/24/7))
 
 SHOW(){
-	if [ "$INTONLY" == "true" ]; then
+	if [ "$INTONLY" == 'true' ]; then
 		printf "%-'d\n" "$2"
 	else
 		printf "%s: %-'d\n" "$1" "$2"
