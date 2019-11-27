@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/bdl (Batch Downloader)
 # Started On        - Sat 16 Sep 22:34:12 BST 2017
-# Last Change       - Sun  3 Nov 15:44:01 GMT 2019
+# Last Change       - Wed 27 Nov 15:53:54 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-03"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -55,17 +55,17 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--insert|-I)
 			shift
 
-			INSERT="true"
+			INSERT='true'
 			printf "%s\n" "$1" >> "$BDL_FILE" ;;
 		--dest|-d)
 			shift
 
 			[ -d "$1" ] || {
-				FAIL 1 "$LINENO" "Destination directory unavailable."
+				Err 1 $LINENO "Destination directory unavailable."
 			} && DL_DIR="$1" ;;
 		--editor|-E)
 			shift
@@ -73,80 +73,80 @@ while [ "$1" ]; do
 			printf "%s\n" "$1" > "$LIST_EDITOR_FILE"
 			exit 0 ;;
 		--edit|-e)
-			EDITFLAG="true" ;;
+			EDITFLAG='true' ;;
 		--clear|-C)
-			CLEAR="true" ;;
+			CLEAR='true' ;;
 		--notify|-N)
-			NOTIFY="true" ;;
+			NOTIFY='true' ;;
 		--suspend|-s)
-			SUSPEND="true" ;;
+			SUSPEND='true' ;;
 		--shutdown|-S)
-			SHUTDOWN="true" ;;
+			SHUTDOWN='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 if ! [ -f "$LIST_EDITOR_FILE" -a -s "$LIST_EDITOR_FILE" ]; then
-	FAIL 1 "$LINENO" "Please choose an editor. See --help for info."
+	Err 1 $LINENO "Please choose an editor. See --help for info."
 else
 	read LIST_EDITOR < "$LIST_EDITOR_FILE"
 fi
 
-if [ "$EDITFLAG" == "true" ]; then
+if [ "$EDITFLAG" == 'true' ]; then
 	if [ -x "$LIST_EDITOR" ]; then
 		$LIST_EDITOR "$BDL_FILE" 2> /dev/null
 		exit 0
 	else
-		FAIL 1 "$LINENO" "Unable to execute: $LIST_EDITOR"
+		Err 1 $LINENO "Unable to execute: $LIST_EDITOR"
 	fi
 fi
 
 declare -i DEPCOUNT=0
 for DEP in wget shutdown mv systemctl sleep sync mkdir; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -gt 0 ] && exit 1
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
-if [ "$CLEAR" == "true" ]; then
+if [ "$CLEAR" == 'true' ]; then
 	mv "$BDL_FILE"{,.old}
 	exit 0
 fi
 
-#TODO - Why won't this directory be created on Ubuntu 18.04? There's no FAIL(), it
+#TODO - Why won't this directory be created on Ubuntu 18.04? There's no Err(), it
 #       just refuses to create the directory, so the following test breaks.
 if ! [ -d "$MAIN_DIR" ] && ! mkdir "$MAIN_DIR" > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Unable to create $HOME/.$_PROJECT_ directory."
+	Err 1 $LINENO "Unable to create $HOME/.$_PROJECT_ directory."
 fi
 
 [ -f "$BDL_FILE" ] || > "$BDL_FILE"
 
 INIT_MAIN(){
 	while read -a LINE; do
-		if ! [[ "${LINE[0]}" =~ ^#+ ]]; then
+		if ! [[ ${LINE[0]} =~ ^#+ ]]; then
 			WARGS="-qc $NOWARC --show-progress"
 			wget $WARGS "${LINE[0]}" -O "./${LINE[0]//*\/}"
 			sync "./${LINE[0]//*\/}"
 		fi
 	done < "$BDL_FILE"
 
-	if [ "$NOTIFY" == "true" ]; then
+	if [ "$NOTIFY" == 'true' ]; then
 		notify-send "Downloading with $_PROJECT_ is completed."
 	fi
 
-	if [ "$SHUTDOWN" == "true" ]; then
+	if [ "$SHUTDOWN" == 'true' ]; then
 		notify-send "System shutdown in one minute."\
 			-i warning -u critical
 
 		shutdown --no-wall +1
-	elif [ "$SUSPEND" == "true" ]; then
+	elif [ "$SUSPEND" == 'true' ]; then
 		notify-send "System will suspend in ten seconds."\
 			-i warning -u critical
 
@@ -155,8 +155,8 @@ INIT_MAIN(){
 	fi
 }
 
-[ "$INSERT" == "true" ] && exit 0
-if [ "$SHUTDOWN" == "true" ]; then
+[ "$INSERT" == 'true' ] && exit 0
+if [ "$SHUTDOWN" == 'true' ]; then
 	INIT_MAIN SHUTDOWN
 else
 	INIT_MAIN
