@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Wed 27 Nov 13:33:25 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:35 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
 _VERSION_="2019-11-27"
-_PROJECT_="${0##*/}"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -53,30 +53,30 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--update|-U)
-			UPDATE="true" ;;
+			UPDATE='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--no-purge)
 			unset PURGE ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-if [ "$UPDATE" == "true" ]; then
+if [ "$UPDATE" == 'true' ]; then
 	if ! type -fP wget > /dev/null 2>&1; then
-		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+		Err 1 $LINENO "Dependency 'wget' not met."
 	fi
 
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
 		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
-			LATEST="${LINE[1]}"
+			LATEST=${LINE[1]}
 
-			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
 				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
 					while read -r; do
 						printf "%s\n" "$REPLY"
@@ -86,7 +86,7 @@ if [ "$UPDATE" == "true" ]; then
 					EOF
 				fi
 			else
-				FAIL 1 "$LINENO" "Failed to check for available updates."
+				Err 1 $LINENO "Failed to check for available updates."
 			fi
 		fi
 	done <<< "$(wget -q "$VERSION_URL" -O -)"
@@ -99,7 +99,7 @@ KEEP=($@)
 declare -i DEPCOUNT=0
 for DEP in apt-get apt-cache dpkg-query; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -135,9 +135,9 @@ done <<-EOF
 
 EOF
 
-[ $UID -eq 0 ] || FAIL 1 "$LINENO" "Root access is required."
+[ $UID -eq 0 ] || Err 1 $LINENO "Root access is required."
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 read -n 1 -e -p "[C]ontinue, despite the impending doom, or [q]uit? "
 printf "\n"
@@ -160,7 +160,7 @@ INFO "Fetching list of non-essential packages."
 FORMAT='${db:Status-Abbrev} ${Priority} ${Binary:Package}\n'
 while read STATUS PRIORITY PKG; do
 	MATCH='^(important|standard|required)$'
-	if [ "$STATUS" == "ii" ] && ! [[ "$PRIORITY" =~ $MATCH ]]; then
+	if [ "$STATUS" == "ii" ] && ! [[ $PRIORITY =~ $MATCH ]]; then
 		for I in ${KEEP[@]}; {
 			if [ "$I" == "$PKG" ]; then
 				INFO "Ignoring '$PKG' package to be kept."
@@ -189,7 +189,7 @@ for PKG in ${LIST[@]}; {
 	INFO "Checking task of '$PKG' package."
 	for TASK in `FILTERED $PKG`; {
 		if [ "$TASK" == "minimal" ]; then
-			MINIMAL="true"
+			MINIMAL='true'
 			continue 2
 		fi
 	}
