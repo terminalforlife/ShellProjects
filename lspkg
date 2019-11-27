@@ -3,18 +3,18 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/lspkg (List Packages)
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Mon 18 Nov 23:26:11 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:14 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-18"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
 #TODO - The ignore case flag won't work when specifying glob matching.
 #TODO - Add ability to search only the whole word, like `STRING`, not `*STRING*`.
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -73,27 +73,27 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--no-describe|-N)
-			NO_DESCRIBE="true" ;;
+			NO_DESCRIBE='true' ;;
 		--ignore-case|-i)
-			IGNORE_CASE="true" ;;
+			IGNORE_CASE='true' ;;
 		--match-with)
 			shift
 
-			if [[ "$1" =~ ^(glob|regex)$ ]]; then
-				MATCH_WITH="$1"
+			if [[ $1 =~ ^(glob|regex)$ ]]; then
+				MATCH_WITH=$1
 			else
-				FAIL 1 "$LINENO" "Incorrect match type provided."
+				Err 1 $LINENO "Incorrect match type provided."
 			fi ;;
 		--name-only|-n)
-			NAME_ONLY="true" ;;
+			NAME_ONLY='true' ;;
 		--show-arch|-a)
 			PACKNAME="{Binary:Package}" ;;
 		--count|-c)
-			DOCOUNT="true" ;;
+			DOCOUNT='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -103,33 +103,33 @@ done
 PKG=($@)
 
 if ! type -fP dpkg-query > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency 'dpkg-query' not met."
+	Err 1 $LINENO "Dependency 'dpkg-query' not met."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 PKG_LIST(){
 	if ! dpkg-query --show -f="\${db:Status-Abbrev} \$${PACKNAME} - \${binary:Summary}\n" \*; then
-		FAIL 1 "$LINENO" "Non-zero exit status for: dpkg-query"
+		Err 1 $LINENO "Non-zero exit status for: dpkg-query"
 	fi
 }
 
 MATCH(){
 	SEARCH_RESULT+=1
 
-	if ! [ "$NO_DESCRIBE" == "true" ]; then
+	if ! [ "$NO_DESCRIBE" == 'true' ]; then
 		printf "%s\n" "$1"
 	else
 		printf "%s\n" "${1%% - *}"
 	fi
 }
 
-[ "$IGNORE_CASE" == "true" ] && shopt -s nocaseglob
+[ "$IGNORE_CASE" == 'true' ] && shopt -s nocaseglob
 
 declare -i COUNT=0
 declare -i SEARCH_RESULT=0
 while read -a X; do
-	if ! [ "$SHOWARCH" == "true" ]; then
+	if ! [ "$SHOWARCH" == 'true' ]; then
 		# Remove duplicate entries. This works because dpkg-query is outputting in
 		# alphabetical order, else this would surely be useless.
 		[ "${X[1]}" == "$OLD" ] && continue
@@ -149,22 +149,22 @@ while read -a X; do
 		# them by checking to see if each current package matches each one
 		# in the list of ones the user specified.
 		if [ "${PKG[0]}" ]; then
-			USER_SEARCH="true"
+			USER_SEARCH='true'
 
 			for P in ${PKG[@]}; {
-				if [ "$NAME_ONLY" == "true" ]; then
+				if [ "$NAME_ONLY" == 'true' ]; then
 					FILTER=" ${X[1]}"
 				else
-					FILTER="${X[@]/ii}"
+					FILTER=${X[@]/ii}
 				fi
 
 				case ${MATCH_WITH:-UNSET} in
 					glob)
-						if [[ "$FILTER" == " "$P ]]; then
+						if [[ $FILTER == " "$P ]]; then
 							MATCH "${BUF% }"
 						fi ;;
 					regex|*)
-						if [[ "$FILTER" =~ ${P/^/^ } ]]; then
+						if [[ $FILTER =~ ${P/^/^ } ]]; then
 							MATCH "${BUF% }"
 						fi ;;
 				esac
@@ -173,26 +173,26 @@ while read -a X; do
 			# If there are no packages specified by the user, just show
 			# all of the packages. Removing the space because of the
 			# above printf command adding a trailing space.
-			if ! [ "$NO_DESCRIBE" == "true" ]; then
+			if ! [ "$NO_DESCRIBE" == 'true' ]; then
 				printf "%s\n" "${BUF% }"
 			else
 				printf "%s\n" "${BUF%% - *}"
 			fi
 		fi
 
-		if ! [ "$SHOWARCH" == "true" ]; then
+		if ! [ "$SHOWARCH" == 'true' ]; then
 			# Save the current value to be checked when the next
 			# package is processed.
-			OLD="${X[1]}"
+			OLD=${X[1]}
 		fi
 	fi
 done <<< "$(PKG_LIST)"
 
 # Just in-case a later feature added below uses globs.
-[ "$IGNORE_CASE" == "true" ] && shopt -u nocaseglob
+[ "$IGNORE_CASE" == 'true' ] && shopt -u nocaseglob
 
-if [ "$DOCOUNT" == "true" ]; then
-	if ! [ "$USER_SEARCH" == "true" ]; then
+if [ "$DOCOUNT" == 'true' ]; then
+	if ! [ "$USER_SEARCH" == 'true' ]; then
 		printf "\nTOTAL: %'d\n" "$COUNT"
 	else
 		[ $SEARCH_RESULT -eq 0 ] && S="" || S="\n"
