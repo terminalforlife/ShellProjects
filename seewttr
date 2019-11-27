@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/bin/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Sun 19 Nov 13:45:51 GMT 2017
+# Last Change       - Wed 27 Nov 15:56:38 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-[ -x /usr/bin/wget ] || XERR "$LINENO" "Dependency '/usr/bin/wget' not met."
+[ -x /usr/bin/wget ] || XERR $LINENO "Dependency '/usr/bin/wget' not met."
 
 USAGE(){
 	while IFS= read X; do
@@ -19,15 +19,15 @@ USAGE(){
 	done <<-EOF
 		            SEEWTTR - WTTR Look (19th November 2017)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
-		
+
 		            Super-simple wrapper-like script to get your weather. Thanks entirely
 		            to igor_chubin for this script even being possible.
 
 		SYNTAX:     seewttr [OPTS] LOCATION
-		
+
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --current|-c            - Show only the current weather.
-		
+
 		SITE:       From whence thine weather cometh...
 
 		              http://wttr.in
@@ -47,7 +47,7 @@ while [ -n "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--current|-c)
-			CURRENT="true" ;;
+			CURRENT='true' ;;
 		*)
 			break ;;
 	esac
@@ -55,12 +55,12 @@ while [ -n "$1" ]; do
 	shift
 done
 
-[ -n "$*" ] && LOCATION="$*" || XERR "$LINENO" "Incorrect argument(s) specified."
-[ $UID -eq 0 ] && XERR "$LINENO" "Root access is not recommended!"
+[ -n "$*" ] && LOCATION="$*" || XERR $LINENO "Incorrect argument(s) specified."
+[ $UID -eq 0 ] && XERR $LINENO "Root access is not recommended!"
 
 declare -i LINECOUNT=0
 while IFS="" read -r X; do
-	if [ "$CURRENT" == "true" ]; then
+	if [ "$CURRENT" == 'true' ]; then
 		if [ $LINECOUNT -le 6 ]; then
 			LINECOUNT+=1
 		else
@@ -69,6 +69,6 @@ while IFS="" read -r X; do
 		fi
 	fi
 
-	[[ "$X" =~ ^(Weather|New|Follow) ]] || printf "%s\n" "$X"
+ [[ $X =~ ^(Weather|New|Follow) ]] || printf "%s\n" "$X"
 done <<< "$(/usr/bin/wget -q http://wttr.in/"${LOCATION}" -O -)"
 
