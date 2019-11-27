@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sun 12 May 16:12:35 BST 2019
+# Last Change       - Wed 27 Nov 15:54:10 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -50,19 +50,19 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--interval|-I)
 			shift
 
-			if [[ "$1" =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
-				INTERVAL="$1"
+			if [[ $1 =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
+				INTERVAL=$1
 			else
-				FAIL 1 "$LINENO" "Invalid interval specified."
+				Err 1 $LINENO "Invalid interval specified."
 			fi ;;
 		--shutdown|-S)
 			ACTION="poweroff" ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -70,20 +70,20 @@ while [ "$1" ]; do
 done
 
 if ! [ "$*" ]; then
-	FAIL 1 "$LINENO" "No files were given for $_PROJECT_ to monitor."
+	Err 1 $LINENO "No files were given for $_PROJECT_ to monitor."
 fi
 
 declare -i DEPCOUNT=0
 for DEP in stat systemctl sleep; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 GO="yes"
 while [ "$GO" == "yes" ]; do
@@ -97,12 +97,12 @@ while [ "$GO" == "yes" ]; do
 	if [ ${OLD:-0} -eq $NEW ]; then
 		GO="no"
 	else
-		OLD="$NEW"
+		OLD=$NEW
 		sleep ${INTERVAL:-300}s
 	fi
 done
 
 if ! systemctl $ACTION; then
-	FAIL 1 "$LINENO" "System $ACTION failed."
+	Err 1 $LINENO "System $ACTION failed."
 fi
 
