@@ -27,7 +27,7 @@ _arg_list_insit(){
 				printf "%s " "${X[0]//|/ }" ;;
 		esac
 
-		local OLD="${X[0]/OPTS:}"
+		local OLD=${X[0]/OPTS:}
 	done <<< "$(/usr/bin/insit -h)"
 }
 
@@ -38,8 +38,8 @@ _app_list_insit(){
 }
 
 _option_insit(){
-	local CWORD="${COMP_WORDS[COMP_CWORD]}"
-	local PWORD="${COMP_WORDS[COMP_CWORD-1]}"
+	local CWORD=${COMP_WORDS[COMP_CWORD]}
+	local PWORD=${COMP_WORDS[COMP_CWORD-1]}
 
 	COMPREPLY=($(compgen -W "$(_arg_list_insit)" -- $CWORD))
 

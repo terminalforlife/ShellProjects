@@ -29,7 +29,7 @@ _arg_list_ubuntu-syschk(){
 						printf "%s " "${X[0]//|/ }" ;;
 				esac
 
-				local OLD="${X[0]/OPTS:}"
+				local OLD=${X[0]/OPTS:}
 			done <<< "$(/usr/bin/ubuntu-syschk -h)" ;;
 		[a-z]*)
 			while read -a X; do
@@ -46,7 +46,7 @@ _arg_list_ubuntu-syschk(){
 						printf "%s %s " "${X[0]%0|1}"{0,1} ;;
 				esac
 
-				local OLD="${X[0]/CHECKS:}"
+				local OLD=${X[0]/CHECKS:}
 			done <<< "$(/usr/bin/ubuntu-syschk -h)" ;;
 	esac
 }

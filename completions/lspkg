@@ -27,7 +27,7 @@ _arg_list_lspkg(){
 				printf "%s " "${X[0]//|/ }" ;;
 		esac
 
-		local OLD="${X[0]/OPTS:}"
+		local OLD=${X[0]/OPTS:}
 	done <<< "$(/usr/bin/lspkg -h)"
 }
 
