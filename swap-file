@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/swap-file
 # Started On        - Sat 27 Jan 11:49:19 GMT 2018
-# Last Change       - Mon 11 Nov 23:26:40 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:45 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-11"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -53,9 +53,9 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -64,12 +64,12 @@ done
 
 FST="/etc/fstab"
 NAME="/${1//[!_-.[:alnum:]]}"
-SIZE="${2//[!0-9]}"
+SIZE=${2//[!0-9]}
 
 declare -i DEPCOUNT=0
 for DEP in sync cp ch{own,mod} dd swapon mkswap; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -77,16 +77,16 @@ for DEP in sync cp ch{own,mod} dd swapon mkswap; {
 [ $DEPCOUNT -eq 0 ] || exit 1
 
 if ! [ $# -eq 2 ]; then
-	FAIL 1 "$LINENO" "Incorrect argument(s) specified."
-elif ! [[ "$SIZE" =~ [0-9]+ ]]; then
-	FAIL 1 "$LINENO" "Incorrect swap file size specified."
+	Err 1 $LINENO "Incorrect argument(s) specified."
+elif ! [[ $SIZE =~ [0-9]+ ]]; then
+	Err 1 $LINENO "Incorrect swap file size specified."
 elif ! [ $UID -eq 0 ]; then
-	FAIL 1 "$LINENO" "Setting up a swap file requires root access."
+	Err 1 $LINENO "Setting up a swap file requires root access."
 elif [ -f "$NAME" ]; then
-	FAIL 1 "$LINENO" "File already exists."
+	Err 1 $LINENO "File already exists."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 printf "[1/7] Generating file to use for swap space...\n"
 
@@ -113,7 +113,7 @@ printf "[6/7] Updating the filesystem table...\n" "$FST"
 
 if [ -f "$FST" ]; then
 	while read; do
-		if [[ "$REPLY" =~ "$NAME"\ +none\ +swap\ +sw\ +0\ +0 ]]; then
+		if [[ $REPLY =~ "$NAME"\ +none\ +swap\ +sw\ +0\ +0 ]]; then
 			FOUND='true'; break
 		fi
 	done < "$FST"
@@ -124,7 +124,7 @@ if [ -f "$FST" ]; then
 		printf "%s none swap sw 0 0\n" "$NAME" >> "$FST"
 	fi
 else
-	FAIL 1 "$LINENO" "Unable to find or access: $FST"
+	Err 1 $LINENO "Unable to find or access: $FST"
 fi
 
 printf "[7/7] Activating swap file...\n"
