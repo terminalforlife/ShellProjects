@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/syswatch
 # Started On        - Thu  9 Nov 14:33:34 GMT 2017
-# Last Change       - Tue  5 Nov 14:51:42 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:46 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,8 +15,8 @@
 # Wrote this for use with dunst, but could work well with other daemons.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-05"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
 declare -i DEPCOUNT=0
 for DEP in dmesg grep sleep tail notify-send; {
