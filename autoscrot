@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/autoscrot
 # Started On        - Sun 17 Sep 05:06:50 BST 2017
-# Last Change       - Sun 12 May 15:19:09 BST 2019
+# Last Change       - Wed 27 Nov 15:53:47 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -52,17 +52,17 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--interval|-I)
-			shift; INTERVAL="$1"
-			if ! [[ "${INTERVAL}" =~ ^[0-9]+$ ]]\
+			shift; INTERVAL=$1
+			if ! [[ ${INTERVAL} =~ ^[0-9]+$ ]]\
 			|| [ $INTERVAL -lt 1 ]; then
-				FAIL 1 "$LINENO" "Invalid interval selected."
+				Err 1 $LINENO "Invalid interval selected."
 			fi ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument specified." ;;
+			Err 1 $LINENO "Incorrect argument specified." ;;
 		*)
 			break ;;
 	esac
@@ -72,15 +72,15 @@ done
 declare -i DEPCOUNT=0
 for DEP in scrot mkdir sleep; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -gt 0 ] && exit 1
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -x
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -x
 
 printf "Press Ctrl + C to cancel and exit $_PROJECT_.\n"
 
@@ -96,7 +96,7 @@ while :; do
 		NUM+=1
 		printf "\rScreenshots taken:   %'d" "$NUM"
 	else
-		FAIL 0 "$LINENO" "Non-zero exit status for screenshot #${NUM}."
+		Err 0 $LINENO "Non-zero exit status for screenshot #${NUM}."
 	fi
 done
 printf "\n"
