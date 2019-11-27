@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Sun 27 Oct 15:02:18 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:22 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-10-27"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
 DOM="https://github.com"
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -58,26 +58,26 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--update|-U)
-			UPDATE="true" ;;
+			UPDATE='true' ;;
 		--once|-o)
-			ONCE="true" ;;
+			ONCE='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-if [ "$UPDATE" == "true" ]; then
+if [ "$UPDATE" == 'true' ]; then
 	if ! type -fP wget > /dev/null 2>&1; then
-		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+		Err 1 $LINENO "Dependency 'wget' not met."
 	fi
 
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
 		if  [ "${LINE[0]}" == 'mplay' ]; then
-			LATEST="${LINE[1]}"
+			LATEST=${LINE[1]}
 
-			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
 				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
 					while read -r; do
 						printf "%s\n" "$REPLY"
@@ -87,7 +87,7 @@ if [ "$UPDATE" == "true" ]; then
 					EOF
 				fi
 			else
-				FAIL 1 "$LINENO" "Failed to check for available updates."
+				Err 1 $LINENO "Failed to check for available updates."
 			fi
 		fi
 	done <<< "$(wget -q "$VERSION_URL" -O -)"
@@ -95,13 +95,13 @@ if [ "$UPDATE" == "true" ]; then
 	exit 0
 fi
 
-[ "$1" -a ! -d "$1" ] && FAIL 1 "$LINENO" "Unable to find the given music directory."
+[ "$1" -a ! -d "$1" ] && Err 1 $LINENO "Unable to find the given music directory."
 
-[ -d $THEMEDIR ] || FAIL 1 "$LINENO" "Theme directory not found."
-[ -f "$THEMEDIR/tfl_moc_theme" ] || FAIL 1 "$LINENO" "Theme file not found."
+[ -d $THEMEDIR ] || Err 1 $LINENO "Theme directory not found."
+[ -f "$THEMEDIR/tfl_moc_theme" ] || Err 1 $LINENO "Theme file not found."
 
 if ! type -fP mocp > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency 'mocp' not met."
+	Err 1 $LINENO "Dependency 'mocp' not met."
 fi
 
 /usr/bin/mocp -n -T "$THEMEDIR/tfl_moc_theme"     \
@@ -124,9 +124,9 @@ fi
 	-O OutputBuffer=512                       \
 	-O Prebuffering=256                       \
 	-m "${1:-$HOME/Music}"                    \
-|| FAIL 1 "$LINENO" "Unable to start the MOC player."
+|| Err 1 $LINENO "Unable to start the MOC player."
 
-if [ "$ONCE" == "true" ]; then
+if [ "$ONCE" == 'true' ]; then
 	wait; mocp -x
 fi
 
