@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/nxbt (New XBT)
 # Started On        - Fri  6 Oct 17:52:55 BST 2017
-# Last Change       - Tue  5 Nov 14:41:56 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:30 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-05"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
 declare -i SECONDS=0
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -59,29 +59,29 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--logfile|-l)
 			shift
 			if [ -d "${1%\/*}" ]; then
-				LOGFILE="$1"
+				LOGFILE=$1
 			else
-				FAIL 1 "$LINENO" "Logfile directory not found."
+				Err 1 $LINENO "Logfile directory not found."
 			fi ;;
 #		--source|-s)
 #			shift
 #			if [ -d "${1%\/*}" ]; then
 #				SOURCE+=" $1"
 #			else
-#				FAIL 1 "$LINENO" "Source directory not found."
+#				Err 1 $LINENO "Source directory not found."
 #			fi ;;
 #		--and-source|-S)
 #			shift
 #			if [ -d "${1%\/*}" ]; then
-#				ANDSOURCE="true" SOURCE+=( "$1")
+#				ANDSOURCE='true' SOURCE+=( "$1")
 #			else
-#				FAIL 1 "$LINENO" "Source directory not found."
+#				Err 1 $LINENO "Source directory not found."
 #			fi ;;
 		*)
 			break ;;
@@ -92,27 +92,27 @@ done
 declare -i DEPCOUNT=0
 for DEP in wget rsync mkdir sync; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-#FAIL 1 "$LINENO" "Incorrect option(s) specified." ;;
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -x
+#Err 1 $LINENO "Incorrect option(s) specified." ;;
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -x
 
-[ -d "$*" ] || FAIL 1 "$LINENO" "Unable to find or access the TARGET directory."
+[ -d "$*" ] || Err 1 $LINENO "Unable to find or access the TARGET directory."
 
 TARGET="$*"
-[ -f "$TARGET" ] && FAIL 1 "Target is not a directory."
+[ -f "$TARGET" ] && Err 1 "Target is not a directory."
 [[ "$TARGET" == */ ]] || TARGET+="/"
 
 printf -v CURDATE "%(%F_%X)T" "-1"
 #TODO - Make the logfile skip the whole /tmp part; redundant.
 LOGFILE="/tmp/${_PROJECT_}_${USER}_${CURDATE}.log"
-BACKNAME="${_PROJECT_^^}_${UID}_${CURDATE}"
+BACKNAME=${_PROJECT_^^}_${UID}_${CURDATE}
 if ! [ -d "$BACKNAME" ]; then
 	mkdir "${TARGET}${BACKNAME}" || exit $?
 fi
@@ -142,7 +142,7 @@ USER_PATH(){
 	# Back up user-provided files.
 	for I in $SOURCE; {
 		printf "[+%0.7d] PROCESSING: %s\n" "$SECONDS" "$SOURCE"
-		TARGETPATH="${TARGET}/${BACKNAME}/${SOURCE//*\/}"
+		TARGETPATH=${TARGET}/${BACKNAME}/${SOURCE//*\/}
 		[ -d "$TARGETPATH" ] || mkdir "$TARGETPATH"
 
 		rsync -a --delete --info=progress2\
@@ -154,7 +154,7 @@ USER_PATH(){
 if ! [ "$SOURCE" ]; then
 	DEFAULT_PATHS
 else
-	if [ "$ANDSOURCE" == "true" ]; then
+	if [ "$ANDSOURCE" == 'true' ]; then
 		DEFAULT_PATHS; USER_PATH
 	else
 		USER_PATH
@@ -176,7 +176,7 @@ if [ -f "$LOGFILE" ]; then
 		printf "[+%0.7d] CLEANING: %s\n" "$SECONDS" "$LOGFILE"
 	fi
 else
-	FAIL 1 "$LINENO" "Logfile not found."
+	Err 1 $LINENO "Logfile not found."
 fi
 
 if [ -f "$LOGFILE" ]; then
