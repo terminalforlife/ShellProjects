@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dwwdl (Distrowatch Weekly Downloader)
 # Started On        - Sat 16 Sep 22:41:54 BST 2017
-# Last Change       - Sun 12 May 22:04:37 BST 2019
+# Last Change       - Wed 27 Nov 15:54:07 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -56,7 +56,7 @@ USAGE(){
 	EOF
 }
 
-SERVER_KIND="false"
+SERVER_KIND='false'
 SLEEP_S=9
 INTERVAL=10
 EXT="ogg"
@@ -68,44 +68,44 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--server-kind)
-			SERVER_KIND="true" ;;
+			SERVER_KIND='true' ;;
 		--interval|-i)
 			shift
 
-			if [[ "$1" =~ [0-9]+ ]]; then
-				INTERVAL="$1"
+			if [[ $1 =~ [0-9]+ ]]; then
+				INTERVAL=$1
 			else
-				FAIL 1 "$LINENO" "Incorrect interval."
+				Err 1 $LINENO "Incorrect interval."
 			fi ;;
 		--quiet-sleep)
-			QUIET_SLEEP="true" ;;
+			QUIET_SLEEP='true' ;;
 		--show-progress)
 			PROGRESS="--show-progress" ;;
 		--type|-t)
 			shift
 
-			if [[ "$1" =~ ^(mp3|ogg)$ ]]; then
-				EXT="$1"
+			if [[ $1 =~ ^(mp3|ogg)$ ]]; then
+				EXT=$1
 			else
-				FAIL 1 "$LINENO" "Incorrect file type selected."
+				Err 1 $LINENO "Incorrect file type selected."
 			fi ;;
 		--date|-d)
 			shift
 
-			if [[ "$1" =~ ^[0-9]{8} ]]; then
+			if [[ $1 =~ ^[0-9]{8} ]]; then
 				PODS+=" $1"
 			else
-				FAIL 1 "$LINENO" "Incorrect podcast date provided."
+				Err 1 $LINENO "Incorrect podcast date provided."
 			fi ;;
 		--suspend|-s)
-			SUSPEND="true"
+			SUSPEND='true'
 			if ! type -fP systemctl > /dev/null 2>&1; then
-				FAIL 1 "$LINENO" "Dependency 'systemctl' not met."
+				Err 1 $LINENO "Dependency 'systemctl' not met."
 			fi ;;
 		--shutdown|-S)
-			SHUTDOWN="true"
+			SHUTDOWN='true'
 			if ! type -fP shutdown > /dev/null 2>&1; then
-				FAIL 1 "$LINENO" "Dependency 'shutdown' not met."
+				Err 1 $LINENO "Dependency 'shutdown' not met."
 			fi ;;
 		*)
 			break ;;
@@ -116,18 +116,18 @@ done
 declare -i DEPCOUNT=0
 for DEP in wget sync sleep; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -gt 0 ] && exit 1
 
-[ "$*" ] && FAIL 1 "$LINENO" "Incorrect argument(s) detected."
+[ "$*" ] && Err 1 $LINENO "Incorrect argument(s) detected."
 
-if ! [ "$SERVER_KIND" == "true" ]; then
-	if [ "$QUIET_SLEEP" == "true" -o ! "$INTERVAL" -eq 10 ]; then
-		FAIL 1 "$LINENO" "Expecting '--server-kind' argument."
+if ! [ "$SERVER_KIND" == 'true' ]; then
+	if [ "$QUIET_SLEEP" == 'true' -o ! "$INTERVAL" -eq 10 ]; then
+		Err 1 $LINENO "Expecting '--server-kind' argument."
 	fi
 fi
 
@@ -140,7 +140,7 @@ if ! [ "$PODS" ]; then
 
 		while read -ra X; do
 			for A in ${X[@]}; {
-				if [[ "$A" == *\?issue\=* ]]; then
+				if [[ $A == *\?issue\=* ]]; then
 					printf "%s\n" ${A//[!0-9]/}
 				fi
 			}
@@ -155,9 +155,9 @@ for DATE in $PODS; {
 
 	[ "$PROGRESS" ] || printf "PODCAST: %s\n" "$DATE"
 
-	if [ "$SERVER_KIND" == "true" -a ! -f "${DL_LINK//*\/}" ]; then
+	if [ "$SERVER_KIND" == 'true' -a ! -f "${DL_LINK//*\/}" ]; then
 		TIME_COUNT+=1; printf -v RAND "%0.5d" "$RANDOM"
-		if ! [ "$QUIET_SLEEP" == "true" ]; then
+		if ! [ "$QUIET_SLEEP" == 'true' ]; then
 			printf "Sleeping for %d second(s)...\n" "${RAND/????}"
 		fi
 
@@ -166,7 +166,7 @@ for DATE in $PODS; {
 		if [ $INTERVAL -eq 0 -a $TIME_COUNT -eq $INTERVAL ]; then
 			printf -v RAND "%0.5d" "$RANDOM"
 
-			if ! [ "$QUIET_SLEEP" == "true" ]; then
+			if ! [ "$QUIET_SLEEP" == 'true' ]; then
 				printf "Sleeping for %d minute(s)...\n"\
 					"${RAND/????}"
 			fi
@@ -177,11 +177,11 @@ for DATE in $PODS; {
 	fi
 
 	if ! wget -cq --no-cookies $PROGRESS ${DLURL}${DATE}.${EXT}; then
-		FAIL 0 "$LINENO" "Podcast '$DATE' failed."
+		Err 0 $LINENO "Podcast '$DATE' failed."
 	fi
 }
 
-if [ "$SHUTDOWN" == "true" ]; then
+if [ "$SHUTDOWN" == 'true' ]; then
 	shutdown +3 &> /dev/null
 	printf "%s\n" "Shutting down in 3 minutes..."
 	read -n 1 -e -p "Type 'C' to cancel, or 'N' to shutdown now: " SHUTDOWN_PROMPT
@@ -193,9 +193,9 @@ if [ "$SHUTDOWN" == "true" ]; then
 		[Nn])
 			shutdown --no-wall now ;;
 		EMPTY|*)
-			FAIL 1 "$LINENO" "Invalid response -- quitting." ;;
+			Err 1 $LINENO "Invalid response -- quitting." ;;
 	esac
-elif [ "$SUSPEND" == "true" ]; then
+elif [ "$SUSPEND" == 'true' ]; then
 	sync
 	printf "%s\n" "System will suspend in 3s; type Ctrl+C to cancel and quit $_PROJECT_."
 	sleep 3
