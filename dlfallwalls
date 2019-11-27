@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dlfallwalls
 # Started On        - Sun 15 Oct 20:48:22 BST 2017
-# Last Change       - Sun 12 May 15:28:37 BST 2019
+# Last Change       - Wed 27 Nov 15:54:01 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,8 +11,8 @@
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
 DOM="https://wallpapercave.com"
 
@@ -42,25 +42,25 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		*)
-			XERR "$LINENO" "Incorrect argument(s) specified." ;;
+			XERR $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
 if ! type -fP wget > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	Err 1 $LINENO "Dependency 'wget' not met."
 fi
 
 # Newer versions of wget by default request unwanted server-side compression.
 read -a WGET_VER_LINE <<< "$(wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -xeu
 
 URL="$DOM/download/fall-wallpapers"
 HTML=`wget $NOWARC -q "${URL%/down*}/fall-wallpapers" -O -`
@@ -70,15 +70,15 @@ while read -a Y; do
 	for FIELD in ${Y[@]/src=\"\/wp}; {
 		[ "$FIELD" == "$OLD" ] && continue
 
-		if [[ "$FIELD" == /* ]]; then
-			[[ "$FIELD" =~ [0-9A-Za-z]+.jpg ]] && {
+		if [[ $FIELD == /* ]]; then
+		 [[ $FIELD =~ [0-9A-Za-z]+.jpg ]] && {
 				GETID+=("${FIELD%.jpg\"}")
 			}
 		else
 			continue
 		fi
 
-		OLD="$FIELD"
+		OLD=$FIELD
 	}
 done <<< "$HTML"
 
