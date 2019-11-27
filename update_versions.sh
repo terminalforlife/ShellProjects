@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - update_versions.sh
 # Started On        - Fri 25 Oct 12:41:34 BST 2019
-# Last Change       - Sun 27 Oct 00:16:50 BST 2019
+# Last Change       - Wed 27 Nov 15:56:54 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ declare -a EXCEPTIONS=(
 	update_versions.sh
 )
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -27,7 +27,7 @@ FAIL(){
 printf "%s " "Confirming 'mimetype' exists..."
 
 if ! type -fP mimetype &> /dev/null; then
-	FAIL 1 "$LINENO" "Unable to find 'mimetype' in PATH."
+	Err 1 $LINENO "Unable to find 'mimetype' in PATH."
 else
 	printf " [OK]\n"
 fi
@@ -42,9 +42,9 @@ DATA="$(\
 			[ "$F" == "$EXCEPT" ] && continue 2
 		}
 
-		if [[ "$MIME" == *x-shellscript ]]; then
+		if [[ $MIME == *x-shellscript ]]; then
 			while IFS='=' read -a L; do
-				[ "${L[0]}" == '_VERSION_' ] && V="${L[1]}"
+				[ "${L[0]}" == '_VERSION_' ] && V=${L[1]}
 			done < "$F"
 
 			printf "%s=%s\n" "$F" "${V//\"}"
@@ -63,7 +63,7 @@ SAVE(){
 			[Qq])
 				exit 0 ;;
 			*)
-				FAIL 1 "$LINENO" "Invalid response -- quitting." ;;
+				Err 1 $LINENO "Invalid response -- quitting." ;;
 		esac
 	fi
 
@@ -84,5 +84,5 @@ case $VSBQ in
 	[Qq])
 		exit 0 ;;
 	*)
-		FAIL 1 "$LINENO" "Invalid response -- quitting." ;;
+		Err 1 $LINENO "Invalid response -- quitting." ;;
 esac
