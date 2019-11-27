@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dl-ubuntu-podcasts
 # Started On        - Sat  7 Oct 19:08:59 BST 2017
-# Last Change       - Sun 12 May 22:02:48 BST 2019
+# Last Change       - Wed 27 Nov 15:54:06 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,10 +11,10 @@
 # interested in, please let me know.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -59,15 +59,15 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--debug)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--dest|-s)
 			shift
 
-			ALTDEST="$1"
+			ALTDEST=$1
 			if ! [ -d "$ALTDEST" ]; then
-				FAIL 1 "Destination directory not found."
+				Err 1 "Destination directory not found."
 			fi ;;
 		--get-season-eight)
 			EXTRA="08 01 42" ;;
@@ -82,7 +82,7 @@ while [ "$1" ]; do
 done
 
 if ! type -fP wget > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency 'wget' not met."
+	Err 1 $LINENO "Dependency 'wget' not met."
 fi
 
 read -a WGET_VER_LINE <<< "$(wget --version)"
@@ -113,11 +113,11 @@ if [ "$EXTRA" ]; then
 fi
 
 if [ "$*" ]; then
-	USERPAGE="true"
+	USERPAGE='true'
 
 	while [ "$1" ]; do
-		if ! [[ "$1" =~ [0-9]+ ]]; then
-			FAIL 1 "$LINENO" "Incorrect page number specified."
+		if ! [[ $1 =~ [0-9]+ ]]; then
+			Err 1 $LINENO "Incorrect page number specified."
 		else
 			[ $1 -eq 2 ] || NUM+=" $1"
 		fi
@@ -128,14 +128,14 @@ else
 	NUM=193
 fi
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -x
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -x
 
 while :; do
-	if ! [ "$USERPAGE" == "true" ]; then
+	if ! [ "$USERPAGE" == 'true' ]; then
 		[ $NUM -le 2 ] && break || let NUM--
 	else
-		NUM="${NUM%% *}"
+		NUM=${NUM%% *}
 	fi
 
 	#TODO - Fix custom pages not working.
@@ -145,10 +145,10 @@ while :; do
 	OUTNAME_MATCH="[Ss][0-9]+[Ee][0-9]+\s+–\s+[[:space:][:alnum:]]+"
 
 	while read; do
-		if [[ "$REPLY" =~ $DL_LINK_MATCH ]]; then
-			[ "$DL_LINK" ] || DL_LINK="$REPLY"
-		elif [[ "$REPLY" =~ $OUTNAME_MATCH ]]; then
-			[ "$OUTNAME" ] || OUTNAME="$REPLY"
+		if [[ $REPLY =~ $DL_LINK_MATCH ]]; then
+			[ "$DL_LINK" ] || DL_LINK=$REPLY
+		elif [[ $REPLY =~ $OUTNAME_MATCH ]]; then
+			[ "$OUTNAME" ] || OUTNAME=$REPLY
 		elif [ "$DL_LINK" -a "$OUTNAME" ]; then
 			break
 		fi
@@ -166,7 +166,7 @@ while :; do
 			"$DL_LINK" -O "${ALTDEST%\/}/${OUTNAME}.ogg"
 	fi
 
-	[ "$USERPAGE" == "true" ] || NUM="${NUM/* }"
+	[ "$USERPAGE" == 'true' ] || NUM=${NUM/* }
 
 	[ "$NUM" ] || break
 done
