@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Wed 27 Nov 13:55:03 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:44 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #       arguments. Also, --edit/-e CMD is not working.
 
 _VERSION_="2019-11-27"
-_PROJECT_="${0##*/}"
+_PROJECT_=${0##*/}
 
 Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
@@ -75,7 +75,7 @@ while [ "$1" ]; do
 		--edit|-e)
 			shift; EDIT=$1 ;;
 		-*)
-			FAIL 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -83,14 +83,14 @@ while [ "$1" ]; do
 done
 
 if [ "$2" ]; then
-	FAIL 1 $LINENO "Argument error -- is your match correct?"
+	Err 1 $LINENO "Argument error -- is your match correct?"
 fi
 
 [ "$DEBUGME" == 'true' ] && set -x
 
 SnotesChk(){
 	if ! [ -f "$NotesFile" ] || ! [ -r "$NotesFile" ]; then
-		FAIL 1 $LINENO "Notes file inaccessible or not found."
+		Err 1 $LINENO "Notes file inaccessible or not found."
 	fi
 }
 
@@ -98,7 +98,7 @@ if [ -f "$HOME/.config/$_PROJECT_.conf" ]; then
 	if [ -n "$NotesFile" ]; then
 		SnotesChk
 		read -n 1 -e -p "Notes file already set -- replace? "
-		if ! [[ "$REPLY" == [Yy] ]]; then
+		if ! [[ $REPLY == [Yy] ]]; then
 			printf "No action taken -- quitting.\n"
 			exit 0
 		else
@@ -106,7 +106,7 @@ if [ -f "$HOME/.config/$_PROJECT_.conf" ]; then
 				if type -fP mkdir > /dev/null 2>&1; then
 					mkdir $HOME/.config
 				else
-					FAIL 1 $LINENO "Dependency 'mkdir' not met."
+					Err 1 $LINENO "Dependency 'mkdir' not met."
 				fi
 			fi
 
@@ -128,7 +128,7 @@ while read -r CurLine; do
 	if [[ $CurLine =~ ^(|${Comment}.*)$ ]]; then
 		continue
 	elif [[ $CurLine =~ "$Match" ]]; then
-		if [ "$CurLineNums" == "true" ]; then
+		if [ "$CurLineNums" == 'true' ]; then
 			printf "%4d  %s\n" "$CurLineCount" "$CurLine"
 		else
 			printf "%s\n" "$CurLine"
