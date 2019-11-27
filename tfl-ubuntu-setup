@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Thu  9 May 00:59:16 BST 2019
+# Last Change       - Wed 27 Nov 15:56:47 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #          Preferably, before you first log into X.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-09"
+_VERSION_="2019-11-27"
 
 XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
 ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
@@ -23,25 +23,25 @@ ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
 declare -i DEPCOUNT=0
 for DEP in /usr/bin/apt-get /bin/{rm,bash,chown,chmod}; {
 	if ! [ -x "$DEP" ]; then
-		ERR "$LINENO" "Dependency '$DEP' not met."
+		ERR $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $UID -eq 0 ] || XERR "$LINENO" "Root access is required."
+[ $UID -eq 0 ] || XERR $LINENO "Root access is required."
 
 if [ -f /etc/lsb-release ]; then
 	while IFS="=" read -a X; do
 		if [ "${X[0]}" == "DISTRIB_ID" -a "${X[1]}" == "Ubuntu" ]; then
-			ERR "$LINENO" "This script only supports Debian/Ubuntu systems."
+			ERR $LINENO "This script only supports Debian/Ubuntu systems."
 			PROMPT
 			break
 		fi
 	done < /etc/lsb-release
 else
-	ERR "$LINENO" "Unable to determine the system's LSB type."
+	ERR $LINENO "Unable to determine the system's LSB type."
 	PROMPT
 fi
 
@@ -56,9 +56,9 @@ PROMPT(){
 	printf "One or more errors detected -- [c]ontinue or [q]uit?\n"
 	while :; do
 		read -n 1 -e -p "PROMPT: "
-		if [[ "$REPLY" == [Cc] ]]; then
+		if [[ $REPLY == [Cc] ]]; then
 			break
-		elif [[ "$REPLY" == [Qq] ]]; then
+		elif [[ $REPLY == [Qq] ]]; then
 			printf "Quitting...\n"
 			exit 1
 		fi
