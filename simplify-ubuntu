@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Thu  7 Nov 23:46:49 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:42 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Q-COUNT = 169
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-07"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -66,21 +66,21 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		--update|-U)
-			UPDATE="true" ;;
+			UPDATE='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--ignore-fonts|-F)
-			IGNORE_FONTS="true" ;;
+			IGNORE_FONTS='true' ;;
 		--no-ask-de|-N)
-			NO_ASK_DE="true" ;;
+			NO_ASK_DE='true' ;;
 		--ignore-lsb|-L)
-			LSB_CHECK="false" ;;
+			LSB_CHECK='false' ;;
 		--purge|-p)
 			PURGE="--purge" ;;
 		--yes-apt|-Y)
 			YES_APT="-qq" ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -92,22 +92,22 @@ PATHLOOK(){ type -fP $@ > /dev/null 2>&1 || return 1; }
 declare -i DEPCOUNT=0
 for DEP in rm lspkg clean-locales apt-get; {
 	if ! PATHLOOK "$DEP"; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-if [ "$UPDATE" == "true" ]; then
-	PATHLOOK wget || FAIL 1 "$LINENO" "Dependency 'wget' not met."
+if [ "$UPDATE" == 'true' ]; then
+	PATHLOOK wget || Err 1 $LINENO "Dependency 'wget' not met."
 
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
 		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
-			LATEST="${LINE[1]}"
+			LATEST=${LINE[1]}
 
-			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
 				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
 					while read -r; do
 						printf "%s\n" "$REPLY"
@@ -117,7 +117,7 @@ if [ "$UPDATE" == "true" ]; then
 					EOF
 				fi
 			else
-				FAIL 1 "$LINENO" "Failed to check for available updates."
+				Err 1 $LINENO "Failed to check for available updates."
 			fi
 		fi
 	done <<< "$(wget -q "$VERSION_URL" -O -)"
@@ -125,7 +125,7 @@ if [ "$UPDATE" == "true" ]; then
 	exit 0
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 [ $UID -eq 0 ] || SIM="-s"
 
@@ -176,7 +176,7 @@ PROMPT(){
 			[Qq])
 				exit 2 ;;
 			*)
-				FAIL 0 "$LINENO" "Unrecognised response. Enter 'Y' or 'N' to continue." ;;
+				Err 0 $LINENO "Unrecognised response. Enter 'Y' or 'N' to continue." ;;
 		esac
 	done
 }
@@ -188,7 +188,7 @@ DEL(){
 		-o Dpkg::Progress-Fancy=true -o Dpkg::Progress=true $@
 }
 
-if [ "${LSB_CHECK:-true}" == "true" ]; then
+if [ "${LSB_CHECK:-true}" == 'true' ]; then
 	if [ -f /etc/os-release -a -r /etc/os-release ]; then
 		while IFS="=" read -a X; do
 			if [ "${X[0]}" == "ID" ]; then
@@ -204,12 +204,12 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 			fi
 		done < /etc/lsb-release
 	else
-		FAIL 1 "$LINENO" "Unable to determine the distribution ID."
+		Err 1 $LINENO "Unable to determine the distribution ID."
 	fi
 
 	case $LSB_RELEASE in
 		linuxmint)
-			IS_MINT="true"
+			IS_MINT='true'
 
 			while read -r; do
 				printf "%s\n" "$REPLY"
@@ -396,9 +396,9 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 
 			;;
 		ubuntu)
-			IS_UBUNTU="true" ;;
+			IS_UBUNTU='true' ;;
 		zorin)
-			IS_ZORIN="true"
+			IS_ZORIN='true'
 
 			while read -r; do
 				printf "%s\n" "$REPLY"
@@ -425,14 +425,14 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 
 			;;
 		*)
-			FAIL 1 "$LINENO" "Unsupported distribution ID detected." ;;
+			Err 1 $LINENO "Unsupported distribution ID detected." ;;
 	esac
 fi
 
 #TODO - This is a sloppy way to detect the distribution, and is only temporary!
-PATHLOOK lite-welcome && ISLINUXLITE="true"
+PATHLOOK lite-welcome && ISLINUXLITE='true'
 
-if [ "$ISLINUXLITE" == "true" ]; then
+if [ "$ISLINUXLITE" == 'true' ]; then
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
@@ -599,7 +599,7 @@ if FIND \*brltty\* \*brlapi\*; then
 	}
 fi
 
-if [ "$IS_CINNAMON" == "true" ]; then
+if [ "$IS_CINNAMON" == 'true' ]; then
 	if PATHLOOK file-roller; then
 		PROMPT\
 			"[104]: Will you need Archive Manager (file-roller)?"\
@@ -611,7 +611,7 @@ if [ "$IS_CINNAMON" == "true" ]; then
 		}
 	fi
 else
-	if [ ! "$IS_ZORIN" == "true" ] && PATHLOOK yelp; then
+	if [ ! "$IS_ZORIN" == 'true' ] && PATHLOOK yelp; then
 		PROMPT\
 			"[077]: Will you need yelp support (Enter 'Y' if unsure)?"\
 			"If you enter 'N', yelp and related packages will be removed."\
@@ -645,7 +645,7 @@ if FIND xcursor-themes; then
 	}
 fi
 
-if [ ! "$IS_CINNAMON" == "true" ] && PATHLOOK inxi; then
+if [ ! "$IS_CINNAMON" == 'true' ] && PATHLOOK inxi; then
 	PROMPT\
 		"[057]: Will you be needing inxi (CLI system information tool)?"\
 		"If you enter 'N', the inxi package will be removed."\
@@ -725,7 +725,7 @@ if FIND ntp ntp-doc ntpdate ntpstat ; then
 	}
 fi
 
-if [ "$IS_MINT" == "true" ]; then
+if [ "$IS_MINT" == 'true' ]; then
 	if FIND cups cups-filters\* cups-server\* cups-core-drivers\
 		printer-driver-\* system-config-printer\* libgutenprint2\
 		foomatic-db-compressed-ppds; then
@@ -740,7 +740,7 @@ if [ "$IS_MINT" == "true" ]; then
 				libgutenprint2 foomatic-db-compressed-ppds
 		}
 	fi
-elif [ "$IS_ZORIN" == "true" ]; then
+elif [ "$IS_ZORIN" == 'true' ]; then
 	if FIND cups; then
 		PROMPT\
 			"[118]: Will you be using a printer with this Linux installation?"\
@@ -751,7 +751,7 @@ elif [ "$IS_ZORIN" == "true" ]; then
 			DEL cups
 		}
 	fi
-elif [ "$IS_UBUNTU" == "true" ]; then
+elif [ "$IS_UBUNTU" == 'true' ]; then
 	if FIND printer-driver-\* cups\* system-config-printer\*\
 		ippusbxd libgutenprint2 foomatic-db-compressed-ppds\
 		python3-cupshelpers openprinting-ppds; then
@@ -779,7 +779,7 @@ if FIND libfakeroot fakeroot; then
 	}
 fi
 
-if [ ! "$IS_ZORIN" == "true" ] && PATHLOOK hdparm; then
+if [ ! "$IS_ZORIN" == 'true' ] && PATHLOOK hdparm; then
 	PROMPT\
 		"[102]: Will you need hdparm (get/set SATA/IDE device parameters)?"\
 		"If you enter 'N', the hdparm package will be removed."\
@@ -790,7 +790,7 @@ if [ ! "$IS_ZORIN" == "true" ] && PATHLOOK hdparm; then
 	}
 fi
 
-if ! [ "$IS_ZORIN" == "true" ]; then
+if ! [ "$IS_ZORIN" == 'true' ]; then
 	if FIND simple-scan libsane\* colord\*; then
 		PROMPT\
 			"[009]: Will you be using a scanner with this Linux installation?"\
@@ -812,7 +812,7 @@ PROMPT\
 	/usr/bin/clean-locales
 }
 
-if ! [ "$IGNORE_FONTS" == "true" ]; then
+if ! [ "$IGNORE_FONTS" == 'true' ]; then
 	if FIND xfonts-thai\* fonts{-tlwg\*,-thai\*}; then
 		PROMPT\
 			"[011]: Will you need any Thai fonts?"\
@@ -897,12 +897,12 @@ fi
 
 for BIN in transmission-{gtk,qt,cli}; {
 	if PATHLOOK "$BIN"; then
-		TRANSMISSION="true"
+		TRANSMISSION='true'
 		break
 	fi
 }
 
-if [ "$TRANSMISSION" == "true" ]; then
+if [ "$TRANSMISSION" == 'true' ]; then
 	PROMPT\
 		"[017]: Will you ever be using torrents with Transmission?"\
 		"If you enter 'N', transmission packages will be removed."\
@@ -955,7 +955,7 @@ if FIND samba{,-common} cifs-utils\* lupin-\* smbclient casper\*; then
 		SAY "Calling APT to remove Samba packages."
 		DEL samba{,-common} cifs-utils\* lupin-\* smbclient casper\*
 
-		NO_SAMBA="true"
+		NO_SAMBA='true'
 	}
 fi
 
@@ -968,7 +968,7 @@ if FIND command-not-found; then
 		SAY "Calling APT to remove the command-not-found package."
 		DEL command-not-found
 
-		if FIND python3-commandnotfound && ! [ "$IS_MINT" == "true" ]; then
+		if FIND python3-commandnotfound && ! [ "$IS_MINT" == 'true' ]; then
 			SAY "Calling APT to remove the python3-commandnotfound package."
 			DEL python3-commandnotfound
 		fi
@@ -986,7 +986,7 @@ if PATHLOOK flatpak; then
 	}
 fi
 
-if [ ! "$IS_MINT" == "true" ] && PATHLOOK synaptic; then
+if [ ! "$IS_MINT" == 'true' ] && PATHLOOK synaptic; then
 	PROMPT\
 		"[022]: Will you only perform APT package changes via terminals?"\
 		"If you enter 'Y', the Synaptic Package Manager will be removed."\
@@ -997,7 +997,7 @@ if [ ! "$IS_MINT" == "true" ] && PATHLOOK synaptic; then
 	}
 fi
 
-if ! [ "$IS_ZORIN" == "true" ]; then
+if ! [ "$IS_ZORIN" == 'true' ]; then
 	if FIND broadcom-sta-\* atmel-firmware wireless-crda wmwave linssid\
 		plasma-widget-wifi wavemon wpasupplicant rfkill; then
 		PROMPT\
@@ -1009,7 +1009,7 @@ if ! [ "$IS_ZORIN" == "true" ]; then
 			DEL broadcom-sta-\* atmel-firmware wireless-crda wmwave linssid\
 				plasma-widget-wifi wavemon rfkill
 
-			if ! [ "$IS_CINNAMON" == "true" ]; then
+			if ! [ "$IS_CINNAMON" == 'true' ]; then
 				DEL wpasupplicant
 			fi
 		}
@@ -1054,7 +1054,7 @@ if FIND wmbattery whereami urfkill pommed hdapsd fnfxd xbattbar ibam\
 			laptop-{detect,mode-tools} power{stat,top\*}\
 			xserver-xorg-input-wacom
 
-		NO_PORTABLE="true"
+		NO_PORTABLE='true'
 	}
 fi
 
@@ -1080,11 +1080,11 @@ if FIND xserver-xorg-input-synaptics\*; then
 		SAY "Calling APT to remove touchpad-related packages."
 		DEL xserver-xorg-input-synaptics\*
 
-		NO_TOUCHPAD="true"
+		NO_TOUCHPAD='true'
 	}
 fi
 
-if ! [ "$NO_ASK_DE" == "true" ]; then
+if ! [ "$NO_ASK_DE" == 'true' ]; then
 	PROMPT\
 		"[028]: Are you using the KDE desktop environment?"\
 		"If you enter 'Y', you'll be asked KDE-specific questions."\
@@ -1119,12 +1119,12 @@ if ! [ "$NO_ASK_DE" == "true" ]; then
 			}
 		fi
 
-		if [ "$NO_SAMBA" == "true" ]; then
+		if [ "$NO_SAMBA" == 'true' ]; then
 			SAY "Calling APT to remove smb4k package (Samba-related)."
 			DEL smb4k
 		fi
 
-		if [ "$NO_TOUCHPAD" == "true" ]; then
+		if [ "$NO_TOUCHPAD" == 'true' ]; then
 			SAY "Calling APT to remove KDE packages related to touchpads."
 			DEL kde-{config-touchpad,touchpad}
 		fi
@@ -1184,7 +1184,7 @@ if ! [ "$NO_ASK_DE" == "true" ]; then
 		"[035]: Are you using the Mate desktop environment?"\
 		"If you enter 'Y', you'll be asked Mate-specific questions."\
 	&& {
-		IS_MATE="true"
+		IS_MATE='true'
 
 		if PATHLOOK pluma; then
 			PROMPT "[036]: Will you ever use Pluma (text editor)?" || {
@@ -1198,7 +1198,7 @@ if ! [ "$NO_ASK_DE" == "true" ]; then
 		"[037]: Are you using the GNOME desktop environment?"\
 		"If you enter 'Y', you'll be asked Gnome-specific questions."\
 	&& {
-		IS_GNOME="true"
+		IS_GNOME='true'
 
 		if PATHLOOK clementine; then
 			PROMPT "[038]: Will you ever use Clementine (GUI music player)?" || {
@@ -1263,7 +1263,7 @@ if PATHLOOK sudo; then
 	}
 fi
 
-if ! [ "$IS_ZORIN" == "true" ]; then
+if ! [ "$IS_ZORIN" == 'true' ]; then
 	if FIND ssh-askpass-gnome openssh-server ssh python-paramiko; then
 		PROMPT\
 			"[103]: Is this installation an SSH server (Enter 'Y' if unsure)?"\
@@ -1309,7 +1309,7 @@ if PATHLOOK tomboy; then
 	}
 fi
 
-if [ "$IS_MINT" == "true" ]; then
+if [ "$IS_MINT" == 'true' ]; then
 	if PATHLOOK timeshift; then
 		PROMPT\
 			"[060]: Will you be needing timeshift (backup utility)?"\
@@ -1328,9 +1328,9 @@ if FIND xscreensaver\* gnome-{screensaver,screensaver}; then
 	|| {
 		SAY "Calling APT to remove packages related to screensavers."
 
-		if [ "$IS_GNOME" == "true" ]; then
+		if [ "$IS_GNOME" == 'true' ]; then
 			DEL gnome-screensaver
-		elif [ "$IS_MATE" == "true" ]; then
+		elif [ "$IS_MATE" == 'true' ]; then
 			DEL mate-screensaver\*
 		fi
 
@@ -1378,20 +1378,20 @@ if FIND mobile-broadband-provider-info; then
 	}
 fi
 
-if ! [ "$IS_ZORIN" == "true" ]; then
+if ! [ "$IS_ZORIN" == 'true' ]; then
 	if FIND \*bluetooth\* \*bluez\* ubertooth libubertooth\*; then
 		PROMPT\
 			"[004]: Do you need bluetooth support?"\
 			"If you enter 'N', various bluetooth packages will be removed."\
 			"Either via external or internal bluetooth receivers."\
 		|| {
-			if [ "$IS_MINT" == "true" ]; then
+			if [ "$IS_MINT" == 'true' ]; then
 				PROMPT\
 					"[051]: Are you using the Cinnamon desktop environment?"\
 					"If you enter 'Y', fewer bluetooth packages will be removed."\
 					"This question may affect later questions."\
 				&& {
-					IS_CINNAMON="true"
+					IS_CINNAMON='true'
 
 					SAY "Calling APT to remove some bluetooth packages."
 					DEL blue{tooth,z\*,berry} {gnome,pulseaudio-module}-bluetooth
@@ -1469,7 +1469,7 @@ if ! [ "$IS_ZORIN" == "true" ]; then
 	fi
 
 	if PATHLOOK vino-preferences; then
-		NO_VINO="true"
+		NO_VINO='true'
 
 		PROMPT\
 			"[080]: Will you be needing VINO (remote desktop client)?"\
@@ -1482,7 +1482,7 @@ if ! [ "$IS_ZORIN" == "true" ]; then
 
 	if FIND gvfs\*; then
 		PROMPT "[049]: Will you be needing gvfs (Enter 'Y' if unsure)?" || {
-			NO_GVFS="true"
+			NO_GVFS='true'
 
 			SAY "Calling APT to remove gvfs packages."
 			DEL gvfs\*
@@ -1498,7 +1498,7 @@ if ! [ "$IS_ZORIN" == "true" ]; then
 			DEL wodim libdvd\* libcdr\* cd-discid
 		}
 
-		if [ "$NO_GVFS" == "true" ]; then
+		if [ "$NO_GVFS" == 'true' ]; then
 			DEL libcdio\*
 		fi
 
@@ -1509,7 +1509,7 @@ if ! [ "$IS_ZORIN" == "true" ]; then
 				"[083]: Will you need the dvd+rw-tools package (Enter 'Y' if unsure)?"\
 				"If you enter 'N', the dvd+rw-tools package will be removed."\
 			|| {
-				NO_DVD_RW_TOOLS="true"
+				NO_DVD_RW_TOOLS='true'
 
 				SAY "Calling APT to remove the dvd+rw-tools package."
 				DEL dvd\+rw-tools
@@ -1517,7 +1517,7 @@ if ! [ "$IS_ZORIN" == "true" ]; then
 		fi
 	fi
 
-	if [ ! "$NO_DVD_RW_TOOLS" == "true" ] && PATHLOOK genisoimage; then
+	if [ ! "$NO_DVD_RW_TOOLS" == 'true' ] && PATHLOOK genisoimage; then
 		PROMPT\
 			"[084]: Will you be needing genisoimage (ISO file creator)?"\
 			"If you enter 'N', the genisoimage package will be removed."\
@@ -1532,7 +1532,7 @@ if ! [ "$IS_ZORIN" == "true" ]; then
 		DEL brasero
 	fi
 
-	if ! [ "$IS_CINNAMON" == "true" ]; then
+	if ! [ "$IS_CINNAMON" == 'true' ]; then
 		if PATHLOOK gksu gksudo; then
 			PROMPT\
 				"[110]: Will you need gksu and/or gksudo (Enter 'Y' if unsure)?"\
@@ -1553,7 +1553,7 @@ if PATHLOOK baobab; then
 		SAY "Calling APT to remove the baobab package."
 		DEL caribou
 
-		if ! [ "$IS_CINNAMON" == "true" ]; then
+		if ! [ "$IS_CINNAMON" == 'true' ]; then
 			DEL baobab
 		fi
 	}
@@ -1574,9 +1574,9 @@ if FIND freerdp\* libfreerdp\* dosfstools ntfs-3g libgcab-\*\
 	PROMPT\
 		"[094]: Will you need Windows-related support? (Enter 'Y' if unsure)"\
 		"If you enter 'N', additional related questions will be asked."\
-	|| NO_MS_TOOLS="true"
+	|| NO_MS_TOOLS='true'
 
-	if [ "$NO_MS_TOOLS" == "true" ]; then
+	if [ "$NO_MS_TOOLS" == 'true' ]; then
 		SAY "Calling APT to remove the mtools package."
 		DEL mtools
 
@@ -1596,7 +1596,7 @@ if FIND freerdp\* libfreerdp\* dosfstools ntfs-3g libgcab-\*\
 		fi
 
 		if PATHLOOK xfreerdp; then
-			NO_FREERDP="true"
+			NO_FREERDP='true'
 
 			SAY "Calling APT to remove the FreeRDP packages."
 			DEL freerdp\* libfreerdp\* libxfreerdp\*
@@ -1614,7 +1614,7 @@ if FIND freerdp\* libfreerdp\* dosfstools ntfs-3g libgcab-\*\
 	fi
 fi
 
-if [ "$NO_FREERDP" == "true" -o "$NO_VINO" == "true" ]; then
+if [ "$NO_FREERDP" == 'true' -o "$NO_VINO" == 'true' ]; then
 	SAY "Calling APT to remove the thin-client-config-agent package."
 	DEL thin-client-config-agent
 fi
@@ -1654,7 +1654,7 @@ if PATHLOOK rename; then
 		# properly. Added a check to give an error, should this be beyond
 		# just my case.
 		if PATHLOOK rename; then
-			FAIL 0 "$LINENO" "The '/usr/bin/rename' executable still exists."
+			Err 0 $LINENO "The '/usr/bin/rename' executable still exists."
 		fi
 	}
 fi
@@ -1732,9 +1732,9 @@ if FIND lvm2 liblvm\*; then
 		"[096]: Will you be or are you using LVM? (Enter 'Y' if unsure)"\
 		"If you enter 'N', packages related to LVM will be removed."\
 		"This is LVM2, the rewrite of The Linux Logical Volume Manager."\
-	|| NO_LVM="true"
+	|| NO_LVM='true'
 
-	if [ "$NO_LVM" == "true" ]; then
+	if [ "$NO_LVM" == 'true' ]; then
 		PROMPT\
 			"[091]: WARNING! May be problematic if you're wrong. Are you sure?"\
 			"If you enter 'Y', LVM-related packages will still be removed."\
@@ -1890,7 +1890,7 @@ if FIND caribou; then
 		SAY "Calling APT to remove the caribou package(s)."
 		DEL caribou
 
-		if ! [ "$IS_CINNAMON" == "true" ]; then
+		if ! [ "$IS_CINNAMON" == 'true' ]; then
 			DEL \*caribou\*
 		fi
 	}
@@ -1929,7 +1929,7 @@ if FIND ftp; then
 	}
 fi
 
-if ! [ "$IS_CINNAMON" == "true" ]; then
+if ! [ "$IS_CINNAMON" == 'true' ]; then
 	if FIND dpkg-dev; then
 		PROMPT\
 			"[140]: Will you need tools to build DEB packages from source?"\
