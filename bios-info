@@ -3,20 +3,20 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/bios-info
 # Started On        - Tue 20 Feb 07:47:12 GMT 2018
-# Last Change       - Sun 12 May 14:56:23 BST 2019
+# Last Change       - Wed 27 Nov 15:53:55 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # This may be expanded in the future.
 #----------------------------------------------------------------------------------
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
 USAGE(){
 	while read -r; do
@@ -38,9 +38,9 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			USAGE; exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 
 	shift
