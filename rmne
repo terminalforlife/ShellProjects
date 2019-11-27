@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Mon 28 Oct 12:15:16 GMT 2019
+# Last Change       - Wed 27 Nov 13:33:25 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-10-28"
+_VERSION_="2019-11-27"
 _PROJECT_="${0##*/}"
 
 FAIL(){
@@ -21,7 +21,7 @@ INFO(){ printf "INFO: %s\n" "$1"; }
 DOM="https://github.com"
 
 USAGE(){
-	while read -r; do
+	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${_PROJECT_^^} - REMOVE NON-ESSENTIAL ($_VERSION_)
