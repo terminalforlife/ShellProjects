@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/bl (blkid lite)
 # Started On        - Thu 14 Sep 01:49:40 BST 2017
-# Last Change       - Sun 12 May 21:51:36 BST 2019
+# Last Change       - Wed 27 Nov 15:53:56 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" >&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -57,12 +57,12 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
-			DEBUGME="true"
+			DEBUGME='true'
 			A+=1; ;;
 		--uuid|-U)
 			shift
 
-			UFLAG_ACTIVE="true"
+			UFLAG_ACTIVE='true'
 			PORNOT="-n"
 			LSBLK_FORMAT="uuid"
 			SHOWDEV="${SHOWDEV:-} $1"
@@ -70,7 +70,7 @@ while [ "$1" ]; do
 		--label|-L)
 			shift
 
-			LFLAG_ACTIVE="true"
+			LFLAG_ACTIVE='true'
 			PORNOT="-n"
 			LSBLK_FORMAT="label"
 			SHOWDEV="${SHOWDEV:-} $1"
@@ -78,7 +78,7 @@ while [ "$1" ]; do
 		/dev/*)
 			[ $A -eq 0 ] && SHOWDEV="${SHOWDEV:-} $1" ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
@@ -86,20 +86,20 @@ done
 declare -i DEPCOUNT=0
 for DEP in sed lsblk; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-if [ "${UFLAG_ACTIVE:-}" == "true" -a "${LFLAG_ACTIVE:-}" == "true" ]; then
-	FAIL 1 "$LINENO" "Unable to mix --uuid|-U and --label|-L flags."
-elif [[ "$LSBLK_FORMAT" =~ ^(label|uuid)$ ]] && [ -z "$SHOWDEV" ]; then
-	FAIL 1 "$LINENO" "Missing a block device name."
+if [ "${UFLAG_ACTIVE:-}" == 'true' -a "${LFLAG_ACTIVE:-}" == 'true' ]; then
+	Err 1 $LINENO "Unable to mix --uuid|-U and --label|-L flags."
+elif [[ $LSBLK_FORMAT =~ ^(label|uuid)$ ]] && [ -z "$SHOWDEV" ]; then
+	Err 1 $LINENO "Missing a block device name."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 MAIN_FUNC(){
 	LSBLK(){
