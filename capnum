@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/capnum
 # Started On        - Wed 31 Jan 23:35:19 GMT 2018
-# Last Change       - Sun 12 May 15:18:41 BST 2019
+# Last Change       - Wed 27 Nov 15:53:57 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 # scripts I had written in an attempt to achieve this very result.
 #----------------------------------------------------------------------------------
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -28,14 +28,14 @@ FAIL(){
 declare -i DEPCOUNT=0
 for DEP in sleep xset notify-send; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $# -eq 1 ] || FAIL 1 "$LINENO" "Number of seconds in which to notify is required."
+[ $# -eq 1 ] || Err 1 $LINENO "Number of seconds in which to notify is required."
 NOTIFY(){ notify-send --urgency=low --expire-time=20 "$1"; }
 
 while :; do
@@ -43,20 +43,20 @@ while :; do
 		if [ "${X[0]}" == "00:" -a "${X[1]}" == "Caps" ]; then
 			printf -v S "%s:%s" "${X[3]}" "${X[7]}"
 
-			if [ "${S/*:}" == "on" -a ! "$NL" == "true" ]; then
+			if [ "${S/*:}" == "on" -a ! "$NL" == 'true' ]; then
 				NOTIFY "NumLock enabled."
-				NL="true"
-			elif [ "${S/*:}" == "off" -a ! "$NL" == "false" ]; then
+				NL='true'
+			elif [ "${S/*:}" == "off" -a ! "$NL" == 'false' ]; then
 				NOTIFY "NumLock disabled."
-				NL="false"
+				NL='false'
 			fi
 
-			if [ "${S%:*}" == "on" -a ! "$CL" == "true" ]; then
+			if [ "${S%:*}" == "on" -a ! "$CL" == 'true' ]; then
 				NOTIFY "CapsLock enabled."
-				CL="true"
-			elif [ "${S%:*}" == "off" -a ! "$CL" == "false" ]; then
+				CL='true'
+			elif [ "${S%:*}" == "off" -a ! "$CL" == 'false' ]; then
 				NOTIFY "CapsLock disabled."
-				CL="false"
+				CL='false'
 			fi
 
 			break
