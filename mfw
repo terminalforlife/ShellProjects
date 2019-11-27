@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/mfw (Mint Forum Watch)
 # Started On        - Sun 21 Jan 14:15:13 GMT 2018
-# Last Change       - Tue 12 Nov 14:53:20 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:17 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,10 +14,10 @@
 # At some point, I may introduce the ability to watch different forums.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -57,34 +57,34 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--filter|-F)
 			shift; ID="$1" ;;
 		--no-notify-wait)
-			NO_NOTIFY_WAIT="true" ;;
+			NO_NOTIFY_WAIT='true' ;;
 		--run-once|-O)
-			RUN_ONCE="true" ;;
+			RUN_ONCE='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-INTERVAL="$1"
+INTERVAL=$1
 
 declare -i DEPCOUNT=0
 for DEP in sleep notify-send wget; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 URL="$DOM/viewforum.php?f=90"
 REGEX='\?f=90\&amp\;t=[0-9]+\&amp;sid=[0-9a-z]+\"\sclass=\"topictitle\">.*<'
@@ -95,13 +95,13 @@ FILTER=(83444 83314 81997 97158 245700 230142 219089 224270 $FILTER_ADD)
 while :; do
 	PARSE(){
 		while IFS=">" read -a X; do
-			if [[ "${X[*]}" =~ class=\"posts\"\ [0-9]+\ \< ]]; then
-				T_REP="${X[1]//[!0-9]}"
+			if [[ ${X[*]} =~ class=\"posts\"\ [0-9]+\ \< ]]; then
+				T_REP=${X[1]//[!0-9]}
 				[ $T_REP -eq 0 ] || continue
-			elif [[ "${X[*]}" =~ class=\"topictitle\" ]]; then
+			elif [[ ${X[*]} =~ class=\"topictitle\" ]]; then
 				IFS=";" read -a Y <<< "${X[0]/*<a href=}"
-				T_ID="${Y[1]//[!0-9]}"
-				T_STR="${X[1]%</a}"
+				T_ID=${Y[1]//[!0-9]}
+				T_STR=${X[1]%</a}
 
 				for Z in ${FILTER[@]}; {
 					[ "$Z" == "$T_ID" ] && continue 2
@@ -113,9 +113,9 @@ while :; do
 	}
 
 	while read -a R; do
-		BUF="${R/???????}"
+		BUF=${R/???????}
 
-		if ! [ "$NO_NOTIFY_WAIT" == "true" ]; then
+		if ! [ "$NO_NOTIFY_WAIT" == 'true' ]; then
 			printf -v SECS "%0.5d" "$RANDOM"
 			sleep ${SECS%???}s
 		fi
@@ -123,7 +123,7 @@ while :; do
 		notify-send "${R[*]}"
 	done <<< "$(PARSE)"
 
-	if ! [ "$RUN_ONCE" == "true" ]; then
+	if ! [ "$RUN_ONCE" == 'true' ]; then
 		sleep ${INTERVAL}m
 	else
 		break
