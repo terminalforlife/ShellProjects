@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/dlfcmags
 # Started On        - Tue 28 Nov 00:02:33 GMT 2017
-# Last Change       - Sun 12 May 22:01:09 BST 2019
+# Last Change       - Wed 27 Nov 15:54:02 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Download the entire collection of the Full Circle magazine for Ubuntu Linux.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -52,9 +52,9 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -62,7 +62,7 @@ while [ "$1" ]; do
 done
 
 if ! type -fP wget > /dev/null 2>&1; then
-	FAIL 1 "$LINENO" "Dependency '/usr/bin/wget' not met."
+	Err 1 $LINENO "Dependency '/usr/bin/wget' not met."
 fi
 
 if ! [ "$*" ]; then
@@ -71,7 +71,7 @@ else
 	ISSUE_LIST="$@"
 fi
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
 
 DL="/issue127_en.pdf"
 
