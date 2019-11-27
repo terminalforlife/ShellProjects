@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/medlog
 # Started On        - Fri 18 Nov ??:??:?? BST 2016
-# Last Change       - Sun 12 May 23:07:26 BST 2019
+# Last Change       - Wed 27 Nov 15:56:16 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,10 +13,10 @@
 #          so I may include that at some point.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -44,7 +44,7 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
@@ -52,7 +52,7 @@ done
 declare -i DEPCOUNT=0
 for DEP in xmessage notify-send mkdir; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -63,7 +63,7 @@ MAINDIR="$HOME/.$_PROJECT_"
 LOGFILE="$MAINDIR/$_PROJECT_.log"
 [ -d "$MAINDIR" ] || mkdir -p "$MAINDIR"
 [ -f "$LOGFILE" ] || > "$LOGFILE"
-[ -w "$LOGFILE" ] || FAIL 1 "$LINENO" "File '${LOGFILE//*\/}' has no write access."
+[ -w "$LOGFILE" ] || Err 1 $LINENO "File '${LOGFILE//*\/}' has no write access."
 
 while read -a X; do
 	printf -v LAST_LOG "%s\n" "${X[0]}"
