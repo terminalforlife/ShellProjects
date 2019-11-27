@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Tue  5 Nov 14:10:58 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:49 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Quick shell program to toggle TLP to improve power management on portable setups.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-05"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -50,34 +50,34 @@ while [ "$1" ]; do
 			printf "%s\n" "$_VERSION_"
 			exit 0 ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-type -fP sed > /dev/null 2>&1 || FAIL 1 "$LINENO" "Dependency '/bin/sed' not met."
+type -fP sed > /dev/null 2>&1 || Err 1 $LINENO "Dependency '/bin/sed' not met."
 
-[ $UID -eq 0 ] || FAIL 1 "$LINENO" "Root access is required for system-wide configuration."
+[ $UID -eq 0 ] || Err 1 $LINENO "Root access is required for system-wide configuration."
 
 if [ -f "$WORK_FILE" ]; then
 	while IFS="=" read -a X; do
-		[[ "${X[0]}" =~ ^# ]] && continue
+	 [[ ${X[0]} =~ ^# ]] && continue
 		if [ "${X[0]}" == "TLP_ENABLE" ]; then
 			if [ ${X[1]} -eq 1 ]; then
 				if ! sed -i 's/\(TLP_ENABLE=\)1/\10/' "$WORK_FILE"; then
-					FAIL 1 "$LINENO" "Parameter 'TLP_ENABLE' unsuccessfully set to '1'."
+					Err 1 $LINENO "Parameter 'TLP_ENABLE' unsuccessfully set to '1'."
 				fi
 			elif [ ${X[1]} -eq 0 ]; then
 				if ! sed -i 's/\(TLP_ENABLE=\)0/\11/' "$WORK_FILE"; then
-					FAIL 1 "$LINENO" "Parameter 'TLP_ENABLE' unsuccessfully set to '0'."
+					Err 1 $LINENO "Parameter 'TLP_ENABLE' unsuccessfully set to '0'."
 				fi
 			else
-				FAIL 1 "$LINENO" "Invalid 'TLP_ENABLE' parameter assignment."
+				Err 1 $LINENO "Invalid 'TLP_ENABLE' parameter assignment."
 			fi
 
 			break
 		fi
 	done < "$WORK_FILE"
 else
-	FAIL 1 "$LINENO" "Unable to find the '$WORK_FILE' file."
+	Err 1 $LINENO "Unable to find the '$WORK_FILE' file."
 fi
