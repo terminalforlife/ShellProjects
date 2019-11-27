@@ -112,7 +112,7 @@ elif ! [[ "$*" =~ [0-9]+ ]] && [ "$INT" -ge 1 ]; then
 	FAIL 1 "$LINENO" "Requires an integer greater than or equal to 1."
 fi
 
-case "${TYPE:-EMPTY}" in
+case ${TYPE:-EMPTY} in
 	punct)
 		CHARS='[\`/\+\\\|\_\,\.\?\!\"\\\/\$\%\^\&\*\(\)\{\}\]\[-\>\<\:\@\~]' ;;
 	digit)

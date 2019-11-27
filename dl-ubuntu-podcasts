@@ -102,7 +102,7 @@ EXTRA_SEASON(){
 }
 
 if [ "$EXTRA" ]; then
-	case "$EXTRA" in
+	case $EXTRA in
 		8)
 			EXTRA_SEASON $EXTRA ;;
 		9)

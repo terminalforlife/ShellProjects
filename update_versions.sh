@@ -57,7 +57,7 @@ printf " [OK]\n"
 SAVE(){
 	if [ -f "$VER_FILE" ]; then
 		read -n 1 -e -p "[O]verwrite '$VER_FILE', or [q]uit? " OQ
-		case "$OQ" in
+		case $OQ in
 			[Oo])
 				;;
 			[Qq])
@@ -73,7 +73,7 @@ SAVE(){
 }
 
 read -n 1 -e -p "[V]iew, [s]ave, [b]oth, or [q]uit? " VSBQ
-case "$VSBQ" in
+case $VSBQ in
 	[Vv])
 		printf "\n%s\n" "$DATA" ;;
 	[Ss])

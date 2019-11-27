@@ -106,7 +106,7 @@ while read LINE; do
 
 		while IFS=":" read -a LINE; do
 			DONE="${LINE[1]//%20/ }"
-			case "${LINE[0]}" in
+			case ${LINE[0]} in
 				summary)
 					printf "%-20s%s\n" "Summary:" "$DONE" ;;
 				apparentTemperature)

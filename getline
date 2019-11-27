@@ -286,7 +286,7 @@ for FILE in $FILELIST; {
 		fi
 
 		# Process the results of each action listed here.
-		case "$INSTRUCT" in
+		case $INSTRUCT in
 			read)
 				# Output the file, like cat.
 				LINE_NUM_FUNC "$LINECOUNT" "$REPLY" "\\n" ;;
@@ -322,7 +322,7 @@ for FILE in $FILELIST; {
 	}
 
 	# Process the results of each action listed here.
-	case "$INSTRUCT" in
+	case $INSTRUCT in
 		lcount)
 			# Display total number of lines.
 			TTL_OUTPUT "$LINECOUNT" ;;

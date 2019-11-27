@@ -107,7 +107,7 @@ MAIN_FUNC(){
 	}
 
 	# Format the output appropriately based on how lsblk is called.
-	case "$LSBLK_FORMAT" in
+	case $LSBLK_FORMAT in
 		uuid)
 			LSBLK | sed 's/^UUID="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
 		name)

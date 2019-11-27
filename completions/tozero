@@ -19,7 +19,7 @@ _arg_list_tozero(){
 			break
 		fi
 
-		case "${X[0]}" in
+		case ${X[0]} in
 			OPTS:)
 				IS_OPTS_LINE="true"
 				printf "%s " "${X[1]//|/ }" ;;

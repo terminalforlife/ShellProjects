@@ -103,7 +103,7 @@ SHOW(){
 	fi
 }
 
-case "$TYPE" in
+case $TYPE in
 	seconds|s)
 		SHOW S $SECS ;;
 	minutes|m)

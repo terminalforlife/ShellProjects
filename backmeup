@@ -119,7 +119,7 @@ SETTINGS="$MAIN_DIR/settings"
 if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 	read -ep "Directory for $_PROJECT_ archives: " STORE
 
-	case "$REPLY" in
+	case $REPLY in
 		*)
 			if ! [ -d "$STORE" ]; then
 				FAIL 1 "$LINENO" "Directory not found or inaccessible."
@@ -162,7 +162,7 @@ while read -a X; do
 	[ "${X[0]:0:1}" == "#" ] && continue
 	IFS="=" read -ra Y <<< "${X[@]}"
 
-	case "${Y[0]:-EMPTY}" in
+	case ${Y[0]:-EMPTY} in
 		STORE)
 			printf "STORE: %s\n" "${Y[1]//\"}"
 			STORE="${Y[1]//\"}" ;;

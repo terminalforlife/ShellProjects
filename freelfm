@@ -151,7 +151,7 @@ if [ "$SHUTDOWN" == "true" ]; then
 	printf "%s\n" "Shutting down in 3 minutes..."
 	MSG="Type 'C' to cancel, or 'N' to shutdown now: "
 	read -n 1 -e -p "$MSG" SHUTDOWN_PROMPT
-	case "${SHUTDOWN_PROMPT:-EMPTY}" in
+	case ${SHUTDOWN_PROMPT:-EMPTY} in
 		[Cc])
 			shutdown --no-wall -c
 			exit 0 ;;

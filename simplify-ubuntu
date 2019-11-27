@@ -164,7 +164,7 @@ PROMPT(){
 	while :; do
 		read -n 1 -e -p "$1 "
 
-		case "$REPLY" in
+		case $REPLY in
 			[Yy])
 				return 0; break ;;
 			[Nn])
@@ -207,7 +207,7 @@ if [ "${LSB_CHECK:-true}" == "true" ]; then
 		FAIL 1 "$LINENO" "Unable to determine the distribution ID."
 	fi
 
-	case "$LSB_RELEASE" in
+	case $LSB_RELEASE in
 		linuxmint)
 			IS_MINT="true"
 

@@ -227,7 +227,7 @@ if [ $SERVICES -eq 0 ]; then
 		fi
 
 		INFO "Checking operational state of the machine."
-		case "$(/bin/systemctl is-system-running)" in
+		case $(systemctl is-system-running) in
 			degraded)
 				ALERT "The system is operational, but one or more units failed." ;;
 			maintenance)
@@ -259,9 +259,9 @@ if [ $PASSWORD -eq 0 ]; then
 fi
 
 if [ $SWAP -eq 0 ]; then
-	if type -fP /sbin/swapon > /dev/null 2>&1; then
+	if type -fP swapon > /dev/null 2>&1; then
 		INFO "Looking for active swap files or partitions."
-		readarray ARRAY <<< "$(/sbin/swapon --noheadings)"
+		readarray ARRAY <<< "$(swapon --noheadings)"
 		if [ ${#ARRAY[@]} -eq 0 ]; then
 			ALERT "Unable to detect an active swap file/partition."
 		fi
@@ -509,7 +509,7 @@ if [ $GRUB -eq 0 ]; then
 fi
 
 if [ $SHMCHK -eq 0 ]; then
-	if type -fP /bin/mount > /dev/null 2>&1; then
+	if type -fP mount > /dev/null 2>&1; then
 		# Ubuntu-recommended settings.
 		while read -a X; do
 			if [ "${X[0]}${X[2]}" == "tmpfs/dev/shm" ]; then
@@ -613,7 +613,7 @@ if [ $LOGCHK -eq 0 ]; then
 		declare -i ERROR=0
 		if [ -f "$FILE" -a -r "$FILE" ]; then
 			while read; do
-				case "$REPLY" in
+				case $REPLY in
 					*[Ww][Aa][Rr][Nn][Ii][Nn][Gg]*)
 						WARNING+=1 ;;
 					*[Ee][Rr][Rr][Oo][Rr]*)

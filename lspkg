@@ -158,7 +158,7 @@ while read -a X; do
 					FILTER="${X[@]/ii}"
 				fi
 
-				case "${MATCH_WITH:-UNSET}" in
+				case ${MATCH_WITH:-UNSET} in
 					glob)
 						if [[ "$FILTER" == " "$P ]]; then
 							MATCH "${BUF% }"

@@ -142,7 +142,7 @@ EOF
 read -n 1 -e -p "[C]ontinue, despite the impending doom, or [q]uit? "
 printf "\n"
 
-case "$REPLY" in
+case $REPLY in
 	[Cc])
 		;;
 	[Qq])

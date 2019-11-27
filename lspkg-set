@@ -40,7 +40,7 @@ USAGE(){
 	EOF
 }
 
-case "$*" in
+case $* in
 	--help|-h|-\?)
 		USAGE; exit 0 ;;
 	--version|-v)

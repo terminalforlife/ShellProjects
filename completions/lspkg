@@ -19,7 +19,7 @@ _arg_list_lspkg(){
 			break
 		fi
 
-		case "${X[0]}" in
+		case ${X[0]} in
 			OPTS:)
 				IS_OPTS_LINE="true"
 				printf  "%s " "${X[1]//|/ }" ;;
@@ -41,7 +41,7 @@ _option_lspkg(){
 		COMPREPLY=($(compgen -W "glob regex" -- "$2"))
 	fi
 
-	case "$2" in
+	case $2 in
 		-*)
 			COMPREPLY=($(compgen -W "$(_arg_list_lspkg)" -- "$2")) ;;
 		*)

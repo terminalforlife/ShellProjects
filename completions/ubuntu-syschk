@@ -13,7 +13,7 @@
 _arg_list_ubuntu-syschk(){
 	local X
 
-	case "$1" in
+	case $1 in
 		""|-*)
 			while read -a X; do
 				if [ "$IS_OPTS_LINE" == "true" ]\
@@ -21,7 +21,7 @@ _arg_list_ubuntu-syschk(){
 					break
 				fi
 
-				case "${X[0]}" in
+				case ${X[0]} in
 					OPTS:)
 						IS_OPTS_LINE="true"
 						printf "%s " "${X[1]//|/ }" ;;
@@ -38,7 +38,7 @@ _arg_list_ubuntu-syschk(){
 					break
 				fi
 
-				case "${X[0]}" in
+				case ${X[0]} in
 					CHECKS:)
 						IS_CHECKS_LINE="true"
 						printf "%s %s " "${X[1]%0|1}"{0,1} ;;
