@@ -3,24 +3,24 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/nosp (No Smart-Placement)
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Sun 12 May 23:21:41 BST 2019
+# Last Change       - Wed 27 Nov 15:56:24 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # A workaround for the issue in XFCE wherein Smart Placement refuses to go away.
 #----------------------------------------------------------------------------------
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
 
-[ $# -eq 0 ] || FAIL 1 "$LINENO" "No arguments are required."
+[ $# -eq 0 ] || Err 1 $LINENO "No arguments are required."
 
 declare -i DEPCOUNT=0
 for DEP in xfconf-query sleep; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -39,6 +39,6 @@ if [ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ]; then
 		xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
 	} &
 else
-	FAIL 1 "$LINENO" "Unable to fix Smart Placement."
+	Err 1 $LINENO "Unable to fix Smart Placement."
 fi
 
