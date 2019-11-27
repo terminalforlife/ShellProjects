@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017
-# Last Change       - Sun 12 May 22:17:53 BST 2019
+# Last Change       - Wed 27 Nov 15:56:07 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-05-12"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -48,33 +48,33 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		-*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-[ -x /usr/bin/wget ] || FAIL 1 "$LINENO" "Dependency '/usr/bin/wget' not met."
+[ -x /usr/bin/wget ] || Err 1 $LINENO "Dependency '/usr/bin/wget' not met."
 
 # Newer versions of wget by default request unwanted server-side compression.
 read -a WGET_VER_LINE <<< "$(wget --version)"
 [ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
 
-[ "$*" ] || FAIL 1 "$LINENO" "Specifiy at least one CD to download."
+[ "$*" ] || Err 1 $LINENO "Specifiy at least one CD to download."
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -x
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -x
 
 URL="download/cdrom-classic-fond"
 
 for SEL in $@; {
-	if ! [[ "$SEL" == [0-9][0-9] ]]; then
-		FAIL 0 "$LINENO" "Specified ISO '$SEL' is invalid."
+	if ! [[ $SEL == [0-9][0-9] ]]; then
+		Err 0 $LINENO "Specified ISO '$SEL' is invalid."
 		continue
 	fi
 
