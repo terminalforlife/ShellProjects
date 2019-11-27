@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Sun 24 Nov 22:45:09 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:39 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,10 +15,10 @@ if [ -z "$BASH" ]; then
 	exit 1
 fi
 
-_VERSION_="2019-11-24"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -109,7 +109,7 @@ while [ "$1" ]; do
 			if [[ $1 =~ ^([0-9]+|[0-9]+\.[0-9]+)$ ]]; then
 				EffectDelay=$1
 			else
-				FAIL 1 $LINENO "Specified effect speed is invalid."
+				Err 1 $LINENO "Specified effect speed is invalid."
 			fi ;;
 		--borders|-b)
 			BORDERS='true' ;;
@@ -118,7 +118,7 @@ while [ "$1" ]; do
 
 			case $1 in
 				default|oneline) BSTYLE=$1 ;;
-				*) FAIL 1 $LINENO "Unrecognised border style." ;;
+				*) Err 1 $LINENO "Unrecognised border style." ;;
 			esac ;;
 		--ascii|-A)
 			ASCII='true' ;;
@@ -129,12 +129,12 @@ while [ "$1" ]; do
 				WaitTime=$1
 				WAIT='true'
 			else
-				FAIL 1 $LINENO "Specified wait time is invalid."
+				Err 1 $LINENO "Specified wait time is invalid."
 			fi ;;
 		--skip-start|-s)
 			SKIPSTART='true' ;;
 		-*)
-			FAIL 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -145,15 +145,15 @@ done
 #			ESCAPE='true' ;;
 
 if [ "$WAIT" == 'true' -a "$INTERACTIVE" == 'true' ]; then
-	FAIL 1 $LINENO "Either '--wait|-w' or '--interactive|-i', not both."
+	Err 1 $LINENO "Either '--wait|-w' or '--interactive|-i', not both."
 elif [ "$BORDERS" == 'true' ]; then
 	if [ "$NOHEADER" == 'true' -a "$NOFOOTER" == 'true' ]; then
-		FAIL 1 $LINENO "Option '--borders|-b' used but header and footer disabled."
+		Err 1 $LINENO "Option '--borders|-b' used but header and footer disabled."
 	fi
 fi
 
 if ! type -fP tput > /dev/null 2>&1; then
-	FAIL 0 $LINENO "Dependency 'tput' not met."
+	Err 0 $LINENO "Dependency 'tput' not met."
 else
 	if [ -t 1 ]; then
 		declare -i NumberofColors=`tput colors`
@@ -161,16 +161,16 @@ else
 	fi
 fi
 
-if [ "$UPDATE" == "true" ]; then
+if [ "$UPDATE" == 'true' ]; then
 	if ! type -fP wget > /dev/null 2>&1; then
-		FAIL 1 $LINENO "Dependency 'wget' not met."
+		Err 1 $LINENO "Dependency 'wget' not met."
 	fi
 
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
 		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
-			LATEST="${LINE[1]}"
-			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+			LATEST=${LINE[1]}
+			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
 				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
 					while read -r; do
 						printf "%s\n" "$REPLY"
@@ -180,7 +180,7 @@ if [ "$UPDATE" == "true" ]; then
 					EOF
 				fi
 			else
-				FAIL 1 $LINENO "Failed to check for available updates."
+				Err 1 $LINENO "Failed to check for available updates."
 			fi
 		fi
 	done <<< "$(wget -q "$VERSION_URL" -O -)"
@@ -189,20 +189,20 @@ if [ "$UPDATE" == "true" ]; then
 fi
 
 if [ -z "$1" ]; then
-	FAIL 1 $LINENO "A project file wasn't provided."
+	Err 1 $LINENO "A project file wasn't provided."
 elif [ -f "$1" ] && [ -r "$1" ]; then
 	ProjectFile=$1
 
 	shift
 
-	[ $# -gt 0 ] && FAIL 1 $LINENO "Only one project may run at a time."
-elif [[ "$1" ]]; then
-	FAIL 1 $LINENO "A project file wasn't provided."
+	[ $# -gt 0 ] && Err 1 $LINENO "Only one project may run at a time."
+elif [[ $1 ]]; then
+	Err 1 $LINENO "A project file wasn't provided."
 else
-	FAIL 1 $LINENO "Project file missing or unreadable."
+	Err 1 $LINENO "Project file missing or unreadable."
 fi
 
-[ "$DEBUGME" == "true" ] && set -x
+[ "$DEBUGME" == 'true' ] && set -x
 
 tput smcup
 
@@ -300,7 +300,7 @@ Header(){
 		fi
 	else
 		tput ed; tput rmcup; printf "\n"
-		FAIL 1 $LINENO "Slide #${SlideNumber:-?} has no header title."
+		Err 1 $LINENO "Slide #${SlideNumber:-?} has no header title."
 	fi
 }
 
@@ -333,7 +333,7 @@ Footer(){
 					LongLine "$LL" "$NB" "$LR"
 				else
 					tput ed; tput rmcup; printf "\n"
-					FAIL 1 $LINENO "Insufficent space for the footer."
+					Err 1 $LINENO "Insufficent space for the footer."
 				fi
 			elif [ "$BSTYLE" == 'oneline' ]; then
 				tput cup $[$Lines - 2] 0
@@ -351,7 +351,7 @@ Footer(){
 					printf "$FooterTextRight"
 				else
 					tput ed; tput rmcup; printf "\n"
-					FAIL 1 $LINENO "Insufficent space for the footer."
+					Err 1 $LINENO "Insufficent space for the footer."
 				fi
 
 			fi
@@ -368,7 +368,7 @@ Footer(){
 			printf "$FooterTextRight"
 		else
 			tput ed; tput rmcup; printf "\n"
-			FAIL 1 $LINENO "Insufficent space for the footer."
+			Err 1 $LINENO "Insufficent space for the footer."
 		fi
 	fi
 }
@@ -412,7 +412,7 @@ for L in "${BuffArr[@]%$'\n'}"; {
 
 		if [ -n "$OldLine" ]; then
 			tput ed; tput rmcup; printf "\n"
-			FAIL 1 $LINENO "Line '$BodyLines' is non-empty."
+			Err 1 $LINENO "Line '$BodyLines' is non-empty."
 		fi
 
 		if [ "$INTERACTIVE" == 'true' ]; then
@@ -439,7 +439,7 @@ for L in "${BuffArr[@]%$'\n'}"; {
 				continue
 			elif [ "$HeaderPrefixFound" == 'true' -a "$Field" == '###' ]; then
 				tput ed; tput rmcup; printf "\n"
-				FAIL 1 $LINENO "Only one header prefix is required."
+				Err 1 $LINENO "Only one header prefix is required."
 			else
 				unset HeaderPrefixFound
 			fi
@@ -453,11 +453,11 @@ for L in "${BuffArr[@]%$'\n'}"; {
 					SlideTitle=${FieldArray[1]//\"}
 				else
 					tput ed; tput rmcup; printf "\n"
-					FAIL 1 $LINENO "Invalid header command at field $FieldCount."
+					Err 1 $LINENO "Invalid header command at field $FieldCount."
 				fi
 			else
 				tput ed; tput rmcup; printf "\n"
-				FAIL 1 $LINENO "Invalid header field at position $FieldCount."
+				Err 1 $LINENO "Invalid header field at position $FieldCount."
 			fi
 		}
 
@@ -474,14 +474,14 @@ for L in "${BuffArr[@]%$'\n'}"; {
 	elif [ $MainLines -eq 2 ]; then
 		if [ -n "$L" ]; then
 			tput ed; tput rmcup; printf "\n"
-			FAIL 1 $LINENO "Line 2 is non-empty."
+			Err 1 $LINENO "Line 2 is non-empty."
 		fi
 	elif [ $MainLines -gt 2 ]; then
 		# Display the body of the current slide.
 		if ! [ ${#L} -gt $[Cols - 5] ]; then
 			if [ $BodyLines -gt $[Lines - 9] ]; then
 				tput ed; tput rmcup
-				FAIL 1 $LINENO "Line overflow detected on slide #$SlideNumber."
+				Err 1 $LINENO "Line overflow detected on slide #$SlideNumber."
 			fi
 
 			[ "$EFFECT" == 'true' ] && sleep $EffectDelay
@@ -529,7 +529,7 @@ for L in "${BuffArr[@]%$'\n'}"; {
 			OldLine=$L
 		else
 			tput ed; tput rmcup; printf "\n"
-			FAIL 1 $LINENO "Line $BodyLines of slide #$SlideNumber is too long."
+			Err 1 $LINENO "Line $BodyLines of slide #$SlideNumber is too long."
 		fi
 	fi
 
