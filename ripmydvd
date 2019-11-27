@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/ripmydvd
 # Started On        - Fri 29 Sep 21:19:47 BST 2017
-# Last Change       - Wed  6 Nov 13:35:21 GMT 2019
+# Last Change       - Wed 27 Nov 15:56:33 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-06"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -58,23 +58,23 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--device|-d)
 			shift
 
-			[ -b "$1" ] || FAIL 1 "$LINENO" "Device not found at: $1"
+			[ -b "$1" ] || Err 1 $LINENO "Device not found at: $1"
 			DEVICE="$1" ;;
 		--combine|-C)
-			COMBINE="true" ;;
+			COMBINE='true' ;;
 		--title|-t)
 			shift
 
-			if [[ "$1" =~ ^([0-9]+|[0-9]+-[0-9]+)$ ]]; then
-				TITLE="$1"
+			if [[ $1 =~ ^([0-9]+|[0-9]+-[0-9]+)$ ]]; then
+				TITLE=$1
 			else
-				FAIL 1 "$LINENO" "Invalid title."
+				Err 1 $LINENO "Invalid title."
 			fi ;;
 		--aid)
 			shift
@@ -89,9 +89,9 @@ while [ "$1" ]; do
 
 			ALANG="-alang $1" ;;
 		--eject|-e)
-			EJECT="true" ;;
+			EJECT='true' ;;
 		--nosummary)
-			SUMMARY="false" ;;
+			SUMMARY='false' ;;
 		--startcmd)
 			shift
 
@@ -112,19 +112,19 @@ TARGET="$*"
 declare -i DEPCOUNT=0
 for DEP in eject mkfifo ffmpeg mplayer; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$TARGET" ] || FAIL 1 "$LINENO" "You need to provide a filename."
-[ "$TITLE" ] || FAIL 1 "$LINENO" "Which title do you want to rip?"
+[ "$TARGET" ] || Err 1 $LINENO "You need to provide a filename."
+[ "$TITLE" ] || Err 1 $LINENO "Which title do you want to rip?"
 [ "$DEVICE" ] || DEVICE="/dev/sr0"
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -x
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -x
 
 FIFO="/tmp/stream_${$}.dump"
 MPARGS1="$AID $ASID $ALANG -nosub -really-quiet -nolirc -nocache -vo x11 -zoom"
@@ -135,9 +135,9 @@ declare -i SECONDS=0
 
 mkfifo "$FIFO"
 
-if [ "$COMBINE" == "true" ]; then
+if [ "$COMBINE" == 'true' ]; then
 	if ! [ "$ALANG" -a "$AID" ]; then
-		FAIL 1 "$LINENO" "The --combine argument requires -alang or -aid."
+		Err 1 $LINENO "The --combine argument requires -alang or -aid."
 	fi
 
 	mplayer $MPARGS1 -dumpaudio -dumpfile "/tmp/audio.dump"\
@@ -152,13 +152,13 @@ else
 	ffmpeg -loglevel fatal -stats -i "$FIFO" "$TARGET"
 fi
 
-if [ "$SUMMARY" == "false" ]; then
+if [ "$SUMMARY" == 'false' ]; then
 	printf "\aJob on %s ran for %d seconds.\n" "$DEVICE" "$SECONDS"
 fi
 
 [ "$END_COMMAND" ] && ($END_COMMAND)
 
-if [ "$EJECT" == "true" ]; then
+if [ "$EJECT" == 'true' ]; then
 	eject $DEVICE
 fi
 
