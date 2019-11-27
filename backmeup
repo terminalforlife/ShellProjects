@@ -3,15 +3,15 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Sun 27 Oct 16:06:39 GMT 2019
+# Last Change       - Wed 27 Nov 15:53:51 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-10-27"
-_PROJECT_="${0##*/}"
+_VERSION_="2019-11-27"
+_PROJECT_=${0##*/}
 
-FAIL(){
+Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
@@ -54,17 +54,17 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET="true" ;;
+			BEQUIET='true' ;;
 		--update|-U)
-			UPDATE="true" ;;
+			UPDATE='true' ;;
 		--debug|-D)
-			DEBUGME="true" ;;
+			DEBUGME='true' ;;
 		--reset|-R)
-			RESET="true" ;;
+			RESET='true' ;;
 		--notify|-N)
-			NOTIFY="true" ;;
+			NOTIFY='true' ;;
 		*)
-			FAIL 1 "$LINENO" "Incorrect argument(s) specified." ;;
+			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
@@ -72,28 +72,28 @@ done
 declare -i DEPCOUNT=0
 for DEP in gzip tar sync mkdir; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		FAIL 0 "$LINENO" "Dependency '$DEP' not met."
+		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$BEQUIET" == "true" ] && exec > /dev/null
-[ "$DEBUGME" == "true" ] && set -xeu
+[ "$BEQUIET" == 'true' ] && exec > /dev/null
+[ "$DEBUGME" == 'true' ] && set -xeu
 
 
-if [ "$UPDATE" == "true" ]; then
+if [ "$UPDATE" == 'true' ]; then
 	if ! type -fP wget > /dev/null 2>&1; then
-		FAIL 1 "$LINENO" "Dependency 'wget' not met."
+		Err 1 $LINENO "Dependency 'wget' not met."
 	fi
 
 	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
 	while IFS='=' read -a LINE; do
 		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
-			LATEST="${LINE[1]}"
+			LATEST=${LINE[1]}
 
-			if [[ "${LATEST//-}" =~ ^[0-9]{8}$ ]]; then
+			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
 				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
 					while read -r; do
 						printf "%s\n" "$REPLY"
@@ -103,7 +103,7 @@ if [ "$UPDATE" == "true" ]; then
 					EOF
 				fi
 			else
-				FAIL 1 "$LINENO" "Failed to check for available updates."
+				Err 1 $LINENO "Failed to check for available updates."
 			fi
 		fi
 	done <<< "$(wget -q "$VERSION_URL" -O -)"
@@ -116,16 +116,16 @@ SETTINGS="$MAIN_DIR/settings"
 
 [ -d "$MAIN_DIR" ] || mkdir "$MAIN_DIR"
 
-if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
+if [ ! -f "$SETTINGS" -o "$RESET" == 'true' ]; then
 	read -ep "Directory for $_PROJECT_ archives: " STORE
 
 	case $REPLY in
 		*)
 			if ! [ -d "$STORE" ]; then
-				FAIL 1 "$LINENO" "Directory not found or inaccessible."
+				Err 1 $LINENO "Directory not found or inaccessible."
 			fi ;;
 		"")
-			FAIL 1 "$LINENO" "You must enter a valid path." ;;
+			Err 1 $LINENO "You must enter a valid path." ;;
 	esac
 
 	printf -v DATETIME "%(%F_%H%M)T" "-1"
@@ -140,7 +140,7 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 			# UID:       $UID
 
 			# The path to the target file system. (mountpoint)
-			STORE="$STORE"
+			STORE=$STORE
 
 			# Exclude directories or files here.
 			EXCLUDE="$HOME/.cache"
@@ -151,7 +151,7 @@ if [ ! -f "$SETTINGS" -o "$RESET" == "true" ]; then
 	printf "Settings saved - Please relaunch $_PROJECT_.\n"
 	exit 0
 elif ! [ -r "$SETTINGS" ]; then
-	FAIL 1 "$LINENO" "File '$SETTINGS' inaccessible."
+	Err 1 $LINENO "File '$SETTINGS' inaccessible."
 fi
 
 declare -a EXCLUDE
@@ -165,39 +165,39 @@ while read -a X; do
 	case ${Y[0]:-EMPTY} in
 		STORE)
 			printf "STORE: %s\n" "${Y[1]//\"}"
-			STORE="${Y[1]//\"}" ;;
+			STORE=${Y[1]//\"} ;;
 		EXCLUDE)
 			printf "EXCLUDING: %s\n" "${Y[1]//\"}"
 			EXCLUDE+=("--exclude=${Y[1]%/}") ;;
 		EMPTY)
 			;;
 		*)
-			FAIL 1 "$LINENO" "Invalid parameter '${Y[0]}' on line #$LINE." ;;
+			Err 1 $LINENO "Invalid parameter '${Y[0]}' on line #$LINE." ;;
 	esac
 done < "$SETTINGS"
 
-[ -d "$STORE" ] || FAIL 1 "$LINENO" "Target '$STORE' not found."
+[ -d "$STORE" ] || Err 1 $LINENO "Target '$STORE' not found."
 
 printf -v ARCHIVE "BMU_%(%F_%H%M)T" "-1"
 declare -i SECONDS=0
 
 tar --xattrs --ignore-failed-read `eval printf "%s\\\\\n" ${EXCLUDE[@]}`\
-	--totals -cvpf "${STORE%/}/$ARCHIVE" "$HOME" || FAIL="true"
+	--totals -cvpf "${STORE%/}/$ARCHIVE" "$HOME" || Err='true'
 
-gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE" || FAIL="true"
-sync "${STORE%/}/$ARCHIVE.tgz" || FAIL="true"
+gzip -v --best --suffix ".tgz" "${STORE%/}/$ARCHIVE" || Err='true'
+sync "${STORE%/}/$ARCHIVE.tgz" || Err='true'
 
-if ! [ "$FAIL" == "true" ]; then
+if ! [ "$Err" == 'true' ]; then
 	printf "Backup successfully created in %d seconds.\n" "$SECONDS"
 else
-	FAIL 0 "$LINENO" "One or more errors detected during backup."
+	Err 0 $LINENO "One or more errors detected during backup."
 fi
 
-if [ "$NOTIFY" == "true" ]; then
+if [ "$NOTIFY" == 'true' ]; then
 	if type -fP notify-send > /dev/null 2>&1; then
 		notify-send "Your $_PROJECT_ execution is finished."
 	else
-		FAIL 1 "$LINENO" "Dependency 'notify-send' not met."
+		Err 1 $LINENO "Dependency 'notify-send' not met."
 	fi
 fi
 
