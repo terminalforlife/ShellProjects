@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/als
 # Started On        - Wed 27 Nov 21:28:12 GMT 2019
-# Last Change       - Thu 28 Nov 00:56:21 GMT 2019
+# Last Change       - Thu 28 Nov 01:02:52 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,6 +18,8 @@ set -- --help -A --padmod $HOME/Documents/*
 CurVer="2019-11-27"
 Progrm=${0##*/}
 
+DOM='https://github.com'
+
 Usage(){
 	while read -r CurLine; do
 		printf "%b\n" "$CurLine"
@@ -27,7 +29,7 @@ Usage(){
 		\r
 		\r            A portable Bourne Shell filesystem traversal utility.
 		\r
-		\rSYNTAX:     $Progrm [OPTS]
+		\rSYNTAX:     $Progrm [OPTS] [FILE_1] [FILE_2] ...
 		\r
 		\rOPTS:       --help|-h|-?            - Displays this help information.
 		\r            --version|-v            - Output only the version datestamp.
@@ -36,8 +38,8 @@ Usage(){
 		\r
 		\r            --all|-A                - Enable displaying of all hidden files.
 		\r
-		\r            --padmod                - Zero-pad mode integers. IE: '0600'
-		\r            --padid                 - Zero-pad UID & GID integers. IE: '0924'
+		\r            --zpadmod               - Zero-pad mode integers. IE: '0600'
+		\r            --zpadid                - Zero-pad UID & GID integers. IE: '0924'
 		\r
 		\r            --size|-s               - Show the file sizes; in bytes, by default.
 		\r            --human|-h [K|M|G]      - Show file sizes in 'K', 'M', or 'G'.
@@ -69,9 +71,9 @@ while [ -n "$1" ]; do
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--all|-A)
 			ShowAll='* .*' ;;
-		--padmod)
+		--zpadmod)
 			PadModes='true' ;;
-		--padid)
+		--zpadid)
 			PadIDs='true' ;;
 		--size|-s)
 			ShowSize='true' ;;
