@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/als
 # Started On        - Wed 27 Nov 21:28:12 GMT 2019
-# Last Change       - Thu 28 Nov 01:02:52 GMT 2019
+# Last Change       - Thu 28 Nov 01:35:31 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 # In order to keep the syntax as POSIX I am able, I've written this under `yash`.
 #----------------------------------------------------------------------------------
 
-set -- --help -A --padmod $HOME/Documents/*
+set -- -A --zpadmod $HOME/*
 
 CurVer="2019-11-27"
 Progrm=${0##*/}
@@ -70,7 +70,7 @@ while [ -n "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
 		--all|-A)
-			ShowAll='* .*' ;;
+			ShowAll='true' ;;
 		--zpadmod)
 			PadModes='true' ;;
 		--zpadid)
@@ -132,19 +132,23 @@ ChkPath(){
 
 ChkPath 'stat' || Err 1 "Dependency 'stat' not met."
 
+GetSize(){
+	case $ShowSize in
+		[Bb])
+			printf "%d" "$1" ;;
+		[Kk])
+			;;
+		[Mm])
+			;;
+		[Gg])
+			;;
+	esac
+}
+
 FileStat(){
-	GetSize(){
-		case $HumanBy in
-			B)
-				printf "%-d" "$1" ;;
-			K)
-				;;
-			M)
-				;;
-			G)
-				;;
-		esac
-	}
+	# The maximum length of size for all files.
+	MaxLen=$1
+	shift
 
 	StatFormat='%a %u %g %s %X %Y:%n'
 
@@ -172,7 +176,7 @@ FileStat(){
 					printf "%-d" "$CurField"
 				fi
 			elif [ $FieldCount -eq 4 ]; then
-				printf "%-d" "$(GetSize "$CurField")"
+				printf "%${Pad}s" "$(GetSize "$CurField")"
 			else
 				# Avoid unwanted padding otherwise added below.
 				continue
@@ -182,20 +186,52 @@ FileStat(){
 			printf " "
 		done
 
+		if [ -d "$CurFileData" ]; then
+			Trail='/'
+		fi
+
 		# Now print the file name.
-		printf "%-s" "${CurFileData##*:}"
+		FileName=${CurFileData##*:}
+		printf "%-s%s" "${CurFileData##*/}" "$Trail"
 
 		# Needed to avoid text-vomit.
 		printf "\n"
 	done
 
-	unset CurField SepCode RawStatFormat StatFormat StatData FieldCount CurFileData
+	unset CurField SepCode RawStatFormat FileName Trail Len\
+		StatFormat StatData FieldCount CurFileData Pad
+}
+
+# Pre-process (sadly) to gather correct alignments.
+PreProc(){
+	Len=0
+	for CurFile in "$@"; do
+		stat --printf='%s' "$CurFile"
+	done
+
+	unset Len CurFile
 }
 
 if [ $# -gt 0 ]; then
+	PreProc
+
 	# When the user does specify file(s) to list.
 	FileStat "$@"
 else
+	PreProc *
+
+#----------------------------------------------------------------------WORKING HERE
+# Need to pre-process with `stat` the files, but only the sizes, so the correct
+# maximum field width can be given.
+#
+# Also need to convert and width-check (per above) the human-readable form of size.
+#
+# In the middle of changing from old usage of `ShowAll` so that it now makes use of
+# the special `dot-glob` option (like `dotglob` in Bash) which can be enabled with
+# `set --dot-glob`; need to check if this is as portable as `yash` suggests, and
+# how to unset it.
+#----------------------------------------------------------------------------------
+
 	# Standard, non-recursive list of all files in the CWD.
 	for CurFile in ${ShowAll:-*}; do
 		if [ -n "$ShowAll" ]; then
