@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/autosh
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Wed 27 Nov 15:53:49 GMT 2019
+# Last Change       - Fri 29 Nov 03:29:34 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+_VERSION_="2019-11-29"
 _PROJECT_=${0##*/}
 
 Err(){
@@ -62,7 +62,7 @@ while [ "$1" ]; do
 done
 
 declare -i DEPCOUNT=0
-for DEP in clear sleep stat ${SHELL##*/}; {
+for DEP in tput sleep stat ${SHELL##*/}; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
 		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -77,26 +77,31 @@ for DEP in clear sleep stat ${SHELL##*/}; {
 # SSE = Seconds Since Epoch. (used to figure if and when modified)
 
 TRAP(){
-	printf "\r  \nExiting autosh...\n"
+	tput ed; tput rmcup
 	exit 0
 }
 
 trap 'TRAP' SIGINT
 
+tput smcup
+
 while :; do
-	if [ -f "$1" -a -r "$1" ]; then
+	if [ -f "$1" ] && [ -r "$1" ]; then
 		SSE=`stat -c '%Y' "$1" 2> /dev/null`
 
 		if [ 0${SSE_OLD//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
-			clear
+			tput clear
 
-			$SHELL $1 $2
+			"$SHELL" $1 $2
 		fi
 
 		SSE_OLD=${SSE//[!0-9]}
 	else
+		tput ed; tput rmcup
 		Err 1 $LINENO "File not found or inaccessible."
 	fi
 
 	sleep 0.5s # Half-second to help compensate for misalignment.
 done
+
+tput ed; tput rmcup
