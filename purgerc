@@ -1,115 +1,79 @@
-#!/bin/bash
+#!/bin/sh
 
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Wed 27 Nov 15:56:32 GMT 2019
+# Last Change       - Mon  2 Dec 22:44:05 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# This small Bourne tool was written to adhere to POSIX standards.
+#----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
-_PROJECT_=${0##*/}
+CurVer='2019-12-02'
+Progrm=${0##*/}
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf "ERROR: %s\n" "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
-DOM="https://github.com"
+Domain='https://github.com'
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read -r CurLine; do
+		printf "%b\n" "$CurLine"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            PURGERC ($CurVer)
+		\r            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Simple and lightweight shell command to remove 'rc' packages.
+		\r            Small POSIX-adhering tool to purge only 'rc' packages.
 
-		SYNTAX:     $_PROJECT_ [OPTS]
+		\rSYNTAX:     $Progrm [OPTS]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --update|-U             - Check for updates to $_PROJECT_.
+		\rOPTS:       --help|-h|-?            - Displays this help information.
+		\r            --version|-v            - Output only the version datestamp.
 
-		NOTE:       If executed without root permissions, simulation mode is used.
-
-		SITE:       $DOM/terminalforlife/Extra
+		\rNOTE:       If executed without root permissions, simulation mode is used.
 	EOF
 }
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--update|-U)
-			UPDATE='true' ;;
-		--quiet|-q)
-			BEQUIET='true' ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in dpkg apt-get; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+DepCount=0
+for DEP in dpkg id apt-get; do
+	if ! command -v "$DEP" 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$DEP' not met."
+		DepCount=$((DepCount + 1))
 	fi
-}
+done
 
-if [ "$UPDATE" == 'true' ]; then
-	if ! type -fP wget > /dev/null 2>&1; then
-		Err 1 $LINENO "Dependency 'wget' not met."
-	fi
+[ $DepCount -eq 0 ] || exit 1
 
-	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
-	while IFS='=' read -a LINE; do
-		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
-			LATEST=${LINE[1]}
-
-			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
-				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-					while read -r; do
-						printf "%s\n" "$REPLY"
-					done <<-EOF
-						New version available:    $LATEST
-						Current version:          $_VERSION_
-					EOF
-				fi
-			else
-				Err 1 $LINENO "Failed to check for available updates."
-			fi
-		fi
-	done <<< "$(wget -q "$VERSION_URL" -O -)"
-
-	exit 0
-fi
-
-[ $DEPCOUNT -eq 0 ] || exit 1
-
-if ! [ $UID -eq 0 ]; then
+if ! [ ${UID:-`id -u`} -eq 0 ]; then
 	printf "Running in simulation mode.\n"
 	SIM='-s -o APT::Get::Show-User-Simulation-Note=0'
 fi
 
-[ "$BEQUIET" == 'true' ] && exec > /dev/null
+dpkg -l | while read State Package Junk; do
+	[ "$State" = 'rc' ] && RCPackages+=" $Package"
+done
 
-while read -a X; do
-	[ "${X[0]}" == "rc" ] && LIST+=" ${X[1]}"
-done <<< "$(dpkg -l)"
-
-if [ "$LIST" ]; then
-	apt-get -q $SIM -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
-		-o APT::Get::AutomaticRemove=true remove --purge $LIST
+if [ "$RCPackages" ]; then
+	apt-get -q $SIM -o Dpkg::Progress=true\
+		-o Dpkg::Progress-Fancy=true -o APT::Get::AutomaticRemove=true\
+		remove --purge $RCPackages
 else
-	# Not an error, but how the below is handled allows for testing.
 	printf "No 'rc' packages detected by APT.\n" 1>&2
 	exit 1
 fi
