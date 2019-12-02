@@ -1,0 +1,77 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh (Terminal for Life Bourne POSIX)
+# Started On        - Mon  2 Dec 15:32:30 GMT 2019
+# Last Change       - Mon  2 Dec 16:20:00 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#----------------------------------------------------------------------------------
+
+# Mimic basic functionality of `split()` from Perl and similar languages.
+SplitStr(){
+	local IFS=$1
+	set -- $2
+	printf "%s\n" "$@"
+
+	unset IFS
+}
+
+# A more advanced version of SplitStr, with focus on cut-like behavior. You can
+# specify one or more fields to output. However, this has the potential to be
+# incredibly slow, since it's re-iterating for each user-specified field.
+CutStr(){ # Cut string $3 by $1 delimiter, displaying $2 field(s).
+	IFS=$1; shift
+	Fields=$1; shift
+
+	set -- $1
+
+	for CutField in $Fields; do
+		Count=0
+		for CurField in "$@"; do
+			Count=$((Count + 1))
+			if [ $Count -eq $CutField ]; then
+				printf "%s%s" "$CurField" "$IFS"
+				break 1
+			fi
+		done
+	done
+
+	unset IFS Field CurField Count CutField
+}
+
+
+LCount(){ #: Fetch the total number of lines. (accepts STDIN)
+	Count=0
+	if [ $# -eq 0 ]; then
+		while read -r CurLine; do
+			Count=$((Count + 1))
+		done < /dev/stdin
+
+		printf "%d\n" $Count
+
+	else
+		printf "%s\n" "$@" | while read -r CurLine; do
+			Count=$((Count + 1))
+		done
+
+		printf "%d\n" $#
+	fi
+
+	unset Count CurLine
+}
+
+WCount(){ #: Fetch the total number of words. (accepts STDIN)
+	if [ $# -eq 0 ]; then
+		read Input < /dev/stdin
+		set -- $Input
+		printf "%d\n" $#
+
+		unset Input
+	else
+		set -- $*
+		printf "%d\n" $#
+	fi
+}
