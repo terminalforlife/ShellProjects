@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Wed 27 Nov 15:56:39 GMT 2019
+# Last Change       - Tue  3 Dec 13:52:31 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ if [ -z "$BASH" ]; then
 	exit 1
 fi
 
-_VERSION_="2019-11-27"
+_VERSION_="2019-12-03"
 _PROJECT_=${0##*/}
 
 Err(){
@@ -191,13 +191,9 @@ fi
 if [ -z "$1" ]; then
 	Err 1 $LINENO "A project file wasn't provided."
 elif [ -f "$1" ] && [ -r "$1" ]; then
-	ProjectFile=$1
-
-	shift
+	ProjectFile=$1; shift
 
 	[ $# -gt 0 ] && Err 1 $LINENO "Only one project may run at a time."
-elif [[ $1 ]]; then
-	Err 1 $LINENO "A project file wasn't provided."
 else
 	Err 1 $LINENO "Project file missing or unreadable."
 fi
@@ -206,7 +202,7 @@ fi
 
 tput smcup
 
-trap 'tput rmcup; exit 130' SIGINT
+trap 'tput rmcup; exit 130' SIGINT EXIT
 
 # This is more of a placeholder for future use, but is somewhat used.
 if [ "$ColorsSupported" == 'true' ]; then
@@ -543,5 +539,3 @@ if [ "$INTERACTIVE" == 'true' ]; then
 else
 	sleep ${WaitTime}s
 fi
-
-tput rmcup
