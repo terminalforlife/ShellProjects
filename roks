@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Tue  3 Dec 14:19:42 GMT 2019
+# Last Change       - Tue  3 Dec 22:57:44 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ Usage(){
 	EOF
 }
 
-KernelKeep=2
+KernKeep=2
 
 while [ "$1" ]; do
 	case $1 in
@@ -67,17 +67,17 @@ while [ "$1" ]; do
 			DebugMe='true' ;;
 		--keep|-k)
 			shift
-			if [[ $1 =~ [0-9]+ ]]; then
+			if [[ $1 =~ ^[0-9]+$ ]]; then
 				if [ $1 -eq 0 ]; then
 					Err 1 $LINENO "Invalid number of kernels selected."
 				else
-					declare -i KernelKeep=$1
+					declare -i KernKeep=$1
 				fi
 			else
 				Err 1 $LINENO "Invalid expression specified."
 			fi ;;
 		--type)
-			shift; KernType="-${1}" ;;
+			shift; KernType="-$1" ;;
 		--purge)
 			DoPurge="--purge" ;;
 		-*|--*)
@@ -101,10 +101,10 @@ for CurDep in uname apt-get linux-version; {
 [ "$DebugMe" == 'true' ] && set -x
 
 if [ -f /proc/version -a -r /proc/version ]; then
-	read -a X < /proc/version
-	printf -v CurrentKern "%s" "${X[2]}"
+	read -a VerStr < /proc/version
+	CurKern="${VerStr[2]}"
 elif ! type -fP uname > /dev/null 2>&1; then
-	CurrentKern=`uname -r`
+	CurKern=`uname -r`
 else
 	Err 1 $LINENO "Unable to determine current kernel version."
 fi
@@ -113,23 +113,22 @@ if ! [ $UID -eq 0 ]; then
 	Err 1 $LINENO "Root access is required for system-wide changes."
 fi
 
-KernelKeep+=2
+KernKeep+=2
 KernList=`linux-version list`
 if ! [ "$KernList" ]; then
 	Err 1 $LINENO "No kernels were found."
 elif ! [ "$KernList" ]; then
 	Err 1 $LINENO "No kernels were selected for removal."
 else
-	declare -a KernsRemove=()
+	declare -a KernRemove=()
 	for CurIter in $KernList; {
-		[ -n "$KernType" ] && CurIter=${CurIter%-*}${KernType}
-		if ! [ "$CurIter" == "$CurrentKern" ]; then
-			KernsRemove+=${CurIter%-*}${KernType}
+		if ! [ "$CurIter" == "$CurKern" ]; then
+			KernRemove+=" ${CurIter%-*}$KernType "
 		fi
 	}
 
 	apt-get $AptGetOpts -o Dpkg::Progress=true\
-		-o Dpkg::Progress-Fancy=true remove $DoPurge ${KernsRemove[@]}
+		-o Dpkg::Progress-Fancy=true remove $DoPurge ${KernRemove[@]}
 
 	if [ $? -ne 0 ]; then
 		Err 1 $LINENO "Non-zero exit status while removing old kernels."
