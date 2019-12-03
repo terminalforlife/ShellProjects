@@ -3,19 +3,21 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/als
 # Started On        - Wed 27 Nov 21:28:12 GMT 2019
-# Last Change       - Thu 28 Nov 01:35:31 GMT 2019
+# Last Change       - Tue  3 Dec 13:59:13 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# This project is NOT YET finished.
+#
 # Written with a Reddit post in mind, but could an interesting side project.
 # Although the aforementioned post was on 'r/bash', I've opted instead for `sh`.
 #
-# In order to keep the syntax as POSIX I am able, I've written this under `yash`.
+# In order to keep the syntax as POSIX as I am able, I've written it under `yash`.
 #----------------------------------------------------------------------------------
 
 set -- -A --zpadmod $HOME/*
 
-CurVer="2019-11-27"
+CurVer='2019-12-03'
 Progrm=${0##*/}
 
 DOM='https://github.com'
