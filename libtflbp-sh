@@ -3,15 +3,30 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Mon  2 Dec 16:20:00 GMT 2019
+# Last Change       - Mon  2 Dec 22:34:45 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
 #----------------------------------------------------------------------------------
 
-# Mimic basic functionality of `split()` from Perl and similar languages.
-SplitStr(){
+tflbpsh(){ #: Basic core library features. (see: '--help|-h|-?')
+	CurVer='2019-12-02'
+	Progrm=${0##*/}
+
+	printf "POSIX Bourne library '%s' is version '%s'.\n" "$CurVer" "$Progrm"
+
+	unset CurVer Progrm
+}
+
+Err(){ #: Exit status $1 (0 by default) with error message $2.
+	printf "ERROR: %s\n" "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+SplitStr(){ #: Split string $2 by delimiter $1.
 	local IFS=$1
 	set -- $2
 	printf "%s\n" "$@"
@@ -19,9 +34,6 @@ SplitStr(){
 	unset IFS
 }
 
-# A more advanced version of SplitStr, with focus on cut-like behavior. You can
-# specify one or more fields to output. However, this has the potential to be
-# incredibly slow, since it's re-iterating for each user-specified field.
 CutStr(){ # Cut string $3 by $1 delimiter, displaying $2 field(s).
 	IFS=$1; shift
 	Fields=$1; shift
@@ -43,7 +55,7 @@ CutStr(){ # Cut string $3 by $1 delimiter, displaying $2 field(s).
 }
 
 
-LCount(){ #: Fetch the total number of lines. (accepts STDIN)
+LCount(){ #: Fetch the total number of lines. (also accepts STDIN)
 	Count=0
 	if [ $# -eq 0 ]; then
 		while read -r CurLine; do
@@ -63,7 +75,7 @@ LCount(){ #: Fetch the total number of lines. (accepts STDIN)
 	unset Count CurLine
 }
 
-WCount(){ #: Fetch the total number of words. (accepts STDIN)
+WCount(){ #: Fetch the total number of words. (also accepts STDIN)
 	if [ $# -eq 0 ]; then
 		read Input < /dev/stdin
 		set -- $Input
