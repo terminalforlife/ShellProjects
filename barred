@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/barred
 # Started On        - Sun 19 Nov 13:56:45 GMT 2017
-# Last Change       - Mon  2 Dec 22:58:46 GMT 2019
+# Last Change       - Mon  2 Dec 22:59:42 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ Barred_B3='𝍧:50'
 Barred_B4='𝍨:75'
 Barred_B5='𝍤:100'
 
-case $1 in
+case $* in
 	B0)
 		printf "\b%s" "${Barred_B1%:*}" ;;
 	B0P)
