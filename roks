@@ -3,33 +3,33 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Wed 27 Nov 15:56:37 GMT 2019
+# Last Change       - Tue  3 Dec 14:19:42 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
-_PROJECT_=${0##*/}
+CurVer='2019-12-03'
+Progrm=${0##*/}
 
 Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	[ $1 -gt 0 ] && exit $1
 }
 
-USAGE(){
+Usage(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} - Remove Old Kernels ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Remove old kernel versions on an Ubuntu- or Debian-based system.
 
-		SYNTAX:     $_PROJECT_ [OPTS]
+		SYNTAX:     $Progrm [OPTS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Disable all STDOUT and STDERR output.
+		            --quiet|-q              - Disable STDOUT. Errors still output.
 		            --debug|-D              - Enables the built-in bash debugger.
 		            --keep|-k N             - Where N is the number of kernels to keep.
 		                                      The default is 2, which is recommended.
@@ -45,66 +45,66 @@ USAGE(){
 
 		           Unrecognised short or long flags will be passed to apt or apt-get.
 
-		           As of 2019-03-31, $_PROJECT_ no longer supports handling older kernel versions
+		           As of 2019-03-31, $Progrm no longer supports handling older kernel versions
 		           in Debian- or Ubuntu-based systems. I recommend taking extra care when
-		           using $_PROJECT_ on systems with kernels older than 4.15; it might work, but
+		           using $Progrm on systems with kernels older than 4.15; it might work, but
 		           not necessarily as intended.
 	EOF
 }
 
-NUM_TO_KEEP=2
+KernelKeep=2
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
+			printf "%s\n" "$CurVer"
 			exit 0 ;;
 		--quiet|-q)
-			exec > /dev/null 2>&1 ;;
+			exec > /dev/null ;;
 		--debug|-D)
-			DEBUG_MODE='true' ;;
+			DebugMe='true' ;;
 		--keep|-k)
 			shift
 			if [[ $1 =~ [0-9]+ ]]; then
 				if [ $1 -eq 0 ]; then
 					Err 1 $LINENO "Invalid number of kernels selected."
 				else
-					declare -i NUM_TO_KEEP=$1
+					declare -i KernelKeep=$1
 				fi
 			else
 				Err 1 $LINENO "Invalid expression specified."
 			fi ;;
 		--type)
-			shift; KTYPE="-${1}" ;;
+			shift; KernType="-${1}" ;;
 		--purge)
-			PURGE="--purge" ;;
+			DoPurge="--purge" ;;
 		-*|--*)
-			APTGETOPTS+=" $1" ;;
+			AptGetOpts+=" $1" ;;
 		*)
 			Err 1 $LINENO "Incorrect argument(s) provided." ;;
 	esac
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in apt-get linux-version; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+declare -i DepCount=0
+for CurDep in uname apt-get linux-version; {
+	if ! type -fP "$CurDep" > /dev/null 2>&1; then
+		Err 0 $LINENO "Dependency '$CurDep' not met."
+		DepCount+=1
 	fi
 }
 
-[ $DEPCOUNT -eq 0 ] || exit 1
+[ $DepCount -eq 0 ] || exit 1
 
-[ "$DEBUG_MODE" == 'true' ] && set -x
+[ "$DebugMe" == 'true' ] && set -x
 
 if [ -f /proc/version -a -r /proc/version ]; then
 	read -a X < /proc/version
-	printf -v CKERN "%s" "${X[2]}"
+	printf -v CurrentKern "%s" "${X[2]}"
 elif ! type -fP uname > /dev/null 2>&1; then
-	CKERN=`uname -r`
+	CurrentKern=`uname -r`
 else
 	Err 1 $LINENO "Unable to determine current kernel version."
 fi
@@ -113,23 +113,23 @@ if ! [ $UID -eq 0 ]; then
 	Err 1 $LINENO "Root access is required for system-wide changes."
 fi
 
-NUM_TO_KEEP+=2
-KLIST=`linux-version list`
-if ! [ "$KLIST" ]; then
+KernelKeep+=2
+KernList=`linux-version list`
+if ! [ "$KernList" ]; then
 	Err 1 $LINENO "No kernels were found."
-elif ! [ "$KLIST" ]; then
+elif ! [ "$KernList" ]; then
 	Err 1 $LINENO "No kernels were selected for removal."
 else
-	declare -a TO_GO=()
-	for LOOP in $KLIST; {
-		[ -n "$KTYPE" ] && LOOP=${LOOP%-*}${KTYPE}
-		if ! [ "$LOOP" == "$CKERN" ]; then
-			TO_GO+=${LOOP%-*}${KTYPE}
+	declare -a KernsRemove=()
+	for CurIter in $KernList; {
+		[ -n "$KernType" ] && CurIter=${CurIter%-*}${KernType}
+		if ! [ "$CurIter" == "$CurrentKern" ]; then
+			KernsRemove+=${CurIter%-*}${KernType}
 		fi
 	}
 
-	apt-get -q $APTGETOPTS -o Dpkg::Progress=true\
-		-o Dpkg::Progress-Fancy=true remove $PURGE ${TO_GO[@]}
+	apt-get $AptGetOpts -o Dpkg::Progress=true\
+		-o Dpkg::Progress-Fancy=true remove $DoPurge ${KernsRemove[@]}
 
 	if [ $? -ne 0 ]; then
 		Err 1 $LINENO "Non-zero exit status while removing old kernels."
