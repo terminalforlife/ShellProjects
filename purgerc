@@ -3,22 +3,20 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Mon  2 Dec 22:44:05 GMT 2019
+# Last Change       - Tue  3 Dec 23:03:08 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # This small Bourne tool was written to adhere to POSIX standards.
 #----------------------------------------------------------------------------------
 
-CurVer='2019-12-02'
+CurVer='2019-12-03'
 Progrm=${0##*/}
 
 Err(){
 	printf "ERROR: %s\n" "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
-
-Domain='https://github.com'
 
 Usage(){
 	while read -r CurLine; do
@@ -62,17 +60,16 @@ done
 
 if ! [ ${UID:-`id -u`} -eq 0 ]; then
 	printf "Running in simulation mode.\n"
-	SIM='-s -o APT::Get::Show-User-Simulation-Note=0'
+	Simulate='-s -o APT::Get::Show-User-Simulation-Note=0'
 fi
 
 dpkg -l | while read State Package Junk; do
-	[ "$State" = 'rc' ] && RCPackages+=" $Package"
+	[ "$State" = 'rc' ] && RCPackages=" $Package"
 done
 
 if [ "$RCPackages" ]; then
-	apt-get -q $SIM -o Dpkg::Progress=true\
-		-o Dpkg::Progress-Fancy=true -o APT::Get::AutomaticRemove=true\
-		remove --purge $RCPackages
+	apt-get $Simulate -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
+		-o APT::Get::AutomaticRemove=true remove --purge $RCPackages
 else
 	printf "No 'rc' packages detected by APT.\n" 1>&2
 	exit 1
