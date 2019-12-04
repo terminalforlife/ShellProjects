@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Wed  4 Dec 15:25:06 GMT 2019
+# Last Change       - Wed  4 Dec 15:29:23 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -88,8 +88,7 @@ WCount(){ #: Fetch the total number of words. (also accepts STDIN)
 	fi
 }
 
-GetInsPkgs(){ #: Output a list of all installed (`ii`) Debian packages.
-	StatusFile='/var/lib/dpkg/status'
+GetInsPkgs(){ #: List, from `status` file $1, all installed (`ii`) Debian packages.
 	while read Key Value _; do
 		[ -z "$Key" ] && continue
 
@@ -107,7 +106,7 @@ GetInsPkgs(){ #: Output a list of all installed (`ii`) Debian packages.
 		fi
 
 		OldPackage=$Package
-	done < "$StatusFile"
+	done < "${1:-/var/lib/dpkg/status}"
 
 	printf "%s\n" $List
 
