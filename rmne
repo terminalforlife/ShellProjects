@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Wed  4 Dec 17:17:33 GMT 2019
+# Last Change       - Wed  4 Dec 17:28:36 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -44,8 +44,15 @@ Usage(){
 
 		\r            If 'apt-get' is not found, '--list|-l' option is assumed.
 
-		\rFILE:       $StatusFile
-		\r            $AvailFile
+		\rFILE:       Parsed to generate the final list of packages to remove.
+
+		\r              $StatusFile
+
+		\r            Parsed to ensure non-minimal packages are selected.
+
+		\r              $AvailFile
+
+		\r            Both of the above files can be set by the user.
 	EOF
 }
 
