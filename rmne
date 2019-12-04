@@ -1,154 +1,115 @@
-#!/bin/bash
+#!/bin/sh
 
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Wed 27 Nov 15:56:35 GMT 2019
+# Last Change       - Wed  4 Dec 16:49:09 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# This program was written (as of 2019-12-03) with Bourne POSIX-compliance in mind.
+# Why? For portability and speed -- rmne is at least 3x faster now!
+#----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
-_PROJECT_=${0##*/}
+CurVer='2019-12-04'
+Progrm=${0##*/}
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf "ERROR: %s\n" "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
-INFO(){ printf "INFO: %s\n" "$1"; }
+StatusFile='/var/lib/dpkg/status'
+AvailFile='/var/lib/dpkg/available'
 
-DOM="https://github.com"
-
-USAGE(){
-	while read; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read -r CurLine; do
+		printf "%b\n" "$CurLine"
 	done <<-EOF
-		            ${_PROJECT_^^} - REMOVE NON-ESSENTIAL ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            RMNE ($CurVer)
+		\r            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Remove all non-essential packages from Ubuntu or Debian installations.
+		\r            POSIX Bourne method to remove non-essential Debian packages.
 
-		SYNTAX:     $_PROJECT_ [OPTS] PKG1 PKG2 PKG3 ...
+		\rSYNTAX:     $Progrm [OPTS] [Package1 [Package2 Package3 ...]]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to $_PROJECT_.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --no-purge              - Do not purge any remaining package files.
+		\rOPTS:       --help|-h|-?            - Displays this help information.
+		\r            --version|-v            - Output only the version datestamp.
+		\r            --no-purge              - Do not purge any remaining package files.
 
-		NOTE:       Where PKG is one or more packages to keep, despite priority and task.
+		\rNOTE:       Where Package is one or more packages to keep, despite priority and task.
 
-		SITE:       $DOM/terminalforlife/Extra
+		\rFILE:       $StatusFile
+		\r            $AvailFile
 	EOF
 }
 
-PURGE="--purge"
+Purge='--purge'
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
+			printf "%s\n" "$CurVer"
 			exit 0 ;;
-		--update|-U)
-			UPDATE='true' ;;
-		--debug|-D)
-			DEBUGME='true' ;;
 		--no-purge)
-			unset PURGE ;;
+			unset Purge ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-if [ "$UPDATE" == 'true' ]; then
-	if ! type -fP wget > /dev/null 2>&1; then
-		Err 1 $LINENO "Dependency 'wget' not met."
-	fi
-
-	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
-	while IFS='=' read -a LINE; do
-		if  [ "${LINE[0]}" == "$_PROJECT_" ]; then
-			LATEST=${LINE[1]}
-
-			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
-				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-					while read -r; do
-						printf "%s\n" "$REPLY"
-					done <<-EOF
-						New version available:    $LATEST
-						Current version:          $_VERSION_
-					EOF
-				fi
-			else
-				Err 1 $LINENO "Failed to check for available updates."
-			fi
-		fi
-	done <<< "$(wget -q "$VERSION_URL" -O -)"
-
-	exit 0
+if ! command -v apt-get 1> /dev/null 2>&1; then
+	Err 0 "Dependency 'apt-get' not met."
 fi
 
-KEEP=($@)
-
-declare -i DEPCOUNT=0
-for DEP in apt-get apt-cache dpkg-query; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
-
-printf -v DATE "%(%F)T" -1
-while read -r; do
-	printf "%s\n" "$REPLY"
+while read -r CurLine; do
+	printf "%b\n" "$CurLine"
 done <<-EOF
-	WARNING +------------------------[ $DATE ]--------------------------+ WARNING
+	\rWARNING +-----------------------------------------------------------------+ WARNING
 
-	This is a small but dangerous program for the sole purpose of tearing down the
-	non-essential packages, for educational, fun, or other purposes, such as setting up
-	a specific type of installation.
+	\rThis is a small but dangerous program for the sole purpose of tearing down the
+	\rnon-essential packages, for educational, fun, or other purposes, such as setting up
+	\ra specific type of installation.
 
-	This program is ONLY for Debian and Ubuntu, or distributions based thereon. You'll
-	pretty much be left with just the Debian essentials, unless your distribution has
-	set some odd packages as essential, such as in Linux Lite and Linux Mint.
+	\rThis program is ONLY for Debian and Ubuntu, or distributions based thereon. You'll
+	\rpretty much be left with just the Debian essentials, unless your distribution has
+	\rset some odd packages as essential, such as in Linux Lite and Linux Mint.
 
-	NOTE: You may now wish to download some DEB packages in preperation for setting up
-	      the system how you want, in-case you're left without an Internet connection.
+	\rNOTE: You may now wish to download some DEB packages in preperation for setting up
+	\r      the system how you want, in-case you're left without an Internet connection.
 
-	There is no 'undo' for this action, so it's worth making a backup beforehand.
+	\rThere is no 'undo' for this action, so it's worth making a backup beforehand.
 
-	Specifically, packages to be removed fall under the following criteria:
+	\rSpecifically, packages to be removed must not:
 
-	  1. They must not have the priority of standard, important, or required.
-	  2. They must not be those which are specified as command arguments.
-	  3. They must not be part of the minimal task.
+	\r  1. Have the priority of standard, important, or required.
+	\r  2. Be those which are specified as command arguments.
+	\r  3. Be part of the minimal task.
 
-	WARNING +-----------------------------------------------------------------+ WARNING
+	\rWARNING +-----------------------------------------------------------------+ WARNING
 
 EOF
 
-[ $UID -eq 0 ] || Err 1 $LINENO "Root access is required."
+if ! [ ${UID:-`id -u`} -eq 0 ]; then
+	Err 1 "Root access required for system-wide changes."
+fi
 
-[ "$DEBUGME" == 'true' ] && set -x
-
-read -n 1 -e -p "[C]ontinue, despite the impending doom, or [q]uit? "
+printf "[C]ontinue, despite the impending doom, or [q]uit? "
+read Answer
 printf "\n"
 
-case $REPLY in
-	[Cc])
+case $Answer in
+	[Cc]|[Cc][Oo][Nn][Tt][Ii][Nn][Uu][Ee])
 		;;
-	[Qq])
+	[Qq]|[Qq][Uu][Ii][Tt])
 		printf "No action taken -- quitting.\n"
 		exit 0 ;;
-	"")
+	'')
 		printf "No response -- quitting.\n"
 		exit 1 ;;
 	*)
@@ -156,47 +117,68 @@ case $REPLY in
 		exit 1 ;;
 esac
 
-INFO "Fetching list of non-essential packages."
-FORMAT='${db:Status-Abbrev} ${Priority} ${Binary:Package}\n'
-while read STATUS PRIORITY PKG; do
-	MATCH='^(important|standard|required)$'
-	if [ "$STATUS" == "ii" ] && ! [[ $PRIORITY =~ $MATCH ]]; then
-		for I in ${KEEP[@]}; {
-			if [ "$I" == "$PKG" ]; then
-				INFO "Ignoring '$PKG' package to be kept."
-				continue 2
-			fi
-		}
+if ! [ -f "$StatusFile" -a -r "$StatusFile" ]; then
+	Err 1 "File '$StatusFile' missing or inaccessible."
+elif ! [ -f "$AvailFile" -a -r "$AvailFile" ]; then
+	Err 1 "File '$AvailFile' missing or inaccessible."
+fi
 
-		INFO "Package '$PKG' set for initial list."
-		LIST+=("$PKG")
+# Fetch a list of packages whose 'Task:' is marked as 'minimal'. (need these) This
+# is thankfully not all that slow, unless of course this file becomes gigantic.
+while read Key Value _; do
+	case $Key in
+		Package:)
+			Package=$Value ;;
+		Task:)
+			[ "$Value" = 'minimal' ] && continue ;;
+		''|*)
+			continue ;;
+	esac
+
+	if ! [ "$Package" = "$OldPackage" ]; then
+		Minimals=" $Minimals $Package "
 	fi
-done <<< "$(dpkg-query -Wf "$FORMAT" \*)"
 
-FILTERED(){
-	while read -a X; do
-		if [ "${X[0]}" == "Task:" ]; then
-			for F in "${X[@]//,}"; {
-				if ! [ "$F" == "Task:" ]; then
-					printf "%s " "${F}"
-				fi
-			}
-		fi
-	done <<< "$(apt-cache show $1)"
-}
+	OldPackage=$Package
+done < "$AvailFile"
 
-for PKG in ${LIST[@]}; {
-	INFO "Checking task of '$PKG' package."
-	for TASK in `FILTERED $PKG`; {
-		if [ "$TASK" == "minimal" ]; then
-			MINIMAL='true'
-			continue 2
-		fi
-	}
+# Gather a list of currently installed packages, check they're not set to be
+# kept, check their priority is applicable, check they're not marked as being
+# essential, and cross-check with the prior loop's results to ensure non-minimals.
+while read Key Value _; do
+	case $Key in
+		Package:)
+			for CurKeep in "$@"; do
+				[ "$Value" = "$CurKeep" ] && continue 2
+			done
 
-	END_LIST+=("$PKG")
-}
+			Package=$Value ;;
+		Essential:)
+			[ "$Value" = 'yes' ] && continue ;;
+		Status:)
+			[ "$Value $_" = 'install ok installed' ] || continue ;;
+		Priority:)
+			case $Value in
+				important|standard|required)
+					continue ;;
+				*)
+					Priority=$Value ;;
+			esac ;;
+		''|*)
+			continue ;;
+	esac
 
-INFO "Initiating removal of final package list."
+	if ! [ "$Package" = "$OldPackage" ]; then
+		for CurPKG in $Minimals; do
+			[ "$CurPKG" = "$Package" ] && continue 2
+		done
+
+		List=" $List $Package "
+	fi
+
+	OldPackage=$Package
+	unset Package
+done < "$StatusFile"
+
 apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
-	remove $PURGE --autoremove ${END_LIST[@]}
+	remove $Purge --autoremove $List
