@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Wed  4 Dec 16:49:09 GMT 2019
+# Last Change       - Wed  4 Dec 17:17:33 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -36,8 +36,13 @@ Usage(){
 		\rOPTS:       --help|-h|-?            - Displays this help information.
 		\r            --version|-v            - Output only the version datestamp.
 		\r            --no-purge              - Do not purge any remaining package files.
+		\r            --list|-l               - Only list the would-be-removed packages.
+		\r            --sfile PATH            - Use PATH instead of the default 'status' file.
+		\r            --afile PATH            - Use PATH instead of the default 'available' file.
 
 		\rNOTE:       Where Package is one or more packages to keep, despite priority and task.
+
+		\r            If 'apt-get' is not found, '--list|-l' option is assumed.
 
 		\rFILE:       $StatusFile
 		\r            $AvailFile
@@ -45,6 +50,8 @@ Usage(){
 }
 
 Purge='--purge'
+
+command -v apt-get 1> /dev/null 2>&1 && DoAptGet='true'
 
 while [ "$1" ]; do
 	case $1 in
@@ -55,6 +62,12 @@ while [ "$1" ]; do
 			exit 0 ;;
 		--no-purge)
 			unset Purge ;;
+		--list|-l)
+			unset DoAptGet ;;
+		--sfile)
+			shift; StatusFile=$1 ;;
+		--afile)
+			shift; AvailFile=$1 ;;
 		-*)
 			Err 1 "Incorrect argument(s) specified." ;;
 		*)
@@ -63,64 +76,60 @@ while [ "$1" ]; do
 	shift
 done
 
-if ! command -v apt-get 1> /dev/null 2>&1; then
-	Err 0 "Dependency 'apt-get' not met."
-fi
-
-while read -r CurLine; do
-	printf "%b\n" "$CurLine"
-done <<-EOF
-	\rWARNING +-----------------------------------------------------------------+ WARNING
-
-	\rThis is a small but dangerous program for the sole purpose of tearing down the
-	\rnon-essential packages, for educational, fun, or other purposes, such as setting up
-	\ra specific type of installation.
-
-	\rThis program is ONLY for Debian and Ubuntu, or distributions based thereon. You'll
-	\rpretty much be left with just the Debian essentials, unless your distribution has
-	\rset some odd packages as essential, such as in Linux Lite and Linux Mint.
-
-	\rNOTE: You may now wish to download some DEB packages in preperation for setting up
-	\r      the system how you want, in-case you're left without an Internet connection.
-
-	\rThere is no 'undo' for this action, so it's worth making a backup beforehand.
-
-	\rSpecifically, packages to be removed must not:
-
-	\r  1. Have the priority of standard, important, or required.
-	\r  2. Be those which are specified as command arguments.
-	\r  3. Be part of the minimal task.
-
-	\rWARNING +-----------------------------------------------------------------+ WARNING
-
-EOF
-
-if ! [ ${UID:-`id -u`} -eq 0 ]; then
-	Err 1 "Root access required for system-wide changes."
-fi
-
-printf "[C]ontinue, despite the impending doom, or [q]uit? "
-read Answer
-printf "\n"
-
-case $Answer in
-	[Cc]|[Cc][Oo][Nn][Tt][Ii][Nn][Uu][Ee])
-		;;
-	[Qq]|[Qq][Uu][Ii][Tt])
-		printf "No action taken -- quitting.\n"
-		exit 0 ;;
-	'')
-		printf "No response -- quitting.\n"
-		exit 1 ;;
-	*)
-		printf "Unrecognised response -- quitting.\n"
-		exit 1 ;;
-esac
-
 if ! [ -f "$StatusFile" -a -r "$StatusFile" ]; then
 	Err 1 "File '$StatusFile' missing or inaccessible."
 elif ! [ -f "$AvailFile" -a -r "$AvailFile" ]; then
 	Err 1 "File '$AvailFile' missing or inaccessible."
+elif [ ${UID:-`id -u`} -ne 0 -a "$DoAptGet" = 'true' ]; then
+	Err 1 "Root access required for system-wide changes."
+fi
+
+if [ "$DoAptGet" = 'true' ]; then
+	while read -r CurLine; do
+		printf "%b\n" "$CurLine"
+	done <<-EOF
+		\rWARNING +-----------------------------------------------------------------+ WARNING
+
+		\rThis is a small but dangerous program for the sole purpose of tearing down the
+		\rnon-essential packages, for educational, fun, or other purposes, such as setting up
+		\ra specific type of installation.
+
+		\rThis program is ONLY for Debian and Ubuntu, or distributions based thereon. You'll
+		\rpretty much be left with just the Debian essentials, unless your distribution has
+		\rset some odd packages as essential, such as in Linux Lite and Linux Mint.
+
+		\rNOTE: You may now wish to download some DEB packages in preperation for setting up
+		\r      the system how you want, in-case you're left without an Internet connection.
+
+		\rThere is no 'undo' for this action, so it's worth making a backup beforehand.
+
+		\rSpecifically, packages to be removed must not:
+
+		\r  1. Have the priority of standard, important, or required.
+		\r  2. Be those which are specified as command arguments.
+		\r  3. Be part of the minimal task.
+
+		\rWARNING +-----------------------------------------------------------------+ WARNING
+
+	EOF
+
+	printf "[C]ontinue, despite the impending doom, or [q]uit? "
+	read Answer
+	printf "\n"
+
+	case $Answer in
+		[Cc]|[Cc][Oo][Nn][Tt][Ii][Nn][Uu][Ee])
+			;;
+		[Qq]|[Qq][Uu][Ii][Tt])
+			printf "No action taken -- quitting.\n"
+			exit 0 ;;
+		'')
+			printf "No response -- quitting.\n"
+			exit 1 ;;
+		*)
+			printf "Unrecognised response -- quitting.\n"
+			exit 1 ;;
+	esac
 fi
 
 # Fetch a list of packages whose 'Task:' is marked as 'minimal'. (need these) This
@@ -180,5 +189,9 @@ while read Key Value _; do
 	unset Package
 done < "$StatusFile"
 
-apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
-	remove $Purge --autoremove $List
+if [ "$DoAptGet" = 'true' ]; then
+	apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
+		remove $Purge --autoremove $List
+else
+	printf "%s\n" $List
+fi
