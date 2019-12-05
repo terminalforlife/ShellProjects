@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/update_standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Thu  5 Dec 16:21:35 GMT 2019
+# Last Change       - Thu  5 Dec 16:44:54 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,24 +13,29 @@
 # You could make use of some of this, though.
 #----------------------------------------------------------------------------------
 
-set -- "$HOME/GitHub/terminalforlife/Personal/Extra/lspkg"
+#set -- "$HOME/GitHub/terminalforlife/Personal/Extra/lspkg"
 
-if ! grep -qE '^#!/(bin/bash|/usr/bin/env bash)$' "$1"; then
-	printf "ERROR: This script is strictly for those written with Bash." 1>&2
-	exit 1
-fi
+POSIXLY_CORRECT='y'
+
+Err(){
+	printf "ERROR: %s\n" "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
 
 CurFile=$1
 shift
 
-SaR(){
-	if ! sed --posix -ri "$*" "$CurFile" &> /dev/null; then
-		printf "ERROR: %s\n" "$*" >&2
-		exit 1
-	fi
-}
+if [ -z "$CurFile" ]; then
+	Err 1 "Bash script must be provided."
+elif ! [ -f "$CurFile" -a -r "$CurFile" -a -w "$CurFile" ]; then
+	Err 1 "Bash script missing or inaccessible."
+elif ! grep -qxE '#!/(bin/bash|/usr/bin/env bash)' "$CurFile"; then
+	Err 1 "Provided file is not a Bash script."
+elif ! [ $UID -eq 1000 -a $USER == 'ichy' ]; then
+	Err 1 "This script is not for you."
+fi
 
-POSIXLY_CORRECT='y'
+SaR(){ sed --posix -ri "$*" "$CurFile" &> /dev/null || Err 1 "$*"; }
 
 # Prefer `CurVer` over `_VERSION`, and `Progrm` over `_PROJECT_`.
 SaR "s/^_VERSION_=\"(.*)\"/CurVer='\\1'/"
