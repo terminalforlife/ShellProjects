@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Wed  4 Dec 15:29:23 GMT 2019
+# Last Change       - Thu  5 Dec 00:38:05 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -111,4 +111,22 @@ GetInsPkgs(){ #: List, from `status` file $1, all installed (`ii`) Debian packag
 	printf "%s\n" $List
 
 	unset StatusFile Package OldPackage List Key Value _
+}
+
+YNInput(){ #: An easy-to-script prompt for the user, asking yes or no.
+	printf "$1 [Y/N] "
+	read Answer
+	printf "\n"
+
+	case $Answer in
+		[Yy]|[Yy][Ee][Ss])
+			return 0 ;;
+		[Nn]|[Nn][Oo])
+			return 1 ;;
+		''|*)
+			printf 'ERROR: Invalid response -- quitting.' 1>&2
+			exit 1 ;;
+	esac
+
+	unset Answer
 }
