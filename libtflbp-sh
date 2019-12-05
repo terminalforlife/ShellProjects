@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Thu  5 Dec 20:20:07 GMT 2019
+# Last Change       - Thu  5 Dec 20:21:44 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ BaseName(){ #: Output the base name (like `basename`) of $@.
 
 DirName(){ #: Output the directory name (like `dirname`) of $@.
 	for CurDir in "$@"; do
-		[ -d "$CurDir" ] || return 1
+		[ -d "${CurDir%/*}" ] || return 1
 		printf "%s\n" "${CurDir%/*}"
 	done
 }
