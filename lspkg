@@ -3,13 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/lspkg (List Packages)
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Wed 27 Nov 15:56:14 GMT 2019
+# Last Change       - Thu  5 Dec 16:46:42 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
-_PROJECT_=${0##*/}
+CurVer='2019-12-05'
+Progrm=${0##*/}
 
 #TODO - The ignore case flag won't work when specifying glob matching.
 #TODO - Add ability to search only the whole word, like `STRING`, not `*STRING*`.
@@ -19,18 +19,18 @@ Err(){
 	[ $1 -eq 1 ] && exit 1
 }
 
-DOM="https://github.com"
+Domain='https://github.com'
 
-USAGE(){
+Usage(){
 	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} - LIST PACKAGES ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Search through, test for, and list out installed packages.
 
-		SYNTAX:     $_PROJECT_ [OPTS] [SEARCH_1] [SEARCH_2] [SEARCH_3] ...
+		SYNTAX:     $Progrm [OPTS] [SEARCH_1] [SEARCH_2] [SEARCH_3] ...
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -59,7 +59,7 @@ USAGE(){
 
 		            An exit status of 4 means no match(es) were found.
 
-		SITE:       $DOM/terminalforlife/$_PROJECT_
+		SITE:       $Domain/terminalforlife/Extra
 	EOF
 }
 
@@ -68,12 +68,12 @@ PACKNAME="{Package}"
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
+			printf "%s\n" "$CurVer"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME='true' ;;
+			DebugMe='true' ;;
 		--no-describe|-N)
 			NO_DESCRIBE='true' ;;
 		--ignore-case|-i)
@@ -106,7 +106,7 @@ if ! type -fP dpkg-query > /dev/null 2>&1; then
 	Err 1 $LINENO "Dependency 'dpkg-query' not met."
 fi
 
-[ "$DEBUGME" == 'true' ] && set -x
+[ "$DebugMe" == 'true' ] && set -x
 
 PKG_LIST(){
 	if ! dpkg-query --show -f="\${db:Status-Abbrev} \$${PACKNAME} - \${binary:Summary}\n" \*; then
@@ -195,7 +195,7 @@ if [ "$DOCOUNT" == 'true' ]; then
 	if ! [ "$USER_SEARCH" == 'true' ]; then
 		printf "\nTOTAL: %'d\n" "$COUNT"
 	else
-		[ $SEARCH_RESULT -eq 0 ] && S="" || S="\n"
+		[ $SEARCH_RESULT -eq 0 ] && S= || S="\n"
 		printf "${S}TOTAL: %'d/%'d\n" "$SEARCH_RESULT" "$COUNT"
 	fi
 fi
