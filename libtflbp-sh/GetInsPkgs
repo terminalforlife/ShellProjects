@@ -1,0 +1,38 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Mon  2 Dec 15:32:30 GMT 2019
+# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+GetInsPkgs(){ #: List, from `status` file $1, all installed (`ii`) Debian packages.
+	while read Key Value _; do
+		[ -z "$Key" ] && continue
+
+		case $Key in
+			Package:)
+				Package=$Value ;;
+			Status:)
+				[ "$Value $_" = 'install ok installed' ] || continue ;;
+			*)
+				continue ;;
+		esac
+
+		if ! [ "$Package" = "$OldPackage" ]; then
+			List=" $List $Package "
+		fi
+
+		OldPackage=$Package
+	done < "${1:-/var/lib/dpkg/status}"
+
+	printf "%s\n" $List
+
+	unset StatusFile Package OldPackage List Key Value _
+}

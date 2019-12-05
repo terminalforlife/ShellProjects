@@ -1,0 +1,33 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Mon  2 Dec 15:32:30 GMT 2019
+# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+LCount(){ #: Fetch the total number of lines. (also accepts STDIN)
+	Count=0
+	if [ $# -eq 0 ]; then
+		while read -r CurLine; do
+			Count=$((Count + 1))
+		done < /dev/stdin
+
+		printf "%d\n" $Count
+
+	else
+		printf "%s\n" "$@" | while read -r CurLine; do
+			Count=$((Count + 1))
+		done
+
+		printf "%d\n" $#
+	fi
+
+	unset Count CurLine
+}

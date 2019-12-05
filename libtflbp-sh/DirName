@@ -1,0 +1,20 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Mon  2 Dec 15:32:30 GMT 2019
+# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+DirName(){ #: Output the directory name (like `dirname`) of $@.
+	for CurDir in "$@"; do
+		[ -d "$CurDir" ] && return 1
+		printf "%s\n" "${CurDir%/*}"
+	done
+}

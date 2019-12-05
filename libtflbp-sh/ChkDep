@@ -1,0 +1,26 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Mon  2 Dec 15:32:30 GMT 2019
+# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+ChkDep(){ #: Presentable check of PATH directories for dependency $@.
+	DepCount=0
+	for CurDep in "$@"; do
+		if command -v "$CurDep" 1> /dev/null 2>&1; then
+			DepCount=$((DepCount + 1))
+		else
+			Err 0 "Dependency '$CurDep' not met."
+		fi
+	done
+
+	[ $DepCount -eq $# ] || exit 1
+}

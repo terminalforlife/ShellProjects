@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/update_hashes.sh
 # Started On        - Thu  5 Dec 19:36:09 GMT 2019
-# Last Change       - Thu  5 Dec 20:33:57 GMT 2019
+# Last Change       - Thu  5 Dec 22:43:48 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,7 +13,8 @@
 # You could refactor this to fit your needs, but as it is, I would leave it alone.
 #----------------------------------------------------------------------------------
 
-. ./libtflbp-sh
+. /usr/lib/tflbp-sh/ChkDep
+. /usr/lib/tflbp-sh/YNInput
 
 SumFile='md5sum'
 
@@ -24,8 +25,8 @@ fi
 ChkDep md5sum
 
 Excepts='
-	README.md
 	LICENSE
+	README.md
 	update_hashes.sh
 	update_links.sh
 	update_standard.sh

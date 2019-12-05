@@ -3,27 +3,16 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Wed 27 Nov 16:16:54 GMT 2019
+# Last Change       - Thu  5 Dec 22:43:10 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Just a simple, quick script to update the hard links when changing branches.
 #------------------------------------------------------------------------------MAIN
 
-Err(){
-	printf "ERROR: %s\n" "$2" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+. /usr/lib/tflbp-sh/ChkDep
 
-DEPCOUNT=0
-for DEP in ln rm; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
+ChkDep ln rm
 
 if [ "${PWD##*\/}" != "Extra" ]; then
 	Err 1 $LINENO "Not in the repository's root directory."

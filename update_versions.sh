@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
 # Project Name      - update_versions.sh
 # Started On        - Fri 25 Oct 12:41:34 BST 2019
-# Last Change       - Wed 27 Nov 15:56:54 GMT 2019
+# Last Change       - Thu  5 Dec 22:46:23 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,26 +11,23 @@
 # _VERSION_ variable, in key=value format. Parsing only; no program is executed.
 #----------------------------------------------------------------------------------
 
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+. /usr/lib/tflbp-sh/YNInput
+
 VER_FILE='./versions'
 
 declare -a EXCEPTIONS=(
+	LICENSE
+	README.md
 	autostart
+	update_hashes.sh
 	update_links.sh
+	update_standard.sh
 	update_versions.sh
 )
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
-
-printf "%s " "Confirming 'mimetype' exists..."
-
-if ! type -fP mimetype &> /dev/null; then
-	Err 1 $LINENO "Unable to find 'mimetype' in PATH."
-else
-	printf " [OK]\n"
-fi
+ChkDep mimetype
 
 printf "%s " "Gathering version strings..."
 
@@ -56,15 +53,7 @@ printf " [OK]\n"
 
 SAVE(){
 	if [ -f "$VER_FILE" ]; then
-		read -n 1 -e -p "[O]verwrite '$VER_FILE', or [q]uit? " OQ
-		case $OQ in
-			[Oo])
-				;;
-			[Qq])
-				exit 0 ;;
-			*)
-				Err 1 $LINENO "Invalid response -- quitting." ;;
-		esac
+		YNInput "Overwrite '$VER_FILE' file?" || exit 0
 	fi
 
 	printf "Writing data to: '%s'" "$VER_FILE"
@@ -84,5 +73,5 @@ case $VSBQ in
 	[Qq])
 		exit 0 ;;
 	*)
-		Err 1 $LINENO "Invalid response -- quitting." ;;
+		Err 1 "Invalid response -- quitting." ;;
 esac

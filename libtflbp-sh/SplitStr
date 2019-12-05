@@ -1,0 +1,21 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Mon  2 Dec 15:32:30 GMT 2019
+# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+SplitStr(){ #: Split string $2 by delimiter $1.
+	local IFS=$1
+	set -- $2
+	printf "%s\n" "$@"
+
+	unset IFS
+}
