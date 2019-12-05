@@ -1,54 +1,54 @@
 #!/bin/bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/forex
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Wed 27 Nov 15:54:13 GMT 2019
+# Last Change       - Thu  5 Dec 23:13:08 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
-_PROJECT_=${0##*/}
+CurVer='2019-12-05'
+Progrm=${0##*/}
 
 Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
 
-DOM="https://www.foreignexchange.org.uk"
+Domain='https://www.foreignexchange.org.uk'
 
-USAGE(){
-	while read -r; do
+Usage(){
+	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Easily convert various currency rates straight from the terminal.
 
-		SYNTAX:     $_PROJECT_ [OPTS] SOURCE AMOUNT TARGET
+		SYNTAX:     $Progrm [OPTS] SOURCE AMOUNT TARGET
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
 		            --debug|-D              - Enables the built-in bash debugging.
 		            --rounded|-R            - Do not display as a floating point.
 
-		EXAMPLE:    $ $_PROJECT_ USD 5 GBP
+		EXAMPLE:    $ $Progrm USD 5 GBP
 		            0.7254
 
-		SITE:       $DOM
+		SITE:       $Domain
 	EOF
 }
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--debug|-D)
-			DEBUGME='true' ;;
+			DebugMe='true' ;;
 		--rounded|-R)
 			ROUNDED='true' ;;
 		-*)
@@ -73,7 +73,7 @@ if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
 	NOWARC="--no-warc-compression"
 fi
 
-[ "$DEBUGME" == 'true' ] && set -x
+[ "$DebugMe" == 'true' ] && set -x
 
 # Curent and historical currency abbreviations. Taken from: http://www.xe.com
 declare -a VALID=(
@@ -94,12 +94,12 @@ for TYPE in ${VALID[@]}; {
 }
 
 if ! [ "$SOURCE_YES" == 'true' ]; then
-	Err 1 $LINENO "Currency SOURCE '$SOURCE' not recognised."
+	Err 1 $LINENO "Currency SOURCE '${SOURCE:-?}' not recognised."
 elif ! [ "$TARGET_YES" == 'true' ]; then
-	Err 1 $LINENO "Currency TARGET '$TARGET' not recognised."
+	Err 1 $LINENO "Currency TARGET '${TARGET:-?}' not recognised."
 fi
 
-SITE="$DOM/fx-rates/conversion/$AMOUNT/$SOURCE/$TARGET"
+SITE="$Domain/fx-rates/conversion/$AMOUNT/$SOURCE/$TARGET"
 while read -a X; do
 	if [[ ${X[*]} =~ name=\"answer\" ]]; then
 		RESULT=${X[3]//[!0-9.]}
