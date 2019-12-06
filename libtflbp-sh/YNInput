@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Last Change       - Fri  6 Dec 01:53:08 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,16 +13,15 @@
 #----------------------------------------------------------------------------------
 
 YNInput(){ #: An easy-to-script prompt for the user, asking yes or no.
-	printf "$1 [Y/N] "
+	printf "%s [Y/N] " "$1"
 	read Answer
-	printf "\n"
 
 	case $Answer in
 		[Yy]|[Yy][Ee][Ss])
 			return 0 ;;
 		[Nn]|[Nn][Oo])
 			return 1 ;;
-		''|*)
+		*)
 			Err 1 'Invalid response -- quitting.' ;;
 	esac
 
