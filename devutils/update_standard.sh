@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/update_standard.sh
+# Project Name      - Extra/devutils/update_standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Thu  5 Dec 23:10:37 GMT 2019
+# Last Change       - Fri  6 Dec 03:31:29 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
 
-#set -- "$HOME/GitHub/terminalforlife/Personal/Extra/lspkg"
+#set -- "$HOME/GitHub/terminalforlife/Personal/Extra/source/lspkg"
 
 POSIXLY_CORRECT='y'
 

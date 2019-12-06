@@ -1,9 +1,9 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/convertvars.sh
+# Project Name      - Extra/devutils/convertvars.sh
 # Started On        - Wed 27 Nov 16:51:42 GMT 2019
-# Last Change       - Wed 27 Nov 17:02:51 GMT 2019
+# Last Change       - Fri  6 Dec 03:28:05 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,6 +18,10 @@
 #
 #   * You have AWK available in PATH.
 #----------------------------------------------------------------------------------
+
+. /usr/lib/tflbp-sh/ChkDep
+
+ChkDep awk
 
 set -- ubuntu-syschk
 

@@ -1,9 +1,9 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/update_links.sh
+# Project Name      - Extra/devutils/update_links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Thu  5 Dec 22:43:10 GMT 2019
+# Last Change       - Fri  6 Dec 03:47:20 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,31 +14,24 @@
 
 ChkDep ln rm
 
-if [ "${PWD##*\/}" != "Extra" ]; then
-	Err 1 $LINENO "Not in the repository's root directory."
-else
-	rm -v $HOME/.config/compton.conf 2> /dev/null
-	ln -v compton.conf $HOME/.config/ 2> /dev/null
+{
+	cd "$HOME/GitHub/terminalforlife/Personal/Extra"
 
-	rm -v $HOME/.keynavrc 2> /dev/null
-	ln -v .keynavrc $HOME/ 2> /dev/null
+	rm -v $HOME/.config/compton.conf
+	ln -v misc/compton.conf $HOME/.config/
 
-	rm -v $HOME/.config/dunst/dunstrc 2> /dev/null
-	ln -v dunstrc $HOME/.config/dunst/ 2> /dev/null
+	rm -v $HOME/.keynavrc
+	ln -v misc/.keynavrc $HOME/
 
-	#rm -v $HOME/.config/gpicview/gpicview.conf 2> /dev/null
-	#ln -v gpicview.conf $HOME/.config/gpicview/gpicview.conf 2> /dev/null
+	rm -v $HOME/.config/dunst/dunstrc
+	ln -v misc/dunstrc $HOME/.config/dunst/
 
-	#rm -v $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
-	#ln -v pcmanfm.conf $HOME/.config/pcmanfm/default/pcmanfm.conf 2> /dev/null
+	rm -v $HOME/.config/xfce4/terminal/terminalrc
+	ln -v misc/terminalrc $HOME/.config/xfce4/terminal/terminalrc
 
-	rm -v $HOME/.config/xfce4/terminal/terminalrc 2> /dev/null
-	ln -v terminalrc $HOME/.config/xfce4/terminal/terminalrc 2> /dev/null
+	rm -v $HOME/.config/herbstluftwm/autostart
+	ln -v misc/autostart $HOME/.config/herbstluftwm/
 
-	rm -v $HOME/.config/herbstluftwm/autostart 2> /dev/null
-	ln -v autostart $HOME/.config/herbstluftwm/ 2> /dev/null
-
-	rm -v $HOME/.config/herbstluftwm/panel.sh 2> /dev/null
-	ln -v panel.sh $HOME/.config/herbstluftwm/ 2> /dev/null
-fi
-
+	rm -v $HOME/.config/herbstluftwm/panel.sh
+	ln -v misc/panel.sh $HOME/.config/herbstluftwm/
+} 2> /dev/null

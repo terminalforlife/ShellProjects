@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - update_versions.sh
+# Project Name      - Extra/devutils/update_versions.sh
 # Started On        - Fri 25 Oct 12:41:34 BST 2019
-# Last Change       - Thu  5 Dec 22:46:23 GMT 2019
+# Last Change       - Fri  6 Dec 03:30:04 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,21 +11,15 @@
 # _VERSION_ variable, in key=value format. Parsing only; no program is executed.
 #----------------------------------------------------------------------------------
 
+echo "Don't use this yet! Needs to be updated..."
+
+exit
+
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
 . /usr/lib/tflbp-sh/YNInput
 
 VER_FILE='./versions'
-
-declare -a EXCEPTIONS=(
-	LICENSE
-	README.md
-	autostart
-	update_hashes.sh
-	update_links.sh
-	update_standard.sh
-	update_versions.sh
-)
 
 ChkDep mimetype
 

@@ -1,9 +1,9 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/buildpkg
+# Project Name      - Extra/devutils/buildpkg
 # Started On        - Sat 23 Nov 00:28:26 GMT 2019
-# Last Change       - Sun 24 Nov 00:30:41 GMT 2019
+# Last Change       - Fri  6 Dec 03:27:22 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -34,15 +34,11 @@
 #     you set this yourself, below. The default is `vim`, and you're OK with that.
 #----------------------------------------------------------------------------------
 
-# Directory in which your directories (like a backup) reside.
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+
 BuildStore="$HOME/Documents/TT"
-
-# Location to GitHub repositories with files to use to create packages.
-GitHub="$HOME/GitHub/terminalforlife/Personal/Extra"
-
-# Directory
-
-# Name of the program for which you wish to build a package.
+GitHub="$HOME/GitHub/terminalforlife/Personal/Extra/source"
 ProgName=$1
 
 # The build version of the program above.
@@ -52,24 +48,12 @@ else
 	Version=`bash $GitHub/$ProgName -v`
 fi
 
-# Naming convention of the finished package. (don't change unless needed)
 PKGName="${ProgName}_${Version}_all.deb"
-
-# Your naming convention for the above mentioned directories.
 BuildConv="pkg-debian ($ProgName)"
-
-# Directory in which to work.
 WorkDir="$HOME/Desktop"
-
-# The editor to use when required.
 EDITOR=${EDITOR:-vim}
 
-#------------------------------------------------------------------------------MAIN
-
-Err(){
-	printf "ERROR: %s\n" "$2" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+ChkDep id cp dpkg-deb find chown chmod bash stat sed
 
 if [ `id -u` -ne 0 ]; then
 	Err 1 'Root access is required for this operation.'
@@ -77,8 +61,6 @@ elif ! [ -d "$BuildStore" ]; then
 	Err 1 "Build store directory '`basename "$BuildStore"`' not found."
 elif ! [ -r "$BuildStore" ] || ! [ -w "$BuildStore" ] || ! [ -x "$BuildStore" ]; then
 	Err 1 "Build store directory '`basename "$BuildStore"`' inaccessible."
-elif ! which dpkg-deb 1> /dev/null; then
-	Err 1 "Dependency 'dpkg-deb' not met."
 elif ! [ $# -eq 1 -o $# -eq 2 ]; then
 	Err 1 "Usage: buildpkg.sh [ProgName] [Version]"
 fi
