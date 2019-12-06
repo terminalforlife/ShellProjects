@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - roks/completion
+# Project Name      - Extra/source/completions/roks
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
 # Last Change       - Wed 31 Jan 12:56:47 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com

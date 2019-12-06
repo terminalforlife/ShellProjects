@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - simplify-ubuntu/completion
+# Project Name      - Extra/source/completions/simplify-ubuntu
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
 # Last Change       - Wed 31 Jan 12:57:07 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com

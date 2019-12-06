@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/completions/lspkg
+# Project Name      - Extra/source/completions/lspkg
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
 # Last Change       - Thu  9 May 14:52:15 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com

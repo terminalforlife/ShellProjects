@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - miscellaneous/Completions/mkpass
+# Project Name      - Extra/source/completions/mkpass
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
 # Last Change       - Sat 20 Apr 12:33:07 BST 2019
 # Author E-Mail     - terminalforlife@yahoo.com

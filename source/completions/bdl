@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #----------------------------------------------------------------------------------
-# Project Name      - bdl/completion
+# Project Name      - Extra/source/completions/bdl
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
 # Last Change       - Wed 31 Jan 12:58:52 GMT 2018
 # Author E-Mail     - terminalforlife@yahoo.com
