@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Fri  6 Dec 02:56:25 GMT 2019
+# Last Change       - Fri  6 Dec 04:08:22 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -211,7 +211,7 @@ for CurFile in "$@"; do
 						if [ -f "$Target" ]; then
 							Logger warning "File '$CurFile' in '${Target%/*}' already exists"
 
-							printf "File '%s' already installed.\n" "$Target" 1>&2
+							printf "File '%s' already exists.\n" "$Target" 1>&2
 							FilesToRemove=" $FilesToRemove $Target "
 							continue 2
 						fi ;;
@@ -230,7 +230,7 @@ for CurFile in "$@"; do
 		Err 0 "File '$CurFile' is not supported by Cito."
 		continue
 	else
-		URL="$RawDomain/$GHUser/$Repo/$Branch/$CurFile"
+		URL="$RawDomain/$GHUser/$Repo/$Branch/source/$CurFile"
 		Logger info "URL for '$CurFile' is '$URL'"
 		if $DLCMD "$Target" "$URL" 1> /dev/null; then
 			if chown $Owner:$Group "$Target" 1> /dev/null; then
