@@ -40,16 +40,15 @@ You have three options available to you, at the time of writing this:
     1. Open up a terminal, and keep it open until this is done.
     2. Run: `TempFile=$(mktemp); DomLink='https://raw.githubusercontent.com'`
     3. Run: `wget -qO "$TempFile" "$DomLink/terminalforlife/Extra/dev/cito"`
-    4. Run: `sudo chown 0:0 "$TempFile"`
-    5. Run: `sudo chmod 755 "$TempFile"`
-    6. Run: `sudo mv "$TempFile" /usr/bin/`
+    4. Run: `sudo chown 0:0 "$TempFile; sudo chmod 755 "$TempFile"`
+    5. Run: `sudo mv "$TempFile" /usr/bin/`
 
   * It's clunky and it's inconvenient, but if you must, you can clone this repository then install them yourself, line-by-line.
 
     1. Open up a terminal, and keep it open until this is done.
     2. Make sure you have git installed. IE: `sudo apt-get install git`
     3. Run: `git clone 'https://github.com/terminalforlife/Extra'`
-    4. Run `cd Extra` to change to the newly-cloned directory.
+    4. Run: `cd Extra` to change to the newly-cloned directory.
     5. From here, it depends on the file you want. Hence: clunky method.
 
 You should be ready to go, now. If you have any problems, don't hesitate to let me know, either here on GitHub, YouTube, or via the following E-Mail address: terminalforlife@yahoo.com
