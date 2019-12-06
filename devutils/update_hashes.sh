@@ -27,6 +27,8 @@ ChkDep md5sum
 Excepts='
 	LICENSE
 	README.md
+	buildpkg.sh
+	convertvars.sh
 	md5sum
 	update_hashes.sh
 	update_links.sh
