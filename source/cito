@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Fri  6 Dec 04:08:22 GMT 2019
+# Last Change       - Fri  6 Dec 14:25:31 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 # However, you may wish to forgo the aforementioned packages in favor of the latest
 # version of whichever program, or even using the dev branch if you're crazy.
 #
-# The word 'cito' (/ˈki.toː/) is a Latin adverb, to me 'swift'.
+# The word 'cito' (/ˈki.toː/) is a Latin adverb, to mean 'swift'.
 #----------------------------------------------------------------------------------
 
 . /usr/lib/tflbp-sh/Err
