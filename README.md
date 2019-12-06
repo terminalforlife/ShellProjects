@@ -47,7 +47,7 @@ You have three options available to you, at the time of writing this:
 
     1. Open up a terminal, and keep it open until this is done.
     2. Make sure you have git installed. IE: `sudo apt-get install git`
-    3. Run: `git clone 'https://github.com/terminalforlife/source/Extra'`
+    3. Run: `git clone 'https://github.com/terminalforlife/Extra'`
     4. Run: `cd Extra` to change to the newly-cloned directory.
     5. From here, it depends on the file you want. Hence: clunky method.
 
