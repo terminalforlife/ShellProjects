@@ -88,3 +88,5 @@ d608ac7e30d47537d92d7e41370c0072  source/completions/simplify-ubuntu
 dc6114766be50b7734739dfd94b950e2  source/completions/simwea
 25b6830fe2071101434bdb79c6013509  source/completions/tozero
 3ff878022bffa640159a800a2a495a98  source/completions/ubuntu-syschk
+f2d911e0067595602d7645245a5b18a7  source/cron_tasks/APT_Update_Cron
+299924f58a6f77d61c2c4da38c0742be  source/cron_tasks/chkperms
