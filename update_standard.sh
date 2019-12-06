@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/update_standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Thu  5 Dec 16:44:54 GMT 2019
+# Last Change       - Thu  5 Dec 23:10:37 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,14 +13,14 @@
 # You could make use of some of this, though.
 #----------------------------------------------------------------------------------
 
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+
 #set -- "$HOME/GitHub/terminalforlife/Personal/Extra/lspkg"
 
 POSIXLY_CORRECT='y'
 
-Err(){
-	printf "ERROR: %s\n" "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
-}
+ChkDep grep sed
 
 CurFile=$1
 shift
@@ -87,9 +87,7 @@ while read F1 F2 F3 _; do
 
 	[ "$F1" == 'Usage(){' ] && IsUsage='true'
 	if [ "$IsUsage" == 'true' -a "$F1$F2$F3" == 'whileread-r;' ]; then
-		set -x
 		SaR "${LineCount}s/while read -r/while read/"
-		set +x
 		break
 	fi
 done < "$CurFile"
