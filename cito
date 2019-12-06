@@ -1,0 +1,270 @@
+#!/bin/sh
+#cito M:755 O:0 G:0 T:/usr/bin/cito
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/cito
+# Started On        - Thu  5 Dec 20:40:35 GMT 2019
+# Last Change       - Fri  6 Dec 01:51:42 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# This will simply install one or more programs from this repository. If on
+# Debian-based distribution, I recommend that you instead use the Debian (DEB)
+# packages I've built for just this purpose, that way your in-house package manager
+# can deal with it.
+#
+# However, you may wish to forgo the aforementioned packages in favor of the latest
+# version of whichever program, or even using the dev branch if you're crazy.
+#
+# The word 'cito' (/ˈki.toː/) is a Latin adverb, to me 'swift'.
+#----------------------------------------------------------------------------------
+
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+. /usr/lib/tflbp-sh/CutStr
+. /usr/lib/tflbp-sh/YNInput
+
+CurVer='2019-12-06'
+Progrm=${0##*/}
+
+EventLog='/var/log/cito-events.log'
+
+RawDomain='https://raw.githubusercontent.com'
+GHUser='terminalforlife'
+Repo='Extra'
+Branch='dev'
+
+LogTypes='all info warning error'
+
+Usage(){
+	while read -r CurLine; do
+		printf "%b\n" "$CurLine"
+	done <<-EOF
+		\r            CITO ($CurVer)
+		\r            Written by terminalforlife (terminalforlife@yahoo.com)
+
+		\r            Bourne POSIX installer for one-file programs from GitHub.
+
+		\rSYNTAX:     $Progrm [OPTS] [FILE_1 [FILE_2] ...]
+
+		\rOPTS:       --help|-h|-?            - Displays this help information.
+		\r            --version|-v            - Output only the version datestamp.
+		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
+
+		\rNOTE:       The use of '--' to specify the end of OPTS, is supported.
+
+		\r            Where TYPE is one of 'all', 'info', 'warning', or 'error'.
+
+		\rFILE:       $EventLog
+	EOF
+}
+
+[ $# -eq 0 ] && Err 1 "Argument(s) required -- see: $Progrm -h"
+
+for CurArg in "$@"; do
+	case $CurArg in
+		--)
+			break ;;
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf "%s\n" "$CurVer"; exit 0 ;;
+		--log-view|-L)
+			shift; LogView=$1
+
+			if [ -z "$LogView" ]; then
+				Err 1 "Option '--log-view|-L' requires one of TYPE."
+			fi ;;
+		-*)
+			Err 1 'Incorrect argument(s) specified.' ;;
+		*)
+			break ;;
+	esac
+done
+
+ChkDep id chmod chown md5sum mkdir date rm
+
+if command -v curl 1> /dev/null 2>&1; then
+	DLCMD='curl -so'
+elif command -v wget 1> /dev/null 2>&1; then
+	DLCMD='wget -qO'
+else
+	Err 1 "Neither 'wget' nor 'curl' are available."
+fi
+
+if ! [ ${UID:-`id -u`} -eq 0 ]; then
+	Err 1 'Root permissions required for system-wide changes.'
+fi
+
+ChkMD5(){
+	HashFile=`mktemp`
+
+	URL="$RawDomain/$GHUser/$Repo/md5sum"
+	wget -qO "$HashFile" "$URL" 1> /dev/null 2>&1
+
+	while read Hash File; do
+		if [ "$File" = "$1" ]; then
+			GetHash=`CutStr ' ' 1 "$(md5sum "$1")"`
+			if ! [ "$Hash" = "$GetHash" ]; then
+				Err 1 "MD5 for '$1' mis-match!"
+			fi
+		fi
+	done < "$HashFile"
+
+	unset URL HashFile Hash File GetHash
+}
+
+Logger(){ # Usage: Logger TYPE MESSAGE
+	LogTypeChk "$1" $LogTypes
+
+	if [ -d "${EventLog%/*}" ]; then
+		mkdir -p "${EventLog%/*}" 1> /dev/null
+	fi
+
+	[ -f "$EventLog" ] || 1> "$EventLog"
+
+	# Ensure it's still set safely.
+	chown 0:0 "$EventLog" 1> /dev/null
+	chmod 600 "$EventLog" 1> /dev/null
+
+	Secs=`date '+%s'` # <-- Seconds since Epoch.
+	[ -z "$Secs" ] && Err 1 "Logging failure via 'Logger()' detected."
+	printf "%d:%s:%s\n" $Secs "$1" "$2" >> "$EventLog"
+
+	unset TypeCount CurType Secs
+}
+
+LogErrInf(){ # Usage: LogErrInf [$KEY] [KEY] [FILE]
+	if [ -z "$1" ]; then
+		Logger error "$2 is null for '$3'"
+	else
+		Logger info "$2 is '$1' for '$3'"
+	fi
+}
+
+LogTypeChk(){ # Usage: LogTypeChk [TYPE] [VALID_TYPES]
+	CheckType=$1
+	shift
+
+	TypeCount=0
+	for CurType in "$@"; do
+		if [ "$CheckType" = "$CurType" ]; then
+			TypeCount=$((TypeCount + 1))
+		fi
+	done
+
+	[ $TypeCount -eq 0 ] && Err 1 "Invalid 'Logger()' type."
+
+	unset CheckType TypeCount CurType
+}
+
+if [ -n "$LogView" ]; then
+	LogTypeChk "$LogView" $LogTypes
+
+	if [ -f "$EventLog" ]; then
+		while IFS=':' read Epoch Type MSG; do
+			ShowLog(){
+				FTime=`date '+%F %X' --date="@$Epoch"`
+				printf "%s: %s\n" "$FTime" "$MSG"
+			}
+
+			if [ "$LogView" = "all" ]; then
+				ShowLog
+			elif [ "$Type" = "$LogView" ]; then
+				ShowLog
+			fi
+		done < "$EventLog"
+
+		exit 0
+	else
+		Err 1 "File '$EventLog' not found."
+	fi
+fi
+
+for CurFile in "$@"; do
+	Logger info "Processing '$CurFile'"
+
+	while read F1 _; do
+		if [ "$F1" = '#cito' ]; then
+			Logger info "File '$CurFile' is supported by Cito"
+
+			HasCito='true'
+
+			for CurField in $_; do
+				case $CurField in
+					M:*)
+						Mode=${CurField#*:}
+
+						LogErrInf "$Mode" Mode "$CurFile" ;;
+					O:*)
+						Owner=${CurField#*:}
+
+						LogErrInf "$Owner" Owner "$CurFile" ;;
+					G:*)
+						Group=${CurField#*:}
+
+						LogErrInf "$Group" Group "$CurFile" ;;
+					T:*)
+						Target=${CurField#*:}
+
+						LogErrInf "$Target" Target "$CurFile"
+
+						if [ -f "$Target" ]; then
+							Logger warning "File '$CurFile' in '${Target%/*}' already exists"
+
+							printf "File '%s' already installed.\n" "$Target" 1>&2
+							FilesToRemove=" $FilesToRemove $Target "
+							continue 2
+						fi ;;
+					*)
+						Logger error "Field '$CurField' in '$CurFile' is invalid"
+						Err 0 "File '$CurFile' contains an invalid field."
+				esac
+			done
+
+			break
+		fi
+	done < "$CurFile"
+
+	if ! [ "$HasCito" = 'true' ]; then
+		Logger error "File '$CurFile' is NOT supported by Cito"
+		Err 0 "File '$CurFile' is not supported by Cito."
+		continue
+	else
+		URL="$RawDomain/$GHUser/$Repo/$Branch/$CurFile"
+		Logger info "URL for '$CurFile' is '$URL'"
+		if $DLCMD "$Target" "$URL" 1> /dev/null; then
+			if chown $Owner:$Group "$Target" 1> /dev/null; then
+				Logger info "Successfully changed '$Target' to '$Owner:$Group'"
+			else
+				Logger error "Failed to change '$Target' to '$Owner:$Group'"
+			fi
+
+			if chmod $Mode "$Target" 1> /dev/null; then
+				Logger info "Successfully changed '$Target' to '$Mode'"
+			else
+				Logger error "Failed to change '$Target' to '$Mode'"
+			fi
+		else
+			Logger error "File '$CurFile' failed to download with '${DLCMD%% *}'"
+			Err 0 "File '$CurFile' failed to install."
+		fi
+	fi
+
+	Logger info "Finished processing '$CurFile'"
+
+	unset HasCito Target Group Owner Mode CurField URL
+done
+
+for CurFile in $FilesToRemove; do
+	if YNInput "Remove '$CurFile' file?"; then
+		Logger info "Removing pre-existing file '$CurFile'"
+		if rm -f "$CurFile" 1> /dev/null; then
+			Logger info "Removed pre-existing file '$CurFile'"
+		else
+			Logger error "Failed to remove pre-existing file '$CurFile'"
+			Err 1 "Unable to remove '$CurFile' file."
+		fi
+	else
+		Logger info "NOT removing pre-existing file '$CurFile'"
+	fi
+done
