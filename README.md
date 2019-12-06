@@ -28,13 +28,12 @@ You have three options available to you, at the time of writing this:
 
   * You can install via one of the many Debian packages I've built and stored within the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository. This won't guarantee the latest version, however, but it's the easiest method, provided you're on a Debian-based installation of Linux.
 
-    1. Decide which package you want; from here, assume `DEP` means that package.
-    2. Browse [here](https://github.com/terminalforlife/DEB-Packages) to the DEB-Packages repository.
-    3. Left-click on the package filename you want to download.
-    4. Left-click on the 'Download' button or 'View raw' link.
-    5. Choose location to download and store the Debian package.
-    6. Open up a terminal either at or then browse to that location.
-    7. Run: `sudo dpkg -i ?` (where `?` is the package filename)
+    1. Browse [here](https://github.com/terminalforlife/DEB-Packages) to the DEB-Packages repository.
+    2. Left-click on the package filename you want to download.
+    3. Left-click on the 'Download' button or 'View raw' link.
+    4. Choose location to download and store the Debian package.
+    5. Open up a terminal either at or then browse to that location.
+    6. Run: `sudo dpkg -i PKG` (where `PKG` is the package to install)
 
   * You can install via the new, exhaustive [Cito](https://github.com/terminalforlife/Extra/blob/dev/cito) program I've written for just this purpose. It's lightweight, portable, and installable with a few commands, after which many one-file programs on GitHub are quick and painless to install -- not just my own!
 
