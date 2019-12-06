@@ -35,11 +35,11 @@ You have three options available to you, at the time of writing this:
     5. Open up a terminal either at or then browse to that location.
     6. Run: `sudo dpkg -i PKG` (where `PKG` is the package to install)
 
-  * You can install via the new, exhaustive [Cito](https://github.com/terminalforlife/Extra/blob/dev/cito) program I've written for just this purpose. It's lightweight, portable, and installable with a few commands, after which many one-file programs on GitHub are quick and painless to install -- not just my own!
+  * You can install via the new, exhaustive [Cito](https://github.com/terminalforlife/Extra/blob/master/cito) program I've written for just this purpose. It's lightweight, portable, and installable with a few commands, after which many one-file programs on GitHub are quick and painless to install -- not just my own!
 
     1. Open up a terminal, and keep it open until this is done.
     2. Run: `TempFile=$(mktemp); DomLink='https://raw.githubusercontent.com'`
-    3. Run: `wget -qO "$TempFile" "$DomLink/terminalforlife/Extra/dev/cito"`
+    3. Run: `wget -qO "$TempFile" "$DomLink/terminalforlife/Extra/master/cito"`
     4. Run: `sudo chown 0:0 "$TempFile; sudo chmod 755 "$TempFile"`
     5. Run: `sudo mv "$TempFile" /usr/bin/`
 

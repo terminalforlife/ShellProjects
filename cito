@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Fri  6 Dec 01:51:42 GMT 2019
+# Last Change       - Fri  6 Dec 02:56:25 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ EventLog='/var/log/cito-events.log'
 RawDomain='https://raw.githubusercontent.com'
 GHUser='terminalforlife'
 Repo='Extra'
-Branch='dev'
+Branch='master'
 
 LogTypes='all info warning error'
 
