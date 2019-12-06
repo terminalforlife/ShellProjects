@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/nwchk
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/nwchk (Network Check)
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Wed 27 Nov 15:56:29 GMT 2019
+# Last Change       - Fri  6 Dec 22:53:12 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Written by inspiration of YouTube and Arch user, 'S3NTYN3L'.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+_VERSION_="2019-12-06"
 _PROJECT_=${0##*/}
 
 Err(){

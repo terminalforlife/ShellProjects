@@ -1,9 +1,9 @@
 #!/bin/bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/snotes
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Wed 27 Nov 15:56:44 GMT 2019
+# Last Change       - Fri  6 Dec 22:54:44 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 #TODO - Fix clash between snotes' arguments and when searching with notes for those
 #       arguments. Also, --edit/-e CMD is not working.
 
-_VERSION_="2019-11-27"
+_VERSION_="2019-12-06"
 _PROJECT_=${0##*/}
 
 Err(){

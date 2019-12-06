@@ -1,9 +1,9 @@
 #!/bin/sh
-
+#cito M:755 O:0 G:0 T:/usr/bin/barred
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/barred
 # Started On        - Sun 19 Nov 13:56:45 GMT 2017
-# Last Change       - Mon  2 Dec 22:59:42 GMT 2019
+# Last Change       - Fri  6 Dec 22:46:03 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 # output while in the bar sections. This is a rudimentary, small progress bar.
 #----------------------------------------------------------------------------------
 
-CurVer='2019-12-02'
+CurVer='2019-12-06'
 
 Barred_B1='𝍥:0'
 Barred_B2='𝍦:25'

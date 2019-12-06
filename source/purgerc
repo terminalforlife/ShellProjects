@@ -1,16 +1,16 @@
 #!/bin/sh
-
+#cito M:755 O:0 G:0 T:/usr/bin/purgerc
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/purgerc
 # Started On        - Fri 18 May 23:07:54 BST 2018
-# Last Change       - Tue  3 Dec 23:03:08 GMT 2019
+# Last Change       - Fri  6 Dec 22:53:33 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # This small Bourne tool was written to adhere to POSIX standards.
 #----------------------------------------------------------------------------------
 
-CurVer='2019-12-03'
+CurVer='2019-12-06'
 Progrm=${0##*/}
 
 Err(){

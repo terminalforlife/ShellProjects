@@ -1,9 +1,9 @@
 #!/bin/bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/capnum
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/capnum
 # Started On        - Wed 31 Jan 23:35:19 GMT 2018
-# Last Change       - Wed 27 Nov 15:53:57 GMT 2019
+# Last Change       - Fri  6 Dec 22:46:35 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------

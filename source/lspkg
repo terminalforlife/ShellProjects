@@ -1,14 +1,14 @@
 #!/bin/bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/lspkg
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg (List Packages)
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Thu  5 Dec 16:46:42 GMT 2019
+# Last Change       - Fri  6 Dec 22:51:05 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-CurVer='2019-12-05'
+CurVer='2019-12-06'
 Progrm=${0##*/}
 
 #TODO - The ignore case flag won't work when specifying glob matching.

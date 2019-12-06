@@ -1,14 +1,14 @@
 #!/bin/bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/feh-slides
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Wed 27 Nov 15:54:09 GMT 2019
+# Last Change       - Fri  6 Dec 22:49:20 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+_VERSION_="2019-12-06"
 _PROJECT_=${0##*/}
 
 Err(){

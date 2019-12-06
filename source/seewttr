@@ -1,9 +1,9 @@
 #!/bin/bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/seewttr
 #----------------------------------------------------------------------------------
 # Project Name      - $HOME/bin/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Wed 27 Nov 15:56:38 GMT 2019
+# Last Change       - Fri  6 Dec 22:54:14 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------

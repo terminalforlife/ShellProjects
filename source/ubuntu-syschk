@@ -1,14 +1,14 @@
 #!/bin/bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/ubuntu-syschk
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/ubuntu-syschk
 # Started On        - Mon 22 Jan 12:03:01 GMT 2018
-# Last Change       - Wed 27 Nov 15:56:52 GMT 2019
+# Last Change       - Fri  6 Dec 22:56:04 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+_VERSION_="2019-12-06"
 _PROJECT_=${0##*/}
 
 Err(){
