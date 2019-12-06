@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Fri  6 Dec 22:37:41 GMT 2019
+# Last Change       - Fri  6 Dec 23:36:01 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -314,7 +314,6 @@ if [ "$DoRemote" = 'true' ]; then
 	URL="$RawDomain/$GHUser/$Repo/$Branch/${RemoteFile#/}"
 	Logger info "URL for '$RemoteFile' is '${URL#https://*/}'"
 
-	echo "if $DLCMD \"$TemRemFile\" \"$URL\" 1> /dev/null; then"
 	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null; then
 		ReadFile "$TemRemFile"
 
