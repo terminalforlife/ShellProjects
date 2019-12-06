@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/update_hashes.sh
 # Started On        - Thu  5 Dec 19:36:09 GMT 2019
-# Last Change       - Thu  5 Dec 22:43:48 GMT 2019
+# Last Change       - Fri  6 Dec 03:06:10 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -27,10 +27,12 @@ ChkDep md5sum
 Excepts='
 	LICENSE
 	README.md
+	md5sum
 	update_hashes.sh
 	update_links.sh
 	update_standard.sh
 	update_versions.sh
+	versions
 '
 
 ChkSums(){
