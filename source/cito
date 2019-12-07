@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 00:33:37 GMT 2019
+# Last Change       - Sat  7 Dec 00:46:09 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -80,8 +80,8 @@ Usage(){
 
 [ $# -eq 0 ] && Err 1 "Argument(s) required -- see: $Progrm -h"
 
-for CurArg in "$@"; do
-	case $CurArg in
+while [ "$1" ]; do
+	case $1 in
 		--)
 			break ;;
 		--help|-h|-\?)
@@ -95,11 +95,18 @@ for CurArg in "$@"; do
 				Err 1 "Option '--log-view|-L' requires one of TYPE."
 			fi ;;
 		--remote|-r)
+			shift
+
 			DoRemote='true'
-			shift; GHUser=$1
-			shift; Repo=$1
-			shift; Branch=$1
-			shift; RemoteFile=$1 ;;
+			GHUser=$1
+			Repo=$2
+			Branch=$3
+			RemoteFile=$4
+
+			case "$GHUser$Repo$Branch$RemoteFile" in
+				'')
+					Err 1 "Invalid argument(s) for '--remote|-r' option." ;;
+			esac ;;
 		--hash|-H)
 			shift; MD5File="x$1"
 
@@ -111,6 +118,7 @@ for CurArg in "$@"; do
 		*)
 			break ;;
 	esac
+	shift
 done
 
 ChkDep mv id chmod chown md5sum mkdir date rm mktemp
