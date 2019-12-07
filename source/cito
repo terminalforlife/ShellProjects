@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 19:08:21 GMT 2019
+# Last Change       - Sat  7 Dec 19:23:14 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ Usage(){
 		\r            CITO ($CurVer)
 		\r            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		\r            Bourne POSIX installer for files within GitHub repositories.
+		\r            Bourne POSIX installer for local or GitHub files.
 
 		\rSYNTAX:     $Progrm [OPTS] [File_1 [File_2] ...]
 
