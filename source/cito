@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 14:55:35 GMT 2019
+# Last Change       - Sat  7 Dec 15:01:59 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -375,13 +375,19 @@ if [ "$DoRemote" = 'true' ]; then
 		if ChkMD5 "$RemoteFile"; then
 			ReadFile "$TemRemFile"
 
-			DoChown "$Owner:$Group" "$TemRemFile"
-			DoChmod "$Mode" "$TemRemFile"
+			if [ "$HasCito" = 'true' ]; then
+				DoChown "$Owner:$Group" "$TemRemFile"
+				DoChmod "$Mode" "$TemRemFile"
 
-			if mv "$TemRemFile" "$Target" 1> /dev/null; then
-				Logger info "File '$TemRemFile' moved to '$Target'"
+				if mv "$TemRemFile" "$Target" 1> /dev/null; then
+					Logger info "File '$TemRemFile' moved to '$Target'"
+				else
+					Logger error "File '$CurFile' failed to move to '$Target'"
+				fi
 			else
-				Logger error "File '$CurFile' failed to move to '$Target'"
+				Logger error "File '$CurFile' is NOT supported by Cito"
+				Err 0 "File '$RemoteFile' is not supported by Cito."
+				continue
 			fi
 		fi
 	else
@@ -397,11 +403,7 @@ elif [ $# -gt 0 ]; then
 		if ChkMD5 "$CurFile"; then
 			ReadFile "$CurFile"
 
-			if ! [ "$HasCito" = 'true' ]; then
-				Logger error "File '$CurFile' is NOT supported by Cito"
-				Err 0 "File '$CurFile' is not supported by Cito."
-				continue
-			else
+			if [ "$HasCito" = 'true' ]; then
 				if mv "$CurFile" "$Target" 1> /dev/null; then
 					Logger info "File '$CurFile' moved to '$Target'"
 					DoChown "$Owner:$Group" "$Target"
@@ -410,6 +412,10 @@ elif [ $# -gt 0 ]; then
 					Logger error "File '$CurFile' failed to move to '$Target'"
 					Err 0 "Local file '$CurFile' failed to install."
 				fi
+			else
+				Logger error "File '$CurFile' is NOT supported by Cito"
+				Err 0 "File '$CurFile' is not supported by Cito."
+				continue
 			fi
 		fi
 
