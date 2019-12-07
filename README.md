@@ -7,9 +7,10 @@ Thank you for your interest. Despite the non-descript name of this repository, i
 
 Some of the programs within this repository were written and are maintained for a Bourne POSIX-compliant shell (with [Yash](https://yash.osdn.jp/) as guidance), and others are written for the Bourne Again Shell.
 
-As of 2019-12-06, here are some highlights:
+As of 2019-12-07, here are some highlights:
 
   * backmeup - A simple tool to quickly and easily back up your HOME.
+  * cito - Bourne POSIX installer for local or GitHub files.
   * libtflbp-sh - Bourne POSIX function library used by TFL programs.
   * lspkg - Test for, describe, and list out installed packages.
   * purgerc - Purge all 'rc' packages, as marked by DPKG.
