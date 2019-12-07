@@ -39,9 +39,9 @@ You have four options available to you, at the time of writing this:
 
     1. Open up a terminal, and keep it open until this is done.
     2. Run: `TempFile=$(mktemp); DomLink='https://raw.githubusercontent.com'`
-    3. Run: `wget -qO "$TempFile" "$DomLink/terminalforlife/Extra/source/master/cito"`
-    4. Run: `sudo chown 0:0 "$TempFile; sudo chmod 755 "$TempFile"`
-    5. Run: `sudo mv "$TempFile" /usr/bin/`
+    3. Run: `wget -qO "$TempFile" "$DomLink/terminalforlife/Extra/master/source/cito"`
+    4. Run: `sudo chown 0:0 "$TempFile"; sudo chmod 755 "$TempFile"`
+    5. Run: `sudo mv "$TempFile" /usr/bin/cito`
 
   * If you're on a Debian- or Ubuntu-based distribution of Linux, your best bet is:
 
