@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 15:01:59 GMT 2019
+# Last Change       - Sat  7 Dec 17:07:28 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -26,7 +26,7 @@
 CurVer='2019-12-07'
 Progrm=${0##*/}
 
-EventLog='/var/log/cito-events.log'
+EventLog="/var/log/$Progrm-events.log"
 RawDomain='https://raw.githubusercontent.com'
 LogTypes='all info warning error'
 
@@ -46,6 +46,10 @@ Usage(){
 		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
 		\r            --remote|-r INFO        - Specify a remote file; see REMOTE.
 		\r            --hash|-H FILE          - Use FILE to cross-check hashes.
+		\r            --mode|-M MODE          - Where MODE is, IE: '755'.
+		\r            --owner|-O OWNER        - Where OWNER is, IE: '0'.
+		\r            --group|-G GROUP        - Where GROUP is, IE: '0'.
+		\r            --target|-T PATH        - Where PATH is, IE: '/usr/bin/1337'.
 
 		\rNOTE:       The use of '--' to specify the end of OPTS, is supported.
 
@@ -70,9 +74,16 @@ Usage(){
 		\r            B = The branch for the repository.
 		\r            F = The file within the repository.
 
-		\rEXAMPLE:    cito -r terminalforlife Extra master source/cito
-		\r            cito -H md5sum -r chubin cheat.sheets master sheets/awk
-		\r            cito ./world-peace.pl ~/Downloads/coolscript.sh
+		\rEXAMPLE:    Remote operations...
+
+		\r              $Progrm -r [USER] [REPO] [BRANCH] [FILE]
+		\r              $Progrm -M [MODE] -O [OWNER] -G [GROUP] -T [TARGET] -r ...
+		\r              $Progrm -H [MD5_FILE] -r ...
+
+		\r            Local operations...
+
+		\r              $Progrm [FILE_1] [FILE_2] [FILE_3]
+		\r              $Progrm -H [MD5_FILE] [FILE_1 [FILE_2] ...]
 
 		\rFILE:       $EventLog
 	EOF
@@ -80,10 +91,14 @@ Usage(){
 
 [ $# -eq 0 ] && Err 1 "Argument(s) required -- see: $Progrm -h"
 
+NullArg(){ # Usage: NullArg [VARIABLE] [OPTION]
+	[ -z "$1" ] && Err 1 "Null argument for '$2' option."
+}
+
 while [ "$1" ]; do
 	case $1 in
 		--)
-			break ;;
+			shift; break ;;
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
@@ -103,16 +118,35 @@ while [ "$1" ]; do
 			Branch=$3
 			RemoteFile=$4
 
-			case "$GHUser$Repo$Branch$RemoteFile" in
-				'')
-					Err 1 "Invalid argument(s) for '--remote|-r' option." ;;
-			esac ;;
+			ArgCount=0
+			for CurArg in "$1" "$2" "$3" "$4"; do
+				ArgCount=$((ArgCount + 1))
+			done
+
+			if [ $ArgCount -ne 4 ]; then
+				Err 1 "Argument failure for '--remote|-r' option."
+			fi
+
+			unset CurArg ArgCount ;;
 		--hash|-H)
 			shift; MD5File=$1
-
-			if [ -z "$MD5File" ]; then
-				Err 1 "Missing argument for '--hash|-H' option."
-			fi ;;
+			NullArg "$MD5File" '--hash|-H' ;;
+		--mode|-M)
+			shift; UserMode=$1
+			Regardless='true'
+			NullArg "$UserMode" '--mode|-M' ;;
+		--owner|-O)
+			shift; UserOwner=$1
+			Regardless='true'
+			NullArg "$UserOwner" '--owner|-O' ;;
+		--group|-G)
+			shift; UserGroup=$1
+			Regardless='true'
+			NullArg "$UserGroup" '--group|-G' ;;
+		--target|-T)
+			shift; UserTarget=$1
+			Regardless='true'
+			NullArg "$UserTarget" '--target|-T' ;;
 		-*)
 			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
@@ -120,6 +154,8 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+unset -f NullArg
 
 ChkDep mv id chmod chown md5sum mkdir date rm mktemp
 
@@ -193,6 +229,7 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 			Err 1 "File '$1' missing from provided hash file."
 		fi
 	else
+		Logger error "Hash file '$ReadHashFile' not found"
 		Err 1 "Hash file '$ReadHashFile' missing."
 	fi
 
@@ -203,14 +240,14 @@ Logger(){ # Usage: Logger TYPE MESSAGE
 	LogTypeChk "$1" $LogTypes
 
 	if [ -d "${EventLog%/*}" ]; then
-		mkdir -p "${EventLog%/*}" 1> /dev/null
+		mkdir -p "${EventLog%/*}" 1> /dev/null 2>&1
 	fi
 
 	[ -f "$EventLog" ] || 1> "$EventLog"
 
 	# Ensure it's still set safely.
-	chown 0:0 "$EventLog" 1> /dev/null
-	chmod 600 "$EventLog" 1> /dev/null
+	chown 0:0 "$EventLog" 1> /dev/null 2>&1
+	chmod 600 "$EventLog" 1> /dev/null 2>&1
 
 	Secs=`date '+%s'` # <-- Seconds since Epoch.
 	[ -z "$Secs" ] && Err 1 "Logging failure via 'Logger()' detected."
@@ -256,6 +293,8 @@ SigHandler(){
 	if ! rm -f "$HashFile" "$TemRemFile" 1> /dev/null 2>&1; then
 		Logger error "File '$HashFile' and/or '$TemRemFile' failed removal"
 		printf "ERROR: One or more temporary files failed removal.\n" 1>&2
+	else
+		Logger info "Removed '$HashFile' and '$TemRemFile'"
 	fi
 
 	exit $Signal
@@ -291,8 +330,11 @@ fi
 ReadFile(){
 	[ -f "$1" ] || Err 1 "File '$1' not found."
 
+	# In this case, no need to read the file.
+	[ "$Regardless" = 'true' ] && return 0
+
 	while read F1 _; do
-		if [ "$F1" = '#cito' ]; then
+		if [ "$F1" = "#$Progrm" ]; then
 			Logger info "File '$1' is supported by Cito"
 
 			HasCito='true'
@@ -331,7 +373,7 @@ ReadFile(){
 
 DoChown(){ # Usage: DoChown [OWNER:GROUP] [TARGET]
 	[ "$1" = ':' ] && return 1
-	if chown "$1" "$2" 1> /dev/null; then
+	if chown "$1" "$2" 1> /dev/null 2>&1; then
 		Logger info "Successfully changed '$2' to '$1'"
 	else
 		Logger error "Failed to change '$2' to '$1'"
@@ -340,7 +382,7 @@ DoChown(){ # Usage: DoChown [OWNER:GROUP] [TARGET]
 
 DoChmod(){ # Usage: DoChmod [MODE] [TARGET]
 	[ "$1" = '' ] && return 1
-	if chmod "$1" "$2" 1> /dev/null; then
+	if chmod "$1" "$2" 1> /dev/null 2>&1; then
 		Logger info "Successfully changed '$2' to '$1'"
 	else
 		Logger error "Failed to change '$2' to '$1'"
@@ -354,7 +396,7 @@ AskRemove(){
 	if YNInput 'Remove the file?'; then
 		Logger info "Removing pre-existing file '$1'"
 
-		if rm -f "$1" 1> /dev/null; then
+		if rm -f "$1" 1> /dev/null 2>&1; then
 			Logger info "Removed pre-existing file '$1'"
 		else
 			Logger error "Failed to remove pre-existing file '$1'"
@@ -365,21 +407,42 @@ AskRemove(){
 	fi
 }
 
+DoRegardless(){
+	if [ "$Regardless" = 'true' ]; then
+		UserSpec="M:$UserMode O:$UserOwner G:$UserGroup T:$UserTarget"
+		Logger info "User specified '$UserSpec'"
+
+		Mode=$UserMode
+		Owner=$UserOwner
+		Group=$UserGroup
+		Target=$UserTarget
+
+		if [ -f "$Target" ]; then
+			AskRemove "$Target"
+			exit 0
+		fi
+
+		unset UserSpec
+	fi
+}
+
 if [ "$DoRemote" = 'true' ]; then
 	Logger info "Beginning remote operation"
 
 	URL="$RawDomain/$GHUser/$Repo/$Branch/${RemoteFile#/}"
 	Logger info "URL for '$RemoteFile' is '${URL#https://*/}'"
 
-	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null; then
+	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null 2>&1; then
 		if ChkMD5 "$RemoteFile"; then
 			ReadFile "$TemRemFile"
 
-			if [ "$HasCito" = 'true' ]; then
+			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
+				DoRegardless
+
 				DoChown "$Owner:$Group" "$TemRemFile"
 				DoChmod "$Mode" "$TemRemFile"
 
-				if mv "$TemRemFile" "$Target" 1> /dev/null; then
+				if mv "$TemRemFile" "$Target" 1> /dev/null 2>&1; then
 					Logger info "File '$TemRemFile' moved to '$Target'"
 				else
 					Logger error "File '$CurFile' failed to move to '$Target'"
@@ -391,8 +454,13 @@ if [ "$DoRemote" = 'true' ]; then
 			fi
 		fi
 	else
+		if [ -z "$RemoteFile" ]; then
+			Logger error "No remote file specified"
+			Err 1 "No remote file specified -- see: $Progrm -h"
+		fi
+
 		Logger error "File '$RemoteFile' failed to download with '${DLCMD%% *}'"
-		Err 0 "Remote file '$RemoteFile' failed to install."
+		Err 0 "Remote file '$RemoteFile' failed to download."
 	fi
 elif [ $# -gt 0 ]; then
 	Logger info "Beginning local operation"
@@ -403,8 +471,10 @@ elif [ $# -gt 0 ]; then
 		if ChkMD5 "$CurFile"; then
 			ReadFile "$CurFile"
 
-			if [ "$HasCito" = 'true' ]; then
-				if mv "$CurFile" "$Target" 1> /dev/null; then
+			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
+				DoRegardless
+
+				if mv "$CurFile" "$Target" 1> /dev/null 2>&1; then
 					Logger info "File '$CurFile' moved to '$Target'"
 					DoChown "$Owner:$Group" "$Target"
 					DoChmod "$Mode" "$Target"
@@ -424,5 +494,6 @@ elif [ $# -gt 0 ]; then
 		unset HasCito Target Group Owner Mode CurField
 	done
 else
+	Logger info "Appears to be nothing to do"
 	printf "Nothing to do -- quitting.\n"
 fi

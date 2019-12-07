@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/update_hashes.sh
 # Started On        - Thu  5 Dec 19:36:09 GMT 2019
-# Last Change       - Fri  6 Dec 03:40:02 GMT 2019
+# Last Change       - Sat  7 Dec 17:09:22 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -38,10 +38,12 @@ ChkSums(){
 
 if YNInput 'Do you want to save the md5sums?'; then
 	ChkSums > "$SumFile"
-	if YNInput 'Add then commit the file changes?'; then
-		git add "$SumFile"
-		git commit -m "Update 'md5sum' file"
-	fi
+
+	YNInput "Add these changes to the staging area?"\
+		&& git add "$SumFile"
+
+	YNInput "Commit these and any other changes, now?"\
+		&& git commit -m 'Update `'"$SumFile"'`'
 else
 	ChkSums
 fi
