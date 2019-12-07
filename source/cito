@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 17:07:28 GMT 2019
+# Last Change       - Sat  7 Dec 19:08:21 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ NullArg(){ # Usage: NullArg [VARIABLE] [OPTION]
 	[ -z "$1" ] && Err 1 "Null argument for '$2' option."
 }
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--)
 			shift; break ;;
@@ -118,16 +118,23 @@ while [ "$1" ]; do
 			Branch=$3
 			RemoteFile=$4
 
-			ArgCount=0
-			for CurArg in "$1" "$2" "$3" "$4"; do
-				ArgCount=$((ArgCount + 1))
+			RemCount=0
+			for Iter in "x$1" "x$2" "x$3" "x$4"; do
+				RemCount=$((RemCount + 1))
+
+				case $RemCount in
+					1) RemName='USER' ;;
+					2) RemName='REPO' ;;
+					3) RemName='BRANCH' ;;
+					4) RemName='FILE' ;;
+				esac
+
+				if [ "$Iter" = 'x' ]; then
+					Err 1 "Missing '$RemName' for '--remote|-r' option."
+				fi
 			done
 
-			if [ $ArgCount -ne 4 ]; then
-				Err 1 "Argument failure for '--remote|-r' option."
-			fi
-
-			unset CurArg ArgCount ;;
+			unset Iter RemCount RemName ;;
 		--hash|-H)
 			shift; MD5File=$1
 			NullArg "$MD5File" '--hash|-H' ;;
