@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 02:22:48 GMT 2019
+# Last Change       - Sat  7 Dec 14:55:35 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -289,6 +289,8 @@ if [ -n "$LogView" ]; then
 fi
 
 ReadFile(){
+	[ -f "$1" ] || Err 1 "File '$1' not found."
+
 	while read F1 _; do
 		if [ "$F1" = '#cito' ]; then
 			Logger info "File '$1' is supported by Cito"
