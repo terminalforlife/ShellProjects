@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 00:46:09 GMT 2019
+# Last Change       - Sat  7 Dec 00:53:03 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ while [ "$1" ]; do
 					Err 1 "Invalid argument(s) for '--remote|-r' option." ;;
 			esac ;;
 		--hash|-H)
-			shift; MD5File="x$1"
+			shift; MD5File=$1
 
 			if [ -z "$MD5File" ]; then
 				Err 1 "Missing argument for '--hash|-H' option."
