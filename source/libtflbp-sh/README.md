@@ -11,7 +11,7 @@ A more detailed write-up will be here eventually -- grizzly bear with me!
 
 If you're on a Debian- or Ubuntu-based distribution of Linux, installation is no problem. Head on over to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository, then download then install the `libtflbp-sh` package.
 
-If you have Cito, the installation is easy, but currently cumbersome:
+If you have [Cito](https://github.com/terminalforlife/Extra), the installation is easy, but currently cumbersome:
 
 ```bash
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/BaseName
