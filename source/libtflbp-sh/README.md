@@ -3,9 +3,11 @@
 
 # Introduction to Extra/source/libtflbp-sh
 
-These are files in each of which resides a function used in various programs and standard shell scripts I've written and continue to write. These are therefore considered dependencies in those cases. However, these are actually not just any old functions, but pure-Bourne POSIX-compliant functions.
+These are files in each of which resides a function used in various programs and standard shell scripts I've written and continue to write. These are therefore considered dependencies in those cases. However, these are actually not just any old functions, but pure-Bourne [POSIX-compliant](https://en.wikipedia.org/wiki/POSIX) functions.
 
-If you have Cito, the installation is easy, but cumbersome:
+If you're on a Debian- or Ubuntu-based distribution of Linux, installation is no problem. Head on over to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository, then download then install the `libtflbp-sh` package.
+
+If you have Cito, the installation is easy, but currently cumbersome:
 
 ```bash
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/BaseName
@@ -22,8 +24,7 @@ sudo cito -r terminalforlife Extra master source/libtflbp-sh/WCount
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/YNInput
 ```
 
-Once I've ironed out how to specify multiple files with Cito, or perhaps have 'packages' of sorts used by it, then the cumbersome factor should go away.
+Once I've ironed out how to specify multiple files with Cito, or perhaps have 'packages' of sorts used by it, then the cumbersome factor should go away. Admittedly, Cito was written mostly with programs installed to `PATH` in mind.
 
-However, it's even easier if you're on a Debian- or Ubuntu-based distribution of Linux. Head on over to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository, then download and install the libtflbp-sh package.
 
 A more detailed write-up will be here eventually -- grizzly bear with me!
