@@ -23,6 +23,8 @@ Continue to the next section to see how you can get them...
 
 # Instructions for Installation
 
+Before I begin, some of these programs depend on `libtflbp-sh` (get it [here](https://github.com/terminalforlife/Extra/tree/master/source/libtflbp-sh)).
+
 Some of the following commands tell you to use [sudo](https://en.wikipedia.org/wiki/Sudo), but not everybody _has_ that utility; if you're one of those special snowflakes, then you'll likely want to use [su](https://en.wikipedia.org/wiki/Su_\(Unix\)) prior to running the commands otherwise ran with sudo.
 
 You have four options available to you, at the time of writing this:
