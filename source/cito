@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  9 Dec 19:11:08 GMT 2019
+# Last Change       - Mon  9 Dec 19:50:21 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -391,7 +391,6 @@ ReadFile(){
 
 	if [ "$IsFound" = 'true' ]; then
 		AskOverwrite "$Target"
-		#exit 0
 	fi
 }
 
@@ -443,7 +442,6 @@ DoRegardless(){
 
 		if [ -f "$Target" ]; then
 			AskOverwrite "$Target"
-			#exit 0
 		fi
 
 		unset UserSpec
@@ -532,5 +530,6 @@ else
 	exit 0
 fi
 
+# If it happens to make it this far.
 Logger info "Appears to be nothing to do"
 printf "Nothing to do -- quitting.\n"
