@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/update_standard.sh
+# Project Name      - Extra/devutils/standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Fri  6 Dec 03:31:29 GMT 2019
+# Last Change       - Mon  9 Dec 18:45:23 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,9 +18,7 @@
 
 #set -- "$HOME/GitHub/terminalforlife/Personal/Extra/source/lspkg"
 
-POSIXLY_CORRECT='y'
-
-ChkDep grep sed
+ChkDep grep sed id
 
 CurFile=$1
 shift
@@ -29,13 +27,13 @@ if [ -z "$CurFile" ]; then
 	Err 1 "Bash script must be provided."
 elif ! [ -f "$CurFile" -a -r "$CurFile" -a -w "$CurFile" ]; then
 	Err 1 "Bash script missing or inaccessible."
-elif ! grep -qxE '#!/(bin/bash|/usr/bin/env bash)' "$CurFile"; then
+elif ! grep -qxE '#!/(bin/bash|usr/bin/env bash)' "$CurFile"; then
 	Err 1 "Provided file is not a Bash script."
-elif ! [ $UID -eq 1000 -a $USER == 'ichy' ]; then
+elif ! [ ${UID:-`id -u`} -eq 1000 -a ${USER:-`id -un`} == 'ichy' ]; then
 	Err 1 "This script is not for you."
 fi
 
-SaR(){ sed --posix -ri "$*" "$CurFile" &> /dev/null || Err 1 "$*"; }
+SaR(){ sed --posix -ri "$*" "$CurFile" 1> /dev/null 2>&1 || Err 1 "$*"; }
 
 # Prefer `CurVer` over `_VERSION`, and `Progrm` over `_PROJECT_`.
 SaR "s/^_VERSION_=\"(.*)\"/CurVer='\\1'/"
@@ -83,7 +81,7 @@ fi
 # Remove unnecessary `-r` from `read` in `Usage()`.
 LineCount=0
 while read F1 F2 F3 _; do
-	let LineCount++
+	LineCount=$((LineCount + 1))
 
 	[ "$F1" == 'Usage(){' ] && IsUsage='true'
 	if [ "$IsUsage" == 'true' -a "$F1$F2$F3" == 'whileread-r;' ]; then

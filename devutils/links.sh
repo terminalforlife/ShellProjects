@@ -1,9 +1,9 @@
 #!/bin/sh
 
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/update_links.sh
+# Project Name      - Extra/devutils/links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Fri  6 Dec 04:31:57 GMT 2019
+# Last Change       - Mon  9 Dec 18:45:57 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
