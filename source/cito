@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat  7 Dec 19:23:14 GMT 2019
+# Last Change       - Mon  9 Dec 00:04:18 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -23,10 +23,10 @@
 . /usr/lib/tflbp-sh/CutStr
 . /usr/lib/tflbp-sh/YNInput
 
-CurVer='2019-12-07'
+CurVer='2019-12-09'
 Progrm=${0##*/}
 
-EventLog="/var/log/$Progrm-events.log"
+EventLog="/var/log/${Progrm}-events.log"
 RawDomain='https://raw.githubusercontent.com'
 LogTypes='all info warning error'
 
