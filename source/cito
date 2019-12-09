@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  9 Dec 00:36:06 GMT 2019
+# Last Change       - Mon  9 Dec 00:51:28 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,6 +17,8 @@
 #
 # The word 'cito' (/ˈki.toː/) is a Latin adverb, to mean 'swift'.
 #----------------------------------------------------------------------------------
+
+#TODO - ...something.
 
 set -e
 . /usr/lib/tflbp-sh/Err
@@ -137,7 +139,12 @@ while [ -n "$1" ]; do
 				fi
 			done
 
-			unset Iter RemCount RemName ;;
+			unset Iter RemCount RemName
+
+			# Stop processing regular arguments and have all following arguments
+			# be processed later (in a for loop for the remote section) for getting
+			# multiple remote files in one command execution.
+			break ;;
 		--hash|-H)
 			shift; MD5File=$1
 			NullArg "$MD5File" '--hash|-H' ;;
@@ -441,9 +448,7 @@ DoRegardless(){
 	fi
 }
 
-if [ "$DoRemote" = 'true' ]; then
-	Logger info "Beginning remote operation"
-
+MainRemote(){
 	URL="$RawDomain/$GHUser/$Repo/$Branch/${RemoteFile#/}"
 	Logger info "URL for '$RemoteFile' is '${URL#https://*/}'"
 
@@ -477,7 +482,18 @@ if [ "$DoRemote" = 'true' ]; then
 		Logger error "File '$RemoteFile' failed to download with '${DLCMD%% *}'"
 		Err 0 "Remote file '$RemoteFile' failed to download."
 	fi
-elif [ $# -gt 0 ]; then
+}
+
+if [ "$DoRemote" = 'true' ]; then
+	Logger info "Beginning remote operation"
+
+	for CurRemFile in "$@"; do
+		MainRemote "$CurRemFile"
+	done
+else
+	# Pretty sure this is handled elsewhere, but just in-case, catch it.
+	[ $# -eq 0 ] && Err 1 'No local files were provided.'
+
 	Logger info "Beginning local operation"
 
 	for CurFile in "$@"; do
