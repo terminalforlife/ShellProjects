@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  9 Dec 00:04:18 GMT 2019
+# Last Change       - Mon  9 Dec 00:16:17 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -374,7 +374,7 @@ ReadFile(){
 
 	if [ "$IsFound" = 'true' ]; then
 		AskRemove "$Target"
-		exit 0
+		#exit 0
 	fi
 }
 
@@ -400,17 +400,17 @@ AskRemove(){
 	Logger warning "File '$1' in '${1%/*}' already exists"
 
 	printf "File '%s' found.\n" "$1" 1>&2
-	if YNInput 'Remove the file?'; then
-		Logger info "Removing pre-existing file '$1'"
+	if YNInput 'Overwrite the file?'; then
+		Logger info "Overwriting pre-existing file '$1'"
 
 		if rm -f "$1" 1> /dev/null 2>&1; then
-			Logger info "Removed pre-existing file '$1'"
+			Logger info "Overwrote pre-existing file '$1'"
 		else
-			Logger error "Failed to remove pre-existing file '$1'"
-			Err 1 "Unable to remove '$1' file."
+			Logger error "Failed to overwrite pre-existing file '$1'"
+			Err 1 "Unable to overwrite '$1' file."
 		fi
 	else
-		Logger info "NOT removing pre-existing file '$1'"
+		Logger info "NOT overwriting pre-existing file '$1'"
 	fi
 }
 
@@ -426,7 +426,7 @@ DoRegardless(){
 
 		if [ -f "$Target" ]; then
 			AskRemove "$Target"
-			exit 0
+			#exit 0
 		fi
 
 		unset UserSpec
