@@ -71,6 +71,7 @@ d44383a18f78293adecf5842b65e4b90  source/libtflbp-sh/DirName
 6e86f6e5a529609454a2a45e4ee48575  source/libtflbp-sh/LCount
 e6d88e3f2dea4e911ddb33511121d2bd  source/libtflbp-sh/LibFChk
 422f4320fee6038fbe7ed1c0fd174f59  source/libtflbp-sh/LibTFLBPVer
+27f530c3179adffc7614dda23e55d06c  source/libtflbp-sh/README.md
 c4788b3d67bd2660c220c44248206a65  source/libtflbp-sh/SplitStr
 6e1f35dc07563a27e4b741aed97ed93c  source/libtflbp-sh/WCount
 6bcc1e38ebf0899786fe4bab9973803b  source/libtflbp-sh/YNInput

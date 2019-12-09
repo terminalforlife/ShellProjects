@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/versions.sh
 # Started On        - Fri 25 Oct 12:41:34 BST 2019
-# Last Change       - Sat  7 Dec 00:18:57 GMT 2019
+# Last Change       - Mon  9 Dec 00:01:33 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,10 +18,6 @@ cd "$HOME/GitHub/terminalforlife/Personal/Extra"
 
 VerFile='versions'
 
-YNInput "Update the contents of '$VerFile' file?"\
-	&& DoUpdate='true'
-
-1> "$VerFile"
 for CurFile in source/*; do
 	[ -f "$CurFile" ] || continue
 
@@ -43,16 +39,14 @@ for CurFile in source/*; do
 			fi
 		done < "$CurFile"
 
-		if [ "$DoUpdate" = 'true' ]; then
-			printf "${CurFile##*/}=$Version\n" >> "$VerFile"
-		else
-			printf "${CurFile##*/}=$Version\n"
-		fi
+		printf "${CurFile##*/}=$Version\n"
 	fi
-done
+done 1> "$VerFile"
 
-YNInput "Add these changes to the staging area?"\
-	&& git add "$VerFile"
+if YNInput "Add these changes to the staging area?"; then
+	git add "$VerFile"
 
-YNInput "Commit these and any other changes, now?"\
-	&& git commit -m 'Update `'"$VerFile"'`'
+	if YNInput "Commit these and any other changes, now?"; then
+		git commit -m 'Update `'"$VerFile"'`'
+	fi
+fi
