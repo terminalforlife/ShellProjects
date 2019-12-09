@@ -10,7 +10,7 @@ c487909ccb6c7ed9bbe40e09ada718b6  source/bl
 7fe2e5d26e06598ad67878790202dcd0  source/capnum
 1dfa42d74b93e65678a50121e51e9bcd  source/catmedia
 7fe92543b49b4628d162e3bcee87347c  source/ccfiles
-3533ee4588b75b31f99620c2a4d31956  source/cito
+d1a1f7fbe45df0800d210775224364ce  source/cito
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
 2c8f14f9739e72e0245496ea09cac452  source/dl-tuxradar-podcasts
 81c727285650de42d6cfa7f18ee34c56  source/dl-ubuntu-podcasts
@@ -53,7 +53,7 @@ a91327f74b83c68f7e15212029ef2a88  source/nts
 ca6017d03ed843cb2a68995727c23d2d  source/roks
 284c67a7c228c26683520767f8fd108f  source/seewttr
 f9e4eb5d3c11224a55b04e77ae61968d  source/shlides
-7a09059b7abd1fbd6884d2af88d0ad58  source/simplify-ubuntu
+c46341b7590cd70b8dfceef3a5f5862d  source/simplify-ubuntu
 75f995e75803f280d3ab05bae92890dc  source/simwea
 4bdf6331e259902e0e71389e3f047d88  source/snotes
 550f0f544209115b56762412b8ed68b6  source/swap-file

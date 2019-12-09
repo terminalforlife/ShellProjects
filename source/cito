@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  9 Dec 00:51:28 GMT 2019
+# Last Change       - Mon  9 Dec 19:11:08 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,8 +17,6 @@
 #
 # The word 'cito' (/ˈki.toː/) is a Latin adverb, to mean 'swift'.
 #----------------------------------------------------------------------------------
-
-#TODO - ...something.
 
 set -e
 . /usr/lib/tflbp-sh/Err
@@ -81,13 +79,13 @@ Usage(){
 
 		\rEXAMPLE:    Remote operations...
 
-		\r              $Progrm -r [USER] [REPO] [BRANCH] [FILE]
+		\r              $Progrm -r [USER] [REPO] [BRANCH] [FILE_1 [FILE_2] ...]
 		\r              $Progrm -M [MODE] -O [OWNER] -G [GROUP] -T [TARGET] -r ...
-		\r              $Progrm -H [MD5_FILE] -r ...
+		\r              $Progrm --hash [MD5_FILE] -r ...
 
 		\r            Local operations...
 
-		\r              $Progrm [FILE_1] [FILE_2] [FILE_3]
+		\r              $Progrm --clobber [FILE_1 [FILE_2] ...]
 		\r              $Progrm -H [MD5_FILE] [FILE_1 [FILE_2] ...]
 
 		\rFILE:       $EventLog
@@ -121,22 +119,22 @@ while [ -n "$1" ]; do
 			GHUser=$1
 			Repo=$2
 			Branch=$3
-			RemoteFile=$4
 
 			RemCount=0
-			for Iter in "x$1" "x$2" "x$3" "x$4"; do
+			for Iter in "x$GHUser" "x$Repo" "x$Branch"; do
 				RemCount=$((RemCount + 1))
 
 				case $RemCount in
 					1) RemName='USER' ;;
 					2) RemName='REPO' ;;
 					3) RemName='BRANCH' ;;
-					4) RemName='FILE' ;;
 				esac
 
 				if [ "$Iter" = 'x' ]; then
 					Err 1 "Missing '$RemName' for '--remote|-r' option."
 				fi
+
+				shift
 			done
 
 			unset Iter RemCount RemName
@@ -173,6 +171,10 @@ while [ -n "$1" ]; do
 	esac
 	shift
 done
+
+if [ "$DoRemote" = 'true' -a $# -eq 0 ]; then
+	Err 1 "Missing one or more 'FILE' for '--remote|-r' option."
+fi
 
 unset -f NullArg
 
@@ -449,11 +451,11 @@ DoRegardless(){
 }
 
 MainRemote(){
-	URL="$RawDomain/$GHUser/$Repo/$Branch/${RemoteFile#/}"
-	Logger info "URL for '$RemoteFile' is '${URL#https://*/}'"
+	URL="$RawDomain/$GHUser/$Repo/$Branch/${1#/}"
+	Logger info "URL for '$1' is '${URL#https://*/}'"
 
 	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null 2>&1; then
-		if ChkMD5 "$RemoteFile"; then
+		if ChkMD5 "$1"; then
 			ReadFile "$TemRemFile" || exit 0
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
@@ -469,18 +471,18 @@ MainRemote(){
 				fi
 			else
 				Logger error "File '$CurFile' is NOT supported by Cito"
-				Err 0 "File '$RemoteFile' is not supported by Cito."
+				Err 0 "File '$1' is not supported by Cito."
 				continue
 			fi
 		fi
 	else
-		if [ -z "$RemoteFile" ]; then
+		if [ -z "$1" ]; then
 			Logger error "No remote file specified"
 			Err 1 "No remote file specified -- see: $Progrm -h"
 		fi
 
-		Logger error "File '$RemoteFile' failed to download with '${DLCMD%% *}'"
-		Err 0 "Remote file '$RemoteFile' failed to download."
+		Logger error "File '$1' failed to download with '${DLCMD%% *}'"
+		Err 0 "Remote file '$1' failed to download."
 	fi
 }
 
@@ -490,6 +492,8 @@ if [ "$DoRemote" = 'true' ]; then
 	for CurRemFile in "$@"; do
 		MainRemote "$CurRemFile"
 	done
+
+	exit 0
 else
 	# Pretty sure this is handled elsewhere, but just in-case, catch it.
 	[ $# -eq 0 ] && Err 1 'No local files were provided.'
@@ -524,7 +528,9 @@ else
 
 		unset HasCito Target Group Owner Mode CurField
 	done
-else
-	Logger info "Appears to be nothing to do"
-	printf "Nothing to do -- quitting.\n"
+
+	exit 0
 fi
+
+Logger info "Appears to be nothing to do"
+printf "Nothing to do -- quitting.\n"
