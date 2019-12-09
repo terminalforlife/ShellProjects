@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  9 Dec 00:28:11 GMT 2019
+# Last Change       - Mon  9 Dec 00:36:06 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,10 +18,12 @@
 # The word 'cito' (/ˈki.toː/) is a Latin adverb, to mean 'swift'.
 #----------------------------------------------------------------------------------
 
+set -e
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
 . /usr/lib/tflbp-sh/CutStr
 . /usr/lib/tflbp-sh/YNInput
+set +e
 
 CurVer='2019-12-09'
 Progrm=${0##*/}
