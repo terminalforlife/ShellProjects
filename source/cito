@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  9 Dec 00:16:17 GMT 2019
+# Last Change       - Mon  9 Dec 00:28:11 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -46,6 +46,7 @@ Usage(){
 		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
 		\r            --remote|-r INFO        - Specify a remote file; see REMOTE.
 		\r            --hash|-H FILE          - Use FILE to cross-check hashes.
+		\r            --clobber|-c            - Overwrite files without prompting.
 		\r            --mode|-M MODE          - Where MODE is, IE: '755'.
 		\r            --owner|-O OWNER        - Where OWNER is, IE: '0'.
 		\r            --group|-G GROUP        - Where GROUP is, IE: '0'.
@@ -138,6 +139,8 @@ while [ -n "$1" ]; do
 		--hash|-H)
 			shift; MD5File=$1
 			NullArg "$MD5File" '--hash|-H' ;;
+		--clobber|-c)
+			Clobber='true' ;;
 		--mode|-M)
 			shift; UserMode=$1
 			Regardless='true'
@@ -335,7 +338,10 @@ if [ -n "$LogView" ]; then
 fi
 
 ReadFile(){
-	[ -f "$1" ] || Err 1 "File '$1' not found."
+	if ! [ -f "$1" ]; then
+		Err 0 "File '$1' not found."
+		return 1
+	fi
 
 	# In this case, no need to read the file.
 	[ "$Regardless" = 'true' ] && return 0
@@ -373,7 +379,7 @@ ReadFile(){
 	done < "$1"
 
 	if [ "$IsFound" = 'true' ]; then
-		AskRemove "$Target"
+		AskOverwrite "$Target"
 		#exit 0
 	fi
 }
@@ -396,11 +402,11 @@ DoChmod(){ # Usage: DoChmod [MODE] [TARGET]
 	fi
 }
 
-AskRemove(){
+AskOverwrite(){
 	Logger warning "File '$1' in '${1%/*}' already exists"
 
-	printf "File '%s' found.\n" "$1" 1>&2
-	if YNInput 'Overwrite the file?'; then
+	[ "$Clobber" = 'true' ] || printf "File '%s' found.\n" "$1" 1>&2
+	if [ "$Clobber" = 'true' ] || YNInput 'Overwrite the file?'; then
 		Logger info "Overwriting pre-existing file '$1'"
 
 		if rm -f "$1" 1> /dev/null 2>&1; then
@@ -425,7 +431,7 @@ DoRegardless(){
 		Target=$UserTarget
 
 		if [ -f "$Target" ]; then
-			AskRemove "$Target"
+			AskOverwrite "$Target"
 			#exit 0
 		fi
 
@@ -441,7 +447,7 @@ if [ "$DoRemote" = 'true' ]; then
 
 	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null 2>&1; then
 		if ChkMD5 "$RemoteFile"; then
-			ReadFile "$TemRemFile"
+			ReadFile "$TemRemFile" || exit 0
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
@@ -476,7 +482,7 @@ elif [ $# -gt 0 ]; then
 		Logger info "Processing '$CurFile'"
 
 		if ChkMD5 "$CurFile"; then
-			ReadFile "$CurFile"
+			ReadFile "$CurFile" || continue
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
