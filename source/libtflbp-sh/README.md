@@ -19,10 +19,12 @@ sudo cito -r terminalforlife Extra master source/libtflbp-sh/ChkDep
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/CutStr
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/DirName
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/Err
+sudo cito -r terminalforlife Extra master source/libtflbp-sh/FirstLook
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/GetInsPkgs
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/LCount
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/LibFChk
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/LibTFLBPVer
+sudo cito -r terminalforlife Extra master source/libtflbp-sh/OneSearch
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/SplitStr
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/WCount
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/YNInput
