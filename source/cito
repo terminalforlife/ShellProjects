@@ -3,18 +3,10 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  9 Dec 19:50:21 GMT 2019
+# Last Change       - Tue 10 Dec 16:23:32 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
-# This will simply install one or more programs from this repository. If on
-# Debian-based distribution, I recommend that you instead use the Debian (DEB)
-# packages I've built for just this purpose, that way your in-house package manager
-# can deal with it.
-#
-# However, you may wish to forgo the aforementioned packages in favor of the latest
-# version of whichever program, or even using the dev branch if you're crazy.
-#
 # The word 'cito' (/ˈki.toː/) is a Latin adverb, to mean 'swift'.
 #----------------------------------------------------------------------------------
 
@@ -25,7 +17,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2019-12-09'
+CurVer='2019-12-10'
 Progrm=${0##*/}
 
 EventLog="/var/log/${Progrm}-events.log"
