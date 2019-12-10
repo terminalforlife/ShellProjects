@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/buildpkg.sh
 # Started On        - Sat 23 Nov 00:28:26 GMT 2019
-# Last Change       - Mon  9 Dec 18:46:17 GMT 2019
+# Last Change       - Tue 10 Dec 00:50:19 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -41,11 +41,8 @@ BuildStore="$HOME/Documents/TT"
 GitHub="$HOME/GitHub/terminalforlife/Personal/Extra/source"
 ProgName=$1
 
-# The build version of the program above.
-if [ -n "$2" ]; then
-	Version=$2
-else
-	Version=`bash $GitHub/$ProgName -v`
+if [ $# -eq 0 ]; then
+	Err 1 "Argument '\$1' must be the '\$ProgName'."
 fi
 
 PKGName="${ProgName}_${Version}_all.deb"
@@ -53,7 +50,27 @@ BuildConv="pkg-debian ($ProgName)"
 WorkDir="$HOME/Desktop"
 EDITOR=${EDITOR:-vim}
 
-ChkDep id cp dpkg-deb find chown chmod bash stat sed
+ChkDep id cp dpkg-deb find chown chmod bash stat sed head basename md5sum
+
+# The build version of the program above.
+if [ -n "$2" ]; then
+	case $2 in
+		[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])
+			Version=$2 ;;
+		''|*)
+			Err 1 "Invalid '\$Version' string in argument '\$2'." ;;
+	esac
+else
+	GetHead=`head -n 1 "$GitHub/$ProgName"`
+	case $GetHead in
+		'#!/usr/bin/env bash'|'#!/bin/bash')
+			Version=`bash "$GitHub/$ProgName" -v` ;;
+		'#!/bin/sh'|'#!/usr/bin/env sh')
+			Version=`sh "$GitHub/$ProgName" -v` ;;
+		*)
+			Err 1 "Unable to parse the '$ProgName' shebang." ;;
+	esac
+fi
 
 if [ `id -u` -ne 0 ]; then
 	Err 1 'Root access is required for this operation.'
@@ -108,6 +125,11 @@ else
 
 	printf "Updated from '${OldVersion:-N/A}' to '${Version:-N/A}'.\n"
 fi
+
+(
+	cd "$GitHub"
+	md5sum "$ProgName" > "$WorkDir/$BuildConv/DEBIAN/md5sums"
+)
 
 printf "Beginning work on 'DEBIAN/control' file...\n"
 printf "[O]pen or [j]ust update version string: "

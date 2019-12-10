@@ -23,36 +23,25 @@ Continue to the next section to see how you can get them...
 
 # Instructions for Installation
 
-Before I begin, some of these programs depend on `libtflbp-sh` (get it [here](https://github.com/terminalforlife/Extra/tree/master/source/libtflbp-sh)).
+Before I begin, some of these programs, including Cito, depend on `libtflbp-sh` (get it [here](https://github.com/terminalforlife/Extra/tree/master/source/libtflbp-sh)).
 
 Some of the following commands tell you to use [sudo](https://en.wikipedia.org/wiki/Sudo), but not everybody _has_ that utility; if you're one of those special snowflakes, then you'll likely want to use [su](https://en.wikipedia.org/wiki/Su_\(Unix\)) prior to running the commands otherwise ran with sudo.
 
 You have four options available to you, at the time of writing this:
 
-  * You can install via one of the many Debian packages I've built and stored within the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository. This won't guarantee the latest version, however, but it's the easiest method, provided you're on a Debian-based installation of Linux.
+  * You can install via one of the many Debian packages I've built and stored within the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository. This won't guarantee the latest version, however, but it's the easiest method, provided you're on a Debian-based installation of Linux, and as of 2019-12-10, multiple versions will become available for the foreseeable future.
 
-    1. Browse [here](https://github.com/terminalforlife/DEB-Packages) to the DEB-Packages repository.
-    2. Left-click on the package filename you want to download.
-    3. Left-click on the 'Download' button or 'View raw' link.
-    4. Choose location to download and store the Debian package.
-    5. Open up a terminal either at or then browse to that location.
-    6. Run: `sudo dpkg -i PKG` (where `PKG` is the package to install)
+  * You can install via the new, exhaustive [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito) program I've written for just this purpose. It's lightweight, portable, and installable with the following one-liner, after which many programs or files on GitHub or locally are quick, robust, and painless to install -- not just my own!
 
-  * You can install via the new, exhaustive [Cito](https://github.com/terminalforlife/Extra/source/blob/master/cito) program I've written for just this purpose. It's lightweight, portable, and installable with a few commands, after which many programs or files on GitHub or locally are quick, robust, and painless to install -- not just my own!
+    ```bash
+    wget -qO cito 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito'; sudo sh cito cito
+    ```
 
-    1. Open up a terminal, and keep it open until this is done.
-    2. Run: `TempFile=$(mktemp); DomLink='https://raw.githubusercontent.com'`
-    3. Run: `wget -qO "$TempFile" "$DomLink/terminalforlife/Extra/master/source/cito"`
-    4. Run: `sudo chown 0:0 "$TempFile"; sudo chmod 755 "$TempFile"`
-    5. Run: `sudo mv "$TempFile" /usr/bin/cito`
+  * If you're on a Debian- or Ubuntu-based distribution of Linux:
 
-  * If you're on a Debian- or Ubuntu-based distribution of Linux, your best bet is:
-
-    1. Open up a terminal, and keep it open until this is done.
-    2. Run: `DebPkg='cito_2019-12-07_all.deb'; DomLink='https://raw.githubusercontent.com'`
-    3. Run: `wget -qO "$DebPkg" "$DomLink/terminalforlife/DEB-Packages/master/$DebPkg"`
-    4. Run: `sudo dpkg -i "$DebPkg" && rm "$DebPkg"`
-    5. Now you need only run `cito --help` to see how to use it!
+    ```bash
+    wget -qO cito.deb "https://raw.githubusercontent.com/terminalforlife/DEB-Packages/master/cito/cito.deb; sudo dpkg -i cito.deb; rm cito.deb`
+    ```
 
   * It's clunky and it's inconvenient, but if you must, you can clone this repository then install them yourself, line-by-line.
 
