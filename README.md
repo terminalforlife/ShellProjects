@@ -40,7 +40,7 @@ You have four options available to you, at the time of writing this:
   * If you're on a Debian- or Ubuntu-based distribution of Linux:
 
     ```bash
-    wget -qO cito.deb "https://raw.githubusercontent.com/terminalforlife/DEB-Packages/master/cito/cito.deb; sudo dpkg -i cito.deb; rm cito.deb`
+    wget -qO cito.deb 'https://raw.githubusercontent.com/terminalforlife/DEB-Packages/master/cito/cito.deb'; sudo dpkg -i cito.deb; rm cito.deb
     ```
 
   * It's clunky and it's inconvenient, but if you must, you can clone this repository then install them yourself, line-by-line.
