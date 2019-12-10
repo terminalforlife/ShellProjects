@@ -1,0 +1,37 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Tue 10 Dec 02:09:33 GMT 2019
+# Last Change       - Tue 10 Dec 02:52:41 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+OneSearch(){ # Usage: OneSearch [GLOB] [FILE_1 [FILE_2] ...]
+	Glob=$1
+	shift 1
+
+	[ $# -eq 0 ] && return 4
+
+	for CurFile in "$@"; do
+		if [ -f "$CurFile" ] && [ -r "$CurFile" ]; then
+			while read CurLine; do
+				case $CurLine in
+					$Glob) return 0 ;;
+				esac
+			done < "$CurFile"
+
+			unset CurLine Glob CurFile
+			return 1
+		else
+			printf "ERROR: File '%s' missing or unreadable.\n" "$CurFile" 1>&2
+			unset Glob CurFile
+			return 2
+		fi
+	done
+}
