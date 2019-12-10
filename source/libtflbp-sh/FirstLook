@@ -1,0 +1,30 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Tue 10 Dec 02:56:10 GMT 2019
+# Last Change       - Tue 10 Dec 03:01:11 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+FirstLook(){ # Usage: FirstLook [GLOB] [FILE]
+	[ $# -lt 2 ] && return 4
+
+	if [ -f "$2" ] && [ -r "$2" ]; then
+		read Line < "$2"
+		case $Line in
+			$1) return 0 ;;
+		esac
+
+		unset Line
+		return 1
+	else
+		printf "ERROR: File '%s' missing or unreadable.\n" "$2" 1>&2
+		return 2
+	fi
+}
