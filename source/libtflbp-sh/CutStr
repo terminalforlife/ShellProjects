@@ -23,7 +23,7 @@ CutStr(){ # Cut string $3 by $1 delimiter, displaying $2 field(s).
 		for CurField in "$@"; do
 			Count=$((Count + 1))
 			if [ $Count -eq $CutField ]; then
-				printf "%s%s" "$CurField" "$IFS"
+				printf "%s" "$CurField"
 				break 1
 			fi
 		done
