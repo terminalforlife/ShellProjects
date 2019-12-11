@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Wed 11 Dec 02:00:59 GMT 2019
+# Last Change       - Wed 11 Dec 02:52:35 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ Usage(){
 		\r            BACKMEUP ($CurVer)
 		\r            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		\r            Simple Bourne POSIX tool to quickly and easily back up your HOME.
+		\r            Simple, speedy Bourne POSIX tool to perform HOME backups.
 
 		\rSYNTAX:     $Progrm [OPTS]
 
