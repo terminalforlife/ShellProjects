@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Mon  9 Dec 18:45:23 GMT 2019
+# Last Change       - Tue 10 Dec 23:07:37 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,7 +18,7 @@
 
 #set -- "$HOME/GitHub/terminalforlife/Personal/Extra/source/lspkg"
 
-ChkDep grep sed id
+ChkDep grep sed id date
 
 CurFile=$1
 shift
@@ -29,7 +29,7 @@ elif ! [ -f "$CurFile" -a -r "$CurFile" -a -w "$CurFile" ]; then
 	Err 1 "Bash script missing or inaccessible."
 elif ! grep -qxE '#!/(bin/bash|usr/bin/env bash)' "$CurFile"; then
 	Err 1 "Provided file is not a Bash script."
-elif ! [ ${UID:-`id -u`} -eq 1000 -a ${USER:-`id -un`} == 'ichy' ]; then
+elif ! [ ${UID:-`id -u`} -eq 1000 -a ${USER:-`id -un`} = 'ichy' ]; then
 	Err 1 "This script is not for you."
 fi
 
@@ -68,13 +68,13 @@ SaR 's|(1>\|>) /dev/null 2>&1|\&> /dev/null|g'
 
 # Update the header's timestamp.
 if Str=`grep -x '# Last Change\s\+- .*' "$CurFile"`; then
-	printf -v CurDate "%(%a %_d %b %T %Z %Y)T" -1
+	CurDate=`date '+%a %_d %b %T %Z %Y'`
 	SaR "s/${Str#* - }$/$CurDate/"
 fi
 
 # Update the `CurVer` timestamp.
 if Str=`grep "^CurVer='.*" "$CurFile"`; then
-	printf -v CurDate "%(%F)T" -1
+	CurDate=`date '+%F'`
 	SaR "s/$Str/CurVer='$CurDate'/"
 fi
 
@@ -83,8 +83,8 @@ LineCount=0
 while read F1 F2 F3 _; do
 	LineCount=$((LineCount + 1))
 
-	[ "$F1" == 'Usage(){' ] && IsUsage='true'
-	if [ "$IsUsage" == 'true' -a "$F1$F2$F3" == 'whileread-r;' ]; then
+	[ "$F1" = 'Usage(){' ] && IsUsage='true'
+	if [ "$IsUsage" = 'true' -a "$F1$F2$F3" = 'whileread-r;' ]; then
 		SaR "${LineCount}s/while read -r/while read/"
 		break
 	fi

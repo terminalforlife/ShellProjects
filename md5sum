@@ -1,7 +1,7 @@
 e4ad82b7bd1b569150f62d1eaf9df377  source/als
 affac8763cf921f025f0ad2e31d21cf8  source/autoscrot
 fcee5e3e7e005764bce54de2a11025f0  source/autosh
-b2055cb3ef46f825c2ad43dea45077a0  source/backmeup
+7cc1f53070e51025a9f57a2cb080e8ad  source/backmeup
 bb63aac3729b547205eed4cb1b13d8cb  source/barred
 ed285eabd4c74f42802d524772bd23a0  source/bdl
 24ff6a24a5caa935603288156ea38516  source/bios-info
@@ -10,7 +10,7 @@ c487909ccb6c7ed9bbe40e09ada718b6  source/bl
 7fe2e5d26e06598ad67878790202dcd0  source/capnum
 1dfa42d74b93e65678a50121e51e9bcd  source/catmedia
 7fe92543b49b4628d162e3bcee87347c  source/ccfiles
-938b896e3c292d3e89edaa2bab966653  source/cito
+3a4ac6ef71c920fee73673e2f62bbe35  source/cito
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
 2c8f14f9739e72e0245496ea09cac452  source/dl-tuxradar-podcasts
 81c727285650de42d6cfa7f18ee34c56  source/dl-ubuntu-podcasts
@@ -64,14 +64,16 @@ f242c8e891b9f2ee7108d19518052720  source/tfl-ubuntu-setup
 a13f277c1778355209795cad73ef595a  source/ubuntu-syschk
 1b1af38b2ace594838d0b864ea76c8e8  source/libtflbp-sh/BaseName
 179186a482912d383e025bbb06facb14  source/libtflbp-sh/ChkDep
-b1f4cdf15b82e1f1321c74d0292d1edf  source/libtflbp-sh/CutStr
+5205ebda0de57239bae9dc400be9446e  source/libtflbp-sh/CutStr
 d44383a18f78293adecf5842b65e4b90  source/libtflbp-sh/DirName
 78beda02550c9597f894f1f2743e21a5  source/libtflbp-sh/Err
+cd68cf172b63579f02ba7ff1ae776911  source/libtflbp-sh/FirstLook
 891bc4888841d7a374d9b3bf38ed8f4a  source/libtflbp-sh/GetInsPkgs
 6e86f6e5a529609454a2a45e4ee48575  source/libtflbp-sh/LCount
 e6d88e3f2dea4e911ddb33511121d2bd  source/libtflbp-sh/LibFChk
 422f4320fee6038fbe7ed1c0fd174f59  source/libtflbp-sh/LibTFLBPVer
-27f530c3179adffc7614dda23e55d06c  source/libtflbp-sh/README.md
+cb41cafcb9309edd46175d49d67190f7  source/libtflbp-sh/OneSearch
+572f04756eb9d49eac8782c504933494  source/libtflbp-sh/README.md
 c4788b3d67bd2660c220c44248206a65  source/libtflbp-sh/SplitStr
 6e1f35dc07563a27e4b741aed97ed93c  source/libtflbp-sh/WCount
 6bcc1e38ebf0899786fe4bab9973803b  source/libtflbp-sh/YNInput
