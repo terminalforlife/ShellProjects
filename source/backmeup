@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Wed 11 Dec 02:52:35 GMT 2019
+# Last Change       - Thu 12 Dec 01:20:31 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2019-12-11'
+CurVer='2019-12-12'
 Progrm=${0##*/}
 
 MainDir="$HOME/.config/$Progrm"
@@ -31,7 +31,7 @@ Usage(){
 
 		\r            Simple, speedy Bourne POSIX tool to perform HOME backups.
 
-		\rSYNTAX:     $Progrm [OPTS]
+		\rSYNTAX:     $Progrm [OPTS] [FILE_1 [FILE_2] ...]
 
 		\rOPTS:       --help|-h|-?            - Displays this help information.
 		\r            --version|-v            - Output only the version datestamp.
@@ -40,6 +40,9 @@ Usage(){
 		\r            --exclude|-E PATH       - Override default exclusions file with PATH.
 		\r            --command|-C CMD        - Run CMD when $Progrm has finished.
 		\r            --notify|-N             - Notify after completion, via notify-send.
+
+		\r            Where FILE is a path to an alternative location, be it a directory
+		\r            or file, overriding the default of the current user's HOME.
 
 		\rEXCLUDE:    To ignore files which would otherwise be added to the archive, you
 		\r            must create an 'exclude' file (see below) which will then be used.
@@ -85,8 +88,10 @@ while [ "$1" ]; do
 			fi ;;
 		--notify|-N)
 			Notify='true' ;;
-		*)
+		-*)
 			Err 1 "Incorrect argument(s) specified." ;;
+		*)
+			break ;;
 	esac
 	shift
 done
@@ -124,9 +129,9 @@ SigHandler(){
 }
 
 trap SigHandler INT HUP TERM ABRT QUIT
-
-TarArgs='--posix --xattrs --ignore-failed-read --one-file-system'
-tar $TarArgs $Verbose "$Exclude" -czpf "${Store%/}/$Archive" "$HOME" 2> /dev/null
+#--ignore-failed-read
+TarArgs='--posix --xattrs --one-file-system --gzip --preserve-permissions'
+tar $TarArgs $Verbose "$Exclude" -cf "${Store%/}/$Archive" "${@:-$HOME}" 2> /dev/null
 ExitStatus=$?
 
 trap 'printf "\rERROR: Wait, to avoid data loss.\n" 1>&2' INT HUP TERM ABRT QUIT
