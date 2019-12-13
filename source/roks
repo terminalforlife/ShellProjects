@@ -21,7 +21,7 @@ Usage(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Remove old kernel versions on an Ubuntu- or Debian-based system.
 

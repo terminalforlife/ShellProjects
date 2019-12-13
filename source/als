@@ -27,7 +27,7 @@ Usage(){
 		printf "%b\n" "$CurLine"
 	done <<-EOF
 		\r            ALS ($CurVer)
-		\r            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 		\r
 		\r            A portable Bourne Shell filesystem traversal utility.
 		\r

@@ -23,7 +23,7 @@ USAGE(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${_PROJECT_^^} - GitHub IP Check ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Check the validity of IP addresses of GitHub servers.
 

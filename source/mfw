@@ -29,7 +29,7 @@ USAGE(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${_PROJECT_^^} - Mint Forum Watch ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Notifier for page-one threads on the Newbie Questions Linux Mint forum.
 

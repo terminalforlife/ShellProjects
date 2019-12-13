@@ -27,7 +27,7 @@ Usage(){
 		printf "%b\n" "$CurLine"
 	done <<-EOF
 		\r            RMNE ($CurVer)
-		\r            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		\r            POSIX Bourne method to remove non-essential Debian packages.
 

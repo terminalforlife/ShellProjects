@@ -26,7 +26,7 @@ Usage(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Search through, test for, and list out installed packages.
 

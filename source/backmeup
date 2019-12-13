@@ -27,7 +27,7 @@ Usage(){
 		printf '%b\n' "$CurLine"
 	done <<-EOF
 		\r            BACKMEUP ($CurVer)
-		\r            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		\r            Simple, speedy Bourne POSIX tool to perform HOME backups.
 

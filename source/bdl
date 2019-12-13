@@ -1,164 +1,153 @@
-#!/bin/bash
+#!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/bdl
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/bdl (Batch Downloader)
 # Started On        - Sat 16 Sep 22:34:12 BST 2017
-# Last Change       - Fri  6 Dec 22:46:09 GMT 2019
+# Last Change       - Fri 13 Dec 02:56:43 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+CurVer='2019-12-13'
+Progrm=${0##*/}
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+MainDir="$HOME/.config/$Progrm"
+EdFile="$MainDir/editor"
+BDLFile="$MainDir/queue"
+
+Usage(){
+	while read -r CurLine; do
+		printf "%b\n" "$CurLine"
 	done <<-EOF
-		            ${_PROJECT_^^} - BATCH DOWNLOADER ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            BDL ($CurVer)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
-		            Easily and quickly download a batch of files using wget.
+		\r            Simple Bourne POSIX solution to downloading multiple files.
 
-		SYNTAX:     $_PROJECT_ [OPTS]
+		\rSYNTAX:     $Progrm [OPTS]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --insert|-I LINK        - Quickly append a link to the download list.
-		            --dest|-d PATH          - Where PATH is the location to download.
-		            --editor|-E CMD         - Where CMD is the command for your editor.
-		            --suspend|-s            - Immediately suspend machine when finished.
-		            --shutdown|-S           - Like above, but a shutdown after 1 minute.
-		            --notify|-N             - Use notify-send to inform of $_PROJECT_ completion.
-		            --edit|-e               - Change URL list with an available text editor.
-		            --clear|-C              - Empty the $_PROJECT_ download list entirely.
+		\rOPTS:       --help|-h|-?            - Displays this help information.
+		\r            --version|-v            - Output only the version datestamp.
+		\r            --insert|-I URL         - Quickly append a URL to the download queue.
+		\r            --dest|-d PATH          - Where PATH is the location to download.
+		\r            --editor|-E CMD         - Where CMD is the command for your editor.
+		\r            --suspend|-s            - Immediately suspend machine when finished.
+		\r            --shutdown|-S           - Like above, but a shutdown after 1 minute.
+		\r            --notify|-N             - Use notify-send to inform of $Progrm completion.
+		\r            --edit|-e               - Change URL queue with an available text editor.
+		\r            --clear|-C              - Empty the $Progrm download queue entirely.
 
-		FILE:       All files are found in '\$HOME/.$_PROJECT_'.
+		\rFILE:       ~/.config/bdl/editor
+		\r            ~/.config/bdl/queue
 	EOF
 }
-
-MAIN_DIR="$HOME/.$_PROJECT_"
-LIST_EDITOR_FILE="$MAIN_DIR/editor.conf"
-BDL_FILE="$MAIN_DIR/${_PROJECT_}_list.txt"
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
+			printf '%s\n' "$CurVer"
 			exit 0 ;;
-		--debug|-D)
-			DEBUGME='true' ;;
 		--insert|-I)
 			shift
 
-			INSERT='true'
-			printf "%s\n" "$1" >> "$BDL_FILE" ;;
+			if [ -z "$DoInsert" ]; then
+				Err 1 "Option '--insert|-I' requires an argument."
+			else
+				DoInsert=$1
+			fi ;;
 		--dest|-d)
 			shift
 
-			[ -d "$1" ] || {
-				Err 1 $LINENO "Destination directory unavailable."
-			} && DL_DIR="$1" ;;
+			if ! [ -d "$1" ]; then
+				Err 1 "Destination directory unavailable."
+			else
+				DL_DIR=$1
+			fi ;;
 		--editor|-E)
 			shift
 
-			printf "%s\n" "$1" > "$LIST_EDITOR_FILE"
-			exit 0 ;;
+			if [ -z "$1" ]; then
+				Err 1 "Option '--editor|-E' requires an argument."
+			else
+				ChangeEd=$1
+			fi ;;
 		--edit|-e)
-			EDITFLAG='true' ;;
+			EditFlag='true' ;;
 		--clear|-C)
-			CLEAR='true' ;;
+			Clear='true' ;;
 		--notify|-N)
-			NOTIFY='true' ;;
+			DoNotify='true' ;;
 		--suspend|-s)
-			SUSPEND='true' ;;
+			DoSuspend='true' ;;
 		--shutdown|-S)
-			SHUTDOWN='true' ;;
+			DoShutdown='true' ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 	esac
 	shift
 done
 
-if ! [ -f "$LIST_EDITOR_FILE" -a -s "$LIST_EDITOR_FILE" ]; then
-	Err 1 $LINENO "Please choose an editor. See --help for info."
+if ! [ -f "$EdFile" ] && ! [ -s "$EdFile" ]; then
+	Err 1 "Please choose an editor -- see: bdl -h"
 else
-	read LIST_EDITOR < "$LIST_EDITOR_FILE"
+	read QueueEd < "$EdFile"
 fi
 
-if [ "$EDITFLAG" == 'true' ]; then
-	if [ -x "$LIST_EDITOR" ]; then
-		$LIST_EDITOR "$BDL_FILE" 2> /dev/null
+if [ "$EditFlag" = 'true' ]; then
+	if command -v "$QueueEd" 1> /dev/null 2>&1; then
+		$QueueEd "$BDLFile" 2> /dev/null
 		exit 0
 	else
-		Err 1 $LINENO "Unable to execute: $LIST_EDITOR"
+		Err 1 "Unable to execute '$QueueEd' editor."
 	fi
 fi
 
-declare -i DEPCOUNT=0
-for DEP in wget shutdown mv systemctl sleep sync mkdir; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+ChkDep mv systemctl sleep sync mkdir
+
+if [ "$Clear" = 'true' ]; then
+	if ! [ -f "$BDLFile" ]; then
+		Err 1 "File '$BDLFile' not found."
+	else
+		mv "$BDLFile" "$BDLFile.old"
+		exit 0
 	fi
-}
-
-[ $DEPCOUNT -gt 0 ] && exit 1
-
-[ "$DEBUGME" == 'true' ] && set -x
-
-if [ "$CLEAR" == 'true' ]; then
-	mv "$BDL_FILE"{,.old}
+elif [ -n "$DoInsert" ]; then
+	printf "%s\n" "$DoInsert" 1>> "$BDLFile"
+	exit 0
+elif [ -n "$ChangeEd" ]; then
+	printf '%s\n' "$ChangeEd" > "$EdFile"
 	exit 0
 fi
 
-#TODO - Why won't this directory be created on Ubuntu 18.04? There's no Err(), it
-#       just refuses to create the directory, so the following test breaks.
-if ! [ -d "$MAIN_DIR" ] && ! mkdir "$MAIN_DIR" > /dev/null 2>&1; then
-	Err 1 $LINENO "Unable to create $HOME/.$_PROJECT_ directory."
+if [ -d "$MainDir" ] || ! mkdir -p "$MainDir" 1> /dev/null 2>&1; then
+	Err 1 "Unable to create '$MainDir' directory."
 fi
 
-[ -f "$BDL_FILE" ] || > "$BDL_FILE"
+if [ -f "$BDLFile" ]; then
+	while read URL Dest; do
+		Output=${Dest:-./${URL##*/}}
 
-INIT_MAIN(){
-	while read -a LINE; do
-		if ! [[ ${LINE[0]} =~ ^#+ ]]; then
-			WARGS="-qc $NOWARC --show-progress"
-			wget $WARGS "${LINE[0]}" -O "./${LINE[0]//*\/}"
-			sync "./${LINE[0]//*\/}"
+		if ChkDep wget; then
+			wget -qc --show-progress -O "$Output" "$URL"
+		elif ChkDep curl; then
+			curl -sC - --progress-bar -o "$Output" "$URL"
+		else
+			Err 1 "Neither 'wget' nor 'curl' are available."
 		fi
-	done < "$BDL_FILE"
 
-	if [ "$NOTIFY" == 'true' ]; then
-		notify-send "Downloading with $_PROJECT_ is completed."
-	fi
+		sync "$Output" # <-- Avoid data loss.
+	done < "$BDLFile"
 
-	if [ "$SHUTDOWN" == 'true' ]; then
-		notify-send "System shutdown in one minute."\
-			-i warning -u critical
-
-		shutdown --no-wall +1
-	elif [ "$SUSPEND" == 'true' ]; then
-		notify-send "System will suspend in ten seconds."\
-			-i warning -u critical
-
-		sleep 10s
-		systemctl suspend
-	fi
-}
-
-[ "$INSERT" == 'true' ] && exit 0
-if [ "$SHUTDOWN" == 'true' ]; then
-	INIT_MAIN SHUTDOWN
+	[ "$DoNotify" = 'true' ] && notify-send "Downloading with $Progrm is complete."
+	[ "$DoShutdown" = 'true' ] && systemctl poweroff
+	[ "$DoSuspend" = 'true' ] && systemctl suspend
 else
-	INIT_MAIN
+	printf 'Nothing to do -- quitting.\n'
 fi
-

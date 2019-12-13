@@ -29,7 +29,7 @@ Usage(){
 		printf "%b\n" "$CurLine"
 	done <<-EOF
 		\r            CITO ($CurVer)
-		\r            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		\r            Bourne POSIX installer for local or GitHub files.
 

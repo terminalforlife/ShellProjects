@@ -25,7 +25,7 @@ USAGE(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${_PROJECT_^^} - NEW XBT ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            A fork of and improvement over Joe Collins' XBT.
 

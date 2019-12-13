@@ -21,7 +21,7 @@ Usage(){
 		printf '%b\n' "$CurLine"
 	done <<-EOF
 		\r            FEH-SLIDES ($CurVer)
-		\r            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		\r            Super-simple Bourne POSIX desktop wallpaper slideshow.
 

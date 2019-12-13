@@ -21,7 +21,7 @@ USAGE(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Simple upgrade notifier for Debian- and Ubuntu-based systems.
 

@@ -18,7 +18,7 @@ USAGE(){
 		printf "%s\n" "$X"
 	done <<-EOF
 		            SEEWTTR - WTTR Look (19th November 2017)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Super-simple wrapper-like script to get your weather. Thanks entirely
 		            to igor_chubin for this script even being possible.

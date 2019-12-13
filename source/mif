@@ -23,7 +23,7 @@ Usage(){
 		printf '%s\n' "$REPLY"
 	done <<-EOF
 		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Shell program to filter films by year and whether seen or not.
 

@@ -30,7 +30,7 @@ USAGE(){
 		echo "$REPLY"
 	done <<-EOF
 		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Watch a webpage for signs of change by checkings its md5sum.
 

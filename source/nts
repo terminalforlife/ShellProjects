@@ -25,7 +25,7 @@ Usage(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${Progrm^^} - Note to Self ($CurVer)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Dummy description for this template.
 

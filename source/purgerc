@@ -23,7 +23,7 @@ Usage(){
 		printf "%b\n" "$CurLine"
 	done <<-EOF
 		\r            PURGERC ($CurVer)
-		\r            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		\r            Small POSIX-adhering tool to purge only 'rc' packages.
 

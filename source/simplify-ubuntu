@@ -25,7 +25,7 @@ Usage(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Project to lighten Ubuntu 16.04.* LTS installations.
 

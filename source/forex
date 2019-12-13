@@ -23,7 +23,7 @@ Usage(){
 		printf "%s\n" "$REPLY"
 	done <<-EOF
 		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Easily convert various currency rates straight from the terminal.
 
