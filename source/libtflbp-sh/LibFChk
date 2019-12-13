@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Last Change       - Fri 13 Dec 19:39:45 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -18,11 +18,15 @@ LibFChk(){ #: Check for function(s) $@ existing, after sourcing library.
 		GetStr=`command -v "$CurFunc"`
 		if ! [ "$GetStr" = "$CurFunc" ]; then
 			printf "ERROR: Unavailable '$CurFunc()' in library." 1>&2
+
+			printf "LibFChk() \$@: Function '$CurFunc()' missing.\n" 1>&2
+			exit 126
+
 			FuncNum=$((FuncNum + 1))
 		fi
 	done
 
 	[ $FuncNum -gt 0 ] && exit 2
 
-	unset FuncNum CurFunc
+	unset FuncNum CurFunc GetStr
 }

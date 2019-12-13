@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Last Change       - Fri 13 Dec 19:03:32 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,11 +12,18 @@
 # NOTE: POSIX compliance has largely been determined through the guidance of YASH.
 #----------------------------------------------------------------------------------
 
-LibTFLBPVer(){ #: Output the 'libtflbp-sh' version string.
+LibTFLBPVer(){ #: Output the 'libtflbp-sh' version, in `--long` or `--short` ($1).
 	CurVer='2019-12-05'
 	Progrm=${0##*/}
 
-	printf "POSIX Bourne library '%s' is version '%s'.\n" "$CurVer" "$Progrm"
+	if [ $1 = '--long' ]; then
+		printf "POSIX Bourne library '%s' is version '%s'.\n" "$CurVer" "$Progrm"
+	elif [ $1 = '--short' ]; then
+		printf '%s\n' "$CurVer"
+	else
+		printf 'LibTFLBPVer(): Invalid argument(s) detected.\n' 1>&2
+		exit 126
+	fi
 
 	unset CurVer Progrm
 }

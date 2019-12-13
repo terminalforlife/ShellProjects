@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Fri  6 Dec 01:53:08 GMT 2019
+# Last Change       - Fri 13 Dec 20:47:12 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,7 +13,12 @@
 #----------------------------------------------------------------------------------
 
 YNInput(){ #: An easy-to-script prompt for the user, asking yes or no.
-	printf "%s [Y/N] " "$1"
+	if [ -z "$1" ]; then
+		printf 'YNInput() $1: Prompt string required.\n' 1>&2
+		exit 126
+	fi
+
+	printf '%s [Y/N] ' "$1"
 	read Answer
 
 	case $Answer in
@@ -22,7 +27,8 @@ YNInput(){ #: An easy-to-script prompt for the user, asking yes or no.
 		[Nn]|[Nn][Oo])
 			return 1 ;;
 		*)
-			Err 1 'Invalid response -- quitting.' ;;
+			printf 'ERROR: Invalid response -- quitting.\n'
+			exit 1 ;;
 	esac
 
 	unset Answer

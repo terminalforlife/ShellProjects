@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Tue 10 Dec 02:56:10 GMT 2019
-# Last Change       - Tue 10 Dec 03:01:11 GMT 2019
+# Last Change       - Fri 13 Dec 20:22:26 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,8 +12,12 @@
 # NOTE: POSIX compliance has largely been determined through the guidance of YASH.
 #----------------------------------------------------------------------------------
 
-FirstLook(){ # Usage: FirstLook [GLOB] [FILE]
-	[ $# -lt 2 ] && return 4
+FirstLook(){ #: Check line one of file $2 for glob $1.
+	if [ $# -lt 2 ]; then
+		printf "FirstLook() \$1: Glob pattern missing.\n" 1>&2
+		printf "FirstLook() \$2: No file specified.\n" 1>&2
+		exit 126
+	fi
 
 	if [ -f "$2" ] && [ -r "$2" ]; then
 		read Line < "$2"
@@ -24,7 +28,7 @@ FirstLook(){ # Usage: FirstLook [GLOB] [FILE]
 		unset Line
 		return 1
 	else
-		printf "ERROR: File '%s' missing or unreadable.\n" "$2" 1>&2
-		return 2
+		printf "FirstLook() \$2: File missing or unreadable.\n" 1>&2
+		exit 126
 	fi
 }

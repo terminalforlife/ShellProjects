@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Last Change       - Fri 13 Dec 18:57:56 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,9 +13,18 @@
 #----------------------------------------------------------------------------------
 
 SplitStr(){ #: Split string $2 by delimiter $1.
-	local IFS=$1
-	set -- $2
-	printf "%s\n" "$@"
+	IFS=$1
+
+	if [ ${#IFS} -gt 1 ]; then
+		printf "SplitStr() \$1: Too many characters for delimiter.\n" 1>&2
+		exit 126
+	elif [ -z "$2" ]; then
+		printf "SplitStr() \$2: A string to split is required.\n" 1>&2
+		exit 126
+	else
+		set -- $2
+		printf '%s\n' "$@"
+	fi
 
 	unset IFS
 }

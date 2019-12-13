@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Thu  5 Dec 22:16:33 GMT 2019
+# Last Change       - Fri 13 Dec 20:25:28 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,7 +14,11 @@
 
 DirName(){ #: Output the directory name (like `dirname`) of $@.
 	for CurDir in "$@"; do
-		[ -d "$CurDir" ] && return 1
-		printf "%s\n" "${CurDir%/*}"
+		if [ -d "$CurDir" ]; then
+			printf 'DirName(): Non-directory specified.\n' 1>&2
+			exit 126
+		else
+			printf '%s\n' "${CurDir%/*}"
+		fi
 	done
 }

@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Tue 10 Dec 02:09:33 GMT 2019
-# Last Change       - Tue 10 Dec 02:52:41 GMT 2019
+# Last Change       - Fri 13 Dec 19:02:24 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -12,8 +12,14 @@
 # NOTE: POSIX compliance has largely been determined through the guidance of YASH.
 #----------------------------------------------------------------------------------
 
-OneSearch(){ # Usage: OneSearch [GLOB] [FILE_1 [FILE_2] ...]
+OneSearch(){ #: Search for glob $1 in one or more ($2 ...) files.
 	Glob=$1
+
+	if [ -z "$1" ]; then
+		printf 'OneSearch() $1: String required for glob matching.\n' 1>&2
+		exit 126
+	fi
+
 	shift 1
 
 	[ $# -eq 0 ] && return 4
@@ -29,9 +35,8 @@ OneSearch(){ # Usage: OneSearch [GLOB] [FILE_1 [FILE_2] ...]
 			unset CurLine Glob CurFile
 			return 1
 		else
-			printf "ERROR: File '%s' missing or unreadable.\n" "$CurFile" 1>&2
-			unset Glob CurFile
-			return 2
+			printf "OneSearch(): File '%s' missing or unreadable.\n" "$CurFile" 1>&2
+			exit 126
 		fi
 	done
 }
