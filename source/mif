@@ -1,33 +1,33 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/mif
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri  6 Dec 22:52:20 GMT 2019
+# Last Change       - Fri 13 Dec 01:29:36 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+CurVer='2019-12-13'
+Progrm=${0##*/}
 
-DOM="https://github.com"
+Domain='https://github.com'
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} - Movie Index Filter ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
 		            Shell program to filter films by year and whether seen or not.
 
-		SYNTAX:     $_PROJECT_ [OPTS] [YEAR]
+		SYNTAX:     $Progrm [OPTS] [YEAR]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
@@ -38,13 +38,13 @@ USAGE(){
 		            --all|-a                - Display all films; disregard filters.
 		            --total|-t              - Output the total number of matches.
 		            --mark M                - Where M is - or + for whether seen or not.
-		            --organize|-O           - Organise files in the CWD by year. This
-		                                      This has the potential to be destructive!
-		            --mklist|-M[:N]         - Output a ${_PROJECT_}-usable movie list from CWD.
+		            --organize|-O           - Organise files in the CWD by year. This has the
+		                                      potential to be destructive!
+		            --mklist|-M[:N]         - Output a ${Progrm}-usable movie list from CWD.
 		                                      If :N is appended, then omit [+] and [-].
 
-		NOTE:       The file which $_PROJECT_ parses must be in a strict layout in order for
-		            $_PROJECT_ to work correctly. An example of such a file's contents:
+		NOTE:       The file which $Progrm parses must be in a strict layout in order for
+		            $Progrm to work correctly. An example of such a file's contents:
 
 		              # Comment lines will be ignored.
 		              1972[+]: The Godfather
@@ -58,30 +58,30 @@ USAGE(){
 
 		            Where + is unseen (new) and - is seen.
 
-		FILE:       Default is $HOME/.$_PROJECT_ but use --file|-f FILE to specify your own.
+		FILE:       Default is $HOME/.$Progrm but use --file|-f FILE to specify your own.
 
-		SITE:       $DOM/terminalforlife/Extra
+		SITE:       $Domain/terminalforlife/Extra
 	EOF
 }
 
 if [ "${BASH_VERSINFO[0]}" -ge 4 ]; then
 	shopt -s extglob globstar
 else
-	Err 1 $LINENO "Bash version 4.0 or greater is required."
+	Err 1 "Bash version 4.0 or greater is required."
 fi
 
-INDEX="$HOME/.$_PROJECT_"
+INDEX="$HOME/.$Progrm"
 SEEN='false'
 TTL='false'
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--debug|-D)
-			DEBUGME='true' ;;
+			DebugMe='true' ;;
 		--mklist|-M)
 			shift; MAKE_LIST_OPT=":[+]" ;;
 		--mklist:N|-M:N)
@@ -106,15 +106,7 @@ while [ "$1" ]; do
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in mkdir mv; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
+ChkDep mkdir mv
 
 if [[ $MAKE_LIST_OPT =~ (:|:\[+\]) ]]; then
 	for FILE in **; {
@@ -131,14 +123,14 @@ if ! [ "$ORGANIZE" == 'true' ]; then
 		YEAR="$1"; shift
 	else
 		if ! [ "$SEEN" == "all" ]; then
-			Err 1 $LINENO "Invalid year specified."
+			Err 1 "Invalid year specified."
 		fi
 	fi
 fi
 
-[ "$*" ] && Err 1 $LINENO "Incorrect argument(s) specified."
+[ "$*" ] && Err 1 "Incorrect argument(s) specified."
 
-[ "$DEBUGME" == 'true' ] && set -x
+[ "$DebugMe" == 'true' ] && set -x
 
 if [ "$ORGANIZE" == 'true' ]; then
 	for X in *; {
@@ -162,7 +154,7 @@ if [ "$ORGANIZE" == 'true' ]; then
 	exit 0
 fi
 
-[ -f "$INDEX" ] || Err 1 $LINENO "Index file '$INDEX' not found."
+[ -f "$INDEX" ] || Err 1 "Index file '$INDEX' not found."
 
 declare -i LINE=0
 while read -r; do
@@ -183,6 +175,6 @@ while read -r; do
 	fi
 done < "$INDEX"
 
-[ $LINE -eq 0 ] && Err 1 $LINENO "Unable to find year $YEAR."
+[ $LINE -eq 0 ] && Err 1 "Unable to find year $YEAR."
 [ "$TTL" == 'true' ] && printf "\nTotal: %d\n" "$LINE"
 
