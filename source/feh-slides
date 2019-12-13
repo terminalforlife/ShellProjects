@@ -1,38 +1,35 @@
-#!/bin/bash
+#!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/feh-slides
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Fri  6 Dec 22:49:20 GMT 2019
+# Last Change       - Fri 13 Dec 01:38:42 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+CurVer='2019-12-13'
+Progrm=${0##*/}
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
+		            FEH-SLIDES ($CurVer)
 		            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            A super-simple desktop wallpaper slideshow.
+		            Super-simple Bourne POSIX desktop wallpaper slideshow.
 
-		SYNTAX:     $_PROJECT_ [OPTS] [PATH]
+		SYNTAX:     $Progrm [OPTS] [PATH]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
 		            --interval|-i N         - Change wallpaper every N seconds.
-		            --trap|-T               - Trap SIGUSR1 for a cleaner exit. This is more
-		                                      of a placeholder for future expansion.
 
 		NOTE:       Where PATH is the directory in which your chosen wallpapers are stored.
 
@@ -43,62 +40,40 @@ USAGE(){
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--interval|-i)
-			shift; INTERVAL="$1" ;;
-		--trap|-T)
-			TRAP='true' ;;
+			shift; Interval=$1 ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in sleep feh; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
+ChkDep sleep feh
 
 if [ $# -gt 1 ]; then
-	Err 1 $LINENO "Only one wallpaper directory may be specified."
+	Err 1 "Only one wallpaper directory may be specified."
 elif [ $# -eq 0 ]; then
-	Err 1 $LINENO "A wallpaper directory must be specified."
+	Err 1 "A wallpaper directory must be specified."
 fi
 
-[ "$DEBUGME" == 'true' ] && set -x
-
-# Room for easy expansion.
-EXIT(){
-	kill $$
-	exit 0
-}
-
 if [ -d "$1" ]; then
-	[ "$TRAP" == 'true' ] && trap 'EXIT' 10 # <-- SIGUSR1
-
 	while :; do
-		for FILE in "${1%\/}"/*; {
-			if [ -f "$FILE" ]; then
-				if ! feh --no-fehbg --bg-center "$FILE"; then
-					Err 1 $LINENO "One or more errors detected while setting wallpaper with feh."
-				elif ! sleep ${INTERVAL:-5}s > /dev/null 2>&1; then
-					Err 1 $LINENO "Invalid interval time specified."
+		for CurFile in "${1%/}"/*; do
+			if [ -f "$CurFile" ]; then
+				if ! feh --no-fehbg --bg-center "$CurFile"; then
+					Err 1 'One or more errors detected while setting a wallpaper.'
+				elif ! sleep ${Interval:-5}s 1> /dev/null 2>&1; then
+					Err 1 'Invalid interval time specified.'
 				fi
 			fi
-		}
+		done
 	done
 else
-	Err 1 $LINENO "Directory '$1' not found."
+	Err 1 "Directory '$1' not found."
 fi
 
