@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Fri 13 Dec 01:38:42 GMT 2019
+# Last Change       - Fri 13 Dec 01:52:26 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,23 +17,23 @@ CurVer='2019-12-13'
 Progrm=${0##*/}
 
 Usage(){
-	while read; do
-		printf '%s\n' "$REPLY"
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
 	done <<-EOF
-		            FEH-SLIDES ($CurVer)
-		            Written by terminalforlife (terminalforlife@yahoo.com)
+		\r            FEH-SLIDES ($CurVer)
+		\r            Written by terminalforlife (terminalforlife@yahoo.com)
 
-		            Super-simple Bourne POSIX desktop wallpaper slideshow.
+		\r            Super-simple Bourne POSIX desktop wallpaper slideshow.
 
-		SYNTAX:     $Progrm [OPTS] [PATH]
+		\rSYNTAX:     $Progrm [OPTS] [PATH]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --interval|-i N         - Change wallpaper every N seconds.
+		\rOPTS:       --help|-h|-?            - Displays this help information.
+		\r            --version|-v            - Output only the version datestamp.
+		\r            --interval|-i N         - Change wallpaper every N seconds.
 
-		NOTE:       Where PATH is the directory in which your chosen wallpapers are stored.
+		\rNOTE:       Where PATH is the directory in which your chosen wallpapers are stored.
 
-		            If no interval is specified, the default of 5 seconds is chosen.
+		\r            If no interval is specified, the default of 5 seconds is chosen.
 	EOF
 }
 
