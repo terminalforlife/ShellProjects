@@ -65,9 +65,9 @@ a3e7cd8edfdd9eaa5a813b60fe7b647a  source/ubuntu-syschk
 1b1af38b2ace594838d0b864ea76c8e8  source/libtflbp-sh/BaseName
 179186a482912d383e025bbb06facb14  source/libtflbp-sh/ChkDep
 5205ebda0de57239bae9dc400be9446e  source/libtflbp-sh/CutStr
-d44383a18f78293adecf5842b65e4b90  source/libtflbp-sh/DirName
-78beda02550c9597f894f1f2743e21a5  source/libtflbp-sh/Err
-06e29f8462870c965805399d7ed44b2d  source/libtflbp-sh/FirstLook
+0c39a4dda71c875f57c47e13ba4b5717  source/libtflbp-sh/DirName
+a20caf58fdaac53122b63d0ee3327765  source/libtflbp-sh/Err
+1a59f0e844ee472c7c6f9a31abdf6af5  source/libtflbp-sh/FirstLook
 891bc4888841d7a374d9b3bf38ed8f4a  source/libtflbp-sh/GetInsPkgs
 a2cd6e8f9dcce9cc5f5e712e631fec1a  source/libtflbp-sh/LCount
 b0d9fd623f354aeff22f4ca5113c0c15  source/libtflbp-sh/LibFChk
@@ -76,7 +76,7 @@ b0d9fd623f354aeff22f4ca5113c0c15  source/libtflbp-sh/LibFChk
 572f04756eb9d49eac8782c504933494  source/libtflbp-sh/README.md
 13974dad8cdf7c968ff0bbd469c17dd0  source/libtflbp-sh/SplitStr
 6e1f35dc07563a27e4b741aed97ed93c  source/libtflbp-sh/WCount
-6bcc1e38ebf0899786fe4bab9973803b  source/libtflbp-sh/YNInput
+bce40163612f4de398570dcf3a9af5d5  source/libtflbp-sh/YNInput
 94bb442073283389c8f6e317582067b8  source/completions/autoscrot
 c381c817f1ff17cebcf679b06a120b7a  source/completions/bdl
 cbb9dbc66a9130d32ac08d13e1596b87  source/completions/insit
