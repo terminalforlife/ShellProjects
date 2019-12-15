@@ -44,10 +44,11 @@ ChkSums(){
 	done
 }
 
-if md5sum -c md5sum 1> /dev/null 2>&1; then
-	printf "Nothing to do -- quitting.\n"
-	exit 0
-fi
+# Disabled for now, because new files were ignore.
+#if md5sum -c md5sum 1> /dev/null 2>&1; then
+#	printf "Nothing to do -- quitting.\n"
+#	exit 0
+#fi
 
 ChkSums > "$SumFile"
 

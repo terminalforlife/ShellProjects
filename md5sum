@@ -67,6 +67,7 @@ d32c03d84da100ad033d1cb3e86cb571  source/ubuntu-syschk
 5205ebda0de57239bae9dc400be9446e  source/libtflbp-sh/CutStr
 0c39a4dda71c875f57c47e13ba4b5717  source/libtflbp-sh/DirName
 a20caf58fdaac53122b63d0ee3327765  source/libtflbp-sh/Err
+91efe483661b33f57b9377a0ee600c59  source/libtflbp-sh/FNSanityChk
 1a59f0e844ee472c7c6f9a31abdf6af5  source/libtflbp-sh/FirstLook
 891bc4888841d7a374d9b3bf38ed8f4a  source/libtflbp-sh/GetInsPkgs
 a2cd6e8f9dcce9cc5f5e712e631fec1a  source/libtflbp-sh/LCount
