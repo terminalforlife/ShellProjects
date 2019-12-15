@@ -14,5 +14,5 @@ If you're on a Debian- or Ubuntu-based distribution of Linux, installation is no
 If you have [Cito](https://github.com/terminalforlife/Extra), the installation is an easy one-liner:
 
 ```bash
-sudo cito -r terminalforlife Extra master source/libtflbp-sh/{BaseName,ChkDep,CutStr,DirName,Err,FirstLook,FNSanityChk,GetInsPkgs,LCount,LibFChk,LibTFLBPVer,SplitStr,WCount,YNInput}
+sudo cito -r terminalforlife Extra master source/libtflbp-sh/{BaseName,ChkDep,CutStr,DirName,Err,FirstLook,FNSanityChk,GetInsPkgs,LCount,LibFChk,LibTFLBPVer,OneSearch,SplitStr,WCount,YNInput}
 ```
