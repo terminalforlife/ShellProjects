@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Sun 15 Dec 11:33:21 GMT 2019
-# Last Change       - Sun 15 Dec 11:48:41 GMT 2019
+# Last Change       - Sun 15 Dec 12:15:05 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,13 +15,15 @@
 FNSanityChk(){ # Usage: FNSanityChk [FILE_1 [FILE_2] ...]
 	Num=$#
 	Count=0
-	case $1 in
-		-*|*[:cntrl:]*|*\\*)
-			shift ;;
-		*)
-			Count=$((Count + 1)) ;;
-	esac
-	shift
+	while [ "$1" ]; do
+		case $1 in
+			[[:space:]]*|-*|*[:cntrl:]*|*\\*)
+				shift ;;
+			*)
+				Count=$((Count + 1)) ;;
+		esac
+		shift
+	done
 
 	[ $Count -eq $Num ] || return 1
 }
