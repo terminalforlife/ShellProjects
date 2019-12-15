@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Sun 15 Dec 11:47:40 GMT 2019
+# Last Change       - Sun 15 Dec 18:16:15 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,12 +15,18 @@
 ChkDep(){ #: Presentable check of PATH directories for dependency $@.
 	DepCount=0
 	for CurDep in "$@"; do
-		if command -v "$CurDep" 1> /dev/null 2>&1; then
-			DepCount=$((DepCount + 1))
+		if [ -f "$CurDep" ]; then
+			[ -x "$CurDep" ] && DepCount=$((DepCount + 1))
 		else
+			if command -v "$CurDep" 1> /dev/null 2>&1; then
+				DepCount=$((DepCount + 1))
+			fi
+		fi
+
+		if [ $DepCount -eq $((DepCount + 1)) ]; then
 			Err 0 "Dependency '$CurDep' not met."
 		fi
 	done
 
-	[ $DepCount -eq $# ] || exit 1
+	[ $DepCount -eq $# ] || return 1
 }
