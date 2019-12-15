@@ -1,0 +1,27 @@
+#!/bin/sh
+
+#----------------------------------------------------------------------------------
+# Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
+# Started On        - Sun 15 Dec 11:33:21 GMT 2019
+# Last Change       - Sun 15 Dec 11:38:09 GMT 2019
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#----------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell functionality.
+#
+# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
+#----------------------------------------------------------------------------------
+
+FNSanityChk(){ # Usage: FNSanityChk [FILE_1 [FILE_2] ...]
+	Num=$#
+	Count=0
+	case $1 in
+		-*|*[:cntrl:]*|*\\*)
+			shift ;;
+		*)
+			Count=$((Count + 1)) ;;
+	esac
+	shift
+
+	[ $Count -eq $Num ] || return 1
+}
