@@ -67,7 +67,7 @@ a3ac634fdbcd311576e4ff94b3595ec7  source/libtflbp-sh/BaseName
 29aa8a088b2d50b3bad4d0b234366ac8  source/libtflbp-sh/CutStr
 d4d28adab38a1b8038dbffd3fe472c9d  source/libtflbp-sh/DirName
 b7cd312d1c54b9bb8a586fc0f1788123  source/libtflbp-sh/Err
-51fbe2584f39c3114361158e621e274e  source/libtflbp-sh/FNSanityChk
+1ee34f6678785fa46680a5c036da2ae2  source/libtflbp-sh/FNSanityChk
 be4b7e71b88f9736222ab6e7d3bbcc8c  source/libtflbp-sh/FirstLook
 b22dca8303157596ba480b0b08779d48  source/libtflbp-sh/GetInsPkgs
 4487d9f23e3133f81c9fc2c1639ed72c  source/libtflbp-sh/LCount
