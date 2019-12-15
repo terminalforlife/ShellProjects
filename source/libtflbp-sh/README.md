@@ -16,5 +16,3 @@ If you have [Cito](https://github.com/terminalforlife/Extra), the installation i
 ```bash
 sudo cito -r terminalforlife Extra master source/libtflbp-sh/{BaseName,ChkDep,CutStr,DirName,Err,FirstLook,FNSanityChk,GetInsPkgs,LCount,LibFChk,LibTFLBPVer,SplitStr,WCount,YNInput}
 ```
-
-Once I've ironed out how to specify multiple files with Cito, or perhaps have 'packages' of sorts used by it, then the cumbersome factor should go away. Admittedly, Cito was written mostly with programs installed to `PATH` in mind.
