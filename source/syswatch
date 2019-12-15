@@ -23,11 +23,11 @@ for DEP in dmesg grep sleep tail notify-send; {
 	type -fP "$DEP" > /dev/null 2>&1 || exit 1
 }
 
-#TODO - Ignore the entries already there on log-in.
+#TODO: Ignore the entries already there on log-in.
 while :; do
 	LAST(){
 		# Not using pure-shell approach here, due to performance issues.
-		#TODO - The mount and unmount notifications aren't showing.
+		#TODO: The mount and unmount notifications aren't showing.
 		ERE='(link (down|up)$|disconnect|detected)'
 		dmesg -tl 6 | grep -E "$ERE" | tail -n 1
 	}

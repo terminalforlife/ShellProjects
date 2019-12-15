@@ -111,7 +111,7 @@ MAIN_FUNC(){
 		uuid)
 			LSBLK | sed 's/^UUID="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
 		name)
-			#TODO - Is this even used?
+			#TODO: Is this even used?
 			LSBLK | sed 's/^LABEL="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
 		*)
 			LSBLK | sed -e 's/^NAME="\/dev\/\([[:alnum:]]\+\)"/\1:/'\
@@ -120,7 +120,7 @@ MAIN_FUNC(){
 	esac
 }
 
-#TODO - Improve everything below and the use of the function above.
+#TODO: Improve everything below and the use of the function above.
 
 # To avoid recalling the same function.
 MAIN_VAR=`MAIN_FUNC`

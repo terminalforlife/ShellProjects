@@ -64,7 +64,7 @@ if ! type -fP dpkg-query > /dev/null 2>&1; then
 	Err 1 $LINENO "Dependency 'dpkg-query' not met."
 fi
 
-#TODO - Not seeing the Binary:Summary of the packages.
+#TODO: Not seeing the Binary:Summary of the packages.
 
 FMT1="\${db:Status-Abbrev} \${${TYPE%:*}} "
 FMT2="\${Package} - \${Binary:Summary}"

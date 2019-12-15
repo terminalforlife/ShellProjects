@@ -76,7 +76,7 @@ if [ "${TODAY_DATE%/*}" == "${LAST_LOG%/*}" ]; then
 	notify-send "Medication already taken today."
 else
 	if ! xmessage -buttons yes,no -center "$MSG"; then
-		#TODO - Loop a reminder notification every X minutes.
+		#TODO: Loop a reminder notification every X minutes.
 		notify-send "$MSG_NO"
 		exit 1
 	else

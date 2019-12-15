@@ -110,7 +110,7 @@ TARGET="$*"
 [[ "$TARGET" == */ ]] || TARGET+="/"
 
 printf -v CURDATE "%(%F_%X)T" "-1"
-#TODO - Make the logfile skip the whole /tmp part; redundant.
+#TODO: Make the logfile skip the whole /tmp part; redundant.
 LOGFILE="/tmp/${_PROJECT_}_${USER}_${CURDATE}.log"
 BACKNAME=${_PROJECT_^^}_${UID}_${CURDATE}
 if ! [ -d "$BACKNAME" ]; then
@@ -137,7 +137,7 @@ DEFAULT_PATHS(){
 }
 
 USER_PATH(){
-	#TODO - Incorporate multiple optional sources, maybe using for loop.
+	#TODO: Incorporate multiple optional sources, maybe using for loop.
 
 	# Back up user-provided files.
 	for I in $SOURCE; {

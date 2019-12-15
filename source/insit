@@ -15,8 +15,8 @@
 _VERSION_="2019-11-27"
 _PROJECT_=${0##*/}
 
-#TODO - What if you're updating insit from a different branch?
-#TODO - Since the version file only goes by per day, there's no sense in checking
+#TODO: What if you're updating insit from a different branch?
+#TODO: Since the version file only goes by per day, there's no sense in checking
 #       multiple times per day, therefore, the check needs to be limited to one
 #       check per day, perhaps using a parameter file.
 
@@ -284,7 +284,7 @@ LOGIT(){
 			if [ "$LOGIT" == 'true' ]; then
 				printf "[%s]: %s\n" "$DATETIME" "$1" >> "$LOGFILE"
 
-				#TODO - Could not logrotate handle this?
+				#TODO: Could not logrotate handle this?
 				readarray A < "$LOGFILE"
 				if [ "${#A[@]}" -gt 4000 ]; then
 					mv "$LOGFILE"{,.old}
@@ -373,7 +373,7 @@ if ! [ "$JUST_CHECK" == 'true' ]; then
 		fi
 	fi
 
-	#TODO - Include this functionality, somehow, as part of FILE().
+	#TODO: Include this functionality, somehow, as part of FILE().
 	# Example of usage: REPLACE_PROMPT FILE || shift
 	REPLACE_PROMPT(){
 		printf "WARNING: This will install and replace the following:\n\n"
@@ -605,7 +605,7 @@ if ! [ "$JUST_CHECK" == 'true' ]; then
 					install $@; then
 					LOGIT "APT failed to install $@"
 					return 1
-				#TODO - Need to verify this won't conflict.
+				#TODO: Need to verify this won't conflict.
 				#else
 				#	LOGIT "Telling APT to mark as auto $@"
 				#	if ! /usr/bin/apt-mark auto $@; then
@@ -684,7 +684,7 @@ elif [ "$UNINSTALL" == 'true' ]; then
 	fi
 elif [ "$CUSTOM" == 'true' ]; then
 	if [ "$1" == "NLA" ]; then
-		#TODO - What if the repository name (not TFL) is named 'NLA'? Fix!
+		#TODO: What if the repository name (not TFL) is named 'NLA'? Fix!
 		Err 1 $LINENO "Special word 'NLA' is reserved by $_PROJECT_ functionalty."
 	fi
 

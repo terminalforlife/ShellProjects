@@ -284,7 +284,7 @@ if [ $STORAGE -eq 0 ]; then
 		Err 0 $LINENO "Unable to find or access: /bin/df"
 	fi
 
-	#TODO - Experimental, unfinished pure-shell approach.
+	#TODO: Experimental, unfinished pure-shell approach.
 	#if [ -f /proc/partitions -a -r /proc/partitions ]; then
 	#	MATCH='^([sh]d[a-z]$|[sf][dr][0-9])$'
 
@@ -342,7 +342,7 @@ if [ $PERMS -eq 0 ]; then
 		}
 
 		STAT /etc/passwd 644 0 0
-		STAT /etc/shadow 640 0 X #TODO - Find and check the correct GID.
+		STAT /etc/shadow 640 0 X #TODO: Find and check the correct GID.
 
 		for ITEM in /home/*; {
 			if [ "$ITEM" == "/home/lost+found" ]; then
@@ -361,7 +361,7 @@ if [ $PERMS -eq 0 ]; then
 					[ -L "$FILE" ] && continue
 					STAT "$FILE" XXX 0 X
 
-					#TODO - Check group, and if it's not 0, -
+					#TODO: Check group, and if it's not 0, -
 					#       then check, depending on the file
 					#       being processed, whether it matches
 					#       the correct group for that file.
@@ -483,7 +483,7 @@ if [ $SWAPPINESS -eq 0 ]; then
 	FILE="/proc/sys/vm/swappiness"
 	if [ -f "$FILE" -a -r "$FILE" ]; then
 		SWAP=`< "$FILE"`
-		#TODO - Have this check also assess a sensible swappiness value
+		#TODO: Have this check also assess a sensible swappiness value
 		#       depending on the amount of RAM the user has.
 		if [ $SWAP -gt 30 ]; then
 			ALERT "Potentially unsuitable swappiness: $SWAP"
@@ -539,7 +539,7 @@ fi
 
 if [ $DPKGRC -eq 0 ]; then
 	if type -fP dpkg > /dev/null 2>&1; then
-		#TODO - Add a blacklist for the user!
+		#TODO: Add a blacklist for the user!
 		INFO "Querying DPKG for packages with an 'rc' status."
 		while read -ra REPLY; do
 			if [ "${REPLY[0]}" == rc ]; then
@@ -563,7 +563,7 @@ if [ $IPSPOOF -eq 0 ]; then
 			fi
 		done < "$FILE"
 
-		#TODO - I'm not sure if this is too aggressive. What if the user
+		#TODO: I'm not sure if this is too aggressive. What if the user
 		#       has other priorities set here? Perhaps check for however
 		#       many comma-separated fields there are, to ascertain whether
 		#       the use-case is non-standard.

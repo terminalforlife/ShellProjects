@@ -11,8 +11,8 @@
 CurVer='2019-12-06'
 Progrm=${0##*/}
 
-#TODO - The ignore case flag won't work when specifying glob matching.
-#TODO - Add ability to search only the whole word, like `STRING`, not `*STRING*`.
+#TODO: The ignore case flag won't work when specifying glob matching.
+#TODO: Add ability to search only the whole word, like `STRING`, not `*STRING*`.
 
 Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2

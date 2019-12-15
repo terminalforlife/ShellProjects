@@ -134,7 +134,7 @@ fi
 declare -i TIME_COUNT=0
 
 if ! [ "$PODS" ]; then
-	#TODO - See about adding $OLDTONEW functionality here with pure shell.
+	#TODO: See about adding $OLDTONEW functionality here with pure shell.
 	PODS=$(
 		LINK="http://distrowatch.com/weekly.php?issue=1"
 

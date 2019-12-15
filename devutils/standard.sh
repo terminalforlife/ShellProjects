@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Tue 10 Dec 23:07:37 GMT 2019
+# Last Change       - Sun 15 Dec 00:29:49 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -44,8 +44,8 @@ SaR 's/^_PROJECT_="(\$\{0##\*\/\})"/Progrm=\1/'
 SaR 's/^Progrm="(\$\{0##\*\/\})"/Progrm=\1/'
 SaR 's/_PROJECT_/Progrm/g'
 
-# Needs to be corrected for my `todo` function, and for consistency.
-SaR 's/#TODO: /#TODO - /'
+# Needs to be corrected for new `git-tudu` Perl program, and for consistency.
+SaR 's/#TODO - /#TODO: /'
 
 # Prefer `Err()` over `FAIL()`.
 SaR 's/^FAIL(\(\)\{)/Err\1/'

@@ -115,7 +115,7 @@ while [ "$1" ]; do
 	shift
 done
 
-#TODO - Check for -S and/or -p but no -I.
+#TODO: Check for -S and/or -p but no -I.
 
 if [ "$INT" -a "$ONCE" == 'true' ]; then
 	Err 1 $LINENO "Interval specified, but $_PROJECT_ was told to run once."
@@ -165,7 +165,7 @@ fi
 
 NOTIFY(){
 	if ! [ "$NO_NOTIFY" == 'true' ]; then
-		#TODO - Add exclamation or other type of alert icon.
+		#TODO: Add exclamation or other type of alert icon.
 		if ! notify-send --urgency=$1 "$2"; then
 			LOGIT="Unable to send a notification."
 			Err 1 $LINENO "Unable to send a notification -- quitting."

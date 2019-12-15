@@ -19,8 +19,8 @@ Err(){
 	[ $1 -eq 1 ] && exit 1
 }
 
-#TODO - Currently won't download S01E01.
-#TODO - IMPORTANT: Fix filenames; they're a mess. :(
+#TODO: Currently won't download S01E01.
+#TODO: IMPORTANT: Fix filenames; they're a mess. :(
 
 USAGE(){
 	while read -r; do
@@ -138,7 +138,7 @@ while :; do
 		NUM=${NUM%% *}
 	fi
 
-	#TODO - Fix custom pages not working.
+	#TODO: Fix custom pages not working.
 
 	PAGE=`wget $NOWARC -q "http://podcast.ubuntu-uk.org/page/$NUM" -O -`
 	DL_LINK_MATCH="http://podcast\.ubuntu-uk\.org/download/.*\.ogg"

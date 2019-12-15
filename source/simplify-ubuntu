@@ -419,7 +419,7 @@ if [ "${LSBCheck:-true}" == 'true' ]; then
 	esac
 fi
 
-#TODO - This is a sloppy way to detect the distribution, and is only temporary!
+#TODO: This is a sloppy way to detect the distribution, and is only temporary!
 PathLook lite-welcome && ISLINUXLITE='true'
 
 if [ "$ISLINUXLITE" == 'true' ]; then

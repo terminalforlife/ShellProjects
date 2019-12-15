@@ -106,7 +106,7 @@ while :; do
 
 	COUNT+=1
 
-	#TODO - Somewhere here is an error (incorrect number of options?) when
+	#TODO: Somewhere here is an error (incorrect number of options?) when
 	#       a change is detected with md5sum. COMMANDS also didn't happen.
 
 	printf "CHECK[#%0.4d]: %(%F (%X))T\n" "$COUNT"

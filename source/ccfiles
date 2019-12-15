@@ -71,7 +71,7 @@ fi
 [ "$BEQUIET" == 'true' ] && exec > /dev/null
 [ "$DEBUGME" == 'true' ] && set -x
 
-#TODO - Check for Debian/Ubuntu base.
+#TODO: Check for Debian/Ubuntu base.
 
 if [ -d $DIR/ ]; then
 	for FILE in $DIR/*.list; {

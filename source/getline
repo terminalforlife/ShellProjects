@@ -104,7 +104,7 @@ while [ "$1" ]; do
 		start)
 			XERR $LINENO "Feature not yet available."
 
-			#TODO - Finish this feature.
+			#TODO: Finish this feature.
 			shift
 
 			ACTION_COUNT+=1
@@ -117,7 +117,7 @@ while [ "$1" ]; do
 		end)
 			XERR $LINENO "Feature not yet available."
 
-			#TODO - Finish this feature.
+			#TODO: Finish this feature.
 			shift
 
 			ACTION_COUNT+=1
@@ -128,13 +128,13 @@ while [ "$1" ]; do
 				XERR $LINENO "Incorrect end number chosen."
 			fi ;;
 		line)
-			#TODO - Why won't this display >1 line at a time?
+			#TODO: Why won't this display >1 line at a time?
 			shift
 
 			ACTION_COUNT+=1
 			INSTRUCT="showline"
 
-			#TODO - Add ranges, like: line 2-50,57-59,70-74
+			#TODO: Add ranges, like: line 2-50,57-59,70-74
 			for L in ${1//,/ }; {
 				if ! [[ $L =~ ^[0-9]+$ ]]; then
 					XERR $LINENO "Incorrect line number: $L"
@@ -238,7 +238,7 @@ for FILE in $FILELIST; {
 	fi
 
 	if [ "$INSTRUCT" == "showline" ]; then
-		#TODO - Imrove count performances by using this. Use #N to get the
+		#TODO: Imrove count performances by using this. Use #N to get the
 		#       length of the index (line in array); this can then be
 		#       tested like in the below while loop, but may be quicker.
 		#       Could the whole lot be be based upon readarray/mapfile?
@@ -263,7 +263,7 @@ for FILE in $FILELIST; {
 		# empty lines to a literal new line character. (\n doesn't work)
 		[ -z "$REPLY" ] && REPLY+=""
 
-		#TODO - Does this include spaces and/or tabs? Find out.
+		#TODO: Does this include spaces and/or tabs? Find out.
 		# Replace each character in the current line with a + followed by
 		# a space, thus allowing the for loop to recognise each field and
 		# so able to count each one, using let's increment.
@@ -336,7 +336,7 @@ for FILE in $FILELIST; {
 			TTL_OUTPUT "$CHARCOUNT" ;;
 	esac
 
-	#TODO - Finish this. Target: show sum of concatenated "count" results.
+	#TODO: Finish this. Target: show sum of concatenated "count" results.
 	if [ "$SHOW_SUM" == 'true' ]; then
 		:
 	fi
