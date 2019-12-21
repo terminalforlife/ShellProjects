@@ -17,8 +17,8 @@ _PROJECT_=${0##*/}
 
 #TODO: What if you're updating insit from a different branch?
 #TODO: Since the version file only goes by per day, there's no sense in checking
-#       multiple times per day, therefore, the check needs to be limited to one
-#       check per day, perhaps using a parameter file.
+#      multiple times per day, therefore, the check needs to be limited to one
+#      check per day, perhaps using a parameter file.
 
 Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
