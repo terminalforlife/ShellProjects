@@ -29,7 +29,7 @@ a4b851de9494091531f0288490853acf  source/fix-ff-gtk
 2e1142231c8a4c0d73fe2804c2fcf904  source/getline
 5fad17df2761ee188b1b71d35f303505  source/ghipc
 f67a53dbdf6f0f97926ec8e73e48852e  source/github-ssh-setup
-be1ec5abea0bdc5288b3845908cd9d78  source/insit
+5780c53d026157f866431ffe419f133f  source/insit
 f4e10792185984a3a59eb618f4bbea4d  source/isbatlow
 119eb19a2f7fc31bb4867b26d4641245  source/jotd
 b5ac0fc4ff9e3cdee43dcb126348a5c5  source/lnldl
@@ -52,7 +52,7 @@ db837408e7de7250772d6f330172a113  source/ripmydvd
 18410a0391c7a7be46e5cc19e7d4c129  source/rmne
 1679e859fd9a9ed2a401b3ad275452e7  source/roks
 fef24332e97ae3a98d0952c2ab9f92e6  source/seewttr
-9c393f4c7ece434da672ce2a18468023  source/shlides
+9cac75183f0aa6d5da74c2c0f2757766  source/shlides
 dd1395abbbad4d08e346d40d87b0ffb3  source/simplify-ubuntu
 113c7d47d79a823441ead21854f92a37  source/simwea
 ad768a2c5005cc4c3d3e9bb5d89c9114  source/snotes
@@ -74,6 +74,7 @@ b22dca8303157596ba480b0b08779d48  source/libtflbp-sh/GetInsPkgs
 b906a34f27630443dcefbd73c9bb8bf4  source/libtflbp-sh/LibFChk
 eecaae3211ede1b880313c90f7c50aa2  source/libtflbp-sh/LibTFLBPVer
 36c267c245876c71328924ae55a8ecbc  source/libtflbp-sh/OneSearch
+2ffbd8d80a967b491508052751eb492e  source/libtflbp-sh/README.md
 936679a7479836a743e255dfcbca8776  source/libtflbp-sh/SplitStr
 e4e771770572e59e9a868d8c04324452  source/libtflbp-sh/WCount
 b6cb10a9d38b162cb33613b4cc7ea88e  source/libtflbp-sh/YNInput
