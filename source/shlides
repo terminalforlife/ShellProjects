@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/shlides
 # Started On        - Sun 17 Nov 16:27:40 GMT 2019
-# Last Change       - Sat 21 Dec 18:36:39 GMT 2019
+# Last Change       - Sat 21 Dec 18:47:13 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -196,8 +196,9 @@ fi
 [ "$DebugMe" == 'true' ] && set -x
 
 tput smcup
+tput civis
 
-trap 'tput rmcup; exit 130' SIGINT EXIT
+trap 'tput rmcup; tput cnorm; exit 130' ABRT QUIT INT EXIT STOP
 
 # This is more of a placeholder for future use, but is somewhat used.
 if [ "$ColorsSupported" == 'true' ]; then
