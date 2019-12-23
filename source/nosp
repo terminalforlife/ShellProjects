@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/nosp (No Smart-Placement)
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Wed 27 Nov 15:56:24 GMT 2019
+# Last Change       - Mon 23 Dec 14:39:09 GMT 2019
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,26 +11,26 @@
 #----------------------------------------------------------------------------------
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf "ERROR: %s\n" "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
-[ $# -eq 0 ] || Err 1 $LINENO "No arguments are required."
+[ $# -eq 0 ] || Err 1 "No arguments are required."
 
-declare -i DEPCOUNT=0
-for DEP in xfconf-query sleep; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+DepCount=0
+for CurDep in xfconf-query sleep; do
+	if ! command -v "$CurDep" 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$CurDep' not met."
+		DepCount=$((DepCount + 1))
 	fi
-}
+done
 
-[ $DEPCOUNT -gt 0 ] && exit 1
+[ $DepCount -gt 0 ] && exit 1
 
-LOCAL_XML_FILE="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
-CURRENT_VALUE=`xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
+LocalXMLFile="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+CurrentValue=`xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
 
-if [ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ]; then
+if [ -f "$LocalXMLFile" ] && [ -w "$LocalXMLFile" ]; then
 	# This command group waits, sets value to 90, waits, then sets back to 100.
 	{
 		sleep 3s
@@ -39,6 +39,6 @@ if [ -f "$LOCAL_XML_FILE" -a -w "$LOCAL_XML_FILE" ]; then
 		xfconf-query -c xfwm4 -p /general/placement_ratio -s 100 -t int
 	} &
 else
-	Err 1 $LINENO "Unable to fix Smart Placement."
+	Err 1 "Unable to fix Smart Placement."
 fi
 
