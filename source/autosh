@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/autosh
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu  9 Jan 19:14:33 GMT 2020
+# Last Change       - Thu  9 Jan 19:15:58 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ while :; do
 		Err 1 $LINENO 'File not found or inaccessible.'
 	fi
 
-	sleep 0.${Speed}s # Half-second to help compensate for misalignment.
+	sleep 0.${Refresh:-5}s
 done
 
 tput ed; tput rmcup
