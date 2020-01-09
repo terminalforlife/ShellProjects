@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/autosh
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu  9 Jan 19:15:58 GMT 2020
+# Last Change       - Thu  9 Jan 19:27:41 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ Usage(){
 	EOF
 }
 
-SHELL='bash'
+Shell='bash'
 
 while [ "$1" ]; do
 	case $1 in
@@ -55,7 +55,7 @@ while [ "$1" ]; do
 			elif ! type -fP "$1" > /dev/null 2>&1; then
 				Err 1 $LINENO 'Provided shell not found in PATH.'
 			else
-				SHELL=$1
+				Shell=$1
 			fi ;;
 		--refresh|-r)
 			shift
@@ -80,7 +80,7 @@ done
 ExecFile=$1; shift
 
 declare -i DEPCOUNT=0
-for DEP in tput sleep stat ${SHELL##*/}; {
+for DEP in tput sleep stat ${Shell##*/}; {
 	if ! type -fP "$DEP" > /dev/null 2>&1; then
 		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
@@ -105,12 +105,12 @@ tput smcup
 
 while :; do
 	if [ -f "$ExecFile" ] && [ -r "$ExecFile" ]; then
-		SSE=`stat -c '%Y' "$1" 2> /dev/null`
+		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
 
 		if [ 0${SSE_OLD//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
 			tput clear
 
-			"$SHELL" $@
+			"$Shell" "$ExecFile" "$@"
 		fi
 
 		SSE_OLD=${SSE//[!0-9]}
