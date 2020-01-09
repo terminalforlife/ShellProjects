@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/autosh
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu  9 Jan 19:27:41 GMT 2020
+# Last Change       - Thu  9 Jan 21:38:22 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -32,7 +32,9 @@ Usage(){
 		            --shell|-S NAME         - Use NAME instead of Bourne Again Shell.
 		            --refresh|-r INT        - Adjust to fit your performance needs.
 
-		NOTE:       This program also works with other languages, like Perl.
+		NOTE:       Signifying the end of OPTS with '--' is supported.
+
+		            This program also works with other languages, like Perl.
 
 	EOF
 }
@@ -41,6 +43,8 @@ Shell='bash'
 
 while [ "$1" ]; do
 	case $1 in
+		--)
+			break ;;
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
@@ -119,7 +123,7 @@ while :; do
 		Err 1 $LINENO 'File not found or inaccessible.'
 	fi
 
-	sleep 0.${Refresh:-5}s
+	sleep 0.${Refresh:-05}s
 done
 
 tput ed; tput rmcup
