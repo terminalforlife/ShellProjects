@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Tue 10 Dec 16:23:32 GMT 2019
+# Last Change       - Thu  9 Jan 19:32:16 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2019-12-10'
+CurVer='2020-01-09'
 Progrm=${0##*/}
 
 EventLog="/var/log/${Progrm}-events.log"
@@ -46,7 +46,7 @@ Usage(){
 		\r            --group|-G GROUP        - Where GROUP is, IE: '0'.
 		\r            --target|-T PATH        - Where PATH is, IE: '/usr/bin/1337'.
 
-		\rNOTE:       The use of '--' to specify the end of OPTS, is supported.
+		\rNOTE:       Signifying the end of OPTS with '--' is supported.
 
 		\r            Where TYPE is one of 'all', 'info', 'warning', or 'error'.
 
