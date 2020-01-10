@@ -3,27 +3,24 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg (List Packages)
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Thu 26 Dec 20:28:50 GMT 2019
+# Last Change       - Fri 10 Jan 00:21:09 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-CurVer='2019-12-26'
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
+
+CurVer='2020-01-10'
 Progrm=${0##*/}
-
-#TODO: The ignore case flag won't work when specifying glob matching.
-#TODO: Add ability to search only the whole word, like `STRING`, not `*STRING*`.
-
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
 
 Domain='https://github.com'
 
 Usage(){
 	while read; do
-		printf "%s\n" "$REPLY"
+		printf '%s\n' "$REPLY"
 	done <<-EOF
 		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife <terminalforlife@yahoo.com>
@@ -50,7 +47,7 @@ Usage(){
 		            the package name and its short description, like apt-cache search.
 
 		            If you include --name-only or -n, then the match will be looked for
-		            only in the name, like apt-cache -n search. This is to keep the
+		            only in the name, like 'apt-cache -n search'. This is to keep the
 		            behavior predictable and easy to use.
 
 		            Using --show-arch|-s allows for those with a package for both
@@ -63,7 +60,7 @@ Usage(){
 	EOF
 }
 
-PACKNAME="{Package}"
+PACKNAME='{Package}'
 
 while [ "$1" ]; do
 	case $1 in
@@ -84,33 +81,35 @@ while [ "$1" ]; do
 			if [[ $1 =~ ^(glob|regex)$ ]]; then
 				MATCH_WITH=$1
 			else
-				Err 1 $LINENO "Incorrect match type provided."
+				Err 1 'Incorrect match type provided.'
 			fi ;;
 		--name-only|-n)
 			NAME_ONLY='true' ;;
 		--show-arch|-a)
-			PACKNAME="{Binary:Package}" ;;
+			PACKNAME='{Binary:Package}' ;;
 		--count|-c)
 			DOCOUNT='true' ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
+if [ "$IGNORE_CASE" == 'true' -a "$MATCH_WITH" == 'glob' ]; then
+	Err 1 'Case-insensitive glob matching is not supported.'
+fi
+
 PKG=($@)
 
-if ! type -fP dpkg-query > /dev/null 2>&1; then
-	Err 1 $LINENO "Dependency 'dpkg-query' not met."
-fi
+ChkDep dpkg-query
 
 [ "$DebugMe" == 'true' ] && set -x
 
 PKG_LIST(){
 	if ! dpkg-query --show -f="\${db:Status-Abbrev} \$${PACKNAME} - \${binary:Summary}\n" \*; then
-		Err 1 $LINENO "Non-zero exit status for: dpkg-query"
+		Err 1 'Non-zero exit status for: dpkg-query'
 	fi
 }
 
@@ -118,13 +117,11 @@ MATCH(){
 	SEARCH_RESULT+=1
 
 	if ! [ "$NO_DESCRIBE" == 'true' ]; then
-		printf "%s\n" "$1"
+		printf '%s\n' "$1"
 	else
-		printf "%s\n" "${1%% - *}"
+		printf '%s\n' "${1%% - *}"
 	fi
 }
-
-[ "$IGNORE_CASE" == 'true' ] && shopt -s nocaseglob
 
 declare -i COUNT=0
 declare -i SEARCH_RESULT=0
@@ -142,7 +139,7 @@ while read -a X; do
 		# No new line character as this is an array. Otherwise every word
 		# would print on a new line. The final new line is added when the
 		# text is displayed on the screen with echo.
-		printf -v BUF "%s " ${X[@]/ii}
+		printf -v BUF '%s ' ${X[@]/ii}
 		[ "$BUF" ] || continue
 
 		# If there are user-specified matches to find, then iterate over
@@ -160,11 +157,11 @@ while read -a X; do
 
 				case ${MATCH_WITH:-UNSET} in
 					glob)
-						if [[ $FILTER == " "$P ]]; then
+						if [[ $FILTER == $P ]]; then
 							MATCH "${BUF% }"
 						fi ;;
 					regex|*)
-						if [[ $FILTER =~ ${P/^/^ } ]]; then
+						if [[ $FILTER =~ $P ]]; then
 							MATCH "${BUF% }"
 						fi ;;
 				esac
@@ -174,9 +171,9 @@ while read -a X; do
 			# all of the packages. Removing the space because of the
 			# above printf command adding a trailing space.
 			if ! [ "$NO_DESCRIBE" == 'true' ]; then
-				printf "%s\n" "${BUF% }"
+				printf '%s\n' "${BUF% }"
 			else
-				printf "%s\n" "${BUF%% - *}"
+				printf '%s\n' "${BUF%% - *}"
 			fi
 		fi
 
@@ -187,9 +184,6 @@ while read -a X; do
 		fi
 	fi
 done <<< "$(PKG_LIST)"
-
-# Just in-case a later feature added below uses globs.
-[ "$IGNORE_CASE" == 'true' ] && shopt -u nocaseglob
 
 if [ "$DOCOUNT" == 'true' ]; then
 	if ! [ "$USER_SEARCH" == 'true' ]; then
