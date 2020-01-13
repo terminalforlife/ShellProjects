@@ -3,29 +3,21 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/nosp (No Smart-Placement)
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Mon 23 Dec 14:39:09 GMT 2019
+# Last Change       - Sat 11 Jan 22:13:39 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # A workaround for the issue in XFCE wherein Smart Placement refuses to go away.
 #----------------------------------------------------------------------------------
 
-Err(){
-	printf "ERROR: %s\n" "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
-}
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
 [ $# -eq 0 ] || Err 1 "No arguments are required."
 
-DepCount=0
-for CurDep in xfconf-query sleep; do
-	if ! command -v "$CurDep" 1> /dev/null 2>&1; then
-		Err 0 "Dependency '$CurDep' not met."
-		DepCount=$((DepCount + 1))
-	fi
-done
-
-[ $DepCount -gt 0 ] && exit 1
+ChkDep xfconf-query sleep
 
 LocalXMLFile="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
 CurrentValue=`xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
