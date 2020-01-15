@@ -7,16 +7,20 @@ Thank you for your interest. Despite the non-descript name of this repository, i
 
 Some of the programs within this repository were written and are maintained for a Bourne POSIX-compliant shell (with [Yash](https://yash.osdn.jp/) as guidance), and others are written for the Bourne Again Shell.
 
-As of 2019-12-07, here are some highlights:
+As of 2020-01-15, here are some highlights:
 
-  * backmeup - A simple tool to quickly and easily back up your HOME.
+  * autosh - Development tool for shell programmers needing live updates.
   * cito - Bourne POSIX installer for local or GitHub files.
   * libtflbp-sh - Bourne POSIX function library used by TFL programs.
   * lspkg - Test for, describe, and list out installed packages.
-  * purgerc - Purge all 'rc' packages, as marked by DPKG.
+  * mif - Shell program to filter films by year and whether seen or not.
+  * mkpass - Pure Bourne Again Shell approach to complex password generation.
   * rmne - POSIX Bourne method to remove non-essential Debian packages.
   * roks - Remove old kernel versions on an Ubuntu- or Debian-based system.
   * shlides - Present a project on your terminal via formatted slides.
+  * simplify-ubuntu - Project to lighten Ubuntu 16.04.* LTS installations.
+  * simwea - Display various weather statistics on a terminal.
+  * snotes - Search your programming notes on-the-fly with this simple tool.
   * ubuntu-syschk - Performs various non-root system health checks on Ubuntu and similar.
 
 Continue to the next section to see how you can get them...
@@ -34,13 +38,13 @@ You have four options available to you, at the time of writing this:
   * You can install via the new, exhaustive [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito) program I've written for just this purpose. It's lightweight, portable, and installable with the following one-liner, after which many programs or files on GitHub or locally are quick, robust, and painless to install -- not just my own!
 
     ```bash
-    wget -qO cito 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito'; sudo sh cito cito
+    wget -q 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito'; sudo sh cito cito
     ```
 
   * If you're on a Debian- or Ubuntu-based distribution of Linux:
 
     ```bash
-    wget -qO cito.deb 'https://raw.githubusercontent.com/terminalforlife/DEB-Packages/master/cito/cito.deb'; sudo dpkg -i cito.deb; rm cito.deb
+    wget -q 'https://raw.githubusercontent.com/terminalforlife/DEB-Packages/master/cito/cito_2019-12-10_all.deb'; sudo dpkg -i cito_2019-12-10_all.deb
     ```
 
   * It's clunky and it's inconvenient, but if you must, you can clone this repository then install them yourself, line-by-line.

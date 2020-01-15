@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Thu  9 Jan 19:32:16 GMT 2020
+# Last Change       - Wed 15 Jan 21:43:55 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2020-01-09'
+CurVer='2020-01-15'
 Progrm=${0##*/}
 
 EventLog="/var/log/${Progrm}-events.log"
@@ -313,7 +313,7 @@ SigHandler(){
 	exit $Signal
 }
 
-trap SigHandler INT EXIT STOP QUIT
+trap SigHandler INT EXIT QUIT ABRT TERM
 
 if [ -n "$LogView" ]; then
 	Logger info "Attempting to view Cito log file"
