@@ -1,74 +1,76 @@
-#!/bin/bash
+#!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/seewttr
 #----------------------------------------------------------------------------------
-# Project Name      - $HOME/bin/seewttr
+# Project Name      - Extra/source/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Fri  6 Dec 22:54:14 GMT 2019
+# Last Change       - Sun 19 Jan 18:52:02 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
-[ -x /usr/bin/wget ] || XERR $LINENO "Dependency '/usr/bin/wget' not met."
+CurVer='2020-01-19'
+Progrm=${0##*/}
 
-USAGE(){
-	while IFS= read X; do
-		printf "%s\n" "$X"
+Domain='http://wttr.in'
+
+Usage(){
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
 	done <<-EOF
-		            SEEWTTR - WTTR Look (19th November 2017)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		\r            SEEWTTR ($CurVer)
+		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
-		            Super-simple wrapper-like script to get your weather. Thanks entirely
-		            to igor_chubin for this script even being possible.
+		\r            Bourne POSIX shell script to fetch weather information.
 
-		SYNTAX:     seewttr [OPTS] LOCATION
+		\rSYNTAX:     $Progrm [OPTS] [LOC]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --current|-c            - Show only the current weather.
+		\rOPTS:       --help|-h|-?            - Displays this help information.
+		\r            --version|-v            - Output only the version datestamp.
+		\r            --current|-c            - Show only the current weather.
 
-		SITE:       From whence thine weather cometh...
+		\rNOTE:       Format for LOC is, for example: town,country
 
-		              http://wttr.in
-
-		            Source files found here...
-
-		              https://github.com/chubin/wttr.in
-
-		NOTE:       Format for LOCATION is, for example: town,country
+		\rSITE:       $Domain
 	EOF
 }
 
-LOCATION=""
-
-while [ -n "$1" ]; do
+while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--current|-c)
-			CURRENT='true' ;;
+			Current='true' ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
 		*)
 			break ;;
 	esac
-
 	shift
 done
 
-[ -n "$*" ] && LOCATION="$*" || XERR $LINENO "Incorrect argument(s) specified."
-[ $UID -eq 0 ] && XERR $LINENO "Root access is not recommended!"
+ChkDep wget
 
-declare -i LINECOUNT=0
-while IFS="" read -r X; do
-	if [ "$CURRENT" == 'true' ]; then
-		if [ $LINECOUNT -le 6 ]; then
-			LINECOUNT+=1
+[ -z "$*" ] && Err 1 "No 'LOC' provided."
+
+LineCount=0
+wget -q -O - "http://wttr.in/$*" | while IFS="" read -r CurLine; do
+	if [ "$Current" = 'true' ]; then
+		if [ $LineCount -le 6 ]; then
+			LineCount=$((LineCount + 1))
 		else
-			echo
 			break
 		fi
 	fi
 
- [[ $X =~ ^(Weather|New|Follow) ]] || printf "%s\n" "$X"
-done <<< "$(/usr/bin/wget -q http://wttr.in/"${LOCATION}" -O -)"
-
+	case $CurLine in
+		Weather*|New*|Follow*) ;;
+		*) printf "%s\n" "$CurLine" ;;
+	esac
+done
