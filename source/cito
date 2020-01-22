@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Wed 15 Jan 21:43:55 GMT 2020
+# Last Change       - Wed 22 Jan 18:20:43 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2020-01-15'
+CurVer='2020-01-22'
 Progrm=${0##*/}
 
 EventLog="/var/log/${Progrm}-events.log"
@@ -26,7 +26,7 @@ LogTypes='all info warning error'
 
 Usage(){
 	while read -r CurLine; do
-		printf "%b\n" "$CurLine"
+		printf '%b\n' "$CurLine"
 	done <<-EOF
 		\r            CITO ($CurVer)
 		\r            Written by terminalforlife <terminalforlife@yahoo.com>
@@ -37,7 +37,6 @@ Usage(){
 
 		\rOPTS:       --help|-h|-?            - Displays this help information.
 		\r            --version|-v            - Output only the version datestamp.
-		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
 		\r            --remote|-r INFO        - Specify a remote file; see REMOTE.
 		\r            --hash|-H FILE          - Use FILE to cross-check hashes.
 		\r            --clobber|-c            - Overwrite files without prompting.
@@ -45,6 +44,8 @@ Usage(){
 		\r            --owner|-O OWNER        - Where OWNER is, IE: '0'.
 		\r            --group|-G GROUP        - Where GROUP is, IE: '0'.
 		\r            --target|-T PATH        - Where PATH is, IE: '/usr/bin/1337'.
+		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
+		\r            --nolog|-l              - Disable the logging functionality.
 
 		\rNOTE:       Signifying the end of OPTS with '--' is supported.
 
@@ -104,6 +105,8 @@ while [ -n "$1" ]; do
 			if [ -z "$LogView" ]; then
 				Err 1 "Option '--log-view|-L' requires one of TYPE."
 			fi ;;
+		--no-log|-l)
+			SkipLog='true' ;;
 		--remote|-r)
 			shift
 
@@ -181,7 +184,11 @@ else
 fi
 
 if ! [ ${UID:-`id -u`} -eq 0 ]; then
-	Err 1 'Root permissions required for system-wide changes.'
+	if ! [ "$SkipLog" = 'true' ]; then
+		Err 1 'Root permissions required for system-wide changes.'
+	fi
+
+	printf "CAUTION: Option '--no-log|-l' temporarily disables logging.\n" 1>&2
 fi
 
 TemRemFile=`mktemp`
@@ -250,12 +257,11 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 }
 
 Logger(){ # Usage: Logger TYPE MESSAGE
+	[ "$SkipLog" = 'true' ] && return 2
+
 	LogTypeChk "$1" $LogTypes
 
-	if [ -d "${EventLog%/*}" ]; then
-		mkdir -p "${EventLog%/*}" 1> /dev/null 2>&1
-	fi
-
+	[ -d "${EventLog%/*}" ] && mkdir -p "${EventLog%/*}" 1> /dev/null 2>&1
 	[ -f "$EventLog" ] || 1> "$EventLog"
 
 	# Ensure it's still set safely.
@@ -279,8 +285,7 @@ LogErrInf(){ # Usage: LogErrInf [$KEY] [KEY] [FILE]
 }
 
 LogTypeChk(){ # Usage: LogTypeChk [TYPE] [VALID_TYPES]
-	CheckType=$1
-	shift
+	CheckType=$1; shift
 
 	TypeCount=0
 	for CurType in "$@"; do
@@ -305,7 +310,7 @@ SigHandler(){
 
 	if ! rm -f "$HashFile" "$TemRemFile" 1> /dev/null 2>&1; then
 		Logger error "File '$HashFile' and/or '$TemRemFile' failed removal"
-		printf "ERROR: One or more temporary files failed removal.\n" 1>&2
+		printf 'ERROR: One or more temporary files failed removal.\n' 1>&2
 	else
 		Logger info "Removed '$HashFile' and '$TemRemFile'"
 	fi
@@ -316,11 +321,11 @@ SigHandler(){
 trap SigHandler INT EXIT QUIT ABRT TERM
 
 if [ -n "$LogView" ]; then
-	Logger info "Attempting to view Cito log file"
+	Logger info 'Attempting to view Cito log file'
 	LogTypeChk "$LogView" $LogTypes
 
 	if [ -f "$EventLog" ]; then
-		Logger info "Viewing Cito log file"
+		Logger info 'Viewing Cito log file'
 		while IFS=':' read Epoch Type MSG; do
 			ShowLog(){
 				FTime=`date '+%F %X' --date="@$Epoch"`
@@ -341,7 +346,11 @@ if [ -n "$LogView" ]; then
 fi
 
 ReadFile(){
-	if ! [ -f "$1" ]; then
+	if [ -z "$1" ]; then
+		# This is probably something the user won't see.
+		Err 0 "Cito: ReadFile(): Empty '\$1' variable."
+		return 1
+	elif ! [ -f "$1" ]; then
 		Err 0 "File '$1' not found."
 		return 1
 	fi
@@ -380,6 +389,14 @@ ReadFile(){
 			break 1
 		fi
 	done < "$1"
+
+	# Check for `($HOME|~)(|/)*` then apply if found.
+	case $Target in
+		\$HOME*|\$HOME/*)
+			Target="$HOME${Target#\$HOME}" ;;
+		\~*|\~/*)
+			Target="$HOME${Target#\~}" ;;
+	esac
 
 	if [ "$IsFound" = 'true' ]; then
 		AskOverwrite "$Target"
@@ -432,9 +449,7 @@ DoRegardless(){
 		Group=$UserGroup
 		Target=$UserTarget
 
-		if [ -f "$Target" ]; then
-			AskOverwrite "$Target"
-		fi
+		[ -f "$Target" ] && AskOverwrite "$Target"
 
 		unset UserSpec
 	fi
@@ -467,7 +482,7 @@ MainRemote(){
 		fi
 	else
 		if [ -z "$1" ]; then
-			Logger error "No remote file specified"
+			Logger error 'No remote file specified'
 			Err 1 "No remote file specified -- see: $Progrm -h"
 		fi
 
@@ -477,7 +492,7 @@ MainRemote(){
 }
 
 if [ "$DoRemote" = 'true' ]; then
-	Logger info "Beginning remote operation"
+	Logger info 'Beginning remote operation'
 
 	for CurRemFile in "$@"; do
 		MainRemote "$CurRemFile"
@@ -488,7 +503,7 @@ else
 	# Pretty sure this is handled elsewhere, but just in-case, catch it.
 	[ $# -eq 0 ] && Err 1 'No local files were provided.'
 
-	Logger info "Beginning local operation"
+	Logger info 'Beginning local operation'
 
 	for CurFile in "$@"; do
 		Logger info "Processing '$CurFile'"
@@ -523,5 +538,5 @@ else
 fi
 
 # If it happens to make it this far.
-Logger info "Appears to be nothing to do"
-printf "Nothing to do -- quitting.\n"
+Logger info 'Appears to be nothing to do'
+printf 'Nothing to do -- quitting.\n'
