@@ -28,6 +28,7 @@ a57bcf4d9f58a81ace0fb8c348d96401  source/dlfcmags
 2e1142231c8a4c0d73fe2804c2fcf904  source/getline
 5fad17df2761ee188b1b71d35f303505  source/ghipc
 f67a53dbdf6f0f97926ec8e73e48852e  source/github-ssh-setup
+debaf563a1dd5da7f477fbe481fcbe32  source/hup
 5780c53d026157f866431ffe419f133f  source/insit
 f4e10792185984a3a59eb618f4bbea4d  source/isbatlow
 119eb19a2f7fc31bb4867b26d4641245  source/jotd
@@ -91,4 +92,4 @@ e6e9036b9c16fa35b92ac81e2b4451de  source/completions/nxbt
 30c61858b52bd2ed7dc33713bd8800ce  source/completions/simwea
 4cac08df30f02f4b296043b5971f1011  source/completions/tozero
 197dcc70cf5850bde53cbfe53a57a7ee  source/completions/ubuntu-syschk
-3cda5a8a0c3a470a156e491e2f3fb5a9  source/cron_tasks/notify-upgrade
+d281e434e03a5a58dcf22c0b61c4b16f  source/cron_tasks/notify-upgrade
