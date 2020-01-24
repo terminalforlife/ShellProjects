@@ -91,4 +91,4 @@ e6e9036b9c16fa35b92ac81e2b4451de  source/completions/nxbt
 30c61858b52bd2ed7dc33713bd8800ce  source/completions/simwea
 4cac08df30f02f4b296043b5971f1011  source/completions/tozero
 197dcc70cf5850bde53cbfe53a57a7ee  source/completions/ubuntu-syschk
-f2d911e0067595602d7645245a5b18a7  source/cron_tasks/APT_Update_Cron
+3cda5a8a0c3a470a156e491e2f3fb5a9  source/cron_tasks/notify-upgrade
