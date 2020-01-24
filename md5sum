@@ -28,7 +28,6 @@ a57bcf4d9f58a81ace0fb8c348d96401  source/dlfcmags
 2e1142231c8a4c0d73fe2804c2fcf904  source/getline
 5fad17df2761ee188b1b71d35f303505  source/ghipc
 f67a53dbdf6f0f97926ec8e73e48852e  source/github-ssh-setup
-debaf563a1dd5da7f477fbe481fcbe32  source/hup
 5780c53d026157f866431ffe419f133f  source/insit
 f4e10792185984a3a59eb618f4bbea4d  source/isbatlow
 119eb19a2f7fc31bb4867b26d4641245  source/jotd
@@ -42,7 +41,6 @@ cb0ceead22ceea603eee1b79463d7aee  source/mfw
 e9784fcdf4f2244451c6030bb2bd46c1  source/mplay
 2b6584c859cb780e209bf8b77dfd9718  source/noprtscr
 9dcb0a928a104115e7ea15b3e75978aa  source/nosp
-36830e688a9d8bcc39669c1de26238a4  source/notify-upgrade
 dd5d6f2e19f9b01aa880d27f775a1bfd  source/nts
 89d38fa828a14b02393ba7bf283b954d  source/nwchk
 f0ee68bcb7e3dcd7503b1f394f41a3d5  source/nxbt
