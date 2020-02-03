@@ -1,124 +1,111 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/isbatlow
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Fri  6 Dec 22:50:44 GMT 2019
+# Last Change       - Sun  2 Feb 23:57:15 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+CurVer='2020-02-02'
+Progrm=${0##*/}
 
-DOM="https://github.com"
+Domain='https://github.com'
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Simple utility for laptops, to check if the battery is low.
 
-		SYNTAX:     $_PROJECT_ [OPTS] [CMD]
+		SYNTAX:     $Progrm [OPTS] [CMD]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --interval|-I N         - Set the check interval,in seconds, to N.
-		            --limit|-L N            - Set the battery percentile limit to N.
-		            --battery|-B BAT        - Where BAT is the battery to watch.
+		OPTS:       --help|-h|-?            - Display this help information.
+		            --version|-v            - Output the version datestamp.
+		            --battery|-B NAME       - Specify which battery to watch.
+		            --interval|-I N         - Set interval, in seconds, to N.
+		            --limit|-L N            - Set battery limit to N percent.
 
-		NOTE:       Where CMD is one or more commands to run upon the battery limit being
-		            detected, which is by default 15%, remaining.
+		NOTE:       Where CMD is one or more commands to run upon the battery
+		            limit being detected, which is by default 15%, remaining.
 
-		SITE:       $DOM/terminalforlife/Extra
+		SITE:       $Domain/terminalforlife/Extra
 	EOF
 }
 
-BATTERY="battery_BAT0"
-declare -i INTERVAL=30
-declare -i LIMIT=15
+Battery='battery_BAT0'
+Interval=30
+Limit=15
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
+			printf '%s\n' "$CurVer"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME='true' ;;
+			DebugMe='true' ;;
 		--interval|-I)
 			shift
 			if [[ $1 =~ ^[0-9]+$ ]] && [ $1 -gt 0 ]; then
-				LIMIT=$1
+				Limit=$1
 			else
-				Err 1 $LINENO "Invalid interval specified."
+				Err 1 'Invalid interval specified.'
 			fi ;;
 		--limit|-L)
 			shift
-			if [[ $1 =~ ^[0-9]+$ ]]\
-			&& [ $1 -gt 0 -a $1 -lt 100 ]; then
-				LIMIT=$1
+			if [[ $1 =~ ^[0-9]+$ ]] && [ $1 -gt 0 -a $1 -lt 100 ]; then
+				Limit=$1
 			else
-				Err 1 $LINENO "Invalid limit specified."
+				Err 1 'Invalid limit specified.'
 			fi ;;
 		--battery|-B)
 			shift
 			if ! [ "$1" ]; then
-				Err 1 $LINENO "Missing battery specification."
+				Err 1 'Missing battery specification.'
 			else
-				BATTERY=$1
+				Battery=$1
 			fi ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-CMD="$@"
+#TODO: Use `/sys/class/power_supply` instead, or perhaps as an alternative.
 
-declare -i DEPCOUNT=0
-for DEP in notify-send on_ac_power wget sleep; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
-
-[ "$DEBUGME" == 'true' ] && set -x
+DepChk notify-send on_ac_power sleep
 
 if ! on_ac_power; then
 	while IFS=":" read -a X; do
-		if [ "${X[0]// }" == "percentage" ]; then
+		if [ "${X[0]// }" == 'percentage' ]; then
 			if ! [[ ${X[1]// } =~ ^[0-9]+%$ ]]; then
-				notify-send --urgency=critical\
-					"Unable to get valid battery value."
-				Err 0 $LINENO "Unable to get valid percentile."
+				notify-send --urgency=critical 'Unable to get valid battery value.'
+				Err 0 'Unable to get valid percentile.'
 			else
-				if [ ${X[1]%\%} -le $LIMIT ]; then
-					notify-send --urgency=critical\
-						"Battery is critically low!"
+				if [ ${X[1]%\%} -le $Limit ]; then
+					notify-send --urgency=critical 'Battery is critically low!'
 
-					($CMD)
+					(
+						$@
+					)
 				fi
 			fi
 
 			break
 		fi
-	done <<< "$(upower -i /org/freedesktop/UPower/devices/$BATTERY)"
-	sleep ${INTERVAL}s
+	done <<< "$(upower -i /org/freedesktop/UPower/devices/$Battery)"
+	sleep ${Interval}s
 fi
-

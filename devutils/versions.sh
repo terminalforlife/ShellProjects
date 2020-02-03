@@ -1,16 +1,17 @@
 #!/bin/sh
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/versions.sh
 # Started On        - Fri 25 Oct 12:41:34 BST 2019
-# Last Change       - Mon  9 Dec 00:01:33 GMT 2019
+# Last Change       - Fri 31 Jan 03:05:57 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
+set -e
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
-. /usr/lib/tflbp-sh/YNInput
+set +e
 
 ChkDep mimetype
 
@@ -42,11 +43,3 @@ for CurFile in source/*; do
 		printf "${CurFile##*/}=$Version\n"
 	fi
 done 1> "$VerFile"
-
-if YNInput "Add these changes to the staging area?"; then
-	git add "$VerFile"
-
-	if YNInput "Commit these and any other changes, now?"; then
-		git commit -m 'Update `'"$VerFile"'`'
-	fi
-fi

@@ -1,20 +1,23 @@
 #!/bin/sh
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Sun 15 Dec 00:29:49 GMT 2019
+# Last Change       - Fri 31 Jan 03:04:49 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# Just a personal, temporary development tool to update the syntax standards of my
-# shell programs and small scripts. I have so many that this will be a time-saver.
+#------------------------------------------------------------------------------
+# Just a personal, temporary development tool to update the syntax standards of
+# my shell programs and small scripts. I have so many that this will be a
+# time-saver.
 #
 # You could make use of some of this, though.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
+set -e
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
+set +e
 
 #set -- "$HOME/GitHub/terminalforlife/Personal/Extra/source/lspkg"
 

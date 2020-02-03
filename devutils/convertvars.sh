@@ -1,29 +1,24 @@
 #!/bin/sh
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/convertvars.sh
 # Started On        - Wed 27 Nov 16:51:42 GMT 2019
-# Last Change       - Fri  6 Dec 03:28:05 GMT 2019
+# Last Change       - Fri 31 Jan 02:48:45 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# Do not run this! It's a developer tool I'm sharing in-case somebody has a similar
-# problem to which they need a solution, one of which he or she perhaps found here.
-#
-# However...
+#------------------------------------------------------------------------------
+# Do not run this! It's a developer tool I'm sharing in-case somebody has a
+# similar problem to which they need a solution, one of which he or she perhaps
+# found here.
 #
 # Usage: convertvars.sh [FILE]
-#
-# Assumptions:
-#
-#   * You have AWK available in PATH.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
+set -e
 . /usr/lib/tflbp-sh/ChkDep
+set +e
 
 ChkDep awk
-
-set -- ubuntu-syschk
 
 # Compile a unique, sigil-omitted list of uppercase-only variable names.
 VarList(){

@@ -1,103 +1,90 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/autoscrot
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoscrot
 # Started On        - Sun 17 Sep 05:06:50 BST 2017
-# Last Change       - Fri  6 Dec 22:45:32 GMT 2019
+# Last Change       - Mon  3 Feb 16:17:41 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+CurVer='2020-02-03'
+Progrm=${0##*/}
 
-USAGE(){
+Usage(){
 	while read -r; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife <terminalforlife@yahoo.com>
 
-		            Tool to take full screenshots at user-specified intervals using scrot.
+		            Take screenshots at user-specified intervals using scrot.
 
-		SYNTAX:     $_PROJECT_ [OPTS] [SCROT_ARGS]
+		SYNTAX:     $Progrm [OPTS] [SCROT_ARGS]
 
 		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --interval|-I N         - Where N is the seconds of interval.
+		            --version|-v            - Output the version datestamp.
+		            --quiet|-q              - Quieter operation, with errors.
+		            --interval|-I N         - Where N is seconds of interval.
 
 		NOTE:       If no interval is provided, a default of 3 will be used.
 
-		            The scrot arguments (via SCROT_ARGS) are completely optional. Due to
-		            the nature of $_PROJECT_, obviously some argument will make no sense to
-		            pass over to scrot to process, such as the -h and probably -s flags.
+		            The scrot arguments (via SCROT_ARGS) are optional. Due to
+		            the nature of $Progrm, some arguments will make no sense to
+		            pass over to scrot to process.
 
-		            Images are saved at the default quality for JPG images.
+		            Images are saved using the default quality for JPG images.
 
-		FILE:       Screenshots saved in: \$HOME/Pictures/AutoScrot/
+		FILE:       ~/Pictures/AutoScrot/
 	EOF
 }
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET='true' ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			BeQuiet='true' ;;
 		--interval|-I)
-			shift; INTERVAL=$1
-			if ! [[ ${INTERVAL} =~ ^[0-9]+$ ]]\
-			|| [ $INTERVAL -lt 1 ]; then
-				Err 1 $LINENO "Invalid interval selected."
+			shift; Interval=$1
+			if ! [[ ${Interval} =~ ^[0-9]+$ ]]\
+			|| [ $Interval -lt 1 ]; then
+				Err 1 "Invalid interval selected."
 			fi ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument specified." ;;
+			Err 1 "Incorrect argument specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in scrot mkdir sleep; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
-}
+ChkDep scrot mkdir sleep
 
-[ $DEPCOUNT -gt 0 ] && exit 1
+[ "$BeQuiet" == 'true' ] && exec > /dev/null
 
-[ "$BEQUIET" == 'true' ] && exec > /dev/null
-[ "$DEBUGME" == 'true' ] && set -x
+printf "Press Ctrl + C to cancel and exit $Progrm.\n"
 
-printf "Press Ctrl + C to cancel and exit $_PROJECT_.\n"
-
-declare -i NUM=0
+declare -i Num=0
 while :; do
-	sleep ${INTERVAL:-3}s
+	sleep ${Interval:-3}s
 
-	MAIN_DIR="$HOME/Pictures/AutoScrot"
-	[ -d "$MAIN_DIR" ] || mkdir -p "$MAIN_DIR"
-	printf -v FILENAME "%s/Screenshot_%(%F_%X)T.jpg" $MAIN_DIR -1
+	MainDir="$HOME/Pictures/AutoScrot"
+	[ -d "$MainDir" ] || mkdir -p "$MainDir"
+	printf -v FILENAME "%s/Screenshot_%(%F_%X)T.jpg" $MainDir -1
 
 	if scrot $@ "$FILENAME"; then
-		NUM+=1
-		printf "\rScreenshots taken:   %'d" "$NUM"
+		Num+=1
+		printf "\rScreenshots taken:   %'d" "$Num"
 	else
-		Err 0 $LINENO "Non-zero exit status for screenshot #${NUM}."
+		Err 0 "Non-zero exit status for screenshot #${Num}."
 	fi
 done
 printf "\n"
-

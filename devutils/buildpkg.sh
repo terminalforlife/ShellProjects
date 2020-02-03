@@ -1,49 +1,50 @@
 #!/bin/sh
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/buildpkg.sh
 # Started On        - Sat 23 Nov 00:28:26 GMT 2019
-# Last Change       - Tue 10 Dec 00:50:19 GMT 2019
+# Last Change       - Fri 31 Jan 03:03:58 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# Developer script for quick package building, used in DEB-Packages. Made for me, -
-# so use at your own peril, unless of course you have the same situation as I!
+#------------------------------------------------------------------------------
+# Developer script for quick package building, used in DEB-Packages. Made for
+# me, so use at your own peril, unless of course you're in the same situation.
 #
 # Assumptions:
 #
-#   * You only want shell prorams which must use bash or have bash-supported
+#   * You only want shell programs which must use bash or have bash-supported
 #     syntax, allowing for the `-v` flag to output only the version: YYYY-MM-DD
 #
-#   * You require everything within the build package to be 0:0, but have 644 for
-#     files and 755 for directories. Except:
+#   * You require everything within the build package to be 0:0, but have 644
+#     for files and 755 for directories. Except:
 #
-#   * Your `ProgName` is the executable and therefore meant for `/usr/bin/`, thus
-#     demanding the standard of 755 permissions (plus previously-set 0:0).
+#   * Your `ProgName` is the executable and therefore meant for `/usr/bin/`, -
+#     thus demanding the standard of 755 permissions (plus previously-set 0:0).
 #
-#   * You are capable of mindfully editing the below variables for your use-case.
+#   * You will make the needed changes to the below variables for your needs.
 #
-#   * You already have a directory kept in `BuildStore` for safe-keeping and wish
-#     to re-use it as a template for the next build, with each build directory
-#     having the name of `BuildConv`.
+#   * You already have a directory kept in `BuildStore` for safe-keeping and
+#     wish to re-use it as a template for the next build, with each build
+#     directory having the name of `BuildConv`.
 #
-#   * You want the directory this script uses to be `WorkDir`, in which `BuildConv`
-#     will be created (destination of aforementioned copy).
+#   * You want the directory this script uses to be `WorkDir`, in which
+#     `BuildConv` will be created (destination of aforementioned copy).
 #
-#   * Your editor is set globally with the `EDITOR` environment variable, unless
-#     you set this yourself, below. The default is `vim`, and you're OK with that.
-#----------------------------------------------------------------------------------
+#   * Your editor is set globally with the `EDITOR` environment variable, -
+#     unless you set this yourself, below. The default is `vim`, and you're OK
+#     with that.
+#------------------------------------------------------------------------------
 
+set -e
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
+set +e
 
 BuildStore="$HOME/Documents/TT"
 GitHub="$HOME/GitHub/terminalforlife/Personal/Extra/source"
 ProgName=$1
 
-if [ $# -eq 0 ]; then
-	Err 1 "Argument '\$1' must be the '\$ProgName'."
-fi
+[ $# -eq 0 ] && Err 1 "Argument '\$1' must be the '\$ProgName'."
 
 PKGName="${ProgName}_${Version}_all.deb"
 BuildConv="pkg-debian ($ProgName)"
@@ -65,7 +66,7 @@ else
 	case $GetHead in
 		'#!/usr/bin/env bash'|'#!/bin/bash')
 			Version=`bash "$GitHub/$ProgName" -v` ;;
-		'#!/bin/sh'|'#!/usr/bin/env sh')
+		'#!/usr/bin/env sh'|'#!/bin/sh')
 			Version=`sh "$GitHub/$ProgName" -v` ;;
 		*)
 			Err 1 "Unable to parse the '$ProgName' shebang." ;;
@@ -88,7 +89,7 @@ if [ -d "$BuildStore/$BuildConv" ]; then
 		Err 1 "Directory from build store failed to copy over."
 	fi
 else
-	# Currently, this script allows only for building packages already once built.
+	# Currently, this script allows only for 're'-building packages.
 	Err 1 "Desired directory (per the naming convention) not found."
 fi
 
