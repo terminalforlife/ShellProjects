@@ -9,7 +9,7 @@ bb63aac3729b547205eed4cb1b13d8cb  source/barred
 7fe2e5d26e06598ad67878790202dcd0  source/capnum
 5874e4132ba3fbfe678881a9c7d2aba5  source/catmedia
 f131cfc804e6204c6651b70b5cb45923  source/ccfiles
-2324b75a315813bee63fb2e0dabd18e9  source/cito
+b6fb6a8f78a4ebf9c2c54c83af1fd9d8  source/cito
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
 0961be76093c4062be68357579dff2b9  source/dlclecs
 2ffff8f1f3b99146c92d0025c0f440ba  source/dlfallwalls
@@ -58,7 +58,6 @@ df65bd23b639fa0b9413c33fc55df500  source/swap-file
 f242c8e891b9f2ee7108d19518052720  source/tfl-ubuntu-setup
 a5a592400e37c48bb6e664dcfbfdd8f0  source/tlptog
 25f626f4c40db58749b00a7f358164cd  source/tozero
-89d50924438978cec3fac1ab26cdc7dc  source/ubuntu-syschk
 a3ac634fdbcd311576e4ff94b3595ec7  source/libtflbp-sh/BaseName
 92649c8aaa9ac4b79c456b4827086406  source/libtflbp-sh/ChkDep
 29aa8a088b2d50b3bad4d0b234366ac8  source/libtflbp-sh/CutStr

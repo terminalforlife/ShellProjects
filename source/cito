@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Thu  6 Feb 02:32:14 GMT 2020
+# Last Change       - Thu  6 Feb 02:59:19 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -345,6 +345,16 @@ if [ -n "$LogView" ]; then
 	fi
 fi
 
+DirChk(){
+	Logger info "Checking existing of '$1'"
+
+	if ! [ -d "${1%/*}" ]; then
+		Logger info "Directory '$1' not found"
+
+		Err 1 "Directory '${1%/*}' not found."
+	fi
+}
+
 ReadFile(){
 	if [ -z "$1" ]; then
 		# This is probably something the user won't see.
@@ -398,6 +408,8 @@ ReadFile(){
 			Target="$HOME${Target#\~}" ;;
 	esac
 
+	DirChk "$Target"
+
 	if [ "$IsFound" = 'true' ]; then
 		AskOverwrite "$Target"
 	fi
@@ -448,6 +460,8 @@ DoRegardless(){
 		Owner=$UserOwner
 		Group=$UserGroup
 		Target=$UserTarget
+
+		DirChk "$UserTarget"
 
 		[ -f "$Target" ] && AskOverwrite "$Target"
 
