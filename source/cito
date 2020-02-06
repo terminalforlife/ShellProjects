@@ -1,23 +1,23 @@
 #!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/cito
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Wed 22 Jan 18:20:43 GMT 2020
+# Last Change       - Thu  6 Feb 02:32:14 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # The word 'cito' (/ˈki.toː/) is a Latin adverb, to mean 'swift'.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 set -e
-. /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
 . /usr/lib/tflbp-sh/CutStr
+. /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2020-01-22'
+CurVer='2020-02-06'
 Progrm=${0##*/}
 
 EventLog="/var/log/${Progrm}-events.log"
@@ -37,15 +37,15 @@ Usage(){
 
 		\rOPTS:       --help|-h|-?            - Displays this help information.
 		\r            --version|-v            - Output only the version datestamp.
-		\r            --remote|-r INFO        - Specify a remote file; see REMOTE.
-		\r            --hash|-H FILE          - Use FILE to cross-check hashes.
 		\r            --clobber|-c            - Overwrite files without prompting.
-		\r            --mode|-M MODE          - Where MODE is, IE: '755'.
-		\r            --owner|-O OWNER        - Where OWNER is, IE: '0'.
 		\r            --group|-G GROUP        - Where GROUP is, IE: '0'.
-		\r            --target|-T PATH        - Where PATH is, IE: '/usr/bin/1337'.
+		\r            --hash|-H FILE          - Use FILE to cross-check hashes.
 		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
+		\r            --mode|-M MODE          - Where MODE is, IE: '755'.
 		\r            --nolog|-l              - Disable the logging functionality.
+		\r            --owner|-O OWNER        - Where OWNER is, IE: '0'.
+		\r            --remote|-r INFO        - Specify a remote file; see REMOTE.
+		\r            --target|-T PATH        - Where PATH is, IE: '/usr/bin/1337'.
 
 		\rNOTE:       Signifying the end of OPTS with '--' is supported.
 
