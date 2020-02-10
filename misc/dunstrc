@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/misc/dunstrc
 # Started On        - Thu  9 Nov 00:34:20 GMT 2017
-# Last Change       - Sat  3 Mar 15:43:44 GMT 2018
+# Last Change       - Mon 10 Feb 15:47:34 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -16,54 +16,54 @@
 #----------------------------------------------------------------------------------
 
 [global]
-    font = Nimbus Mono L Bold 16
+    font = Ubuntu Mono Regular 14
     allow_markup = yes
-    format = "<b>%s</b>\n%b"
+    format = "<b>%a</b> - <b>%s</b>\n%b"
     sort = yes
-    indicate_hidden = yes
+    indicate_hidden = no
     alignment = center
     bounce_freq = 0
     show_age_threshold = -1
     word_wrap = yes
     ignore_newline = no
-    geometry = "1920x40-0+0"
+    geometry = "1900x40-12+6"
     shrink = no
-    transparency = 10
-    idle_threshold = 60
+    transparency = 15
+    idle_threshold = 70
     monitor = 0
     follow = mouse
     sticky_history = yes
-    history_length = 100
+    history_length = 10
     show_indicators = yes
-    line_height = 0
-    separator_height = 0
-    padding = 4
-    horizontal_padding = 4
+    line_height = 4
+    separator_height = 10
+    padding = 7
+    horizontal_padding = 0
     separator_color = frame
     startup_notification = false
     dmenu = /usr/bin/dmenu -p dunst:
     browser = /usr/bin/firefox -new-tab
     icon_position = off
-    icon_folders = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+    icon_folders = /usr/share/icons/gnome/32x32/status/:/usr/share/icons/gnome/32x32/devices/
 
 [frame]
     width = 0
     color = "#000000"
 
 [urgency_low]
-    background = "#000000"
-    foreground = "#ffffff"
-    timeout = 3
+    background = "#111111"
+    foreground = "#FFFFFF"
+    timeout = 0
 
 [urgency_normal]
-    background = "#000000"
-    foreground = "#ffffff"
-    timeout = 6
+    background = "#222222"
+    foreground = "#FFFFFF"
+    timeout = 0
 
 [urgency_critical]
-    background = "#000000"
-    foreground = "#ff0000"
-    timeout = 9
+    background = "#661111"
+    foreground = "#FFFFFF"
+    timeout = 0
 
 [shortcuts]
     close = ctrl+space
