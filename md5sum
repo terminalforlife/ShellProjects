@@ -1,6 +1,5 @@
 5abb4f1670453901aa73a096f657d9ed  devutils/buildpkg.sh
 2bd0efef0e3f638e08f02e8ef99cdb68  devutils/convertvars.sh
-8c1a882237544f3c7829b25bbcf856a6  devutils/hashes.sh
 38be5021acd85a48cbf62eb59035a77b  devutils/links.sh
 9285465a240b2909c85c83a5ea6a1331  devutils/standard.sh
 47920a8a3b48826fb77a986e794e3c6a  devutils/versions.sh
@@ -101,4 +100,4 @@ df65bd23b639fa0b9413c33fc55df500  source/swap-file
 f242c8e891b9f2ee7108d19518052720  source/tfl-ubuntu-setup
 a5a592400e37c48bb6e664dcfbfdd8f0  source/tlptog
 25f626f4c40db58749b00a7f358164cd  source/tozero
-4330821bd502c3f63a7e6857d76d190a  versions
+cff032167ff65ced280db24553448cf1  versions
