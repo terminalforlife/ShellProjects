@@ -1,9 +1,9 @@
 #!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/lspkg-set
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/source/lspkg-set (List Packages Set)
+# Project Name      - Extra/source/lspkg/lspkg-set
 # Started On        - Wed 24 Jan 17:31:41 GMT 2018
-# Last Change       - Fri 10 Jan 00:53:01 GMT 2020
+# Last Change       - Tue 11 Feb 23:47:34 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,31 +13,22 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
-CurVer='2020-01-10'
+CurVer='2020-02-11'
 Progrm=${0##*/}
 
 Usage(){
 	while read -r CurLine; do
 		printf '%b\n' "$CurLine"
 	done <<-EOF
-		\r            LSPKG-SET ($CurVer)
-		\r            Written by terminalforlife <terminalforlife@yahoo.com>
+		\rUsage: $Progrm [OPTS] [PKG_1 [PKG_2] ...]
 
-		\r            Add-on for lspkg to output sets of installed packages.
-
-		\rSYNTAX:     $Progrm [OPT]
-
-		\rOPTS:       --help|-h|-?            - Displays this help information.
-		\r            --version|-v            - Output only the version datestamp.
-		\r            --essential|-E          - Display the essential packages.
-		\r            --extra|-e              - Display the extra packages.
-		\r            --important|-I          - Display the important packages.
-		\r            --optional|-o           - Display the optional packages.
-		\r            --required|-R           - Display the required packages.
-
-		\rNOTE:       Like lspkg, this POSIX-ly correct Bourne shell program is
-		\r            only compatible with Debian or Ubuntu based systems, as it
-		\r            parses dpkg-query's output.
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+		\r  -E, --essential          - Display the essential packages.
+		\r  -e, --extra              - Display the extra packages.
+		\r  -I, --important          - Display the important packages.
+		\r  -o, --optional           - Display the optional packages.
+		\r  -R, --required           - Display the required packages.
 	EOF
 }
 

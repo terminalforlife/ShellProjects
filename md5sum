@@ -76,9 +76,9 @@ b6cb10a9d38b162cb33613b4cc7ea88e  source/libtflbp-sh/YNInput
 b5ac0fc4ff9e3cdee43dcb126348a5c5  source/lnldl
 b6f859853f989ae3ac19e5337fd2488f  source/lspkg/completions
 1f75bf831f8b7617b5be43e95c32b16e  source/lspkg/lspkg
-1ddf483d43be6ba4ab6fe76f09891c7f  source/lspkg/lspkg.1
-b9d36244aa3b16d1cc21cbdba44b4b1d  source/lspkg/lspkg-set
-e97ce9d86012692ead99d505774997d0  source/lspkg/lspkg-set.1
+3a7240c100d0a47ff44c4b361266d0c9  source/lspkg/lspkg.1.gz
+e6426618345924842aef2b80c39c9ea7  source/lspkg/lspkg-set
+1b67d731bf2c3c96f4b46a3030afff78  source/lspkg/lspkg-set.1.gz
 c7b8ed43644cc046a300c436c38b51f0  source/medlog
 cb0ceead22ceea603eee1b79463d7aee  source/mfw
 208d65489f4444ae1aa53b65d2d52fbb  source/mif
