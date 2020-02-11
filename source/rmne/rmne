@@ -3,12 +3,18 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Tue 11 Feb 02:47:38 GMT 2020
+# Last Change       - Tue 11 Feb 03:15:46 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # This program was written (as of 2019-12-03) with Bourne POSIX-compliance in
 # mind. Why? For portability and speed -- rmne is at least 3x faster now!
+#
+# Dependencies:
+#
+#   apt (>= 1.2.32)
+#   coreutils (>= 8.25-2)
+#   libtflbp-sh (>= 2019-12-10)
 #------------------------------------------------------------------------------
 
 set -e

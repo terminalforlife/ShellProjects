@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/rmne
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/rmne/completions
+# Started On        - Mon 29 Jan 18:47:58 GMT 2018
+# Last Change       - Tue 11 Feb 03:17:01 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is the bash completion script for `rmne`.
+#------------------------------------------------------------------------------
+
+_arg_list_rmne(){
+	local X
+
+	while read -a X; do
+		if [ "$IS_OPTS_LINE" == "true" ]\
+		&& [[ "$OLD" =~ ^[A-Z]+:$ ]]; then
+			break
+		fi
+
+		case ${X[0]} in
+			OPTS:)
+				IS_OPTS_LINE="true"
+				printf "%s " "${X[1]//|/ }" ;;
+			-*)
+				printf "%s " "${X[0]//|/ }" ;;
+		esac
+
+		local OLD=${X[0]/OPTS:}
+	done <<< "$(rmne -h)"
+}
+
+_option_rmne(){
+	COMPREPLY=($(compgen -W "$(_arg_list_rmne)" -- "$2"))
+}
+
+complete -F _option_rmne rmne
