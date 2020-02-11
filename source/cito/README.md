@@ -7,7 +7,7 @@ sudo cito -M 644 -O 0 -G 0 -T /usr/share/man/man8/cito.8.gz -r terminalforlife E
 sudo cito -r terminalforlife Extra master source/cito/{cito,completions}
 ```
 
-If you're not sure what UbuChk is, check out [this](https://youtu.be/CZ4Kn0gtHaM) video, over on YouTube.
+If you're not sure what Cito is, check out [this](https://youtu.be/CZ4Kn0gtHaM) video, over on YouTube.
 
 # Dependencies
 
