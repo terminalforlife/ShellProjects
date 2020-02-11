@@ -1,53 +1,42 @@
 #!/usr/bin/env bash
-
-#----------------------------------------------------------------------------------
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/lspkg
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/completions/lspkg
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
-# Last Change       - Thu  9 May 14:52:15 BST 2019
+# Last Change       - Tue 11 Feb 23:57:32 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # This is the bash completion script for lspkg.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-_arg_list_lspkg(){
-	local X
+_pkgs(){
+	if . /usr/share/bash-completion/completions/dpkg; then
+		_xfunc /usr/bin/dpkg _comp_dpkg_installed_packages "$1"
+	fi
+}
 
-	while read -a X; do
-		if [ "$IS_OPTS_LINE" == "true" ]\
-		&& [[ "$OLD" =~ ^[A-Z]+:$ ]]; then
-			break
+_lspkg(){
+	while read; do
+		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
+			Option=${REPLY%% - *}
+			for Arg in ${Option//,/}; {
+				Args+="${Arg##[^-]*} "
+			}
 		fi
+	done <<< "$(lspkg -h)"
 
-		case ${X[0]} in
-			OPTS:)
-				IS_OPTS_LINE="true"
-				printf  "%s " "${X[1]//|/ }" ;;
+		case $2 in
 			-*)
-				printf "%s " "${X[0]//|/ }" ;;
+				COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
+			*)
+				if [ $0 == 'lspkg' ]; then
+					COMPREPLY=(`compgen -W "$(_pkgs "$2")" -- "$2"`)
+				fi ;;
 		esac
 
-		local OLD=${X[0]/OPTS:}
-	done <<< "$(/usr/bin/lspkg -h)"
+	unset Option Arg Args
 }
 
-_pkg_list_lspkg(){
-	. /usr/share/bash-completion/completions/dpkg
-	_xfunc /usr/bin/dpkg _comp_dpkg_installed_packages "$1"
-}
-
-_option_lspkg(){
-	if [ "$3" == "--match-with" ]; then
-		COMPREPLY=($(compgen -W "glob regex" -- "$2"))
-	fi
-
-	case $2 in
-		-*)
-			COMPREPLY=($(compgen -W "$(_arg_list_lspkg)" -- "$2")) ;;
-		*)
-			COMPREPLY=($(compgen -W "$(_pkg_list_lspkg "$2")" -- "$2")) ;;
-	esac
-}
-
-complete -F _option_lspkg lspkg
-
+complete -F _lspkg lspkg
+complete -F _lspkg lspkg-set
