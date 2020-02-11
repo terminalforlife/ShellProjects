@@ -88,7 +88,9 @@ f0ee68bcb7e3dcd7503b1f394f41a3d5  source/nxbt
 2082958e982a4281cb17d16e0701dbb3  source/pagewatch
 d1298c08b39af84e2130f676102da000  source/purgerc
 db837408e7de7250772d6f330172a113  source/ripmydvd
-71f42f624c0e30ac60cb1aaac6b56192  source/rmne
+8175998b8e41b02c0fa6790780115b22  source/rmne/completions
+98660833324c8d52f4d468198a1f0cb3  source/rmne/rmne
+e27afd69dec941829e08ae5af9606a2a  source/rmne/rmne.8.gz
 1679e859fd9a9ed2a401b3ad275452e7  source/roks
 d628b9130c9a37df49d0fd9cb0a6b159  source/seewttr
 e0ba55203b71abf405dd3e4a1ad9825b  source/shlides
