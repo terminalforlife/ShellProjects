@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/lspkg
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/source/lspkg (List Packages)
+# Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Fri 10 Jan 00:21:09 GMT 2020
+# Last Change       - Tue 11 Feb 23:26:29 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
-CurVer='2020-01-10'
+CurVer='2020-02-11'
 Progrm=${0##*/}
 
 Domain='https://github.com'
@@ -22,45 +22,21 @@ Usage(){
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] [SEARCH_1 [SEARCH_2] ...]
 
-		            Search through, test for, and list out installed packages.
-
-		SYNTAX:     $Progrm [OPTS] [SEARCH_1] [SEARCH_2] [SEARCH_3] ...
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --no-describe|-N        - Do not display package descriptions.
-		            --name-only|-n          - Match only the package names.
-		            --ignore-case|-i        - Match both upper- and lower-case.
-		            --show-arch|-a          - Include package arch-types.
-		            --match-with T          - Where T is glob or the default, regex.
-		            --count|-c              - Display the total number of packages.
-
-		NOTE:       This shell program is only compatible with Debian or Ubuntu based
-		            systems, as it parses dpkg-query's output.
-
-		            Where SEARCH is an optional regex match of an installed package. By
-		            default, the match will be looked for on the whole line, which includes
-		            the package name and its short description, like apt-cache search.
-
-		            If you include --name-only or -n, then the match will be looked for
-		            only in the name, like 'apt-cache -n search'. This is to keep the
-		            behavior predictable and easy to use.
-
-		            Using --show-arch|-s allows for those with a package for both
-		            architectures to be shown, instead of just one; this could account
-		            for any inconsistencies if the package count were checked manually.
-
-		            An exit status of 4 means no match(es) were found.
-
-		SITE:       $Domain/terminalforlife/Extra
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  --match-with <TYPE>      - Where T is glob or the default, regex.
+		  -D, --debug              - Enables the built-in bash debugging.
+		  -N, --no-describe        - Do not display package descriptions.
+		  -a, --show-arch          - Include package arch-types.
+		  -c, --count              - Display the total number of packages.
+		  -i, --ignore-case        - Match both upper- and lower-case.
+		  -n, --name-only          - Match only the package names.
 	EOF
 }
 
-PACKNAME='{Package}'
+PkgName='{Package}'
 
 while [ "$1" ]; do
 	case $1 in
@@ -72,23 +48,23 @@ while [ "$1" ]; do
 		--debug|-D)
 			DebugMe='true' ;;
 		--no-describe|-N)
-			NO_DESCRIBE='true' ;;
+			NoDescribe='true' ;;
 		--ignore-case|-i)
-			IGNORE_CASE='true' ;;
+			IgnoreCase='true' ;;
 		--match-with)
 			shift
 
 			if [[ $1 =~ ^(glob|regex)$ ]]; then
-				MATCH_WITH=$1
+				MatchWith=$1
 			else
 				Err 1 'Incorrect match type provided.'
 			fi ;;
 		--name-only|-n)
-			NAME_ONLY='true' ;;
+			NameOnly='true' ;;
 		--show-arch|-a)
-			PACKNAME='{Binary:Package}' ;;
+			PkgName='{Binary:Package}' ;;
 		--count|-c)
-			DOCOUNT='true' ;;
+			DoCount='true' ;;
 		-*)
 			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
@@ -97,72 +73,71 @@ while [ "$1" ]; do
 	shift
 done
 
-if [ "$IGNORE_CASE" == 'true' -a "$MATCH_WITH" == 'glob' ]; then
+if [ "$IgnoreCase" == 'true' -a "$MatchWith" == 'glob' ]; then
 	Err 1 'Case-insensitive glob matching is not supported.'
 fi
 
-PKG=($@)
+Package=($@)
 
 ChkDep dpkg-query
 
 [ "$DebugMe" == 'true' ] && set -x
 
-PKG_LIST(){
-	if ! dpkg-query --show -f="\${db:Status-Abbrev} \$${PACKNAME} - \${binary:Summary}\n" \*; then
-		Err 1 'Non-zero exit status for: dpkg-query'
-	fi
+PkgList(){
+	dpkg-query -Wf="\${db:Status-Abbrev} \$${PkgName} - \${binary:Summary}\n" \*\
+		|| Err 1 'Non-zero exit status for: dpkg-query'
 }
 
-MATCH(){
-	SEARCH_RESULT+=1
+Match(){
+	SearchResult+=1
 
-	if ! [ "$NO_DESCRIBE" == 'true' ]; then
+	if ! [ "$NoDescribe" == 'true' ]; then
 		printf '%s\n' "$1"
 	else
 		printf '%s\n' "${1%% - *}"
 	fi
 }
 
-declare -i COUNT=0
-declare -i SEARCH_RESULT=0
-while read -a X; do
-	if ! [ "$SHOWARCH" == 'true' ]; then
+declare -i Count=0
+declare -i SearchResult=0
+while read -a CurLine; do
+	if ! [ "$ShowArch" == 'true' ]; then
 		# Remove duplicate entries. This works because dpkg-query is outputting in
 		# alphabetical order, else this would surely be useless.
-		[ "${X[1]}" == "$OLD" ] && continue
+		[ "${CurLine[1]}" == "$Old" ] && continue
 	fi
 
-	if [ "${X[0]}" == "ii" ]; then
-		unset BUF
-		COUNT+=1
+	if [ "${CurLine[0]}" == 'ii' ]; then
+		unset Buffer
+		Count+=1
 
 		# No new line character as this is an array. Otherwise every word
 		# would print on a new line. The final new line is added when the
 		# text is displayed on the screen with echo.
-		printf -v BUF '%s ' ${X[@]/ii}
-		[ "$BUF" ] || continue
+		printf -v Buffer '%s ' ${CurLine[@]/ii}
+		[ "$Buffer" ] || continue
 
 		# If there are user-specified matches to find, then iterate over
 		# them by checking to see if each current package matches each one
 		# in the list of ones the user specified.
-		if [ "${PKG[0]}" ]; then
-			USER_SEARCH='true'
+		if [ "${Package[0]}" ]; then
+			UserSearch='true'
 
-			for P in ${PKG[@]}; {
-				if [ "$NAME_ONLY" == 'true' ]; then
-					FILTER=" ${X[1]}"
+			for CurPkg in ${Package[@]}; {
+				if [ "$NameOnly" == 'true' ]; then
+					Filter=" ${CurLine[1]}"
 				else
-					FILTER=${X[@]/ii}
+					Filter=${CurLine[@]/ii}
 				fi
 
-				case ${MATCH_WITH:-UNSET} in
+				case ${MatchWith:-UNSET} in
 					glob)
-						if [[ $FILTER == $P ]]; then
-							MATCH "${BUF% }"
+						if [[ $Filter == $CurPkg ]]; then
+							Match "${Buffer% }"
 						fi ;;
 					regex|*)
-						if [[ $FILTER =~ $P ]]; then
-							MATCH "${BUF% }"
+						if [[ $Filter =~ $CurPkg ]]; then
+							Match "${Buffer% }"
 						fi ;;
 				esac
 			}
@@ -170,31 +145,27 @@ while read -a X; do
 			# If there are no packages specified by the user, just show
 			# all of the packages. Removing the space because of the
 			# above printf command adding a trailing space.
-			if ! [ "$NO_DESCRIBE" == 'true' ]; then
-				printf '%s\n' "${BUF% }"
+			if ! [ "$NoDescribe" == 'true' ]; then
+				printf '%s\n' "${Buffer% }"
 			else
-				printf '%s\n' "${BUF%% - *}"
+				printf '%s\n' "${Buffer%% - *}"
 			fi
 		fi
 
-		if ! [ "$SHOWARCH" == 'true' ]; then
-			# Save the current value to be checked when the next
-			# package is processed.
-			OLD=${X[1]}
-		fi
+		[ "$ShowArch" == 'true' ] || Old=${CurLine[1]}
 	fi
-done <<< "$(PKG_LIST)"
+done <<< "$(PkgList)"
 
-if [ "$DOCOUNT" == 'true' ]; then
-	if ! [ "$USER_SEARCH" == 'true' ]; then
-		printf "\nTOTAL: %'d\n" "$COUNT"
+if [ "$DoCount" == 'true' ]; then
+	if ! [ "$UserSearch" == 'true' ]; then
+		printf "\nTOTAL: %'d\n" "$Count"
 	else
-		[ $SEARCH_RESULT -eq 0 ] && S= || S="\n"
-		printf "${S}TOTAL: %'d/%'d\n" "$SEARCH_RESULT" "$COUNT"
+		[ $SearchResult -eq 0 ] && S= || S="\n"
+		printf "${S}TOTAL: %'d/%'d\n" "$SearchResult" "$Count"
 	fi
 fi
 
-if [ "${PKG[*]}" -a ! $SEARCH_RESULT -gt 0 ]; then
+if [ "${Package[*]}" -a ! $SearchResult -gt 0 ]; then
 	exit 4
 fi
 

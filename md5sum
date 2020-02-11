@@ -28,7 +28,6 @@ ea2da09a7291eeb70d7165afd1af44a2  source/cito/completions
 94bb442073283389c8f6e317582067b8  source/completions/autoscrot
 c381c817f1ff17cebcf679b06a120b7a  source/completions/bdl
 cbb9dbc66a9130d32ac08d13e1596b87  source/completions/insit
-b6f859853f989ae3ac19e5337fd2488f  source/completions/lspkg
 a18355166e233cd6001a33ea88e62717  source/completions/mif
 0452177831ac7fe38dd6ae55a59fc3d7  source/completions/mkpass
 031bf1b293f2bea3fd24a9e719dc3a2a  source/completions/nwchk
@@ -75,8 +74,11 @@ eecaae3211ede1b880313c90f7c50aa2  source/libtflbp-sh/LibTFLBPVer
 e4e771770572e59e9a868d8c04324452  source/libtflbp-sh/WCount
 b6cb10a9d38b162cb33613b4cc7ea88e  source/libtflbp-sh/YNInput
 b5ac0fc4ff9e3cdee43dcb126348a5c5  source/lnldl
-b3361a3733efa65dad954c8f456b903b  source/lspkg
-b9d36244aa3b16d1cc21cbdba44b4b1d  source/lspkg-set
+b6f859853f989ae3ac19e5337fd2488f  source/lspkg/completions
+44e01da56a14ecf686c413bc2e226d33  source/lspkg/lspkg
+1ddf483d43be6ba4ab6fe76f09891c7f  source/lspkg/lspkg.1
+b9d36244aa3b16d1cc21cbdba44b4b1d  source/lspkg/lspkg-set
+e97ce9d86012692ead99d505774997d0  source/lspkg/lspkg-set.1
 c7b8ed43644cc046a300c436c38b51f0  source/medlog
 cb0ceead22ceea603eee1b79463d7aee  source/mfw
 208d65489f4444ae1aa53b65d2d52fbb  source/mif

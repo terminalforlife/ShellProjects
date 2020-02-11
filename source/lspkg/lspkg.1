@@ -4,12 +4,14 @@
 .ad l
 .nh
 .SH "NAME"
-lspkg \- 
+lspkg \- search through, test for, and list out installed packages
 .SH "SYNOPSIS"
-lspkg [OPTS] [PKG_1 [PKG_2] ...]
+lspkg [OPTS] [SEARCH_1 [SEARCH_2] ...]
 .SH "DESCRIPTION"
 .PP
-To be written...
+Operating in a similar fashion to apt-cache(8), the user is able to easily and quickly search through and filter packages he or she actually has installed.
+.PP
+LSPKG was written for use on a Debian- or Ubuntu-based distribution of Linux, although the distributions supported may expand in future versions.
 .SH "OPTIONS"
 -h, --help
 .RS 4
@@ -19,6 +21,45 @@ Display some helpful information.
 -v, --version
 .RS 4
 Output the version datestamp.
+.RE
+.PP
+-D, --debug
+.RS 4
+Enable built-in Bash debugging.
+.RE
+.PP
+-N, --no-describe
+.RS 4
+Do not display package descriptions.
+.RE
+.PP
+-n, --name-only
+.RS 4
+Match only the package names, ignoring the descriptions.
+.RE
+.PP
+-i, --ignore-case
+.RS 4
+Match both upper- and lower-case. This option only applies to REGEX matching.
+.RE
+.PP
+-a, --show-arch
+.RS 4
+Include all packages for any architecture type, and suffix the package name with its type.
+.RE
+.PP
+--match-with <TYPE>
+.RS 4
+Specify whether to match with glob or REGEX.
+.PP
+NOTE: As of the current version, this option may not work correctly.
+.RE
+.PP
+-c, --count
+.RS 4
+Display the total number of packages.
+.SH "EXIT"
+An exit status of '4' means that no packages were found.
 .SH "AUTHOR"
 .PP
 terminalforlife <terminalforlife@yahoo.com>
