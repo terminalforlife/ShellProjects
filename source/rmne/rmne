@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Tue 11 Feb 03:15:46 GMT 2020
+# Last Change       - Tue 11 Feb 03:38:14 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -30,36 +30,18 @@ AvailFile='/var/lib/dpkg/available'
 
 Usage(){
 	while read -r CurLine; do
-		printf "%b\n" "$CurLine"
+		printf '%b\n' "$CurLine"
 	done <<-EOF
-		\r            RMNE ($CurVer)
-		\r            Written by terminalforlife <terminalforlife@yahoo.com>
+		\rUsage: $Progrm [OPTS] [PKG_1 [PKG_2] ...]
 
-		\r            Remove all of the non-essential Debian packages.
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+		\r  --afile PATH             - Override 'available' file.
+		\r  --no-purge               - Don't purge remaining files.
+		\r  --sfile PATH             - Override 'status' file.
+		\r  -l, --list               - List would-be-removed packages.
 
-		\rSYNTAX:     $Progrm [OPTS] [PKG_1 [PKG_2] ...]
-
-		\rOPTS:       --help|-h|-?            - Display this help information.
-		\r            --version|-v            - Output the version datestamp.
-		\r            --afile PATH            - Override 'available' file.
-		\r            --list|-l               - List would-be-removed packages.
-		\r            --no-purge              - Don't purge remaining files.
-		\r            --sfile PATH            - Override 'status' file.
-
-		\rNOTE:       Where Package is one or more packages to keep, despite
-		\r            priority and task.
-
-		\r            If 'apt-get' is not found, '--list|-l' option is assumed.
-
-		\rFILE:       Parsed to generate the final list of packages to remove.
-
-		\r              $StatusFile
-
-		\r            Parsed to ensure non-minimal packages are selected.
-
-		\r              $AvailFile
-
-		\r            Both of the above files can be set by the user.
+		\rWhere 'PKG' is one or more packages to hold back.
 	EOF
 }
 
