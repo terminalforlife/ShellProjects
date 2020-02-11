@@ -1,23 +1,23 @@
 #!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/rmne
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Fri  6 Dec 22:53:53 GMT 2019
+# Last Change       - Tue 11 Feb 02:47:38 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# This program was written (as of 2019-12-03) with Bourne POSIX-compliance in mind.
-# Why? For portability and speed -- rmne is at least 3x faster now!
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# This program was written (as of 2019-12-03) with Bourne POSIX-compliance in
+# mind. Why? For portability and speed -- rmne is at least 3x faster now!
+#------------------------------------------------------------------------------
 
-CurVer='2019-12-06'
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
+
+CurVer='2020-02-11'
 Progrm=${0##*/}
-
-Err(){
-	printf "ERROR: %s\n" "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
-}
 
 StatusFile='/var/lib/dpkg/status'
 AvailFile='/var/lib/dpkg/available'
@@ -29,18 +29,19 @@ Usage(){
 		\r            RMNE ($CurVer)
 		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
-		\r            POSIX Bourne method to remove non-essential Debian packages.
+		\r            Remove all of the non-essential Debian packages.
 
-		\rSYNTAX:     $Progrm [OPTS] [Package1 [Package2 Package3 ...]]
+		\rSYNTAX:     $Progrm [OPTS] [PKG_1 [PKG_2] ...]
 
-		\rOPTS:       --help|-h|-?            - Displays this help information.
-		\r            --version|-v            - Output only the version datestamp.
-		\r            --no-purge              - Do not purge any remaining package files.
-		\r            --list|-l               - Only list the would-be-removed packages.
-		\r            --sfile PATH            - Use PATH instead of the default 'status' file.
-		\r            --afile PATH            - Use PATH instead of the default 'available' file.
+		\rOPTS:       --help|-h|-?            - Display this help information.
+		\r            --version|-v            - Output the version datestamp.
+		\r            --afile PATH            - Override 'available' file.
+		\r            --list|-l               - List would-be-removed packages.
+		\r            --no-purge              - Don't purge remaining files.
+		\r            --sfile PATH            - Override 'status' file.
 
-		\rNOTE:       Where Package is one or more packages to keep, despite priority and task.
+		\rNOTE:       Where Package is one or more packages to keep, despite
+		\r            priority and task.
 
 		\r            If 'apt-get' is not found, '--list|-l' option is assumed.
 
@@ -58,7 +59,7 @@ Usage(){
 
 Purge='--purge'
 
-command -v apt-get 1> /dev/null 2>&1 && DoAptGet='true'
+ChkDep apt-get && DoAptGet='true'
 
 while [ "$1" ]; do
 	case $1 in
@@ -95,20 +96,23 @@ if [ "$DoAptGet" = 'true' ]; then
 	while read -r CurLine; do
 		printf "%b\n" "$CurLine"
 	done <<-EOF
-		\rWARNING +-----------------------------------------------------------------+ WARNING
+		\rWARNING +---------------------------------------------------+ WARNING
 
-		\rThis is a small but dangerous program for the sole purpose of tearing down the
-		\rnon-essential packages, for educational, fun, or other purposes, such as setting up
-		\ra specific type of installation.
+		\rThis is a small but dangerous program for the sole purpose of tearing
+		\rdown the non-essential packages, for educational, fun, or other
+		\rpurposes, such as setting up a specific type of installation.
 
-		\rThis program is ONLY for Debian and Ubuntu, or distributions based thereon. You'll
-		\rpretty much be left with just the Debian essentials, unless your distribution has
-		\rset some odd packages as essential, such as in Linux Lite and Linux Mint.
+		\rThis program is ONLY for Debian and Ubuntu, or distributions based
+		\rthereon. You'll pretty much be left with just the Debian
+		\ressentials, unless your distribution has set some odd packages as
+		\ressential, such as in Linux Lite and Linux Mint.
 
-		\rNOTE: You may now wish to download some DEB packages in preperation for setting up
-		\r      the system how you want, in-case you're left without an Internet connection.
+		\rNOTE: You may now wish to download some DEB packages in preperation
+		\r      for setting up the system how you want, in-case you're left
+		\r      without an Internet connection.
 
-		\rThere is no 'undo' for this action, so it's worth making a backup beforehand.
+		\rThere is no 'undo' for this action, so it's worth making a backup
+		\rbeforehand.
 
 		\rSpecifically, packages to be removed must not:
 
@@ -116,7 +120,7 @@ if [ "$DoAptGet" = 'true' ]; then
 		\r  2. Be those which are specified as command arguments.
 		\r  3. Be part of the minimal task.
 
-		\rWARNING +-----------------------------------------------------------------+ WARNING
+		\rWARNING +---------------------------------------------------+ WARNING
 
 	EOF
 
@@ -139,8 +143,8 @@ if [ "$DoAptGet" = 'true' ]; then
 	esac
 fi
 
-# Fetch a list of packages whose 'Task:' is marked as 'minimal'. (need these) This
-# is thankfully not all that slow, unless of course this file becomes gigantic.
+# Fetch a list of packages whose 'Task:' is marked as 'minimal'. (need these)
+# This is thankfully not all that slow, unless this file becomes gigantic.
 while read Key Value _; do
 	case $Key in
 		Package:)
@@ -160,7 +164,7 @@ done < "$AvailFile"
 
 # Gather a list of currently installed packages, check they're not set to be
 # kept, check their priority is applicable, check they're not marked as being
-# essential, and cross-check with the prior loop's results to ensure non-minimals.
+# essential, and cross-check with prior loop's results to ensure non-minimals.
 while read Key Value _; do
 	case $Key in
 		Package:)
