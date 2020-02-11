@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/rmne
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/cito
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/rmne/completions
+# Project Name      - Extra/source/cito/completions
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
 # Last Change       - Tue 11 Feb 13:36:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# This is the bash completion script for `rmne`.
+# This is the bash completion script for `cito`.
 #------------------------------------------------------------------------------
 
-_rmne(){
+_cito(){
 	while read; do
 		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
 			Option=${REPLY%% - *}
@@ -18,11 +18,11 @@ _rmne(){
 				Args+="${Arg##[^-]*} "
 			}
 		fi
-	done <<< "$(rmne -h)"
+	done <<< "$(cito -h)"
 
 	COMPREPLY=(`compgen -W "$Args" -- "$2"`)
 
 	unset Option Arg Args
 }
 
-complete -F _rmne rmne
+complete -F _cito cito

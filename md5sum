@@ -21,7 +21,9 @@ bb63aac3729b547205eed4cb1b13d8cb  source/barred
 7fe2e5d26e06598ad67878790202dcd0  source/capnum
 5874e4132ba3fbfe678881a9c7d2aba5  source/catmedia
 f131cfc804e6204c6651b70b5cb45923  source/ccfiles
-b6fb6a8f78a4ebf9c2c54c83af1fd9d8  source/cito
+fb9e404b9361d85839520ae71ba27434  source/cito/cito
+50a7583812479bc4b590e33d8d0c4aaf  source/cito/cito.8.gz
+ea2da09a7291eeb70d7165afd1af44a2  source/cito/completions
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
 94bb442073283389c8f6e317582067b8  source/completions/autoscrot
 c381c817f1ff17cebcf679b06a120b7a  source/completions/bdl
@@ -88,7 +90,7 @@ f0ee68bcb7e3dcd7503b1f394f41a3d5  source/nxbt
 2082958e982a4281cb17d16e0701dbb3  source/pagewatch
 d1298c08b39af84e2130f676102da000  source/purgerc
 db837408e7de7250772d6f330172a113  source/ripmydvd
-8175998b8e41b02c0fa6790780115b22  source/rmne/completions
+49852a55be41075a5875c94601e4e816  source/rmne/completions
 cb913dd357f6ae16d71366602295bacc  source/rmne/rmne
 e27afd69dec941829e08ae5af9606a2a  source/rmne/rmne.8.gz
 1679e859fd9a9ed2a401b3ad275452e7  source/roks

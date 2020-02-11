@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Thu  6 Feb 02:59:19 GMT 2020
+# Last Change       - Tue 11 Feb 17:33:34 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2020-02-06'
+CurVer='2020-02-11'
 Progrm=${0##*/}
 
 EventLog="/var/log/${Progrm}-events.log"
@@ -28,63 +28,77 @@ Usage(){
 	while read -r CurLine; do
 		printf '%b\n' "$CurLine"
 	done <<-EOF
-		\r            CITO ($CurVer)
-		\r            Written by terminalforlife <terminalforlife@yahoo.com>
+		\rUsage: $Progrm [OPTS] [FILE_1 [FILE_2] ...]
 
-		\r            Bourne POSIX installer for local or GitHub files.
-
-		\rSYNTAX:     $Progrm [OPTS] [File_1 [File_2] ...]
-
-		\rOPTS:       --help|-h|-?            - Displays this help information.
-		\r            --version|-v            - Output only the version datestamp.
-		\r            --clobber|-c            - Overwrite files without prompting.
-		\r            --group|-G GROUP        - Where GROUP is, IE: '0'.
-		\r            --hash|-H FILE          - Use FILE to cross-check hashes.
-		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
-		\r            --mode|-M MODE          - Where MODE is, IE: '755'.
-		\r            --nolog|-l              - Disable the logging functionality.
-		\r            --owner|-O OWNER        - Where OWNER is, IE: '0'.
-		\r            --remote|-r INFO        - Specify a remote file; see REMOTE.
-		\r            --target|-T PATH        - Where PATH is, IE: '/usr/bin/1337'.
-
-		\rNOTE:       Signifying the end of OPTS with '--' is supported.
-
-		\r            Where TYPE is one of 'all', 'info', 'warning', or 'error'.
-
-		\r            When a remote file is selected, the '--hash|-H' FILE will
-		\r            be assumed as within the selected user, repo', and branch.
-
-		\r            Hash checks assume the following traditional format:
-
-		\r              0t1h2e3h4a5s6h7g8o9e1s2h3e4r5e67  .secret_dot_file
-
-		\r            Currently, only MD5 hash checking is supported.
-
-		\rREMOTE:     Where INFO is an order-dependent, space-delimited list of
-		\r            strings used by Cito to correctly fetch the file.
-
-		\r              [U]SER [R]EPO [B]RANCH [F]ILE
-
-		\r            U = The GitHub user account.
-		\r            R = The repository for the user.
-		\r            B = The branch for the repository.
-		\r            F = The file within the repository.
-
-		\rEXAMPLE:    Remote operations...
-
-		\r              $Progrm -r [USER] [REPO] [BRANCH] [FILE_1 [FILE_2] ...]
-		\r              $Progrm -M [MODE] -O [OWNER] -G [GROUP] -T [TARGET] -r ...
-		\r              $Progrm --hash [MD5_FILE] -r ...
-
-		\r            Local operations...
-
-		\r              $Progrm --clobber [FILE_1 [FILE_2] ...]
-		\r              $Progrm -H [MD5_FILE] [FILE_1 [FILE_2] ...]
-
-		\rFILE:       $EventLog
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+		\r  -G, --group <GID>        - Where GROUP is, IE: '0'.
+		\r  -H, --hash <FILE>        - Use FILE to cross-check hashes.
+		\r  -L, --log-view <TYPE>    - Show TYPE log entries for Cito.
+		\r  -M, --mode <MODE>        - Where MODE is, IE: '755'.
+		\r  -O, --owner <UID>        - Where OWNER is, IE: '0'.
+		\r  -T, --target <PATH>      - Where PATH is, IE: '/usr/bin/1337'.
+		\r  -c, --clobber            - Overwrite files without prompting.
+		\r  -l, --nolog              - Disable the logging functionality.
+		\r  -r, --remote <INFO>      - Specify a remote file; see REMOTE.
 	EOF
 }
 
+
+#		\r            CITO ($CurVer)
+#		\r            Written by terminalforlife <terminalforlife@yahoo.com>
+#
+#		\r            Bourne POSIX installer for local or GitHub files.
+#
+#		\rSYNTAX:     $Progrm [OPTS] [File_1 [File_2] ...]
+#
+#		\rOPTS:       --help|-h|-?            - Displays this help information.
+#		\r            --version|-v            - Output only the version datestamp.
+#		\r            --clobber|-c            - Overwrite files without prompting.
+#		\r            --group|-G GROUP        - Where GROUP is, IE: '0'.
+#		\r            --hash|-H FILE          - Use FILE to cross-check hashes.
+#		\r            --log-view|-L TYPE      - Show TYPE log entries for Cito.
+#		\r            --mode|-M MODE          - Where MODE is, IE: '755'.
+#		\r            --nolog|-l              - Disable the logging functionality.
+#		\r            --owner|-O OWNER        - Where OWNER is, IE: '0'.
+#		\r            --remote|-r INFO        - Specify a remote file; see REMOTE.
+#		\r            --target|-T PATH        - Where PATH is, IE: '/usr/bin/1337'.
+#
+#		\rNOTE:       Signifying the end of OPTS with '--' is supported.
+#
+#		\r            Where TYPE is one of 'all', 'info', 'warning', or 'error'.
+#
+#		\r            When a remote file is selected, the '--hash|-H' FILE will
+#		\r            be assumed as within the selected user, repo', and branch.
+#
+#		\r            Hash checks assume the following traditional format:
+#
+#		\r              0t1h2e3h4a5s6h7g8o9e1s2h3e4r5e67  .secret_dot_file
+#
+#		\r            Currently, only MD5 hash checking is supported.
+#
+#		\rREMOTE:     Where INFO is an order-dependent, space-delimited list of
+#		\r            strings used by Cito to correctly fetch the file.
+#
+#		\r              [U]SER [R]EPO [B]RANCH [F]ILE
+#
+#		\r            U = The GitHub user account.
+#		\r            R = The repository for the user.
+#		\r            B = The branch for the repository.
+#		\r            F = The file within the repository.
+#
+#		\rEXAMPLE:    Remote operations...
+#
+#		\r              $Progrm -r [USER] [REPO] [BRANCH] [FILE_1 [FILE_2] ...]
+#		\r              $Progrm -M [MODE] -O [OWNER] -G [GROUP] -T [TARGET] -r ...
+#		\r              $Progrm --hash [MD5_FILE] -r ...
+#
+#		\r            Local operations...
+#
+#		\r              $Progrm --clobber [FILE_1 [FILE_2] ...]
+#		\r              $Progrm -H [MD5_FILE] [FILE_1 [FILE_2] ...]
+#
+#		\rFILE:       $EventLog
 [ $# -eq 0 ] && Err 1 "Argument(s) required -- see: $Progrm -h"
 
 NullArg(){ # Usage: NullArg [VARIABLE] [OPTION]
