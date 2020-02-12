@@ -1,9 +1,9 @@
 #!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/backmeup
 #----------------------------------------------------------------------------------
-# Project Name      - Extra/source/backmeup
+# Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Thu 12 Dec 01:20:31 GMT 2019
+# Last Change       - Wed 12 Feb 20:21:44 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2019-12-12'
+CurVer='2020-02-12'
 Progrm=${0##*/}
 
 MainDir="$HOME/.config/$Progrm"
@@ -26,31 +26,15 @@ Usage(){
 	while read -r CurLine; do
 		printf '%b\n' "$CurLine"
 	done <<-EOF
-		\r            BACKMEUP ($CurVer)
-		\r            Written by terminalforlife <terminalforlife@yahoo.com>
+		\rUsage: $Progrm [OPTS] [FILE_1 [FILE_2] ...]
 
-		\r            Simple, speedy Bourne POSIX tool to perform HOME backups.
-
-		\rSYNTAX:     $Progrm [OPTS] [FILE_1 [FILE_2] ...]
-
-		\rOPTS:       --help|-h|-?            - Displays this help information.
-		\r            --version|-v            - Output only the version datestamp.
-		\r            --verbose|-V            - Be more verbose during archive creation.
-		\r            --set-store|-s PATH     - Set and save the archive store to PATH.
-		\r            --exclude|-E PATH       - Override default exclusions file with PATH.
-		\r            --command|-C CMD        - Run CMD when $Progrm has finished.
-		\r            --notify|-N             - Notify after completion, via notify-send.
-
-		\r            Where FILE is a path to an alternative location, be it a directory
-		\r            or file, overriding the default of the current user's HOME.
-
-		\rEXCLUDE:    To ignore files which would otherwise be added to the archive, you
-		\r            must create an 'exclude' file (see below) which will then be used.
-
-		\r            Importantly, strictly one path must exist per line.
-
-		\rFILE:       ~/.config/$Progrm/store
-		\r            ~/.config/$Progrm/exclude
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+		\r  -C, --command <CMD>      - Run CMD when $Progrm has finished.
+		\r  -E, --exclude <PATH>     - Override default exclusions file.
+		\r  -N, --notify             - Notify user of completion.
+		\r  -V, --verbose            - Be more verbose while archiving.
+		\r  -s, --set-store <PATH>   - Set and save the archive store.
 	EOF
 }
 
@@ -59,7 +43,7 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"; exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--verbose|-V)
 			Verbose='-v' ;;
 		--set-store|-s)
@@ -84,12 +68,12 @@ while [ "$1" ]; do
 			if [ -z "$UserCMD" ]; then
 				Err 1 "Option '--command|-C' requires one or more arguments."
 			elif ! sh -nc "$UserCMD" 1> /dev/null 2>&1; then
-				Err 1 "User-specified command(s) resulted in errors."
+				Err 1 'User-specified command(s) resulted in errors.'
 			fi ;;
 		--notify|-N)
 			Notify='true' ;;
 		-*)
-			Err 1 "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
@@ -101,7 +85,7 @@ ChkDep tar sync mkdir date notify-send sh
 if ! [ -d "$MainDir" ] && ! mkdir -p "$MainDir"; then
 	Err 1 "Directory '~/.config/$Progrm' not made."
 elif [ -f "$ExcluFile" ] && ! [ -r "$ExcluFile" ]; then
-	Err 1 "Exclusions file unreadable."
+	Err 1 'Exclusions file unreadable.'
 else
 	if [ -f "$StoreFile" ] && [ -r "$StoreFile" ]; then
 		read Store < "$StoreFile"

@@ -12,7 +12,9 @@ fbcfa0b00d7cecbf01980e555419c613  misc/terminalrc
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
 7ee742ad5bccdcf3a18561768b3c6973  source/autoscrot
 81823d6e05d537a7aaac7d7978ed869c  source/autosh
-fda5c5fc7ebf79716de37e95ff756e40  source/backmeup
+7a74c5f904c9a0c9d8805b334f688370  source/backmeup/backmeup
+432b435ffa5e9ef4f17a5758c4e44577  source/backmeup/backmeup.1.gz
+9cd939297490347fe06714df5298c334  source/backmeup/completions
 bb63aac3729b547205eed4cb1b13d8cb  source/barred
 524d83b294a9a1709aa425bb90244b27  source/bdl
 58255190418b7e7f48d032846607a0f9  source/bios-info
