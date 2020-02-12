@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-set
 # Started On        - Wed 24 Jan 17:31:41 GMT 2018
-# Last Change       - Tue 11 Feb 23:47:34 GMT 2020
+# Last Change       - Wed 12 Feb 00:16:54 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -13,14 +13,14 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
-CurVer='2020-02-11'
+CurVer='2020-02-12'
 Progrm=${0##*/}
 
 Usage(){
 	while read -r CurLine; do
 		printf '%b\n' "$CurLine"
 	done <<-EOF
-		\rUsage: $Progrm [OPTS] [PKG_1 [PKG_2] ...]
+		\rUsage: $Progrm [OPTS]
 
 		\r  -h, --help               - Display this help information.
 		\r  -v, --version            - Output the version datestamp.
