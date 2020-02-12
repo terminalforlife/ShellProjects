@@ -3,20 +3,20 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/completions/lspkg
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
-# Last Change       - Tue 11 Feb 23:57:32 GMT 2020
+# Last Change       - Wed 12 Feb 00:11:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# This is the bash completion script for lspkg.
+# This is the bash completion script for `lspkg` and `lspkg-set`.
 #------------------------------------------------------------------------------
 
-_pkgs(){
-	if . /usr/share/bash-completion/completions/dpkg; then
-		_xfunc /usr/bin/dpkg _comp_dpkg_installed_packages "$1"
-	fi
-}
-
 _lspkg(){
+	_pkgs(){
+		if . /usr/share/bash-completion/completions/dpkg; then
+			_xfunc /usr/bin/dpkg _comp_dpkg_installed_packages "$1"
+		fi
+	}
+
 	while read; do
 		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
 			Option=${REPLY%% - *}
@@ -24,13 +24,13 @@ _lspkg(){
 				Args+="${Arg##[^-]*} "
 			}
 		fi
-	done <<< "$(lspkg -h)"
+	done <<< "$(${1##*/} -h)"
 
 		case $2 in
 			-*)
 				COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
 			*)
-				if [ $0 == 'lspkg' ]; then
+				if [ ${1##*/} == 'lspkg' ]; then
 					COMPREPLY=(`compgen -W "$(_pkgs "$2")" -- "$2"`)
 				fi ;;
 		esac
@@ -38,5 +38,4 @@ _lspkg(){
 	unset Option Arg Args
 }
 
-complete -F _lspkg lspkg
-complete -F _lspkg lspkg-set
+complete -F _lspkg lspkg lspkg-set
