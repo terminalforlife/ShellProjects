@@ -7,6 +7,9 @@
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# Previously named AutoSH; it needed updating, because it's no longer just for
+# use when programming in Shell. Refer to NOTES of autoexec(1).
+#
 # Dependencies:
 #
 #   bash (>= 4.4.18-2)
