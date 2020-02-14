@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/autoexec
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/autoexec/completions
+# Started On        - Wed 12 Feb 18:58:13 GMT 2020
+# Last Change       - Fri 14 Feb 02:22:05 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is the bash completion script for `autoexec`.
+#------------------------------------------------------------------------------
+
+_autoexec(){
+	while read; do
+		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
+			Option=${REPLY%% - *}
+			for Arg in ${Option//,/}; {
+				Args+="${Arg##[^-]*} "
+			}
+		fi
+	done <<< "$(autoexec -h)"
+
+	COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+
+	unset Option Arg Args
+}
+
+complete -F _autoexec autoexec
