@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/lspkg
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/completions/lspkg
+# Project Name      - Extra/source/lspkg/completions
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
-# Last Change       - Wed 12 Feb 00:11:30 GMT 2020
+# Last Change       - Sat 15 Feb 17:06:13 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,16 +24,19 @@ _lspkg(){
 				Args+="${Arg##[^-]*} "
 			}
 		fi
-	done <<< "$(${1##*/} -h)"
+	done <<< "$($1 -h)"
 
-		case $2 in
-			-*)
-				COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
-			*)
-				if [ ${1##*/} == 'lspkg' ]; then
-					COMPREPLY=(`compgen -W "$(_pkgs "$2")" -- "$2"`)
-				fi ;;
-		esac
+	case $1 in
+		lspkg)
+			case $2 in
+				-*)
+					COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
+				*)
+					COMPREPLY=(`compgen -W "$(_pkgs "$2")" -- "$2"`) ;;
+			esac ;;
+		lspkg-set)
+			COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
+	esac
 
 	unset Option Arg Args
 }
