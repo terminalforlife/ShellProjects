@@ -1,61 +1,77 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/getline
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Fri  6 Dec 22:50:16 GMT 2019
+# Last Change       - Sat 22 Feb 17:01:04 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# Features:
+#
+#TODO: Add ranges to 'line' action, like: line 2-50,57-59,70-74
+#TODO: Finish 'start' action.
+#TODO: Finish end action.
+#TODO: Finish summary. Target: show sum of concatenated 'count' results.
+#TODO: Improve performance of 'count' actions.
+#
+# Bugs:
+#
+#TODO: Does 'for CHAR in' line include spaces and/or tabs? Find out.
+#TODO: Why won't 'line' action display >1 line at a time?
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   libtflbp-sh (>= 2019-12-10)
+#----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+set -e
+. /usr/lib/tflbp-sh/Err
+set +e
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+CurVer='2020-02-22'
+Progrm=${0##*/}
 
-USAGE(){
+Usage(){
 	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Pure Bourne Again Shell way to handle a plain text file.
 
-		SYNTAX:     $_PROJECT_ [OPTS] ACTION FILE1 FILE2 FILE3 . . .
+		SYNTAX:     $Progrm [OPTS] [ACTION] [FILE_1 [FILE_2] ...]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --nocolor|-c            - Disables color in all standard $_PROJECT_ output.
-		            --nums|-n               - Displays line numbers when viewing files.
-		            --ttl|-t                - Shows only the total numbers; omits filename.
-		            --sum|-S                - When using count action, display grand total.
-		            --names|-N              - When concatenating results, output the
-		                                      filenames. Ignored if using a count action.
+		OPTS:       --help|-h|-?            - Display this help information.
+		            --version|-v            - Output the version datestamp.
+		            --debug|-D              - Enable built-in bash debugging.
+		            --names|-N              - Show filenames with results.
+		            --nocolor|-c            - Disable almost all color.
+		            --nums|-n               - Line numbers when viewing files.
+		            --sum|-S                - Display total with 'count'.
+		            --ttl|-t                - Lotal numbers, without filename.
 
-		ACTION:     read                    - Output the contents of the file.
-		            read:N                  - Like read, but autoscroll N number of seconds.
-		            line N[,N,H...]         - Where N is the line number of the file to show.
-		            start N                 - Show the first N number of lines.
-		            end N                   - Show the last N number of lines.
-		            field l:f               - Where l is the line, and f is the field.
-		            gmatch GLOB             - Where GLOB is the shell extglob to match.
-		            rmatch REGEX            - Where REGEX is the regular expression to match.
-		            lcount                  - Count the number of lines in the file.
-		            wcount                  - Count the number of words in the file.
-		            ccount                  - Count the number of characters in the file.
+		ACTIONS:    ccount                  - Count number of chars in FILE.
+		            end N                   - Show last N number of lines.
+		            field L:F               - Show only F field on L line.
+		            gmatch GLOB             - Extended glob matching via GLOB.
+		            lcount                  - Count number of lines in FILE.
+		            line N[,N ...]          - Display Nth line(s) in FILE.
+		            read                    - Output all contents of FILE.
+		            read:N                  - Auto-scroll N number of seconds.
+		            rmatch REGEX            - Grep-like REGEX matching.
+		            start N                 - Show first N number of lines.
+		            wcount                  - Count number of words in FILE.
 
-		NOTE:       Words, lines, and characters are determined in a shell-like way.
+		NOTE:       Words, lines, and chars are determined in a shell-like way.
 
-		EXAMPLE:    $_PROJECT_ field 14:2 /etc/bash.bashrc
-		            $_PROJECT_ --nums read ~/.bashrc
-		            $_PROJECT_ --ttl lcount /etc/fstab
-		            $_PROJECT_ -c gmatch "kernel:" /var/log/syslog
-		            $_PROJECT_ read /etc/passwd
+		EXAMPLE:    $Progrm field 14:2 /etc/bash.bashrc
+		            $Progrm --nums read ~/.bashrc
+		            $Progrm --ttl lcount /etc/fstab
+		            $Progrm -c gmatch "kernel:" /var/log/syslog
+		            $Progrm read /etc/passwd
 	EOF
 }
 
@@ -68,12 +84,12 @@ COLOR_MODE='true'
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
+			printf "%s\n" "$CurVer"
 			exit 0 ;;
 		--debug|-D)
-			DEBUGME='true' ;;
+			DebugMe='true' ;;
 		--nums|-n)
 			LINE_NUMBERS='true' ;;
 		--ttl|-t)
@@ -83,10 +99,10 @@ while [ "$1" ]; do
 		--names|-N)
 			SHOW_NAMES='true' ;;
 		--sum|-S)
-			XERR $LINENO "Feature not yet available."
+			Err 1 'Feature not yet available.'
 			SHOW_SUM='true' ;;
 		-*)
-			XERR $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Unrecognised option(s) specified.' ;;
 		*)
 			break ;;
 	esac
@@ -102,9 +118,8 @@ while [ "$1" ]; do
 			ACTION_COUNT+=1
 			INSTRUCT="read:${1/*:}" ;;
 		start)
-			XERR $LINENO "Feature not yet available."
+			Err 1 'Feature not yet available.'
 
-			#TODO: Finish this feature.
 			shift
 
 			ACTION_COUNT+=1
@@ -112,12 +127,11 @@ while [ "$1" ]; do
 			STARTNUM=$1
 
 			if [[ $STARTNUM =~ [0-9]+ ]]; then
-				XERR $LINENO "Incorrect start number chosen."
+				Err 1 'Incorrect start number chosen.'
 			fi ;;
 		end)
-			XERR $LINENO "Feature not yet available."
+			Err 1 'Feature not yet available.'
 
-			#TODO: Finish this feature.
 			shift
 
 			ACTION_COUNT+=1
@@ -125,19 +139,17 @@ while [ "$1" ]; do
 			ENDNUM=$1
 
 			if ! [[ $ENDNUM =~ ^[0-9]+$ ]]; then
-				XERR $LINENO "Incorrect end number chosen."
+				Err 1 'Incorrect end number chosen.'
 			fi ;;
 		line)
-			#TODO: Why won't this display >1 line at a time?
 			shift
 
 			ACTION_COUNT+=1
 			INSTRUCT="showline"
 
-			#TODO: Add ranges, like: line 2-50,57-59,70-74
 			for L in ${1//,/ }; {
 				if ! [[ $L =~ ^[0-9]+$ ]]; then
-					XERR $LINENO "Incorrect line number: $L"
+					Err 1 "Incorrect line number: $L"
 				fi
 
 				# This is to ensure the user doesn't get confused
@@ -151,21 +163,21 @@ while [ "$1" ]; do
 			shift
 
 			ACTION_COUNT+=1
-			INSTRUCT="showfield"
+			INSTRUCT='showfield'
 			CUTLINE=$1
 
 			if ! [[ $CUTLINE =~ [0-9]+:[0-9]+ ]]; then
-				XERR $LINENO "Incorrect cut line/field selected"
+				Err 1 'Incorrect cut line/field selected'
 			fi ;;
 		lcount)
 			ACTION_COUNT+=1
-			INSTRUCT="lcount" ;;
+			INSTRUCT='lcount' ;;
 		wcount)
 			ACTION_COUNT+=1
-			INSTRUCT="wcount" ;;
+			INSTRUCT='wcount' ;;
 		ccount)
 			ACTION_COUNT+=1
-			INSTRUCT="ccount" ;;
+			INSTRUCT='ccount' ;;
 		gmatch)
 			shift
 			ACTION_COUNT+=1
@@ -182,32 +194,32 @@ while [ "$1" ]; do
 done
 
 if [ "$COLOR_MODE" == 'true' ]; then
-	GREY="\e[1;30m"
-	NORMAL="\e[0m"
+	GREY='\e[1;30m'
+	NORMAL='\e[0m'
 fi
 
 if [ $ACTION_COUNT -gt 1 ]; then
-	XERR $LINENO "Only one action at a time may be specified."
+	Err 1 'Only one action at a time may be specified.'
 fi
 
-[ "$DEBUGME" == 'true' ] && set -x
+[ "$DebugMe" == 'true' ] && set -x
 
 if ! [ "$INSTRUCT" ]; then
-	XERR $LINENO "Missing or incorrect action argument."
+	Err 1 'Unrecognised or missing action(s).'
 else
 	[ "$*" ] && FILELIST+="$@ "
 fi
 
-if [ "$INSTRUCT" == "showfield" ]; then
+if [ "$INSTRUCT" == 'showfield' ]; then
 	# As above, but with the f part in action show-field=l:f.
 	CUTFIELD=${CUTLINE/*:}
 	let CUTFIELD--
 
-	[ $CUTFIELD -lt 0 ] && XERR $LINENO "Incorrect field selected."
+	[ $CUTFIELD -lt 0 ] && Err 1 'Incorrect field selected.'
 fi
 
 if ! [[ $INSTRUCT == [wlc]count ]] && [ "$TOTAL_ONLY" == 'true'  ]; then
-	XERR $LINENO "Missing paired argument for --total-only."
+	Err 1 "Option '--ttl|-t' requires a paired option."
 fi
 
 # This function saves repetition when a line or lines need to be displayed. Use
@@ -225,24 +237,19 @@ LINE_NUM_FUNC(){
 for FILE in $FILELIST; {
 	# Initialize the variables used in this for loop. This is to ensure when
 	# working with a new file in FILELIST, the variables don't carry over.
-	CHARCOUNT=0; LINECOUNT=0; WORDCOUNT=0; GETWORDS=""
+	CHARCOUNT=0; LINECOUNT=0; WORDCOUNT=0; GETWORDS=
 
 	if ! [[ $INSTRUCT == [wlc]count ]] && [ "$SHOW_NAMES" == 'true' ]; then
 		printf "FILE: %s\n" "$FILE"
 	fi
 
 	if ! [ "$FILE" ]; then
-		XERR $LINENO "No filename(s) specified."
+		Err 1 "No filename(s) specified."
 	elif ! [ -f "$FILE" -a -r "$FILE" ]; then
-		XERR $LINENO "File missing or inaccessible: $FILE"
+		Err 1 "File missing or inaccessible: $FILE"
 	fi
 
-	if [ "$INSTRUCT" == "showline" ]; then
-		#TODO: Imrove count performances by using this. Use #N to get the
-		#       length of the index (line in array); this can then be
-		#       tested like in the below while loop, but may be quicker.
-		#       Could the whole lot be be based upon readarray/mapfile?
-		#       Example: printf "%s\n" "${#REPLY[@]}"
+	if [ "$INSTRUCT" == 'showline' ]; then
 		readarray REPLY < "$FILE"
 		for L in $LINETOSHOW; {
 			LINE_NUM_FUNC "$LINETOSHOW" "${REPLY[$L]}"
@@ -263,7 +270,6 @@ for FILE in $FILELIST; {
 		# empty lines to a literal new line character. (\n doesn't work)
 		[ -z "$REPLY" ] && REPLY+=""
 
-		#TODO: Does this include spaces and/or tabs? Find out.
 		# Replace each character in the current line with a + followed by
 		# a space, thus allowing the for loop to recognise each field and
 		# so able to count each one, using let's increment.
@@ -336,9 +342,7 @@ for FILE in $FILELIST; {
 			TTL_OUTPUT "$CHARCOUNT" ;;
 	esac
 
-	#TODO: Finish this. Target: show sum of concatenated "count" results.
 	if [ "$SHOW_SUM" == 'true' ]; then
 		:
 	fi
 }
-
