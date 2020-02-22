@@ -2,7 +2,6 @@
 2bd0efef0e3f638e08f02e8ef99cdb68  devutils/convertvars.sh
 38be5021acd85a48cbf62eb59035a77b  devutils/links.sh
 9285465a240b2909c85c83a5ea6a1331  devutils/standard.sh
-47920a8a3b48826fb77a986e794e3c6a  devutils/versions.sh
 7fe7e618f05665df719ab73574a47a61  misc/01-vendor-ubuntu
 2520f059c1f95c5288bdc0b33e9c9da4  misc/autostart
 21726ae24987b9c736e30b511a878325  misc/compton.conf
@@ -10,7 +9,7 @@ a75d9627c55f3a5b1ead88abb87f209e  misc/dunstrc
 39e3ab0a4b5844bfe882a87abb5cd0f1  misc/.keynavrc
 fbcfa0b00d7cecbf01980e555419c613  misc/terminalrc
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
-c15ef65f565d2936aaebe23aaaf0b9f2  source/autoexec/autoexec
+6eaddb92fe2b60da1817dc2661d4f129  source/autoexec/autoexec
 3584a1021609f027c55fac0bb722969d  source/autoexec/autoexec.1.gz
 7bc62dc546cb673a1c864d358b727622  source/autoexec/completions
 7ee742ad5bccdcf3a18561768b3c6973  source/autoscrot
@@ -56,7 +55,7 @@ a57bcf4d9f58a81ace0fb8c348d96401  source/dlfcmags
 9bda69f0e764abc0b910bf2bd33a64ef  source/freelfm
 6f92f488362c1ca2619738a99c38a285  source/get-all-locales
 03e57819333c32b49bb2534f2c104d5d  source/getcfc
-2e1142231c8a4c0d73fe2804c2fcf904  source/getline
+72b9745e4554905c4522f2623a3d0fb2  source/getline
 5fad17df2761ee188b1b71d35f303505  source/ghipc
 f67a53dbdf6f0f97926ec8e73e48852e  source/github-ssh-setup
 5e740abb0c9cbdb0ac18c9e87238ea99  source/isbatlow
@@ -110,4 +109,3 @@ df65bd23b639fa0b9413c33fc55df500  source/swap-file
 f242c8e891b9f2ee7108d19518052720  source/tfl-ubuntu-setup
 a5a592400e37c48bb6e664dcfbfdd8f0  source/tlptog
 25f626f4c40db58749b00a7f358164cd  source/tozero
-066615876f7b3620a4dc30f58eea0121  versions

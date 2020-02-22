@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 22 Feb 01:17:25 GMT 2020
+# Last Change       - Sat 22 Feb 11:03:24 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -142,11 +142,9 @@ while :; do
 		Err 1 'File not found or inaccessible.'
 	fi
 
-	[ "$Once" == 'true' ] && break
+	[ "$Once" == 'true' ] && exit 0
 
 	sleep 0.${Refresh:-05}s
 done
 
-if [ "$Once" != 'true' ]; then
-	tput ed; tput rmcup
-fi
+tput ed; tput rmcup
