@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/completions
 # Started On        - Wed 12 Feb 18:58:13 GMT 2020
-# Last Change       - Fri 14 Feb 02:22:05 GMT 2020
+# Last Change       - Sat 22 Feb 02:05:12 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -25,4 +25,4 @@ _autoexec(){
 	unset Option Arg Args
 }
 
-complete -F _autoexec autoexec
+complete -F _autoexec -o default autoexec

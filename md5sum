@@ -10,9 +10,9 @@ a75d9627c55f3a5b1ead88abb87f209e  misc/dunstrc
 39e3ab0a4b5844bfe882a87abb5cd0f1  misc/.keynavrc
 fbcfa0b00d7cecbf01980e555419c613  misc/terminalrc
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
-87e48ff92d2334dde5dfa594cdb1f423  source/autoexec/autoexec
-f2975abdc9c849a3f7f1442e22346c56  source/autoexec/autoexec.1.gz
-4e619efae980066dfcb7706581245c82  source/autoexec/completions
+c15ef65f565d2936aaebe23aaaf0b9f2  source/autoexec/autoexec
+3584a1021609f027c55fac0bb722969d  source/autoexec/autoexec.1.gz
+7bc62dc546cb673a1c864d358b727622  source/autoexec/completions
 7ee742ad5bccdcf3a18561768b3c6973  source/autoscrot
 7a74c5f904c9a0c9d8805b334f688370  source/backmeup/backmeup
 432b435ffa5e9ef4f17a5758c4e44577  source/backmeup/backmeup.1.gz
@@ -110,4 +110,4 @@ df65bd23b639fa0b9413c33fc55df500  source/swap-file
 f242c8e891b9f2ee7108d19518052720  source/tfl-ubuntu-setup
 a5a592400e37c48bb6e664dcfbfdd8f0  source/tlptog
 25f626f4c40db58749b00a7f358164cd  source/tozero
-433f503296a8ce061aa578a6bee30000  versions
+066615876f7b3620a4dc30f58eea0121  versions

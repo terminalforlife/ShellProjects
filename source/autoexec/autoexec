@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 15 Feb 17:24:57 GMT 2020
+# Last Change       - Sat 22 Feb 01:17:25 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,23 +23,22 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
-CurVer='2020-02-15'
+CurVer='2020-02-22'
 Progrm=${0##*/}
 
 Usage(){
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
-		Usage: $Progrm [OPTS] [SCRIPT] [ARGUMENTS]
+		Usage: $Progrm [OPTS] [FILE] [FILE_ARGS]
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  -e, --exec <NAME>        - Use NAME instead of Bourne Again Shell.
+		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
+		  -o, --once               - Execute FILE only once; no looping.
 		  -r, --refresh <INT>      - Adjust to fit your performance needs.
 	EOF
 }
-
-Exec='bash'
 
 while [ "$1" ]; do
 	case $1 in
@@ -54,8 +53,6 @@ while [ "$1" ]; do
 
 			if [ -z "$1" ]; then
 				Err 1 'Name of command not provided.'
-			elif [ "$1" == 'bash' ]; then
-				Err 1 'The Bourne Again Shell is the default.'
 			elif ! type -fP "$1" > /dev/null 2>&1; then
 				Err 1 'Provided command not found in PATH.'
 			else
@@ -71,6 +68,8 @@ while [ "$1" ]; do
 			else
 				Refresh=$1
 			fi ;;
+		--once|-o)
+			Once='true' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -79,38 +78,75 @@ while [ "$1" ]; do
 	shift
 done
 
+if [ "$Once" == 'true' -a ${#Refresh} -gt 0 ]; then
+	Err 1 "Options '--once|-o' and '--refresh|-r' aren't compatible."
+fi
+
 [ -z "$1" ] && Err 1 'Missing argument -- file name required.'
+[ -f "$1" ] || Err 1 'Provided file is not a file.'
+[ -r "$1" ] || Err 1 'Provided file is unreadable.'
 
 ExecFile=$1; shift
 
 ChkDep tput sleep stat
 
-TRAP(){
-	tput ed; tput rmcup
-	exit 0
+if [ "$Once" != 'true' ]; then
+	TRAP(){
+		tput ed; tput rmcup
+		exit 0
+	}
+
+	trap 'TRAP' SIGINT
+
+	tput smcup
+fi
+
+Interpreter(){
+	type -fP "$1" &> /dev/null ||
+		Err 1 "Interpreter '$1' not found."
+
+	Exec=$1
 }
 
-trap 'TRAP' SIGINT
-
-tput smcup
-
 while :; do
+	# Determine the interpreter to use.
+	if [ ${#Exec} -eq 0 ]; then
+		read SheBang < "$ExecFile"
+		SheBang1=${SheBang#*\!}
+		SheBang2=${SheBang1##*/}
+		SheBang3=${SheBang2%% *}
+		case $SheBang3 in
+			env)
+				SheBang2A=${SheBang2#env }
+				Interpreter "${SheBang2A%% *}" ;;
+			*)
+				Interpreter "$SheBang3" ;;
+		esac
+	fi
+
 	if [ -f "$ExecFile" ] && [ -r "$ExecFile" ]; then
 		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
 
-		if [ 0${SSE_OLD//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
-			tput clear
+		if [ 0${SSEOld//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
+			[ "$Once" == 'true' ] || tput clear
 
 			"$Exec" "$ExecFile" "$@"
 		fi
 
-		SSE_OLD=${SSE//[!0-9]}
+		SSEOld=${SSE//[!0-9]}
 	else
-		tput ed; tput rmcup
+		if [ "$Once" != 'true' ]; then
+			tput ed; tput rmcup
+		fi
+
 		Err 1 'File not found or inaccessible.'
 	fi
+
+	[ "$Once" == 'true' ] && break
 
 	sleep 0.${Refresh:-05}s
 done
 
-tput ed; tput rmcup
+if [ "$Once" != 'true' ]; then
+	tput ed; tput rmcup
+fi
