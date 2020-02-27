@@ -1,160 +1,69 @@
-#!/bin/bash
+#!/bin/sh
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Wed 27 Nov 15:56:47 GMT 2019
+# Last Change       - Thu 27 Feb 22:52:28 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# Installs Ubuntu 16.04 and 18.04 from the Xubuntu ISO. This just makes it
-# a bit easier and quicker than doing it all manually. It sets things up how I how
-# I prefer it, with most of my usual tweaks.
-#
-# CAUTION: This script should only be ran AFTER installation, in a separate TTY.
-#          Preferably, before you first log into X.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# This installation script is for use after installing via something like the
+# `mini.iso` of Ubuntu 16.04, or after using rmne(8) and installing only the
+# basics, like the kernel, UFW, etc.
+#------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+CurVer='2020-02-27'
+Progrm=${0##*/}
 
-XERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; exit 1; }
-ERR(){ printf "[L%0.4d] ERROR: %s\n" "$1" "$2" 1>&2; }
-
-declare -i DEPCOUNT=0
-for DEP in /usr/bin/apt-get /bin/{rm,bash,chown,chmod}; {
-	if ! [ -x "$DEP" ]; then
-		ERR $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
-[ $DEPCOUNT -eq 0 ] || exit 1
+Usage(){
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
+	done <<-EOF
+		\rUsage: $Progrm [OPTS]
 
-[ $UID -eq 0 ] || XERR $LINENO "Root access is required."
-
-if [ -f /etc/lsb-release ]; then
-	while IFS="=" read -a X; do
-		if [ "${X[0]}" == "DISTRIB_ID" -a "${X[1]}" == "Ubuntu" ]; then
-			ERR $LINENO "This script only supports Debian/Ubuntu systems."
-			PROMPT
-			break
-		fi
-	done < /etc/lsb-release
-else
-	ERR $LINENO "Unable to determine the system's LSB type."
-	PROMPT
-fi
-
-INSIT_PATH="/usr/bin/insit"
-INSIT_HOME_DIR="$HOME/.local/share/insit"
-INSIT_LINK="github.com/terminalforlife/installit/raw/master/insit"
-
-SU_PATH="/usr/bin/simplify-ubuntu"
-SU_LINK="github.com/terminalforlife/simplify-ubuntu/raw/master/simplify-ubuntu"
-
-PROMPT(){
-	printf "One or more errors detected -- [c]ontinue or [q]uit?\n"
-	while :; do
-		read -n 1 -e -p "PROMPT: "
-		if [[ $REPLY == [Cc] ]]; then
-			break
-		elif [[ $REPLY == [Qq] ]]; then
-			printf "Quitting...\n"
-			exit 1
-		fi
-	done
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+	EOF
 }
 
-APT(){
-	[ -x /usr/bin/wget ] || { APT install wget || PROMPT; }
-	/usr/bin/apt-get -q -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true\
-		-o APT::Get::AutomaticRemove=true -o APT::Get::Purge=true $@\
-		|| return 1
-}
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		*)
+			Err 1 'Incorrect option(s) specified.' ;;
+	esac
+	shift
+done
 
-read -a WGET_VER_LINE <<< "$(/usr/bin/wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
+DepCount=0
+for CurDep in apt-get id; do
+	if ! command -v "$CurDep" 1> /dev/null 2>&1; then
+		DepCount=$((DepCount + 1))
 
-if ! [ -x /usr/bin/insit ]; then
-	/usr/bin/wget $NOWARC -q --show-progress "$INSIT_LINK" -O /tmp/insit
-	if [ $? -eq 0 ]; then
-		if /bin/bash /tmp/insit -S; then
-			/bin/rm -v /tmp/insit
-
-			# Addresses an issue with the instructed install method.
-			[ -d "$INSIT_HOME_DIR" ] && /bin/rm -rv "$INSIT_HOME_DIR"
-		else
-			exit 1
-		fi
-	else
-		PROMPT
+		Err 0 "Dependency '$CurDep' not met."
 	fi
-fi
+done
 
-if [ -x "$INSIT_PATH" ] && ! [ -x "$SU_PATH" ]; then
-	/usr/bin/wget $NOWARC -q --show-progress "$SU_LINK" -O "$SU_PATH"
-	if [ $? -eq 0 ]; then
-		/bin/chmod -v 755 "$SU_PATH"
-		/bin/chown -v 0:0 "$SU_PATH"
-	else
-		PROMPT
+[ $DepCount -eq 0 ] || exit 1
+
+[ `id -u` -eq 0 ] || Err 1 'Root access is required.'
+
+AptOpts='-q -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true'
+
+# If either `update` or `dist-upgrade` fail, quit.
+apt-get $AptOpts update && apt-get $AptOpts dist-upgrade || exit 1
+
+for Pack in wget i3-wm feh i3lock scrot; do
+	command -v $Pack 1> /dev/null 2>&1 && continue
+	if ! apt-get $AptOpts install $Pack; then
+		Err 0 "Package '$Pack' failed to install."
 	fi
-fi
-
-# Run simplify-ubuntu, if it's found. This is so the user can go through various
-# packages he or she may not actually want, which often come as default.
-if [ -x "$SU_PATH" ]; then
-	$SU_PATH || PROMPT
-fi
-
-# If ufw isn't installed, install it. Enable the firewall if found or installed.
-if ! [ -x /usr/sbin/ufw ]; then
-	if APT install ufw; then
-		/usr/sbin/ufw enable
-	else
-		PROMPT
-	fi
-else
-	/usr/sbin/ufw enable
-fi
-
-# Should be installed by default, but in-case this script is used in a different
-# environment, such as with the mini.iso image, this will ensure man is installed.
-if ! [ -x /usr/bin/man ]; then
-	APT install man || PROMPT
-fi
-
-while read -r; do
-	printf "%s\n" "$REPLY"
-done <<-EOF
-
-	NOTE:  If you used simplify-ubuntu to remove packages, be aware that some
-	       packages may now be installed again, per the EXTRA_PKGS variable
-	       array within this script.
-
-	       However, you should still be prompted for each installation.
-
-EOF
-
-read -n 1 -s -p "Press any key to continue... "
-printf "\n"
-
-# This variable array holds the package names which will be installed, per my
-# (or your?) preference. The right-aligned comments are the short descriptions.
-EXTRA_PKGS=(
-	audacity      # fast, cross-platform audio editor
-	firefox       # Safe and easy web browser from Mozilla
-	links2        # Web browser running in both graphics and text mode
-	moc           # ncurses based console audio player
-	mpv           # video player based on MPlayer/mplayer2
-	openshot      # Create and edit videos and movies
-	psmisc        # utilities that use the proc file system
-	thunderbird   # Email, RSS and newsgroup client with integrated spam filter
-)
-
-for PKG in ${EXTRA_PKGS[@]}; {
-	APT install "$PKG"
-}
+done
