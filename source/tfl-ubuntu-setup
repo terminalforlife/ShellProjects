@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/sh -e
 
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Thu 27 Feb 22:52:28 GMT 2020
+# Last Change       - Thu 27 Feb 23:56:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ while [ "$1" ]; do
 done
 
 DepCount=0
-for CurDep in apt-get id; do
+for CurDep in sh mktemp apt-get id dpkg; do
 	if ! command -v "$CurDep" 1> /dev/null 2>&1; then
 		DepCount=$((DepCount + 1))
 
@@ -58,12 +58,48 @@ done
 
 AptOpts='-q -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true'
 
-# If either `update` or `dist-upgrade` fail, quit.
+# If either `update` or `dist-upgrade` fails, quit.
 apt-get $AptOpts update && apt-get $AptOpts dist-upgrade || exit 1
 
-for Pack in wget i3-wm feh i3lock scrot; do
+for Pack in wget i3 feh i3lock scrot perl; do
 	command -v $Pack 1> /dev/null 2>&1 && continue
 	if ! apt-get $AptOpts install $Pack; then
 		Err 0 "Package '$Pack' failed to install."
+	fi
+done
+
+GHUser='terminalforlife'
+GitHub="https://raw.githubusercontent.com/$GHUser"
+Pkgs="$GitHub/DEB-Packages/master"
+
+TempDir=`mktemp -d`
+
+# Install all of the latest TFL packages.
+for Pkg in\
+\
+	libtflbp-sh libtfl-perl ubuchk kernelchk lsbins lspkg autoexec backmeup\
+	apt-undo-install apt-download-deps clean-locales cpufreq feh-slides\
+	fix-ff-gtk getip gitsap redshifter purgerc previewer notify-upgrade mplay\
+	rmne roks seewttr shlides simplify-ubuntu suptime tudu ubuchk wcdl
+do
+	for Iter in 1 2; do
+		case $Iter in
+			1)
+				Latest="$TempDir/latest"
+				wget $AptOpts -qO "$Latest" "$Pkgs/$Pkg/latest"
+				read Package < "$Latest" ;;
+			2)
+				PkgFile="$TempDir/$Package"
+				wget $AptOpts -qO "$PkgFile" "$Pkgs/$Pkg/$Package"
+				dpkg -i "$PkgFile" ;;
+		esac
+	done
+done
+
+rm -r "$TempDir"
+
+for Dir in /boot /root /home/*; do
+	if [ "$Dir" != '/home/lost+found' ]; then
+		[ -d "$Dir" ] && chmod -v 700 "$Dir"
 	fi
 done
