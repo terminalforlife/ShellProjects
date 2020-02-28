@@ -330,7 +330,7 @@ ReadFile(){
 		return 1
 	fi
 
-	# In this case, no need to read the file.
+	# In this case, no need to read the Cito line.
 	[ "$Regardless" = 'true' ] && return 0
 
 	while read F1 _; do
@@ -364,6 +364,8 @@ ReadFile(){
 			break 1
 		fi
 	done < "$1"
+
+	[ "$HasCito" = 'true' ] || return 0
 
 	# Check for `($HOME|~)(|/)*` then apply if found.
 	case $Target in

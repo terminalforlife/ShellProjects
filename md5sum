@@ -24,7 +24,7 @@ bb63aac3729b547205eed4cb1b13d8cb  source/barred
 7fe2e5d26e06598ad67878790202dcd0  source/capnum
 5874e4132ba3fbfe678881a9c7d2aba5  source/catmedia
 f131cfc804e6204c6651b70b5cb45923  source/ccfiles
-2ee85fbcb1a1dbafaf2c1dfb589dbf05  source/cito/cito
+e1cb2a91d63e59cb7aa2830293e9c428  source/cito/cito
 50a7583812479bc4b590e33d8d0c4aaf  source/cito/cito.8.gz
 ea2da09a7291eeb70d7165afd1af44a2  source/cito/completions
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
@@ -106,6 +106,6 @@ dd1395abbbad4d08e346d40d87b0ffb3  source/simplify-ubuntu
 ad768a2c5005cc4c3d3e9bb5d89c9114  source/snotes
 df65bd23b639fa0b9413c33fc55df500  source/swap-file
 614b66ab6d1a81d5e0abf55b548e6be3  source/syswatch
-48d4bab24ba16aa0eb13686456ff2bd5  source/tfl-ubuntu-setup
+c74333b8380e340cea0459013ce814ef  source/tfl-ubuntu-setup
 a5a592400e37c48bb6e664dcfbfdd8f0  source/tlptog
 25f626f4c40db58749b00a7f358164cd  source/tozero

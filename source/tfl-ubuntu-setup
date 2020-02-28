@@ -1,9 +1,9 @@
-#!/bin/sh -e
+#!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/tfl-ubuntu-setup
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Fri 28 Feb 21:29:24 GMT 2020
+# Last Change       - Fri 28 Feb 23:56:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ while [ "$1" ]; do
 done
 
 Count=0
-for Dep in date sh mktemp apt-get id dpkg; do
+for Dep in sh mktemp apt-get id dpkg; do
 	if ! command -v "$Dep" 1> /dev/null 2>&1; then
 		Count=$((Count + 1))
 		Err 0 "Dependency '$Dep' not met."
@@ -55,25 +55,23 @@ done
 
 [ `id -u` -eq 0 ] || Err 1 'Root access is required.'
 
-Date=`date '+%F'`
 GHUser='terminalforlife'
 GitHub="https://raw.githubusercontent.com/$GHUser"
 Pkgs="$GitHub/DEB-Packages/master"
-
 AptOpts='-q -o Dpkg::Progress=true -o Dpkg::Progress-Fancy=true'
 
 # If either `update` or `dist-upgrade` fails, quit.
 apt-get $AptOpts update 1> /dev/null &&
 	apt-get $AptOpts dist-upgrade 1> /dev/null || exit 1
 
-for Pack in wget i3 feh i3lock scrot perl; do
+for Pack in\
+\
+	wget git redshift moc pulseaudio pavucontrol i3 feh i3lock scrot perl\
+	manpages-posix man-db perl-doc vim newsbeuter
+do
 	command -v $Pack 1> /dev/null 2>&1 && continue
-	printf "Installing '$Pack' package...\n"
-	if ! apt-get $AptOpts install $Pack 1> /dev/null; then
-		Err 0 "Package '$Pack' failed to install."
-	else
-		printf 'Installation successful.\n'
-	fi
+	printf 'Installing package: %s\n' "$Pack"
+	apt-get $AptOpts install $Pack 1> /dev/null
 done
 
 TempDir=`mktemp -d`
@@ -86,31 +84,30 @@ for Pkg in\
 	fix-ff-gtk getip gitsap redshifter purgerc previewer notify-upgrade mplay\
 	rmne roks seewttr shlides simplify-ubuntu suptime tudu ubuchk wcdl
 do
+	printf 'Installing package: %s\n' "$Pkg"
+
 	for Iter in 1 2; do
 		case $Iter in
 			1)
-				printf "Fetching latest '$Pkg' package name.\n"
 				Latest="$TempDir/latest"
 				wget -qO "$Latest" "$Pkgs/$Pkg/latest" 1> /dev/null
 				read Package < "$Latest" ;;
 			2)
-				printf "Downloading '$Pkg' package.\n"
 				PkgFile="$TempDir/$Package"
 				wget -qO "$PkgFile" "$Pkgs/$Pkg/$Package" 1> /dev/null
-				printf "Installing '$Package' package.\n"
 				dpkg -i "$PkgFile" 1> /dev/null ;;
 		esac
 	done
 done
 
 # Get dependencies for the above.
-printf 'Downloading and installing dependencies.\n'
-apt-get install -f 1> /dev/null
+printf 'Installing dependencies.\n'
+apt-get $AptOpts install -f 1> /dev/null
 
 printf 'Clearing temporary directory.\n'
 rm -r "$TempDir"
 
-# Set safer permissions for certain directories.
+printf 'Setting safer permissions for certain directories.\n'
 for Dir in /boot /root /home/*; do
 	if [ "$Dir" != '/home/lost+found' ]; then
 		[ -d "$Dir" ] && chmod 700 "$Dir"
@@ -118,17 +115,60 @@ for Dir in /boot /root /home/*; do
 done
 
 # Install all of the TFL BashConfig stuff.
+printf 'Installing: /usr/bin/lad\n'
 cito -c -r "$GHUser" BashConfig master source/lad
 for File in .bashrc .bash_aliases .bash_functions .profile; do
-	printf "Downloading and installing '%s' file.\n" "$File"
+	printf 'Installing: %s\n' "$HOME/$File"
 	cito -c -M 600 -O 1000 -G 1000 -T "$HOME/$File"\
 		-r "$GHUser" BashConfig master "source/$File"
 done
 
-# View today's Cito errors.
-printf 'Displaying any Cito errors, if found.\n'
-cito -L error | while read Line; do
-	case $Line in
-		"$Date "*) printf '%s\n' "${Line#* }" ;;
-	esac
+# Install all of the TFL VimConfig stuff.
+mkdir -p --mode=700 "$HOME/.vim"
+mkdir -p --mode=700 "$HOME/.vim/colors"
+mkdir -p --mode=700 "$HOME/.vim/plugin"
+mkdir -p --mode=700 "$HOME/.vim/snippet"
+chmod -R u=rwX,g=,o= "$HOME/.vim"
+chown -R 1000:1000 "$HOME/.vim"
+
+cito -c -M 600 -O 1000 -G 1000 -T "$HOME/.vimrc"\
+	-r "$GHUser" VimConfig master source/.vimrc
+
+for File in\
+\
+	colors/tfl.vim plugin/sanekeys.vim plugin/noarrows.vim plugin/moredoc.vim\
+	plugin/mouseon.vim plugin/virtedit.vim plugin/textwidth.vim\
+	plugin/banger.vim plugin/psnips.vim plugin/headup.vim\
+	plugin/autoscroll.vim plugin/tflsnips.vim plugin/giteditmsg.vim\
+	plugin/altnums.vim plugin/mvline.vim plugin/tflstatus.vim\
+	plugin/listmode.vim plugin/sudosave.vim plugin/comtog.vim\
+	plugin/datepaste.vim plugin/exefile.vim plugin/togtrans.vim\
+	plugin/simplyhard.vim snippet/psetup snippet/setup snippet/modeline\
+	snippet/die snippet/wgetchk snippet/bsetup snippet/disclaimer\
+	snippet/args snippet/updatechk
+do
+	printf 'Installing: %s\n' "$HOME/.vim/$File"
+	cito -c -M 600 -O 1000 -G 1000 -T "$HOME/.vim/$File"\
+		-r "$GHUser" VimConfig master "source/$File"
+done
+
+# Install all of the TFL i3Config stuff.
+mkdir -p --mode=700 "$HOME/.config/i3"
+mkdir -p --mode=700 "$HOME/.i3a"
+chmod -R u=rwX,g=,o= "$HOME/.i3a" "$HOME/.config/i3"
+chown -R 1000:1000 "$HOME/.vim" "$HOME/.config/i3"
+
+cito -c -M 600 -O 1000 -G 1000 -T "$HOME/.config/i3/config"\
+	-r "$GHUser" i3Config master source/config
+
+for File in\
+\
+	dev_setup dmesg_overflow hush_the_mic initialize key_autorepeat\
+	leave_session lockscreen partmount scrot_sel_take scrot_take\
+	scrot_win_take sink_lower sink_mute sink_raise sink_switch source_lower\
+	source_mute source_raise term_font_size terminal track_notify use_dmenu
+do
+	printf 'Installing: %s\n' "$HOME/.i3a/$File"
+	cito -c -M 600 -O 1000 -G 1000 -T "$HOME/.vim/$File"\
+		-r "$GHUser" i3Config master "source/.i3a/$File"
 done
