@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/repack
 # Started On        - Wed 19 Feb 01:35:16 GMT 2020
-# Last Change       - Wed 19 Feb 16:29:32 GMT 2020
+# Last Change       - Fri 28 Feb 21:32:18 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,6 +15,7 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
+CurVer='2020-02-28'
 Progrm=${0##*/}
 
 Usage(){
@@ -24,6 +25,7 @@ Usage(){
 		\rUsage: $Progrm [OPTS] [REPOSITORY] [PROGNAME]
 
 		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
 		\r  -O, --overwrite          - Overwrite existing new base directory.
 	EOF
 }
@@ -32,6 +34,8 @@ while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--overwrite|-O)
 			Overwrite=1 ;;
 		-*)
