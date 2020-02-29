@@ -41,33 +41,33 @@
 67,76d62
 < 		--log-view|-L)
 < 			LogView=$2
-<
+< 
 < 			if [ -z "$LogView" ]; then
 < 				Err 1 "Option '--log-view|-L' requires one of TYPE."
 < 			fi
-<
+< 
 < 			shift ;;
 < 		--no-log|-l)
 < 			SkipLog='true' ;;
 111d96
-<
+< 
 119d103
-<
+< 
 125d108
-<
+< 
 131d113
-<
+< 
 137d118
-<
+< 
 163,170d143
 < if ! [ ${UID:-`id -u`} -eq 0 ]; then
 < 	if ! [ "$SkipLog" = 'true' ]; then
 < 		Err 1 'Root permissions required for system-wide changes.'
 < 	fi
-<
+< 
 < 	printf "CAUTION: Option '--no-log|-l' temporarily disables logging.\n" 1>&2
 < fi
-<
+< 
 189d161
 < 			Logger error "Failed to 'cd' into '${MD5File%/*}'"
 197,200c169
@@ -80,7 +80,7 @@
 210,212d178
 < 				Logger info "New MD5 for '$1' is '$GetHash'"
 < 				Logger info "Old MD5 for '$1' is '$Hash'"
-<
+< 
 214d179
 < 					Logger error "MD5 mis-match for file '$1'"
 225d189
@@ -90,23 +90,23 @@
 236,278d198
 < Logger(){ # Usage: Logger TYPE MESSAGE
 < 	[ "$SkipLog" = 'true' ] && return 2
-<
+< 
 < 	LogTypeChk "$1" $LogTypes
-<
+< 
 < 	[ -d "${EventLog%/*}" ] && mkdir -p "${EventLog%/*}" 1> /dev/null 2>&1
 < 	[ -f "$EventLog" ] || 1> "$EventLog"
-<
+< 
 < 	# Ensure it's still set safely.
 < 	chown 0:0 "$EventLog" 1> /dev/null 2>&1
 < 	chmod 600 "$EventLog" 1> /dev/null 2>&1
-<
+< 
 < 	Secs=`date '+%s'` # <-- Seconds since Epoch.
 < 	[ -z "$Secs" ] && Err 1 "Logging failure via 'Logger()' detected."
 < 	printf "%d:%s:%s\n" $Secs "$1" "$2" >> "$EventLog"
-<
+< 
 < 	unset TypeCount CurType Secs
 < }
-<
+< 
 < LogErrInf(){ # Usage: LogErrInf [$KEY] [KEY] [FILE]
 < 	if [ -z "$1" ]; then
 < 		Logger error "$2 is null for '$3'"
@@ -115,29 +115,29 @@
 < 		Logger info "$2 is '$1' for '$3'"
 < 	fi
 < }
-<
+< 
 < LogTypeChk(){ # Usage: LogTypeChk [TYPE] [VALID_TYPES]
 < 	CheckType=$1; shift
-<
+< 
 < 	TypeCount=0
 < 	for CurType in "$@"; do
 < 		if [ "$CheckType" = "$CurType" ]; then
 < 			TypeCount=$((TypeCount + 1))
 < 		fi
 < 	done
-<
+< 
 < 	[ $TypeCount -eq 0 ] && Err 1 "Invalid 'Logger()' type."
-<
+< 
 < 	unset CheckType TypeCount CurType
 < }
-<
+< 
 282,287d201
 < 	if [ $Signal -eq 0 ]; then
 < 		Logger info "Signal '$Signal' detected by 'SigHandler()'"
 < 	else
 < 		Logger warning "Signal '$Signal'  detected by 'SigHandler()'"
 < 	fi
-<
+< 
 289d202
 < 		Logger error "File '$HashFile' and/or '$TemRemFile' failed removal"
 291,292d203
@@ -147,7 +147,7 @@
 < if [ -n "$LogView" ]; then
 < 	Logger info 'Attempting to view Cito log file'
 < 	LogTypeChk "$LogView" $LogTypes
-<
+< 
 < 	if [ -f "$EventLog" ]; then
 < 		Logger info 'Viewing Cito log file'
 < 		while IFS=':' read Epoch Type MSG; do
@@ -155,33 +155,33 @@
 < 				FTime=`date '+%F %X' --date="@$Epoch"`
 < 				printf "%s: %s\n" "$FTime" "$MSG"
 < 			}
-<
+< 
 < 			if [ "$LogView" = "all" ]; then
 < 				ShowLog
 < 			elif [ "$Type" = "$LogView" ]; then
 < 				ShowLog
 < 			fi
 < 		done < "$EventLog"
-<
+< 
 < 		exit 0
 < 	else
 < 		Err 1 "File '$EventLog' not found."
 < 	fi
 < fi
-<
+< 
 326,332c212
 < 	Logger info "Checking existing of '$1'"
-<
+< 
 < 	if ! [ -d "${1%/*}" ]; then
 < 		Logger info "Directory '$1' not found"
-<
+< 
 < 		Err 1 "Directory '${1%/*}' not found."
 < 	fi
 ---
 > 	[ -d "${1%/*}" ] || Err 1 "Directory '${1%/*}' not found."
 350,351d229
 < 			Logger info "File '$1' is supported by Cito"
-<
+< 
 356,367c234,237
 < 					M:*)
 < 						Mode=${CurField#*:}
@@ -220,10 +220,10 @@
 > 	chmod "$1" "$2" 1> /dev/null 2>&1
 411,412d271
 < 	Logger warning "File '$1' in '${1%/*}' already exists"
-<
+< 
 415,420c274
 < 		Logger info "Overwriting pre-existing file '$1'"
-<
+< 
 < 		if rm -f "$1" 1> /dev/null 2>&1; then
 < 			Logger info "Overwrote pre-existing file '$1'"
 < 		else
@@ -253,13 +253,13 @@
 < 		Logger error "File '$1' failed to download with '${DLCMD%% *}'"
 484,485d326
 < 	Logger info 'Beginning remote operation'
-<
+< 
 495,496d335
 < 	Logger info 'Beginning local operation'
-<
+< 
 498,499d336
 < 		Logger info "Processing '$CurFile'"
-<
+< 
 508d344
 < 					Logger info "File '$CurFile' moved to '$Target'"
 512d347
@@ -268,6 +268,6 @@
 < 				Logger error "File '$CurFile' is NOT supported by Cito"
 522,523d355
 < 		Logger info "Finished processing '$CurFile'"
-<
+< 
 531d362
 < Logger info 'Appears to be nothing to do'
