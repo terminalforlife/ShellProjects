@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/iplite
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/iplite
+# Started On        - Sat 29 Feb 14:56:05 GMT 2020
+# Last Change       - Sat 29 Feb 15:30:33 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Uses only the Bourne Again Shell to download and parse a webpage in order to
+# fetch the user's external (online) IP address, via HTTP.
+#
+# Huge thanks to 'z i z z u' for their help over on the Learn Linux channel.
+# This small utility is a revision of and was heavily inspired by:
+#
+#   https://github.com/zizzu0/scripts/blob/master/myip.sh
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.0)
+#------------------------------------------------------------------------------
+
+CurVer='2020-02-29'
+Progrm=${0##*/}
+
+Usage(){
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
+	done <<-EOF
+		\rUsage: $Progrm [OPTS]
+
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+	EOF
+}
+
+Domain='ifconfig.co'
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		*)
+			printf 'ERROR: Incorrect option(s) specified.\n' 1>&2
+			exit 1 ;;
+	esac
+	shift
+done
+
+exec 3<>/dev/tcp/"$Domain"/80
+
+while read -r; do
+	printf '%s\r\n' "$REPLY"
+done <<-EOF >&3
+	GET / HTTP/1.1
+	host: $Domain
+	Connection: close
+
+EOF
+
+while read -u 3; do
+	case $REPLY in
+		*'class="ip"'*)
+			IP=${REPLY//[^0-9.]}
+			break ;;
+	esac
+done
+
+exec 3>&-
+
+if [ -n "$IP" ]; then
+	if [[ $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+		printf '%s\n' "$IP"
+	else
+		printf 'ERROR: Received invalid IP address.\n' 1>&2
+		exit 1
+	fi
+else
+	printf 'ERROR: Unable to fetch external IP.\n' 1>&2
+	exit 1
+fi
