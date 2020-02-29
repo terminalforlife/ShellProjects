@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Fri 28 Feb 23:58:47 GMT 2020
+# Last Change       - Sat 29 Feb 00:50:09 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,12 +23,8 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2020-02-28'
+CurVer='2020-02-29'
 Progrm=${0##*/}
-
-EventLog="/var/log/${Progrm}-events.log"
-RawDomain='https://raw.githubusercontent.com'
-LogTypes='all info warning error'
 
 Usage(){
 	while read -r CurLine; do
@@ -55,6 +51,10 @@ Usage(){
 NullArg(){ # Usage: NullArg [VARIABLE] [OPTION]
 	[ -z "$1" ] && Err 1 "Null argument for '$2' option."
 }
+
+EventLog="/var/log/${Progrm}-events.log"
+RawDomain='https://raw.githubusercontent.com'
+LogTypes='all info warning error'
 
 while [ -n "$1" ]; do
 	case $1 in
@@ -352,8 +352,7 @@ ReadFile(){
 						LogErrInf "$Group" Group "$1" ;;
 					T:*)
 						Target=${CurField#*:}
-						LogErrInf "$Target" Target "$1"
-						[ -f "$Target" ] && IsFound='true' ;;
+						LogErrInf "$Target" Target "$1" ;;
 					*)
 						Logger error "Field '$CurField' in '$1' is invalid"
 						Err 0 "File '$1' contains an invalid field."
@@ -365,20 +364,16 @@ ReadFile(){
 		fi
 	done < "$1"
 
-	[ "$HasCito" = 'true' ] || return 0
+	if [ "$HasCito" = 'true' ]; then
+		# Check for `($HOME|~)(|/)*` then apply if found.
+		case $Target in
+			\$HOME*|\$HOME/*)
+				Target="$HOME${Target#\$HOME}" ;;
+			\~*|\~/*)
+				Target="$HOME${Target#\~}" ;;
+		esac
 
-	# Check for `($HOME|~)(|/)*` then apply if found.
-	case $Target in
-		\$HOME*|\$HOME/*)
-			Target="$HOME${Target#\$HOME}" ;;
-		\~*|\~/*)
-			Target="$HOME${Target#\~}" ;;
-	esac
-
-	DirChk "$Target"
-
-	if [ "$IsFound" = 'true' ]; then
-		AskOverwrite "$Target"
+		DirChk "$Target"
 	fi
 }
 
@@ -443,6 +438,7 @@ MainRemote(){
 	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null 2>&1; then
 		if ChkMD5 "$1"; then
 			ReadFile "$TemRemFile" || exit 0
+			AskOverwrite "$Target"
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
@@ -491,6 +487,7 @@ else
 
 		if ChkMD5 "$CurFile"; then
 			ReadFile "$CurFile" || continue
+			AskOverwrite "$Target"
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
