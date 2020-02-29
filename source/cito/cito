@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat 29 Feb 00:50:09 GMT 2020
+# Last Change       - Sat 29 Feb 03:22:45 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -65,11 +65,13 @@ while [ -n "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$CurVer"; exit 0 ;;
 		--log-view|-L)
-			shift; LogView=$1
+			LogView=$2
 
 			if [ -z "$LogView" ]; then
 				Err 1 "Option '--log-view|-L' requires one of TYPE."
-			fi ;;
+			fi
+
+			shift ;;
 		--no-log|-l)
 			SkipLog='true' ;;
 		--remote|-r)
@@ -104,26 +106,36 @@ while [ -n "$1" ]; do
 			# multiple remote files in one command execution.
 			break ;;
 		--hash|-H)
-			shift; MD5File=$1
-			NullArg "$MD5File" '--hash|-H' ;;
+			MD5File=$2
+			NullArg "$MD5File" "$1"
+
+			shift ;;
 		--clobber|-c)
 			Clobber='true' ;;
 		--mode|-M)
-			shift; UserMode=$1
+			UserMode=$2
 			Regardless='true'
-			NullArg "$UserMode" '--mode|-M' ;;
+			NullArg "$UserMode" "$1"
+
+			shift ;;
 		--owner|-O)
-			shift; UserOwner=$1
+			UserOwner=$2
 			Regardless='true'
-			NullArg "$UserOwner" '--owner|-O' ;;
+			NullArg "$UserOwner" "$1"
+
+			shift ;;
 		--group|-G)
-			shift; UserGroup=$1
+			UserGroup=$2
 			Regardless='true'
-			NullArg "$UserGroup" '--group|-G' ;;
+			NullArg "$UserGroup" "$1"
+
+			shift ;;
 		--target|-T)
-			shift; UserTarget=$1
+			UserTarget=$2
 			Regardless='true'
-			NullArg "$UserTarget" '--target|-T' ;;
+			NullArg "$UserTarget" "$1"
+
+			shift ;;
 		-*)
 			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
