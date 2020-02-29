@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Sat 29 Feb 01:54:34 GMT 2020
+# Last Change       - Sat 29 Feb 01:56:27 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 #
 # Features:
 #
-#TODO: Fetch the user's real UID and GID, despite root access being required.
+# N/A
 #
 # Bugs:
 #
@@ -240,15 +240,10 @@ do
 done
 
 # Install some programs which don't have Debian packages.
-for File in\
-\
-	barred bdl bios-info forex mif mkpass mplay simwea seewttr getline
-do
+for File in barred bdl bios-info forex mif mkpass simwea getline; do
 	printf 'Installing program: %s\n' "$File"
 	cito -c -r "$GHUser" Extra master source/"$File"
 done
 
 printf 'Synchronizing cached writes.\n'
 sync
-
-
