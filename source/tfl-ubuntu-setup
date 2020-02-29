@@ -3,16 +3,30 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Fri 28 Feb 23:56:30 GMT 2020
+# Last Change       - Sat 29 Feb 01:04:28 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # This installation script is for use after installing via something like the
 # `mini.iso` of Ubuntu 16.04, or after using rmne(8) and installing only the
 # basics, like the kernel, UFW, etc. Would probably work on 18.04, however.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   apt (>= 1.2.32)
+#   coreutils (>= 8.25-2)
+#   dpkg (>= 1.18.4)
 #------------------------------------------------------------------------------
 
-CurVer='2020-02-28'
+CurVer='2020-02-29'
 Progrm=${0##*/}
 
 Err(){
@@ -44,7 +58,7 @@ while [ "$1" ]; do
 done
 
 Count=0
-for Dep in sh mktemp apt-get id dpkg; do
+for Dep in tr sh mktemp apt-get id dpkg; do
 	if ! command -v "$Dep" 1> /dev/null 2>&1; then
 		Count=$((Count + 1))
 		Err 0 "Dependency '$Dep' not met."
@@ -113,6 +127,11 @@ for Dir in /boot /root /home/*; do
 		[ -d "$Dir" ] && chmod 700 "$Dir"
 	fi
 done
+
+# Highly unlikely to be needed, but just in-case.
+if ! [ `cito -v | tr -d '-'` -ge 20200229 ]; then
+	Err 1 'TFL-Ubuntu-Setup requires Cito version 2020-02-29 or later.'
+fi
 
 # Install all of the TFL BashConfig stuff.
 printf 'Installing: /usr/bin/lad\n'
