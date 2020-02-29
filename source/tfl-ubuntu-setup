@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Sat 29 Feb 01:18:20 GMT 2020
+# Last Change       - Sat 29 Feb 01:54:34 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -69,8 +69,10 @@ done
 
 [ `id -u` -eq 0 ] || Err 1 'Root access is required.'
 
+#--------------------------------------------------Gather Information from User
+
 # Gather the user's UID and GID; don't want root's.
-printf 'Enter your UID and GID (IE: 1000:1000): '
+printf 'Enter your UID and GID, for example: 1000:1000\n: '
 read Answer
 
 [ -z "$Answer" ] && Err 1 'Invalid UID and/or GID provided.'
@@ -91,6 +93,29 @@ case $Answer in
 		Err 1 'Invalid UID and/or GID provided.' ;;
 esac
 
+printf 'Enter a space-delimited list of extra Debian packages to install.\n: '
+read ExtraPkgs
+if [ -z "$ExtraPkgs" ]; then
+	printf 'No additional packages provided.\n'
+else
+	case $ExtraPkgs in
+		*[\!\"\'\£\$\%\^\&\*\(\)\=\+\~\#\}\]\{\[\?\/\>\\\<,\|\`\¬]*)
+			Err 1 'One or more invalid packages selected.' ;;
+		*)
+			Count=0
+			for Pkg in $ExtraPkgs; do
+				Count=$((Count + 1))
+			done
+
+			printf 'A total of %d extra package(s) chosen.\n' $Count ;;
+	esac
+fi
+
+printf 'Press any key to continue, or Ctrl + C to quit... '
+read AnyKey
+
+#-----------------------------------------------Actual Installation Starts Here
+
 GHUser='terminalforlife'
 GitHub="https://raw.githubusercontent.com/$GHUser"
 Pkgs="$GitHub/DEB-Packages/master"
@@ -103,7 +128,7 @@ apt-get $AptOpts update 1> /dev/null &&
 for Pack in\
 \
 	wget git redshift moc pulseaudio pavucontrol i3 feh i3lock scrot perl\
-	manpages-posix man-db perl-doc vim newsbeuter
+	manpages-posix man-db perl-doc vim newsbeuter $ExtraPkgs
 do
 	command -v $Pack 1> /dev/null 2>&1 && continue
 	printf 'Installing package: %s\n' "$Pack"
@@ -213,3 +238,17 @@ do
 	cito -c -M 600 -O $UID -G $GID -T "$HOME/.vim/$File"\
 		-r "$GHUser" i3Config master "source/.i3a/$File"
 done
+
+# Install some programs which don't have Debian packages.
+for File in\
+\
+	barred bdl bios-info forex mif mkpass mplay simwea seewttr getline
+do
+	printf 'Installing program: %s\n' "$File"
+	cito -c -r "$GHUser" Extra master source/"$File"
+done
+
+printf 'Synchronizing cached writes.\n'
+sync
+
+
