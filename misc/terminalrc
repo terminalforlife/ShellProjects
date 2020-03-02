@@ -1,22 +1,22 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/misc/terminalrc
 # Started On        - Fri 20 Oct 00:37:52 BST 2017
-# Last Change       - Fri 31 Jan 02:21:18 GMT 2020
+# Last Change       - Mon  2 Mar 03:48:40 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # This is just my xfce4-terminal settings file, in-case you wanted to use it.
 # It's a minimalistic, keyboard-focused setup. To use this file, save it as:
 #
-# ~/.config/xfce4/terminal/terminalrc
+#   ~/.config/xfce4/terminal/terminalrc
 #
 # Install dependencies:
 #
-#   $ sudo apt-get install fonts-ubuntu-mono
+#   $ sudo apt-get install fonts-3270 xfce4-terminal
 #------------------------------------------------------------------------------
 
 [Configuration]
-FontName=Ubuntu Mono 16
+FontName=IBM 3270 Medium 28
 MiscAlwaysShowTabs=FALSE
 MiscBell=TRUE
 MiscBordersDefault=FALSE
