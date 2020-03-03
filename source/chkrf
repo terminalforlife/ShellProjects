@@ -1,0 +1,76 @@
+#!/bin/sh
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/chkrf
+# Started On        - Tue  3 Mar 17:56:40 GMT 2020
+# Last Change       - Tue  3 Mar 19:08:14 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# There's a remote file I access via SSH to communicate with someone whose
+# server I help maintain. We mostly use this file for gits & shiggles, but I
+# still could do with knowing when the file has been changed; updated.
+#
+# Currently, this only supports watching ONE file.
+#
+# ChkRF works really well with aliases, but beyond that, it may not be for you.
+#------------------------------------------------------------------------------
+
+CurVer='2020-03-03'
+Progrm=${0##*/}
+
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
+
+Usage(){
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
+	done <<-EOF
+		\rUsage: $Progrm [OPTS] [WHERE] [WHAT]
+
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+	EOF
+}
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+[ $# -eq 2 ] || Err 1 'A WHERE (address) and WHAT (file) is needed.'
+
+ChkDep ssh tput
+
+SumFile="$HOME/.config/chkrf-md5"
+ssh "$1" "md5sum '$2'" 2> /dev/null | while read Line; do
+	if [ -f "$SumFile" ]; then
+		read Current < "$SumFile"
+	else
+		NewFile='true'
+	fi
+
+	if [ "$NewFile" != 'true' ]; then
+		if [ "$Current" != "${Line%% *}" ]; then
+			Lines=`tput lines`
+
+			printf "Remote file '${2##*/}' has been updated.\n"
+			ssh "$1" "stat --printf='MOD: %y\n' '$2'"
+		fi
+	fi
+
+	printf '%s\n' "${Line%% *}" > "$SumFile"
+
+	break
+done
