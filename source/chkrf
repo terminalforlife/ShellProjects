@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/chkrf
 # Started On        - Tue  3 Mar 17:56:40 GMT 2020
-# Last Change       - Tue  3 Mar 19:08:14 GMT 2020
+# Last Change       - Tue  3 Mar 19:10:51 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,13 +16,13 @@
 # ChkRF works really well with aliases, but beyond that, it may not be for you.
 #------------------------------------------------------------------------------
 
-CurVer='2020-03-03'
-Progrm=${0##*/}
-
 set -e
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
 set +e
+
+CurVer='2020-03-03'
+Progrm=${0##*/}
 
 Usage(){
 	while read -r CurLine; do
