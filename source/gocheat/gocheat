@@ -1,9 +1,9 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/cheater
+#cito M:755 O:0 G:0 T:/usr/bin/gocheat
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/cheater/cheater
+# Project Name      - Extra/source/gocheat/gocheat
 # Started On        - Mon  2 Mar 02:11:39 GMT 2020
-# Last Change       - Mon  2 Mar 03:46:23 GMT 2020
+# Last Change       - Thu  5 Mar 22:30:59 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 #
 # I really love the `cheat.sh` and `cheat.sheets` repositories and so I often
 # contribute a bunch of stuff, but what I sometimes find is missing, is a tool
-# like `cheater` which can parse the site and all that lovely stuff. Initially
+# like `gocheat` which can parse the site and all that lovely stuff. Initially
 # I began this project within Perl, but went for Shell in the end.
 #
 # I'd like to expand this very simple tool, so that may well happen eventually.
@@ -47,7 +47,7 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
-CurVer='2020-03-02'
+CurVer='2020-03-05'
 Progrm=${0##*/}
 
 Usage(){

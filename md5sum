@@ -24,8 +24,6 @@ bb63aac3729b547205eed4cb1b13d8cb  source/barred
 7fe2e5d26e06598ad67878790202dcd0  source/capnum
 5874e4132ba3fbfe678881a9c7d2aba5  source/catmedia
 f131cfc804e6204c6651b70b5cb45923  source/ccfiles
-29971de0c40407e1a9f93b5b50888c7d  source/cheater/cheater
-0356617096fc3e24359a8e20aeed2b3a  source/cheater/completions
 55c6a093ae23ca6ba028a3f3f039d8c9  source/chkrf
 d1b48d10b20632fb94c7836da3400224  source/cito/cito
 50a7583812479bc4b590e33d8d0c4aaf  source/cito/cito.8.gz
@@ -62,6 +60,8 @@ a57bcf4d9f58a81ace0fb8c348d96401  source/dlfcmags
 72b9745e4554905c4522f2623a3d0fb2  source/getline
 5fad17df2761ee188b1b71d35f303505  source/ghipc
 f67a53dbdf6f0f97926ec8e73e48852e  source/github-ssh-setup
+9d52486ce25279ae124e6a2e25af1c1f  source/gocheat/completions
+ef12c1151b3d74e946bcb75d153c8af2  source/gocheat/gocheat
 c9a3243f1e2635480a6d13bc2e7ad2dd  source/iplite
 5e740abb0c9cbdb0ac18c9e87238ea99  source/isbatlow
 119eb19a2f7fc31bb4867b26d4641245  source/jotd
