@@ -9,6 +9,7 @@ a75d9627c55f3a5b1ead88abb87f209e  misc/dunstrc
 39e3ab0a4b5844bfe882a87abb5cd0f1  misc/.keynavrc
 f639ee6ecade61317bb61acd38ee0f53  misc/terminalrc
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
+ee216fb6783928a79f55d67b695a0988  misc/ubuchk_config
 6eaddb92fe2b60da1817dc2661d4f129  source/autoexec/autoexec
 3584a1021609f027c55fac0bb722969d  source/autoexec/autoexec.1.gz
 7bc62dc546cb673a1c864d358b727622  source/autoexec/completions
@@ -114,4 +115,4 @@ df65bd23b639fa0b9413c33fc55df500  source/swap-file
 775fa57eefd8ff3b9a047d78c7d00b29  source/tfl-ubuntu-setup
 a5a592400e37c48bb6e664dcfbfdd8f0  source/tlptog
 25f626f4c40db58749b00a7f358164cd  source/tozero
-d75c95e654a5671b185a92d87c5aedff  source/yol/yol
+9ea8da9c08d7665f1e6bb19f4d1fdb82  source/yol/yol

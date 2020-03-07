@@ -1,0 +1,100 @@
+#cito M:644 O:0 G:0 T:/usr/share/ubuchk/config
+# User configuration file for UbuChk (>= 2020-03-07)
+# Refer to ubuchk(8) to learn about these settings.
+
+# Core Settings
+AutoQuery=false
+ForceRun=false
+QueryIndent=8
+Recommend=false
+SkipIDs=
+Verbose=false
+
+# Disk Usage
+AptCache=true
+AptCacheMBLimit=0
+DSLimit=85
+DiskSpace=true
+HomeCache=true
+HomeCacheMBLimit=20
+Thumbnails=true
+ThumbsMBLimit=0
+
+# Package Management
+DpkgConf=true
+HardAPT=true
+PurgeChk=true
+SkipAPT=
+SkipDpkgOpts=
+UnwantedPKGs=^atftpd$
+UnwantedPKGs=^kerneloops
+UnwantedPKGs=^nis$
+UnwantedPKGs=^popularity-contest
+UnwantedPKGs=^rsh-
+UnwantedPKGs=^telnet
+UnwantedPKGs=^tftpd
+UnwantedPKGs=^time$
+UnwantedPKGs=^virtualbox-guest-
+UnwantedPKGs=^whoopsie
+UnwantedPKGs=^xinetd$
+UnwantedPKGs=^xul-ext-ubufox$
+UnwantedPKGs=^yp-tools$
+
+# Kernel
+CustomKMs=
+KernMods=true
+KernParams=true
+SkipKMs=
+SkipKP=fs.protected_hardlinks
+SkipKP=fs.protected_symlinks
+
+# Mode, Owner, and Group
+DirPerms=true
+PathPerms=true
+
+# SSH
+SSHClient=true
+SSHDConfig=/etc/ssh/sshd_config
+SSHServer=false
+
+# SystemD
+SkipSysD=
+SystemD=true
+
+# Portable Machine
+BatCrit=10
+BatLow=20
+Laptop=false
+
+# Mount Options
+MountHome=true
+SkipMountOpts=
+
+# Sensors
+CPUTemp=true
+CoreTempCrit=50
+TempScale=C
+
+# RootKits, Worms, etc
+RootKits=true
+SkipRKs=
+
+# RAM & Swap
+MBMaxRAM=4096
+MBMaxSwap=0
+RAM=true
+Swaps=true
+
+# `/etc/passwd`
+ChkPasswd=true
+ID0NonRoots=true
+
+# Units/Services
+AppArmor=true
+UFW=true
+
+# Miscellaneous
+CMOS=true
+FailedLogins=true
+LightDM=true
+ProcVuln=true
