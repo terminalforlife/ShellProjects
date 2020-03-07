@@ -3,11 +3,20 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat 29 Feb 03:22:45 GMT 2020
+# Last Change       - Sat  7 Mar 16:02:55 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # The word 'cito' (/ˈki.toː/) is a Latin adverb, to mean 'swift'.
+#
+# Features:
+#
+#TODO: Add an Insit-style backup feature in-case of a botched install/upgrade.
+#
+# Bugs:
+#
+#TODO: Asked to overwrite files even when they don't actually exist. Annoying!
+#TODO: Non-existant remote files still trying to act as though they exist.
 #
 # Dependencies:
 #
@@ -23,7 +32,7 @@ set -e
 . /usr/lib/tflbp-sh/YNInput
 set +e
 
-CurVer='2020-02-29'
+CurVer='2020-03-07'
 Progrm=${0##*/}
 
 Usage(){
