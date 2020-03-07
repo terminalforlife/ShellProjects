@@ -29,7 +29,7 @@ f131cfc804e6204c6651b70b5cb45923  source/ccfiles
 43154e31e5fd0e9e28c4ec1776b9d765  source/cito/cito
 50a7583812479bc4b590e33d8d0c4aaf  source/cito/cito.8.gz
 ea2da09a7291eeb70d7165afd1af44a2  source/cito/completions
-8db5d9470becd8dcd6f98b6203b710c2  source/cito/patches/strip-logging.diff
+8be02ba9b357d34db059e1167df5693c  source/cito/patches/strip-logging.diff
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
 94bb442073283389c8f6e317582067b8  source/completions/autoscrot
 c381c817f1ff17cebcf679b06a120b7a  source/completions/bdl
