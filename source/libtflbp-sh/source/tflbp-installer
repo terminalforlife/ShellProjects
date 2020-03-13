@@ -1,0 +1,151 @@
+#!/bin/sh
+#cito M:755 O:0 G:0 T:/usr/bin/tflbp-installer
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/tflbp-sh/source/tflbp-installer
+# Started On        - Thu 12 Mar 14:54:26 GMT 2020
+# Last Change       - Fri 13 Mar 23:10:14 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Simple, but pretty and mindful Bourne Shell installer for tflbp-sh, for
+# those unable or unwilling to use the provided Debian packages available in
+# the DEB-Packages repository.
+#
+# To use this installer, you can either:
+#
+#   Clone the repository, using git(1) command.
+#
+#     OR
+#
+#   Download the archive of it directly from GitHub, then extract its contents.
+#
+# Either way, ensure you're in the root of the repository, meaning that you
+# should be at the top-level of it, together with the main `README.md` file.
+#
+# Why as `root`? Because system-wide changes require elevated privileges.
+#
+# Dependencies:
+#
+#   coreutils (>= 8.25-2)
+#   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
+#------------------------------------------------------------------------------
+
+if command -v curl 1> /dev/null 2>&1; then
+	DLCMD='curl -so'
+elif command -v wget 1> /dev/null 2>&1; then
+	DLCMD='wget -qO'
+else
+	printf "ERROR: Neither 'wget' nor 'curl' are available.\n" 1>&2
+	exit 1
+fi
+
+if [ `id -u` -ne 0 ]; then
+	printf "ERROR: Root access is required for system-wide changes.\n" 1>&2
+	exit 1
+elif ! command -v id 1> /dev/null 2>&1; then
+	printf "ERROR: Unable to determine current user's ID.\n" 1>&2
+	exit 1
+fi
+
+printf 'Install latest version of tflbp? [Y/N] '
+read Answer
+case $Answer in
+	[Yy]|[Yy][Ee][Ss])
+		printf 'Continuing with installation.\n' ;;
+	[Nn]|[Nn][Oo])
+		printf 'Abandoning installation.\n'
+		exit 0 ;;
+	*)
+		printf 'ERROR: Invalid response -- quitting.\n' 1>&2
+		exit 2 ;;
+esac
+
+LogFile='/tmp/tflbp-installer.log'
+[ -f "$LogFile" ] || 1> "$LogFile"
+chmod 644 "$LogFile"
+
+TmpDir=`mktemp -d --suffix '_tfl'`
+
+URL='https://raw.githubusercontent.com/terminalforlife'
+URL="$URL/Extra/master/source/libtflbp-sh/source/functions"
+
+SigHandler(){
+	Sig=$?
+
+	printf 'Cleaning up temporary files:\n'
+	printf '* Removing '%s' ... ' "$TmpDir"
+	ErrCount=0
+	if rm -r "$TmpDir" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+
+	if [ -s "$LogFile" ]; then
+		printf "Done! -- errors logged in: '~${LogFile#$HOME}'\n"
+	else
+		printf 'Done!\n'
+	fi
+
+	exit $Sig
+}
+
+trap SigHandler EXIT INT QUIT ABRT TERM
+
+printf 'Fetching files from GitHub:\n'
+ErrCount=0
+for File in\
+\
+	'BaseName' 'ChkDep' 'CutStr' 'DirName' 'Err' 'FirstLook' 'FNSanityChk'\
+	'GetInsPkgs' 'LCount' 'LibFChk' 'LibTFLBPVer' 'OneSearch' 'SplitStr'\
+	'WCount' 'YNInput'
+do
+	printf "* Downloading '%s' ... " "$File"
+	if $DLCMD "$TmpDir/$File" "$URL/$File" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		ErrCount=$((ErrCount + 1))
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+done
+
+if [ $ErrCount -gt 0 ]; then
+	printf 'ERROR: Failed to download one or more files.\n' 1>&2
+	exit 1
+fi
+
+printf '* Making director(ies) ... '
+if mkdir -p /usr/lib/tflbp-sh 2>> "$LogFile"; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf 'Setting correct file attributes:\n'
+
+printf '* Assigning modes ... '
+chmod 644 "$TmpDir"/* 2>> "$LogFile" || ErrCount=$((ErrCount + 1))
+chmod 755 /usr/lib/tflbp-sh 2>> "$LogFile" || ErrCount=$((ErrCount + 1))
+
+if [ $ErrCount -eq 0 ]; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf '* Assigning owner and group ... '
+if chown 0:0 "$TmpDir"/* /usr/lib/tflbp-sh 2>> "$LogFile"; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf 'Moving files into place:\n'
+for File in "$TmpDir"/*; do
+	printf "* Installing '%s' ... " "$File"
+	if mv "$File" /usr/lib/tflbp-sh/ 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+done
