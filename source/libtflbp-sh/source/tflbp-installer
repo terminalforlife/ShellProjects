@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tflbp-sh/source/tflbp-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Fri 13 Mar 23:27:40 GMT 2020
+# Last Change       - Fri 13 Mar 23:29:53 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -47,22 +47,18 @@ elif ! command -v id 1> /dev/null 2>&1; then
 	exit 1
 fi
 
-# Try not to run this if running non-interactively, such as via the
-# instructions given in the `libtflbp-sh` file's `README.md`.
-if [ -n "$PS1" ]; then
-	printf 'Install latest version of tflbp? [Y/N] '
-	read Answer
-	case $Answer in
-		[Yy]|[Yy][Ee][Ss])
-			printf 'Continuing with installation.\n' ;;
-		[Nn]|[Nn][Oo])
-			printf 'Abandoning installation.\n'
-			exit 0 ;;
-		*)
-			printf 'ERROR: Invalid response -- quitting.\n' 1>&2
-			exit 2 ;;
-	esac
-fi
+printf 'Install latest version of tflbp? [Y/N] '
+read Answer
+case $Answer in
+	[Yy]|[Yy][Ee][Ss])
+		printf 'Continuing with installation.\n' ;;
+	[Nn]|[Nn][Oo])
+		printf 'Abandoning installation.\n'
+		exit 0 ;;
+	*)
+		printf 'ERROR: Invalid response -- quitting.\n' 1>&2
+		exit 2 ;;
+esac
 
 LogFile='/tmp/tflbp-installer.log'
 [ -f "$LogFile" ] || 1> "$LogFile"
