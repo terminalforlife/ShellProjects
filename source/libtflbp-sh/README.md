@@ -14,13 +14,13 @@ If you're on a Debian- or Ubuntu-based distribution of Linux, installation is no
 Otherwise, execute the following, assuming you have sudo(8):
 
 ```sh
-curl -s 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/libtflbp-sh/source/tflbp-installer' | sudo sh
+cd /tmp; curl -so tflbp-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/libtflbp-sh/source/tflbp-installer' && sudo \sh tflbp-installer; rm tflbp-installer; cd -
 ```
 
 If that fails, you probably don't have curl(1), so try wget(1):
 
 ```sh
-wget -qO - 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/libtflbp-sh/source/tflbp-installer' | sudo sh
+cd /tmp; wget -qO tflbp-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/libtflbp-sh/source/tflbp-installer' && sudo \sh tflbp-installer; rm tflbp-installer; cd -
 ```
 
 If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
