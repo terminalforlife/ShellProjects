@@ -11,8 +11,16 @@ A more detailed write-up will be here eventually -- grizzly bear with me!
 
 If you're on a Debian- or Ubuntu-based distribution of Linux, installation is no problem. Head on over to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository, then download then install the `libtflbp-sh` package.
 
-If you have [Cito](https://github.com/terminalforlife/Extra), the installation is an easy one-liner:
+Otherwise, execute the following, assuming you have sudo(8):
 
-```bash
-sudo cito -r terminalforlife Extra master source/libtflbp-sh/{BaseName,ChkDep,CutStr,DirName,Err,FirstLook,FNSanityChk,GetInsPkgs,LCount,LibFChk,LibTFLBPVer,OneSearch,SplitStr,WCount,YNInput}
+```sh
+curl -s 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/libtflbp-sh/source/tflbp-installer' | sudo sh
 ```
+
+If that fails, you probably don't have curl(1), so try wget(1):
+
+```sh
+wget -qO - 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/libtflbp-sh/source/tflbp-installer' | sudo sh
+```
+
+If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
