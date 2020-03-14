@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/bdl
 # Started On        - Sat 16 Sep 22:34:12 BST 2017
-# Last Change       - Sat 14 Mar 14:44:17 GMT 2020
+# Last Change       - Sat 14 Mar 14:52:28 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -50,8 +50,8 @@ Usage(){
 		\r            --shutdown|-S           - Shut system down when finished.
 		\r            --suspend|-s            - Suspend system when finished.
 
-		\rFILE:       ~/.config/bdl/editor
-		\r            ~/.config/bdl/queue
+		\rFILE:       ~/.config/$Progrm/editor
+		\r            ~/.config/$Progrm/queue
 	EOF
 }
 
@@ -97,8 +97,13 @@ while [ "$1" ]; do
 	shift
 done
 
+if [ -n "$ChangeEd" ]; then
+	printf '%s\n' "$ChangeEd" > "$EdFile"
+	exit 0
+fi
+
 if ! [ -f "$EdFile" ] && ! [ -s "$EdFile" ]; then
-	Err 1 "Please choose an editor -- see: bdl -h"
+	Err 1 "Please choose an editor -- see: $Progrm -h"
 else
 	read QueueEd < "$EdFile"
 fi
@@ -124,13 +129,10 @@ if [ "$Clear" = 'true' ]; then
 elif [ -n "$DoInsert" ]; then
 	printf "%s\n" "$DoInsert" 1>> "$BDLFile"
 	exit 0
-elif [ -n "$ChangeEd" ]; then
-	printf '%s\n' "$ChangeEd" > "$EdFile"
-	exit 0
 fi
 
-if [ -d "$MainDir" ] || ! mkdir -p "$MainDir" 1> /dev/null 2>&1; then
-	Err 1 "Unable to create '$MainDir' directory."
+if ! mkdir -p "$MainDir" 1> /dev/null 2>&1; then
+	Err 1 "Unable to create '~${MainDir#$HOME}' directory."
 fi
 
 if [ -f "$BDLFile" ]; then
