@@ -1,18 +1,18 @@
 #!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/barred
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/barred
 # Started On        - Sun 19 Nov 13:56:45 GMT 2017
-# Last Change       - Fri  6 Dec 22:46:03 GMT 2019
+# Last Change       - Sat 14 Mar 14:32:09 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# This small file was written to be executed (not sourced) within a shell script.
+#------------------------------------------------------------------------------
+# This small file was written to be executed (not sourced) in a shell script.
 # Make sure your script can handle this output properly, such as muting its own
 # output while in the bar sections. This is a rudimentary, small progress bar.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-CurVer='2019-12-06'
+CurVer='2020-03-14'
 
 Barred_B1='𝍥:0'
 Barred_B2='𝍦:25'
@@ -20,7 +20,7 @@ Barred_B3='𝍧:50'
 Barred_B4='𝍨:75'
 Barred_B5='𝍤:100'
 
-case $* in
+case ${*:-NULL} in
 	B0)
 		printf "\b%s" "${Barred_B1%:*}" ;;
 	B0P)
@@ -43,6 +43,6 @@ case $* in
 		printf "\b%s %d%%" "${Barred_B5%:*}" "${Barred_B5#*:}" ;;
 	--version|-v)
 		printf "%s\n" "$CurVer"; exit 0 ;;
-	''|*)
+	*)
 		printf "Usage: barred [B[0|25|50|75|100[P]]\n" ;;
 esac
