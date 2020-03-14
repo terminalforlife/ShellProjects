@@ -1,50 +1,61 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/tozero
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/tozero
 # Started On        - Sun 15 Oct 23:29:20 BST 2017
-# Last Change       - Fri  6 Dec 22:55:58 GMT 2019
+# Last Change       - Sat 14 Mar 14:26:47 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+#TODO: Rounding up can be a little on the extreme side. Use floats?
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   libtflbp-sh (>= 2019-12-10)
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+set -e
+. /usr/lib/tflbp-sh/Err
+. /usr/lib/tflbp-sh/ChkDep
+set +e
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+CurVer='2020-03-14'
+Progrm=${0##*/}
 
-USAGE(){
-	while read -r; do
+Usage(){
+	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
+		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife <terminalforlife@yahoo.com>
 
 		            Simple program to display a countdown for a target date.
 
-		SYNTAX:     $_PROJECT_ [OPTS] TARGET
+		SYNTAX:     $Progrm [OPTS] [TARGET]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
+		OPTS:       --help|-h|-?            - Display this help information.
+		            --version|-v            - Output the version datestamp.
+		            --int-only|-I           - Show the integer, not its type.
 		            --only|-o TYPE          - Where TYPE is which to only show.
-		            --int-only|-I           - Show only the integer, not its type.
 
-		NOTE:       Behind the scenes, 'date' is used, so strings like "tomorrow", "next -
-		            month", and "yesterday" can be used instead of a YYYY-MM-DD format.
+		NOTE:       Behind the scenes, 'date' is used, so strings like
+		            "tomorrow", "next month", and "yesterday" can be used
+		            instead of a YYYY-MM-DD format.
 
 		            The default TARGET is "tomorrow"; if not TARGET is given.
 
-		            Valid TYPEs are:
-
-		            seconds|s minutes|m hours|h days|d weeks|w
+		            Valid TYPEs: seconds|s minutes|m hours|h days|d weeks|w
 
 		EXAMPLE:    Display countdown until December the 11th, 2017:
 
-		              $ $_PROJECT_ 2019-05-14
+		              $ $Progrm 2019-05-14
 		              S: 125,324
 		              M: 2,088
 		              H: 34
@@ -56,69 +67,67 @@ USAGE(){
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--only|-o)
-			shift; TYPE="$1" ;;
+			Type=$2
+
+			case ${2:-NULL} in
+				seconds|s|minutes|m|hours|h|days|d|weeks|w)
+					;;
+				NULL)
+					Err 1 "Option '$1' requires an argument." ;;
+				*)
+					Err 1 "Invalid TYPE -- see: $Progrm -h" ;;
+			esac
+
+			shift ;;
 		--int-only|-I)
-			INTONLY='true' ;;
+			IntOnly='true' ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-DATE=$1
+Date=$1
 
-[ -x /bin/date ] || Err 1 $LINENO "Dependency '/bin/date' not met."
+ChkDep date
 
-[ "$DEBUGME" == 'true' ] && set -x
+date -d "$Date" 1> /dev/null 2>&1 || Err 1 "Incorrect TARGET string."
 
-if ! /bin/date -d "$DATE" > /dev/null 2>&1; then
-	Err 1 $LINENO "Incorrect TARGET string."
-fi
+Target=${Date:-tomorrow}
 
-TARGET=${DATE:-tomorrow}
+Buffer1=`date -d "$Target" +%s`
+Buffer2=`date +%s`
 
-BUF1=`/bin/date -d "$TARGET" +%s`
-BUF2=`/bin/date +%s`
+Seconds=$((Buffer1-Buffer2))
+Minutes=$(((Buffer1-Buffer2)/60))
+Hours=$(((Buffer1-Buffer2)/60/60))
+Days=$(((Buffer1-Buffer2)/60/60/24))
+Weeks=$(((Buffer1-Buffer2)/60/60/24/7))
 
-SECS=$((BUF1-BUF2))
-MINUTES=$(((BUF1-BUF2)/60))
-HOURS=$(((BUF1-BUF2)/60/60))
-DAYS=$(((BUF1-BUF2)/60/60/24))
-WEEKS=$(((BUF1-BUF2)/60/60/24/7))
-
-SHOW(){
-	if [ "$INTONLY" == 'true' ]; then
+Show(){
+	if [ "$IntOnly" == 'true' ]; then
 		printf "%-'d\n" "$2"
 	else
 		printf "%s: %-'d\n" "$1" "$2"
 	fi
 }
 
-case $TYPE in
-	seconds|s)
-		SHOW S $SECS ;;
-	minutes|m)
-		SHOW M $MINUTES ;;
-	hours|h)
-		SHOW H $HOURS ;;
-	days|d)
-		SHOW D $DAYS ;;
-	weeks|w)
-		SHOW W $WEEKS ;;
+case $Type in
+	seconds|s) Show S $Seconds ;;
+	minutes|m) Show M $Minutes ;;
+	  hours|h) Show H $Hours ;;
+	   days|d) Show D $Days ;;
+	  weeks|w) Show W $Weeks ;;
 	*)
-		SHOW S $SECS
-		SHOW M $MINUTES
-		SHOW H $HOURS
-		SHOW D $DAYS
-		SHOW W $WEEKS ;;
+		Show S $Seconds
+		Show M $Minutes
+		Show H $Hours
+		Show D $Days
+		Show W $Weeks ;;
 esac
-
