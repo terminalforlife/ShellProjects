@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/narc
 # Started On        - Fri 13 Mar 21:31:38 GMT 2020
-# Last Change       - Sat 14 Mar 02:31:26 GMT 2020
+# Last Change       - Sat 14 Mar 03:11:06 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,7 +13,27 @@
 #   https://github.com/bing0o/bash_scripting
 #
 # The name `narc` stands for: [N]ew [A]uto[r]e[c]onnect
-#----------------------------------------------------------------------------------
+#
+# DISCLAIMER:
+#
+#   The software used by `narc` does not belong nor can be guaranteed as known
+#   and therefore safe to the author of this software and any associated files.
+#
+#   Use of `narc` and any of the utilities used by, with, or for it are
+#   entirely done so at the user's own discretion, absolving the author of any
+#   responsibility.
+#
+#   With the use of `narc` and any associated files, the user understands and
+#   accepts that the author of `narc`, known as 'terminalforlife', -
+#   'Learn Linux', and 'LL', can and will not be held responsible for any
+#   damages, in any form, as a result of the use of this file and any
+#   associated files.
+#
+#   Each of the prior conditions, including the user's acceptance and
+#   understanding, persist, regardless of any and all future changes made to
+#   this file and any associated therewith, present or future, either by the
+#   original author, the aforementioned 'terminalforlife', or any contributors.
+#------------------------------------------------------------------------------
 
 set -e
 . /usr/lib/tflbp-sh/Err
@@ -167,74 +187,15 @@ Header 'Moving to ./out'
 (
 	cd out
 
-	Header "Displaying 'aws-keys' output"
-	gff aws-keys
-
-	Header "Displaying 'base64' output"
-	gff base64
-
-	Header "Displaying 'cors' output"
-	gff cors
-
-	Header "Displaying 'debug-pages' output"
-	gff debug-pages
-
-	Header "Displaying 'firebase' output"
-	gff firebase
-
-	Header "Displaying 'fw' output"
-	gff fw
-
-	Header "Displaying 'go-functions' output"
-	gff go-functions
-
-	Header "Displaying 'http-auth' output"
-	gff http-auth
-
-	Header "Displaying 'ip' output"
-	gff ip
-
-	Header "Displaying 'json-sec' output"
-	gff json-sec
-
-	Header "Displaying 'meg-headers' output"
-	#gff meg-headers
-
-	Header "Displaying 'php-curl' output"
-	gff php-curl
-
-	Header "Displaying 'php-errors' output"
-	gff php-errors
-
-	Header "Displaying 'php-serialized' output"
-	gff php-serialized
-
-	Header "Displaying 'php-sinks' output"
-	gff php-sinks
-
-	Header "Displaying 'php-sources' output"
-	gff php-sources
-
-	Header "Displaying 's3-buckets' output"
-	gff s3-buckets
-
-	Header "Displaying 'sec' output"
-	gff sec
-
-	Header "Displaying 'servers' output"
-	gff servers
-
-	#Header "Displaying 'strings' output"
-	#gff strings
-
-	Header "Displaying 'takeovers' output"
-	gff takeovers
-
-	Header "Displaying 'upload-fields' output"
-	gff upload-fields
-
-	#Header "Displaying 'urls' output"
-	#gff urls
+	for Pass in\
+	\
+		aws-keys base64 cors debug-pages firebase fw go-functions http-auth\
+		ip json-sec php-curl php-errors php-serialized php-sinks php-sources\
+		s3-buckets sec servers takeovers upload-fields
+	do
+		Header "Displaying '$Pass' output"
+		gff $Pass || Err 1 "Pass '$Pass' via 'gff' exited unsuccessfully."
+	done
 )
 
 printf 'Done -- closing %s.\n' "$Progrm"
