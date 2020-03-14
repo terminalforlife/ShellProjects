@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat 14 Mar 00:55:36 GMT 2020
+# Last Change       - Sat 14 Mar 00:58:04 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,6 +12,7 @@
 # Features:
 #
 #TODO: Add an Insit-style backup feature in-case of a botched install/upgrade.
+#TODO: Somehow catch condition under which a file already exists.
 #
 # Bugs:
 #
