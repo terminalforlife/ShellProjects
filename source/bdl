@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/bdl
 # Started On        - Sat 16 Sep 22:34:12 BST 2017
-# Last Change       - Sat 14 Mar 14:52:28 GMT 2020
+# Last Change       - Sat 14 Mar 14:54:42 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ Usage(){
 		\r            BDL ($CurVer)
 		\r            Written by terminalforlife <terminalforlife@yahoo.com>
 
-		\r            Bourne POSIX solution to downloading multiple files.
+		\r            Bourne POSIX solution to batch-downloading files.
 
 		\rSYNTAX:     $Progrm [OPTS]
 
