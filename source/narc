@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/narc
 # Started On        - Fri 13 Mar 21:31:38 GMT 2020
-# Last Change       - Fri 13 Mar 22:04:04 GMT 2020
+# Last Change       - Sat 14 Mar 01:28:23 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
-CurVer='2020-03-13'
+CurVer='2020-03-14'
 Progrm=${0##*/}
 
 Usage(){
@@ -56,6 +56,7 @@ while [ "$1" ]; do
 			shift ;;
 		--domain|-d)
 			Domain=$2
+			SkipPrompt='true'
 
 			[ -z "$Domain" ] && Err 1 "Option '$1' requires an argument."
 
@@ -102,7 +103,7 @@ fi
 ChkDep photon tmux findomain subchecker webtech
 
 printf '[+] Enter Domain: '
-read Domain
+[ "$SkipPrompt" = 'true' ] || read Domain
 case ${Domain:-NULL} in
 	*[[:space:]]*)
 		Err 1 'Space(s) found in domain name.' ;;
@@ -137,7 +138,7 @@ else
 fi
 
 Header 'Starting Findomain'
-if findomain -t "$Domain" -o 1> /dev/null 2>&1
+if findomain -t "$Domain" -o 1> /dev/null 2>&1; then
 	Result "$Domain.txt"
 else
 	Err 1 "Executable 'findomain' exited unsuccessfully."
