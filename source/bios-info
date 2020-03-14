@@ -1,56 +1,61 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/bios-info
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/bios-info
 # Started On        - Tue 20 Feb 07:47:12 GMT 2018
-# Last Change       - Fri  6 Dec 22:46:17 GMT 2019
+# Last Change       - Sat 14 Mar 14:10:33 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# This may be expanded in the future.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   coreutils (>= 8.25-2)
+#   libtflbp-sh (>= 2019-12-10)
+#------------------------------------------------------------------------------
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
+set -e
+. /usr/lib/tflbp-sh/Err
+set +e
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+CurVer='2020-03-14'
+Progrm=${0##*/}
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS]
 
-		            Simple tool to show basic BIOS keys and their values.
-
-		SYNTAX:     $_PROJECT_ [OPT]
-
-		OPT:        --help|-h|-?            - Displays this help information.
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
 	EOF
 }
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect option(s) specified.' ;;
 	esac
-
 	shift
 done
 
-MAIN='/sys/devices/virtual/dmi/id'
+IDFile='/sys/devices/virtual/dmi/id'
 printf "%-13s %16s\n" "KEY" "VALUE"
-for FILE in $MAIN/{sys_vendor,board_{name,version},bios_{date,version}}; {
-	if [ -f "$FILE" -a -r "$FILE" ]; then
-		printf "%-13s %16s\n" "${FILE//*\/}" "$(< $FILE)"
+for File in $IDFile/{sys_vendor,board_{name,version},bios_{date,version}}; {
+	if [ -f "$File" ] && [ -r "$File" ]; then
+		printf "%-13s %16s\n" "${File##*/}" "$(< $File)"
 	fi
 }
-

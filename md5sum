@@ -19,7 +19,7 @@ ee216fb6783928a79f55d67b695a0988  misc/ubuchk_config
 9cd939297490347fe06714df5298c334  source/backmeup/completions
 bb63aac3729b547205eed4cb1b13d8cb  source/barred
 524d83b294a9a1709aa425bb90244b27  source/bdl
-58255190418b7e7f48d032846607a0f9  source/bios-info
+dbb2ba488867cb30b84fc8f65fc97813  source/bios-info
 5bc19e5344734a08801ef80c0db57d3b  source/bl
 203f4d3ec20b19bb7684cb7be093cccc  source/bn-parser.awk
 7fe2e5d26e06598ad67878790202dcd0  source/capnum
@@ -65,7 +65,7 @@ f67a53dbdf6f0f97926ec8e73e48852e  source/github-ssh-setup
 ef12c1151b3d74e946bcb75d153c8af2  source/gocheat/gocheat
 c9a3243f1e2635480a6d13bc2e7ad2dd  source/iplite
 5e740abb0c9cbdb0ac18c9e87238ea99  source/isbatlow
-119eb19a2f7fc31bb4867b26d4641245  source/jotd
+4cbafe8e1b0868cfdd6cfd67a827c107  source/jotd
 a3ac634fdbcd311576e4ff94b3595ec7  source/libtflbp-sh/source/functions/BaseName
 92649c8aaa9ac4b79c456b4827086406  source/libtflbp-sh/source/functions/ChkDep
 29aa8a088b2d50b3bad4d0b234366ac8  source/libtflbp-sh/source/functions/CutStr
