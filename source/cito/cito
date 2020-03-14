@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat 14 Mar 00:34:02 GMT 2020
+# Last Change       - Sat 14 Mar 00:55:36 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -29,7 +29,6 @@ set -e
 . /usr/lib/tflbp-sh/ChkDep
 . /usr/lib/tflbp-sh/CutStr
 . /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/YNInput
 set +e
 
 CurVer='2020-03-14'
@@ -49,7 +48,6 @@ Usage(){
 		\r  -M, --mode <MODE>        - Where MODE is, IE: '755'.
 		\r  -O, --owner <UID>        - Where OWNER is, IE: '0'.
 		\r  -T, --target <PATH>      - Where PATH is, IE: '/usr/bin/1337'.
-		\r  -c, --clobber            - Overwrite files without prompting.
 		\r  -l, --nolog              - Disable the logging functionality.
 		\r  -r, --remote <INFO>      - Specify a remote file; see REMOTE.
 	EOF
@@ -119,8 +117,6 @@ while [ -n "$1" ]; do
 			NullArg "$MD5File" "$1"
 
 			shift ;;
-		--clobber|-c)
-			Clobber='true' ;;
 		--mode|-M)
 			UserMode=$2
 			Regardless='true'
@@ -416,30 +412,6 @@ DoChmod(){ # Usage: DoChmod [MODE] [TARGET]
 	fi
 }
 
-AskOverwrite(){
-	Logger warning "File '$1' in '${1%/*}' already exists"
-
-	if [ "$Clobber" = 'true' ]; then
-		printf "File '%s' found -- overwriting.\n" "$1" 1>&2
-		YNInput(){ :; } # <-- Override with dumb function.
-	else
-		printf "File '%s' found.\n" "$1" 1>&2
-	fi
-
-	if YNInput 'Overwrite the file?'; then
-		Logger info "Overwriting pre-existing file '$1'"
-
-		if rm -f "$1" 1> /dev/null 2>&1; then
-			Logger info "Removed pre-existing file '$1'"
-		else
-			Logger error "Failed to remove pre-existing file '$1'"
-			Err 1 "Unable to overwrite '$1' file."
-		fi
-	else
-		Logger info "NOT overwriting pre-existing file '$1'"
-	fi
-}
-
 DoRegardless(){
 	if [ "$Regardless" = 'true' ]; then
 		UserSpec="M:$UserMode O:$UserOwner G:$UserGroup T:$UserTarget"
@@ -452,8 +424,6 @@ DoRegardless(){
 
 		DirChk "$UserTarget"
 
-		[ -f "$Target" ] && AskOverwrite "$Target"
-
 		unset UserSpec
 	fi
 }
@@ -465,7 +435,6 @@ MainRemote(){
 	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null 2>&1; then
 		if ChkMD5 "$1"; then
 			ReadFile "$TemRemFile" || exit 0
-			[ -f "$Target" ] && AskOverwrite "$Target"
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
@@ -514,7 +483,6 @@ else
 
 		if ChkMD5 "$CurFile"; then
 			ReadFile "$CurFile" || continue
-			[ -f "$Target" ] && AskOverwrite "$Target"
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
