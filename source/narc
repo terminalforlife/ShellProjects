@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/narc
 # Started On        - Fri 13 Mar 21:31:38 GMT 2020
-# Last Change       - Sat 14 Mar 01:28:23 GMT 2020
+# Last Change       - Sat 14 Mar 02:31:26 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -95,6 +95,8 @@ if [ "$ShowLinks" = 'true' ]; then
 		\r  * https://github.com/Edu4rdSHL/${Red}findomain\033[0m
 		\r  * https://github.com/bing0o/Python-Scripts/$Branch/${Red}subchecker$End.py
 		\r  * https://github.com/bing0o/Python-Scripts/$Branch/${Red}webtech$End.py
+		\r  * https://github.com/tomnomnom/${Red}meg$End
+		\r  * https://github.com/tomnomnom/${Red}gf$End
 	EOF
 
 	exit 0
@@ -157,5 +159,82 @@ if webtech -w "$Domain-checked" -t 30 -o "$Domain-Tech" -i 1> /dev/null; then
 else
 	Err 1 "Executable 'webtech' exited unsuccessfully."
 fi
+
+Header 'Starting Meg'
+meg -d 1000 -v /
+
+Header 'Moving to ./out'
+(
+	cd out
+
+	Header "Displaying 'aws-keys' output"
+	gff aws-keys
+
+	Header "Displaying 'base64' output"
+	gff base64
+
+	Header "Displaying 'cors' output"
+	gff cors
+
+	Header "Displaying 'debug-pages' output"
+	gff debug-pages
+
+	Header "Displaying 'firebase' output"
+	gff firebase
+
+	Header "Displaying 'fw' output"
+	gff fw
+
+	Header "Displaying 'go-functions' output"
+	gff go-functions
+
+	Header "Displaying 'http-auth' output"
+	gff http-auth
+
+	Header "Displaying 'ip' output"
+	gff ip
+
+	Header "Displaying 'json-sec' output"
+	gff json-sec
+
+	Header "Displaying 'meg-headers' output"
+	#gff meg-headers
+
+	Header "Displaying 'php-curl' output"
+	gff php-curl
+
+	Header "Displaying 'php-errors' output"
+	gff php-errors
+
+	Header "Displaying 'php-serialized' output"
+	gff php-serialized
+
+	Header "Displaying 'php-sinks' output"
+	gff php-sinks
+
+	Header "Displaying 'php-sources' output"
+	gff php-sources
+
+	Header "Displaying 's3-buckets' output"
+	gff s3-buckets
+
+	Header "Displaying 'sec' output"
+	gff sec
+
+	Header "Displaying 'servers' output"
+	gff servers
+
+	#Header "Displaying 'strings' output"
+	#gff strings
+
+	Header "Displaying 'takeovers' output"
+	gff takeovers
+
+	Header "Displaying 'upload-fields' output"
+	gff upload-fields
+
+	#Header "Displaying 'urls' output"
+	#gff urls
+)
 
 printf 'Done -- closing %s.\n' "$Progrm"
