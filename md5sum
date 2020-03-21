@@ -29,7 +29,6 @@ f131cfc804e6204c6651b70b5cb45923  source/ccfiles
 c6dc6bfca82c5eabd3a222a7b8dcfd08  source/cito/cito
 312e3d8a712bdc79ac03ddbf3d03efe4  source/cito/cito.8.gz
 ea2da09a7291eeb70d7165afd1af44a2  source/cito/completions
-8be02ba9b357d34db059e1167df5693c  source/cito/patches/strip-logging.diff
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
 94bb442073283389c8f6e317582067b8  source/completions/autoscrot
 c381c817f1ff17cebcf679b06a120b7a  source/completions/bdl
