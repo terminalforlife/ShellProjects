@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat 14 Mar 00:58:04 GMT 2020
+# Last Change       - Sat 21 Mar 16:07:42 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ set -e
 . /usr/lib/tflbp-sh/Err
 set +e
 
-CurVer='2020-03-14'
+CurVer='2020-03-21'
 Progrm=${0##*/}
 
 Usage(){
@@ -57,7 +57,7 @@ Usage(){
 [ $# -eq 0 ] && Err 1 "Argument(s) required -- see: $Progrm -h"
 
 NullArg(){ # Usage: NullArg [VARIABLE] [OPTION]
-	[ -z "$1" ] && Err 1 "Null argument for '$2' option."
+	[ -z "$1" ] && Err 1 "Option '$2' requires an argument -- see: $Progrm -h"
 }
 
 EventLog="/var/log/${Progrm}-events.log"
@@ -76,19 +76,17 @@ while [ -n "$1" ]; do
 			LogView=$2
 
 			if [ -z "$LogView" ]; then
-				Err 1 "Option '--log-view|-L' requires one of TYPE."
+				Err 1 "Option '$1' requires one of TYPE."
 			fi
 
 			shift ;;
 		--no-log|-l)
 			SkipLog='true' ;;
 		--remote|-r)
-			shift
-
 			DoRemote='true'
-			GHUser=$1
-			Repo=$2
-			Branch=$3
+			GHUser=$2
+			Repo=$3
+			Branch=$4
 
 			RemCount=0
 			for Iter in "x$GHUser" "x$Repo" "x$Branch"; do
@@ -101,13 +99,15 @@ while [ -n "$1" ]; do
 				esac
 
 				if [ "$Iter" = 'x' ]; then
-					Err 1 "Missing '$RemName' for '--remote|-r' option."
+					Err 1 "Missing '$RemName' for '$1' option."
 				fi
 
 				shift
 			done
 
 			unset Iter RemCount RemName
+
+			shift
 
 			# Stop processing regular arguments and have all following arguments
 			# be processed later (in a for loop for the remote section) for getting
@@ -166,16 +166,18 @@ else
 	Err 1 "Neither 'wget' nor 'curl' are available."
 fi
 
-if ! [ ${UID:-`id -u`} -eq 0 ]; then
-	if ! [ "$SkipLog" = 'true' ]; then
+if [ "$SkipLog" != 'true' -a -z "$LogView" ]; then
+	if ! [ ${UID:-`id -u`} -eq 0 ]; then
 		Err 1 'Root permissions required for system-wide changes.'
 	fi
-
+elif [ "$SkipLog" = 'true' ]; then
 	printf "CAUTION: Option '--no-log|-l' temporarily disables logging.\n" 1>&2
 fi
 
-TemRemFile=`mktemp`
-HashFile=`mktemp`
+if [ -z "$LogView" ]; then
+	TemRemFile=`mktemp`
+	HashFile=`mktemp`
+fi
 
 ChkMD5(){ # Usage: ChkMD5 [FILE]
 	# Skip, but stay zero to continue with the file.
@@ -249,7 +251,7 @@ Logger(){ # Usage: Logger TYPE MESSAGE
 
 	# Ensure it's still set safely.
 	chown 0:0 "$EventLog" 1> /dev/null 2>&1
-	chmod 600 "$EventLog" 1> /dev/null 2>&1
+	chmod 644 "$EventLog" 1> /dev/null 2>&1
 
 	Secs=`date '+%s'` # <-- Seconds since Epoch.
 	[ -z "$Secs" ] && Err 1 "Logging failure via 'Logger()' detected."
@@ -285,17 +287,19 @@ LogTypeChk(){ # Usage: LogTypeChk [TYPE] [VALID_TYPES]
 SigHandler(){
 	Signal=$?
 
-	if [ $Signal -eq 0 ]; then
-		Logger info "Signal '$Signal' detected by 'SigHandler()'"
-	else
-		Logger warning "Signal '$Signal'  detected by 'SigHandler()'"
-	fi
+	if [ -z "$LogView" ]; then
+		if [ $Signal -eq 0 ]; then
+			Logger info "Signal '$Signal' detected by 'SigHandler()'"
+		else
+			Logger warning "Signal '$Signal'  detected by 'SigHandler()'"
+		fi
 
-	if ! rm -f "$HashFile" "$TemRemFile" 1> /dev/null 2>&1; then
-		Logger error "File '$HashFile' and/or '$TemRemFile' failed removal"
-		printf 'ERROR: One or more temporary files failed removal.\n' 1>&2
-	else
-		Logger info "Removed '$HashFile' and '$TemRemFile'"
+		if ! rm -f "$HashFile" "$TemRemFile" 1> /dev/null 2>&1; then
+			Logger error "File '$HashFile' and/or '$TemRemFile' failed removal"
+			printf 'ERROR: One or more temporary files failed removal.\n' 1>&2
+		else
+			Logger info "Removed '$HashFile' and '$TemRemFile'"
+		fi
 	fi
 
 	exit $Signal
@@ -304,11 +308,11 @@ SigHandler(){
 trap SigHandler INT EXIT QUIT ABRT TERM
 
 if [ -n "$LogView" ]; then
-	Logger info 'Attempting to view Cito log file'
-	LogTypeChk "$LogView" $LogTypes
+	#Logger info 'Attempting to view Cito log file'
+	#LogTypeChk "$LogView" $LogTypes
 
 	if [ -f "$EventLog" ]; then
-		Logger info 'Viewing Cito log file'
+		#Logger info 'Viewing Cito log file'
 		while IFS=':' read Epoch Type MSG; do
 			ShowLog(){
 				FTime=`date '+%F %X' --date="@$Epoch"`
