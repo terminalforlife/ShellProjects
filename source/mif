@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/mif
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Fri 13 Dec 01:29:36 GMT 2019
+# Last Change       - Sat 17 Oct 03:30:09 BST 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 set -e
 . /usr/lib/tflbp-sh/Err
 . /usr/lib/tflbp-sh/ChkDep
 set +e
 
-CurVer='2019-12-13'
+CurVer='2020-10-17'
 Progrm=${0##*/}
 
 Domain='https://github.com'
@@ -25,26 +25,29 @@ Usage(){
 		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife <terminalforlife@yahoo.com>
 
-		            Shell program to filter films by year and whether seen or not.
+		            Shell program to filter films by year and whether seen.
 
 		SYNTAX:     $Progrm [OPTS] [YEAR]
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --file|-f FILE          - Use FILE path instead of the saved path.
+		OPTS:       --help|-h|-?            - Display this help information.
+		            --version|-v            - Output the version datestamp.
+		            --debug|-D              - Enable built-in Bash debugging.
+		            --file|-f FILE          - Override saved path with FILE.
 		            --seen|-s               - Filter by movies marked as seen.
-		            --unseen|-u             - The default. Works opposite to the above.
-		            --all|-a                - Display all films; disregard filters.
-		            --total|-t              - Output the total number of matches.
-		            --mark M                - Where M is - or + for whether seen or not.
-		            --organize|-O           - Organise files in the CWD by year. This has the
-		                                      potential to be destructive!
-		            --mklist|-M[:N]         - Output a ${Progrm}-usable movie list from CWD.
-		                                      If :N is appended, then omit [+] and [-].
+		            --unseen|-u             - Default. Works opposite to above.
+		            --all|-a                - Display films; disregard filters.
+		            --total|-t              - Output total number of matches.
+		            --mark M                - Where M is - or + for whether
+		                                      seen or not.
+		            --organize|-O           - Organise files in CWD by year.
+		                                      Has potential to be destructive!
+		            --mklist|-M[:N]         - Output a $Progrm-usable movie list
+		                                      from CWD. If :N is appended, then
+		                                      omit [+] and [-].
 
-		NOTE:       The file which $Progrm parses must be in a strict layout in order for
-		            $Progrm to work correctly. An example of such a file's contents:
+		NOTE:       The file which $Progrm parses must be in a strict layout in
+		            order for $Progrm to work correctly. An example of such a
+		            file's contents:
 
 		              # Comment lines will be ignored.
 		              1972[+]: The Godfather
@@ -58,7 +61,7 @@ Usage(){
 
 		            Where + is unseen (new) and - is seen.
 
-		FILE:       Default is $HOME/.$Progrm but use --file|-f FILE to specify your own.
+		FILE:       Default is ~/.$Progrm but use --file|-f FILE to override.
 
 		SITE:       $Domain/terminalforlife/Extra
 	EOF
@@ -177,4 +180,3 @@ done < "$INDEX"
 
 [ $LINE -eq 0 ] && Err 1 "Unable to find year $YEAR."
 [ "$TTL" == 'true' ] && printf "\nTotal: %d\n" "$LINE"
-
