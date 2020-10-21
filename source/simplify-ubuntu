@@ -3,14 +3,14 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Mon  9 Dec 18:39:24 GMT 2019
+# Last Change       - Wed 21 Oct 16:46:51 BST 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 # Q-COUNT = 169
 #----------------------------------------------------------------------------------
 
-CurVer='2019-12-09'
+CurVer='2020-10-21'
 Progrm=${0##*/}
 
 . /usr/lib/tflbp-sh/Err
@@ -27,7 +27,7 @@ Usage(){
 		            ${Progrm^^} ($CurVer)
 		            Written by terminalforlife <terminalforlife@yahoo.com>
 
-		            Project to lighten Ubuntu 16.04.* LTS installations.
+		            Project to lighten Ubuntu installations.
 
 		SYNTAX:     $Progrm [OPTS]
 
