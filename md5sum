@@ -1,7 +1,7 @@
 6a37d998c565e51cb3702b35c24838ac  devutils/buildpkg.sh
 c5412504861040f3b79c29f64c7fdf53  devutils/convertvars.sh
 f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
-9285465a240b2909c85c83a5ea6a1331  devutils/standard.sh
+68b5994bf2a361911a65981870d3bee0  devutils/standard.sh
 7fe7e618f05665df719ab73574a47a61  misc/01-vendor-ubuntu
 2520f059c1f95c5288bdc0b33e9c9da4  misc/autostart
 21726ae24987b9c736e30b511a878325  misc/compton.conf

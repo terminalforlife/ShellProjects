@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/standard.sh
 # Started On        - Thu  5 Dec 12:56:08 GMT 2019
-# Last Change       - Fri 31 Jan 03:04:49 GMT 2020
+# Last Change       - Wed 11 Nov 17:42:12 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,14 +14,10 @@
 # You could make use of some of this, though.
 #------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
-
-#set -- "$HOME/GitHub/terminalforlife/Personal/Extra/source/lspkg"
-
-ChkDep grep sed id date
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
 
 CurFile=$1
 shift
