@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sat 21 Mar 16:07:42 GMT 2020
+# Last Change       - Wed 11 Nov 17:57:02 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,16 +23,9 @@
 #
 #   coreutils (>= 8.25-2)
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
-#   libtflbp-sh (>= 2019-12-10)
 #------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/ChkDep
-. /usr/lib/tflbp-sh/CutStr
-. /usr/lib/tflbp-sh/Err
-set +e
-
-CurVer='2020-03-21'
+CurVer='2020-11-11'
 Progrm=${0##*/}
 
 Usage(){
@@ -52,6 +45,11 @@ Usage(){
 		\r  -l, --nolog              - Disable the logging functionality.
 		\r  -r, --remote <INFO>      - Specify a remote file; see REMOTE.
 	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
 [ $# -eq 0 ] && Err 1 "Argument(s) required -- see: $Progrm -h"
@@ -109,9 +107,10 @@ while [ -n "$1" ]; do
 
 			shift
 
-			# Stop processing regular arguments and have all following arguments
-			# be processed later (in a for loop for the remote section) for getting
-			# multiple remote files in one command execution.
+			# Stop processing regular arguments and have all following
+			# arguments be processed later (in a for loop for the remote
+			# section) for getting multiple remote files in one command
+			# execution.
 			break ;;
 		--hash|-H)
 			MD5File=$2
@@ -156,7 +155,15 @@ fi
 
 unset -f NullArg
 
-ChkDep mv id chmod chown md5sum mkdir date rm mktemp
+DepCount=0
+for Dep in mv id chmod chown md5sum mkdir date rm mktemp; do
+	if command -v "$Dep" 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$Dep' not met."
+		DepCount=$((DepCount + 1))
+	fi
+done
+
+[ $DepCount -gt 0 ] && exit 1
 
 if command -v curl 1> /dev/null 2>&1; then
 	DLCMD='curl -so'
@@ -210,6 +217,24 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 	if [ -f "$ReadHashFile" ]; then
 		while read Hash File; do
 			if [ "$File" = "$1" ]; then
+				CutStr(){
+					IFS=$1; shift
+					Fields=$1; shift
+
+					set -- $1
+
+					for CutField in $Fields; do
+						Count=0
+						for CurField in "$@"; do
+							Count=$((Count + 1))
+							if [ $Count -eq $CutField ]; then
+								printf "%s" "$CurField"
+								break 1
+							fi
+						done
+					done
+				}
+
 				GetHash=`CutStr ' ' 1 "$(md5sum "$1" 2> /dev/null)"`
 
 				# Gets around weird trailing space.
