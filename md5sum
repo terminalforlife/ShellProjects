@@ -5,7 +5,7 @@ f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 7fe7e618f05665df719ab73574a47a61  misc/01-vendor-ubuntu
 2520f059c1f95c5288bdc0b33e9c9da4  misc/autostart
 21726ae24987b9c736e30b511a878325  misc/compton.conf
-a75d9627c55f3a5b1ead88abb87f209e  misc/dunstrc
+03e79a99f382d8ed3f6b0360a3302902  misc/dunstrc
 39e3ab0a4b5844bfe882a87abb5cd0f1  misc/.keynavrc
 f639ee6ecade61317bb61acd38ee0f53  misc/terminalrc
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme

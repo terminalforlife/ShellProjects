@@ -1,10 +1,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/misc/dunstrc
 # Started On        - Thu  9 Nov 00:34:20 GMT 2017
-# Last Change       - Mon 10 Feb 15:47:34 GMT 2020
+# Last Change       - Wed 11 Nov 17:44:11 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
+# NOTE: The notifications set here are strictly shaped for a 1920x1080 display.
+#
 # Format parameters:
 #
 #   %a - appname
