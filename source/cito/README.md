@@ -11,4 +11,3 @@ sudo cito -r terminalforlife Extra master source/cito/{cito,completions}
 
   * coreutils (>= 8.25-2)
   * curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
-  * [libtflbp-sh](https://github.com/terminalforlife/Extra/tree/master/source/libtflbp-sh) (>= 2019-12-10)
