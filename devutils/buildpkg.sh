@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/buildpkg.sh
 # Started On        - Sat 23 Nov 00:28:26 GMT 2019
-# Last Change       - Fri 31 Jan 03:03:58 GMT 2020
+# Last Change       - Wed 11 Nov 17:39:35 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -35,10 +35,10 @@
 #     with that.
 #------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
 
 BuildStore="$HOME/Documents/TT"
 GitHub="$HOME/GitHub/terminalforlife/Personal/Extra/source"
@@ -50,8 +50,6 @@ PKGName="${ProgName}_${Version}_all.deb"
 BuildConv="pkg-debian ($ProgName)"
 WorkDir="$HOME/Desktop"
 EDITOR=${EDITOR:-vim}
-
-ChkDep id cp dpkg-deb find chown chmod bash stat sed head basename md5sum
 
 # The build version of the program above.
 if [ -n "$2" ]; then
