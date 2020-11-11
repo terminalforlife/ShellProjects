@@ -1,6 +1,6 @@
 5abb4f1670453901aa73a096f657d9ed  devutils/buildpkg.sh
 2bd0efef0e3f638e08f02e8ef99cdb68  devutils/convertvars.sh
-38be5021acd85a48cbf62eb59035a77b  devutils/links.sh
+f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 9285465a240b2909c85c83a5ea6a1331  devutils/standard.sh
 7fe7e618f05665df719ab73574a47a61  misc/01-vendor-ubuntu
 2520f059c1f95c5288bdc0b33e9c9da4  misc/autostart
