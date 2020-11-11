@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Wed 11 Nov 17:57:02 GMT 2020
+# Last Change       - Wed 11 Nov 17:59:43 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ unset -f NullArg
 
 DepCount=0
 for Dep in mv id chmod chown md5sum mkdir date rm mktemp; do
-	if command -v "$Dep" 1> /dev/null 2>&1; then
+	if ! command -v "$Dep" 1> /dev/null 2>&1; then
 		Err 0 "Dependency '$Dep' not met."
 		DepCount=$((DepCount + 1))
 	fi
