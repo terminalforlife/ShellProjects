@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/convertvars.sh
 # Started On        - Wed 27 Nov 16:51:42 GMT 2019
-# Last Change       - Fri 31 Jan 02:48:45 GMT 2020
+# Last Change       - Wed 11 Nov 17:40:45 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,12 +13,6 @@
 #
 # Usage: convertvars.sh [FILE]
 #------------------------------------------------------------------------------
-
-set -e
-. /usr/lib/tflbp-sh/ChkDep
-set +e
-
-ChkDep awk
 
 # Compile a unique, sigil-omitted list of uppercase-only variable names.
 VarList(){

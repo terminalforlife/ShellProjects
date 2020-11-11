@@ -1,5 +1,5 @@
 6a37d998c565e51cb3702b35c24838ac  devutils/buildpkg.sh
-2bd0efef0e3f638e08f02e8ef99cdb68  devutils/convertvars.sh
+c5412504861040f3b79c29f64c7fdf53  devutils/convertvars.sh
 f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 9285465a240b2909c85c83a5ea6a1331  devutils/standard.sh
 7fe7e618f05665df719ab73574a47a61  misc/01-vendor-ubuntu
