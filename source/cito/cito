@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Wed 11 Nov 17:59:43 GMT 2020
+# Last Change       - Wed 11 Nov 18:29:09 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,6 +11,7 @@
 #
 # Features:
 #
+#TODO: Remove functionality of local files being deleted upon installation.
 #TODO: Add an Insit-style backup feature in-case of a botched install/upgrade.
 #TODO: Somehow catch condition under which a file already exists.
 #
