@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Tue 11 Feb 23:30:33 GMT 2020
+# Last Change       - Thu 12 Nov 03:59:41 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -11,15 +11,9 @@
 #
 #   bash (>= 4.4.18-2)
 #   dpkg (>= 1.19.0.5)
-#   libtflbp-sh (>= 2019-12-10)
 #----------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
-
-CurVer='2020-02-11'
+CurVer='2020-11-12'
 Progrm=${0##*/}
 
 Domain='https://github.com'
@@ -40,6 +34,11 @@ Usage(){
 		  -i, --ignore-case        - Match both upper- and lower-case.
 		  -n, --name-only          - Match only the package names.
 	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
 PkgName='{Package}'
@@ -85,7 +84,8 @@ fi
 
 Package=($@)
 
-ChkDep dpkg-query
+type -fP dpkg-query 1> /dev/null 2>&1 ||
+	Err 1 "Dependency 'dpkg-query' not met."
 
 [ "$DebugMe" == 'true' ] && set -x
 
