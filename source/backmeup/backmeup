@@ -3,18 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Wed 12 Feb 20:21:44 GMT 2020
+# Last Change       - Fri 13 Nov 15:51:10 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-. /usr/lib/tflbp-sh/YNInput
-set +e
-
-CurVer='2020-02-12'
+CurVer='2020-11-13'
 Progrm=${0##*/}
 
 MainDir="$HOME/.config/$Progrm"
@@ -38,6 +32,11 @@ Usage(){
 	EOF
 }
 
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
@@ -48,6 +47,21 @@ while [ "$1" ]; do
 			Verbose='-v' ;;
 		--set-store|-s)
 			shift; Store=$1
+
+			YNInput(){
+				printf '%s [Y/N] ' "$1"
+				read Answer
+
+				case $Answer in
+					[Yy]|[Yy][Ee][Ss])
+						return 0 ;;
+					[Nn]|[Nn][Oo])
+						return 1 ;;
+					*)
+						printf 'ERROR: Invalid response -- quitting.\n'
+						exit 1 ;;
+				esac
+			}
 
 			if [ -z "$Store" ]; then
 				Err 1 "Option '--set-store|-S' requires a path."
@@ -80,7 +94,15 @@ while [ "$1" ]; do
 	shift
 done
 
-ChkDep tar sync mkdir date notify-send sh
+DepCount=0
+for Dep in tar sync mkdir date notify-send sh; do
+	if ! command -V "$Dep" 1> /dev/null 2>&1; then
+		Err 1 "Dependency '$Dep' not met."
+		DepCount=$((DepCount + 1))
+	fi
+done
+
+[ $DepCount -gt 0 ] && exit 1
 
 if ! [ -d "$MainDir" ] && ! mkdir -p "$MainDir"; then
 	Err 1 "Directory '~/.config/$Progrm' not made."
