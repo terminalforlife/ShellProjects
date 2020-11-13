@@ -1,12 +1,15 @@
 #!/bin/sh
-
-#----------------------------------------------------------------------------------
+#cito M:755 O:0 G:0 T:/etc/cron.hourly/notify-upgrade
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/cron_tasks/notify-upgrade
 # Started On        - Thu 19 Oct 19:02:44 BST 2017
-# Last Change       - Mon 12 Feb 22:43:32 GMT 2018
+# Last Change       - Fri 13 Nov 17:42:20 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# The 'cron.hourly' directory might not exist, so remember to create it, -
+# especially if you're installing this cron job with cito(1).
+#------------------------------------------------------------------------------
 
 apt-get update 1> /dev/null 2>&1
 apt-get -dqq dist-upgrade 1> /dev/null 2>&1

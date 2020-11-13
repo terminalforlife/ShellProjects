@@ -42,7 +42,7 @@ e6e9036b9c16fa35b92ac81e2b4451de  source/completions/nxbt
 30c61858b52bd2ed7dc33713bd8800ce  source/completions/simwea
 4cac08df30f02f4b296043b5971f1011  source/completions/tozero
 197dcc70cf5850bde53cbfe53a57a7ee  source/completions/ubuntu-syschk
-d281e434e03a5a58dcf22c0b61c4b16f  source/cron_tasks/notify-upgrade
+a8169d7f7fc48a2499e0fd42305e9bdf  source/cron_tasks/notify-upgrade
 608220cedba01e5db4ea43471d3e8d3f  source/cron_tasks/tfl-freshclam
 0961be76093c4062be68357579dff2b9  source/dlclecs
 2ffff8f1f3b99146c92d0025c0f440ba  source/dlfallwalls
