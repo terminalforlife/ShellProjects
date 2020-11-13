@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rudbgvid
 # Started On        - Thu 12 Nov 19:52:44 GMT 2020
-# Last Change       - Fri 13 Nov 02:28:39 GMT 2020
+# Last Change       - Fri 13 Nov 03:19:29 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -31,18 +31,15 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  --convert [STR]          - Pass STR to convert(1) for output options.
 		  -d, --delay [INT]        - Delay of INT seconds between each loop.
 		  -i, --interval [INT]     - Override the default frame interval.
 		  -n, --nopp               - Do not post-process the frames.
 		  -s, --set [FILE]         - Generate a new background animation.
 
 		  This tool must be running at all times for playback to work. Add the
-		  command \`rudbgvid\` (with or without OPTs) as a startup command or
+		  command 'rudbgvid' (with or without OPTs) as a startup command or
 		  to one of your user initialization scripts.
-
-		  By default, frames are processed with convert(1) via ImageMagick. The
-		  reason for this, is primarily to hide the very low quality of each
-		  frame with a nice blurring and vignette effect.
 
 		  WARNING:
 
@@ -62,9 +59,7 @@ Err(){
 	[ $1 -gt 0 ] && exit $1
 }
 
-MainDir="$HOME/.cache/rudbgvid"
-FrameDir="$HOME/.cache/rudbgvid/frames"
-
+CacheDir="$HOME/.cache/rudbgvid"
 Interval=01
 
 while [ "$1" ]; do
@@ -103,28 +98,55 @@ while [ "$1" ]; do
 			else
 				Err 1 "Invalid loop delay provided."
 			fi ;;
+		--convert)
+			shift
+
+			if [ -n "$1" ]; then
+				ConvertArgs=$1
+			else
+				Err 1 "Missing output options to hand to convert(1)."
+			fi ;;
+		--frames-dir|-f)
+			shift
+
+			if ! [ -n "$1" ]; then
+				Err 1 "Missing directory to store video frames."
+			elif ! [ -d "$1" ]; then
+				Err 1 "Location provided missing or not a directory."
+			else
+				CacheDir=$1
+			fi ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-if [ -z "$DoSet" ] && [ "$Untouch" == 'True' ]; then
-	Err 1 "Told not to post-process frames, but no video provided."
+if [ -z "$DoSet" ] && [ -n "$ConvertArgs" ]; then
+	Err 1 "Told to post-process frames, but no video provided."
 fi
 
-[ -d "$MainDir" ] || mkdir -p "$MainDir" 1> /dev/null 2>&1
-[ -d "$FrameDir" ] || mkdir -p "$FrameDir" 1> /dev/null 2>&1
+DepCount=0
+for Dep in convert feh ffmpeg sleep rm mkdir sort; {
+	if ! type -fP "$Dep" 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$Dep' not met."
+		$DepCount++
+	fi
+}
+
+[ $DepCount -gt 0 ] && exit 1
+
+[ -d "$CacheDir" ] || mkdir -p "$CacheDir" 1> /dev/null 2>&1
 
 if [ -n "$DoSet" ]; then
-	rm "$FrameDir"/* 1> /dev/null 2>&1
+	rm "$CacheDir"/* 1> /dev/null 2>&1
 
-	if ffmpeg -i "$DoSet" "$FrameDir/image_%06d.jpg" 1> /dev/null 2>&1; then
-		for File in "$FrameDir"/*.jpg; {
+	if ffmpeg -i "$DoSet" "$CacheDir/image_%06d.jpg" 1> /dev/null 2>&1; then
+		for File in "$CacheDir"/*.jpg; {
 			[ -f "$File" ] || continue
 
-			if [ "$Untouch" != 'True' ]; then
-				convert "$File" -blur 8x8 "$File" 1> /dev/null 2>&1
+			if [ -n "$ConvertArgs" ]; then
+				convert "$File" $ConvertArgs "$File" 1> /dev/null 2>&1
 			fi
 		}
 
@@ -134,13 +156,19 @@ if [ -n "$DoSet" ]; then
 	fi
 fi
 
-Files=(`printf '%s\n' "$FrameDir"/image_*.jpg | sort $Reverse -nt '_'`)
+# Using this array to save redundant processing within the while loop.
+Files=(`printf '%s\n' "$CacheDir"/image_*.jpg | sort $Reverse -nt '_'`)
 
 while :; do
-	for File in "${Files[@]}"; {
-		feh --bg-fill "$File" || Err 1 "Failed to set background with feh(1)."
+	# Test here, in-case frames vanish during operation.
+	[ -f "$CacheDir"/image_000001.jpg ] ||
+		Err 1 "No frames have been generated with $Progrm."
 
-		sleep 0.$Interval
+	for File in "${Files[@]}"; {
+		# Encased in a statement to avoid overwhelming system.
+		if feh --bg-fill "$File" 1> /dev/null 2>&1 || exit 1; then
+			sleep 0.${Interval}s
+		fi
 	}
 
 	[ -n $Delay ] && sleep ${Delay:-0}
