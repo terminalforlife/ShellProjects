@@ -1,0 +1,46 @@
+#!/bin/sh
+#cito M:755 O:0 G:0 T:/etc/cron.weekly/tfl-freshclam
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/cron_tasks/tfl-freshclam
+# Started On        - Fri 13 Nov 17:09:02 GMT 2020
+# Last Change       - Fri 13 Nov 17:26:26 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Workaround for ClamAV's `freshclam` not working in Ubuntu 18.04 and systems
+# based thereon. Talked about in my video over here:
+#
+#   https://www.youtube.com/watch?v=WRZCYebFtuk
+#
+# Dependencies:
+#
+#   coreutils (>= 8.28-1ubuntu1)
+#   curl (>= ) | wget (>= 1.19.4-1)
+#------------------------------------------------------------------------------
+
+URL='https://database.clamav.net/daily.cvd'
+Target='/var/lib/clamav/daily.cvd'
+
+Err(){
+	printf 'ERROR: %s\n' "$1" 1>&2
+	exit 1
+}
+
+{
+	# Create an empty file first, so that we can set safe attributes.
+	touch "$Target"
+
+	chown 0:0 "$Target" || Err "Failed to set 'daily.cvd' database ownership."
+	chmod 644 "$Target" || Err "Failed to set 'daily.cvd' database mode."
+
+	# Use wget(1) as a fallback, in-case curl(1) isn't available.
+	if command -V curl 2>&1; then
+		curl -sO "$Target" "$URL"
+	elif command -V wget 2>&1; then
+		wget -qco "$Target" "$URL"
+	else
+		Err "Missing wget(1) or curl(1) for 'tfl-freshclam'."
+	fi
+} 1> /dev/null
+
+exit 0
