@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rudbgvid
 # Started On        - Thu 12 Nov 19:52:44 GMT 2020
-# Last Change       - Fri 13 Nov 03:19:29 GMT 2020
+# Last Change       - Fri 13 Nov 14:48:49 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -35,6 +35,7 @@ Usage(){
 		  -d, --delay [INT]        - Delay of INT seconds between each loop.
 		  -i, --interval [INT]     - Override the default frame interval.
 		  -n, --nopp               - Do not post-process the frames.
+		  -r, --reverse            - Reverse the animation playback.
 		  -s, --set [FILE]         - Generate a new background animation.
 
 		  This tool must be running at all times for playback to work. Add the
@@ -116,6 +117,8 @@ while [ "$1" ]; do
 			else
 				CacheDir=$1
 			fi ;;
+		--reverse|-r)
+			Reverse='-r' ;;
 		*)
 			break ;;
 	esac
