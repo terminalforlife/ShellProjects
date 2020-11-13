@@ -3,18 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Fri 13 Nov 15:51:10 GMT 2020
+# Last Change       - Fri 13 Nov 15:53:58 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
 CurVer='2020-11-13'
 Progrm=${0##*/}
-
-MainDir="$HOME/.config/$Progrm"
-StoreFile="$MainDir/store"
-ExcluFile="$MainDir/exclude"
-Exclude="--exclude-from=$ExcluFile"
 
 Usage(){
 	while read -r CurLine; do
@@ -36,6 +31,11 @@ Err(){
 	printf 'ERROR: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
+
+MainDir="$HOME/.config/$Progrm"
+StoreFile="$MainDir/store"
+ExcluFile="$MainDir/exclude"
+Exclude="--exclude-from=$ExcluFile"
 
 while [ "$1" ]; do
 	case $1 in
