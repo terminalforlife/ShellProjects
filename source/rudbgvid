@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rudbgvid
 # Started On        - Thu 12 Nov 19:52:44 GMT 2020
-# Last Change       - Fri 13 Nov 02:17:01 GMT 2020
+# Last Change       - Fri 13 Nov 02:28:39 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -66,7 +66,6 @@ MainDir="$HOME/.cache/rudbgvid"
 FrameDir="$HOME/.cache/rudbgvid/frames"
 
 Interval=01
-Delay=
 
 while [ "$1" ]; do
 	case $1 in
@@ -110,6 +109,10 @@ while [ "$1" ]; do
 	shift
 done
 
+if [ -z "$DoSet" ] && [ "$Untouch" == 'True' ]; then
+	Err 1 "Told not to post-process frames, but no video provided."
+fi
+
 [ -d "$MainDir" ] || mkdir -p "$MainDir" 1> /dev/null 2>&1
 [ -d "$FrameDir" ] || mkdir -p "$FrameDir" 1> /dev/null 2>&1
 
@@ -131,8 +134,10 @@ if [ -n "$DoSet" ]; then
 	fi
 fi
 
+Files=(`printf '%s\n' "$FrameDir"/image_*.jpg | sort $Reverse -nt '_'`)
+
 while :; do
-	for File in `printf '%s\n' "$FrameDir"/image_*.jpg | sort -nt '_'`; {
+	for File in "${Files[@]}"; {
 		feh --bg-fill "$File" || Err 1 "Failed to set background with feh(1)."
 
 		sleep 0.$Interval
