@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cron_tasks/tfl-freshclam
 # Started On        - Fri 13 Nov 17:09:02 GMT 2020
-# Last Change       - Fri 13 Nov 17:26:26 GMT 2020
+# Last Change       - Fri 13 Nov 17:32:36 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -35,9 +35,9 @@ Err(){
 
 	# Use wget(1) as a fallback, in-case curl(1) isn't available.
 	if command -V curl 2>&1; then
-		curl -sO "$Target" "$URL"
+		curl -so "$Target" "$URL"
 	elif command -V wget 2>&1; then
-		wget -qco "$Target" "$URL"
+		wget -qcO "$Target" "$URL"
 	else
 		Err "Missing wget(1) or curl(1) for 'tfl-freshclam'."
 	fi
