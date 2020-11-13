@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/rudbgvid
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/rudbgvid
+# Started On        - Thu 12 Nov 19:52:44 GMT 2020
+# Last Change       - Fri 13 Nov 02:17:01 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# [Rud]imentary [B]ack[g]round [V]ideo is a naive workaround for displaying
+# videos on the root window in environments which others wouldn't allow it
+# natively. So, animated wallpapers, basically.
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   coreutils (>= 8.28-1)
+#   feh (>= 2.23.2-1build1)
+#   ffmpeg (>= 7:3.4.8-0)
+#   imagemagick (>= 8:6.9.7.4+dfsg-16)
+#------------------------------------------------------------------------------
+
+CurVer='2020-11-13'
+Progrm=${0##*/}
+
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  -d, --delay [INT]        - Delay of INT seconds between each loop.
+		  -i, --interval [INT]     - Override the default frame interval.
+		  -n, --nopp               - Do not post-process the frames.
+		  -s, --set [FILE]         - Generate a new background animation.
+
+		  This tool must be running at all times for playback to work. Add the
+		  command \`rudbgvid\` (with or without OPTs) as a startup command or
+		  to one of your user initialization scripts.
+
+		  By default, frames are processed with convert(1) via ImageMagick. The
+		  reason for this, is primarily to hide the very low quality of each
+		  frame with a nice blurring and vignette effect.
+
+		  WARNING:
+
+		    Generating animations can take a very, very long time, depending on
+		    the size and complexity of the given video file. Importantly, any
+		    existing animation will be completely removed!
+
+		    During playback, an image (frame) is set as the background very
+		    rapidly, which is likely to considerably affect the performance of
+		    older or slower machines. If your machine is struggling, try
+		    setting a lesser interval.
+	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+MainDir="$HOME/.cache/rudbgvid"
+FrameDir="$HOME/.cache/rudbgvid/frames"
+
+Interval=01
+Delay=
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--set|-s)
+			shift
+
+			if [ -z "$1" ]; then
+				Err 1 "No video FILE provided."
+			elif ! [ -f "$1" ]; then
+				Err 1 "Provided video FILE not found."
+			elif ! [ -r "$1" ]; then
+				Err 1 "Provided video FILE unreadable."
+			fi
+
+			DoSet=$1 ;;
+		--nopp|-n)
+			Untouch='True' ;;
+		--interval|-i)
+			shift
+
+			if [[ $1 =~ ^[0-9]+$ ]]; then
+				Speed=$1
+			else
+				Err 1 "Invalid animation INT provided."
+			fi ;;
+		--delay|-d)
+			shift
+
+			if [[ $1 =~ ^[0-9]+$ ]]; then
+				Delay=$1
+			else
+				Err 1 "Invalid loop delay provided."
+			fi ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+[ -d "$MainDir" ] || mkdir -p "$MainDir" 1> /dev/null 2>&1
+[ -d "$FrameDir" ] || mkdir -p "$FrameDir" 1> /dev/null 2>&1
+
+if [ -n "$DoSet" ]; then
+	rm "$FrameDir"/* 1> /dev/null 2>&1
+
+	if ffmpeg -i "$DoSet" "$FrameDir/image_%06d.jpg" 1> /dev/null 2>&1; then
+		for File in "$FrameDir"/*.jpg; {
+			[ -f "$File" ] || continue
+
+			if [ "$Untouch" != 'True' ]; then
+				convert "$File" -blur 8x8 "$File" 1> /dev/null 2>&1
+			fi
+		}
+
+		exit 0
+	else
+		Err 1 'Failed to generate images from video with ffmpeg(1).'
+	fi
+fi
+
+while :; do
+	for File in `printf '%s\n' "$FrameDir"/image_*.jpg | sort -nt '_'`; {
+		feh --bg-fill "$File" || Err 1 "Failed to set background with feh(1)."
+
+		sleep 0.$Interval
+	}
+
+	[ -n $Delay ] && sleep ${Delay:-0}
+done
