@@ -1,132 +1,150 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/catmedia
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/catmedia
 # Started On        - Sun 15 Oct 13:16:02 BST 2017
-# Last Change       - Fri  6 Dec 22:46:43 GMT 2019
+# Last Change       - Sun 15 Nov 18:17:29 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Features:
+#
+#TODO: Allow input files to be anywhere, not just the CWD.
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   coreutils (>= 8.25-2)
+#   ffmpeg (>= 1.1)
+#------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+CurVer='2020-11-15'
+Progrm=${0##*/}
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
-
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] [INPUT_1 INPUT_2 ...] [OUTPUT]
 
-		            Concatenate media files originally separated in parts.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -s, --skip-invalid       - Just skip invalid media input files.
+		  -q, --quiet              - Run quietly, except for errors.
 
-		SYNTAX:     $_PROJECT_ [OPTS] IN1 IN2 IN3 . . . OUT
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --debug|-D              - Enables the built-in bash debugging.
-
-		WARNING:    This only works if you're IN the directory with the media parts.
-
-		NOTE:       Where INPUT is the file parts to be concatenated, and OUTPUT is the
-		            single file to be created from the INPUT files.
-
-		FILE:       A list of part files is temporarily stored in:
-
-		              /tmp/filelist_\$RANDOM.txt
-
-		            This file will be removed upon completion.
+		This only works if you're IN the directory with the media parts.
 	EOF
 }
 
-TEMP="/tmp/filelist_$RANDOM.txt"
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--quiet|-q)
-			BEQUIET='true' ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			BeQuiet='True' ;;
+		--skip-invalid|-s)
+			SkipInvalid='True' ;;
 		-*)
-			Err 1 $LINENO "Incorrect OPT specified. See: --help|-h|-?" ;;
+			Err 1 'Incorrect option(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in ffmpeg rm; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+declare -i DepCount=0
+for Dep in ffmpeg ffprobe rm mktemp dirname; {
+	if ! type -fP "$Dep" &> /dev/null; then
+		Err 0 "Dependency '$Dep' not met."
+		DepCount++
 	else
-		if [ "$DEP" == "ffmpeg" ]; then
-			read -a VERSION <<< `ffmpeg -version`
-			BUFFER=${VERSION[2]%.*-*}
-			MAJOR=${BUFFER%.*}
-			MINOR=${BUFFER/*.}
+		[ "$Dep" == 'ffmpeg' ] || continue
 
-			if ! [[ $BUFFER =~ ^[0-9]+\.[0-9]+$ ]]; then
-				Err 1 $LINENO "Unable to determine required version of ffmpeg."
-			elif ! [ "$MAJOR" -ge 1 -a "$MINOR" -ge 1 ]; then
-				Err 1 $LINENO "Version 1.1 or greater of ffmpeg required."
-			fi
+		read -a Version <<< `ffmpeg -version`
+		Buffer=${Version[2]%.*-*}
+		Major=${Buffer%.*}
+		Minor=${Buffer/*.}
+
+		if ! [[ $Buffer =~ ^[0-9]+\.[0-9]+$ ]]; then
+			Err 1 "Unable to determine required version of ffmpeg."
+		elif ! [ "$Major" -ge 1 -a "$Minor" -ge 1 ]; then
+			Err 1 "Version 1.1 or greater of ffmpeg required."
 		fi
 	fi
 }
 
-[ $DEPCOUNT -eq 0 ] || exit 1
+[ $DepCount -gt 0 ] && exit 1
 
-[ "$BEQUIET" == 'true' ] && exec > /dev/null
-[ "$DEBUGME" == 'true' ] && set -x
+TempFile=`mktemp` || Err 1 'Temporary file creation failed.'
+
+SigHandler(){
+    Sig=$?
+    rm -f "$TempFile"
+    exit $Sig
+}
+
+trap SigHandler INT HUP TERM ABRT QUIT
+
+[ "$BeQuiet" == 'True' ] && exec 1> /dev/null
 
 # Process the input files.
-declare -i INCOUNT=0
-while [ "$1" ]; do
-	# Ensures it doesn't count the output file.
-	[ "$2" ] || break && shift
+InFiles=()
+while [ $# -gt 1 ]; do
+	# Need this here to ensure it's always assumed as the CWD.
+	CurFile="$PWD/$1"
 
-	INPUT+=" ${1// /%20}"
-	INCOUNT+=1
+	if ! [ -f "$CurFile" ]; then
+		Err 1 "Input file '${CurFile##*/}' not found."
+	elif ! ffprobe -v 0 "$CurFile"; then
+		# The ffprobe(1) program can be used to detect the validity of a video
+		# OR image file, which is perfect here, else CatMedia would quit with
+		# potentially no feedback and no actionable result, confusing the user.
+		if ! [ "$SkipInvalid" == 'True' ]; then
+			Err 1 "Input file '${CurFile##*/}' not a valid media file."
+		fi
+	else
+		InFiles+=("$CurFile")
+	fi
+
+	shift
 done
 
-OUTPUT=${1// /%20}
-
-if [ $INCOUNT -eq 0 ]; then
-	Err 1 $LINENO "At least two inputs and an output is required."
-elif ! [ "$OUTPUT" ]; then
-	Err 1 $LINENO "At least two inputs and an output is required."
-elif ! [ -d /tmp ]; then
-	Err 1 $LINENO "Unable to access the /tmp directory."
+# Check the dirname of the desired output file.
+DirName=`dirname "$1"`
+if [ -d "$DirName" ]; then
+	Output=$1
+else
+	Err 1 "Directory '$DirName' not found."
 fi
 
 # Creating the temporary file list for ffmpeg.
-for PART in $INPUT; {
-	printf "file '%s'\n" "$PWD/${PART//%20/ }"
-} > "$TEMP"
+printf "file '%s'\n" "${InFiles[@]}" > "$TempFile"
 
 # Concatenation begins here.
-while read -a REPLY; do
-	if [[ $REPLY == frame=* ]]; then
-		printf "\rPROGRESS: SIZE=\"${REPLY[5]/*=}\" TIME=\"${REPLY[6]/*=}\""
+while read -a Line; do
+	if [[ $Line == frame=* ]]; then
+		printf "\rPROGRESS: SIZE=\"${Line[5]/*=}\" TIME=\"${Line[6]/*=}\""
 	else
 		continue
 	fi
 done <<< "$(
-	ffmpeg -v 0 -stats -f concat -safe 0 -i "$TEMP" "${OUTPUT//%20/ }"
+	printf 'Concatenating media files...\n'
+	ffmpeg -v 0 -f concat -safe 0 -i "$TempFile" "${Output//%20/ }"
 )"
 
-rm -f "$TEMP"
-
+# Multi-line form to protect leaving exit status of '1'. The SigHandler() via
+# `trap` should take care of this for us, but just in-case, check for it.
+if [ -f "$TempFile" ]; then
+	rm -f "$TempFile"
+fi
