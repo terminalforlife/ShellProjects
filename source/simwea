@@ -81,7 +81,7 @@ while [ "$1" ]; do
 	shift
 done
 
-type -fP wget > /dev/null 2>&1 || Err 1 $LINENO "Dependency 'wget' not met."
+type -P wget > /dev/null 2>&1 || Err 1 $LINENO "Dependency 'wget' not met."
 
 if ! [ "$#" ]; then
 	Err 1 $LINENO "Incorrect argument(s) given."

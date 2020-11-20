@@ -90,7 +90,7 @@ done
 
 declare -i DepCount=0
 for CurDep in uname apt-get linux-version; {
-	if ! type -fP "$CurDep" > /dev/null 2>&1; then
+	if ! type -P "$CurDep" > /dev/null 2>&1; then
 		Err 0 $LINENO "Dependency '$CurDep' not met."
 		DepCount+=1
 	fi
@@ -103,7 +103,7 @@ for CurDep in uname apt-get linux-version; {
 if [ -f /proc/version -a -r /proc/version ]; then
 	read -a VerStr < /proc/version
 	CurKern="${VerStr[2]}"
-elif ! type -fP uname > /dev/null 2>&1; then
+elif ! type -P uname > /dev/null 2>&1; then
 	CurKern=`uname -r`
 else
 	Err 1 $LINENO "Unable to determine current kernel version."

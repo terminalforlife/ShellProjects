@@ -81,7 +81,7 @@ done
 
 declare -i DEPCOUNT=0
 for DEP in tee wget sync sleep sed grep mkdir; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
+	if ! type -P "$DEP" > /dev/null 2>&1; then
 		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
@@ -168,9 +168,9 @@ if [ "$SUSPEND" == 'true' ]; then
 	printf "%s\n" "System will suspend in 3s; type Ctrl+C to cancel."
 	/bin/sleep 3
 
-	if type -fP systemctl > /dev/null 2>&1; then
+	if type -P systemctl > /dev/null 2>&1; then
 		systemctl suspend
-	elif type -fP pm-suspend > /dev/null 2>&1; then
+	elif type -P pm-suspend > /dev/null 2>&1; then
 		pm-suspend
 	else
 		Err 1 $LINENO "Unable to find a supported suspend method."

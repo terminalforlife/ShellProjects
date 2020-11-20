@@ -131,7 +131,7 @@ fi
 
 DepCount=0
 for Dep in convert feh ffmpeg sleep rm mkdir sort; {
-	if ! type -fP "$Dep" 1> /dev/null 2>&1; then
+	if ! type -P "$Dep" 1> /dev/null 2>&1; then
 		Err 0 "Dependency '$Dep' not met."
 		$DepCount++
 	fi

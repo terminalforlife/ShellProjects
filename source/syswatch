@@ -20,7 +20,7 @@ _PROJECT_=${0##*/}
 
 declare -i DEPCOUNT=0
 for DEP in dmesg grep sleep tail notify-send; {
-	type -fP "$DEP" > /dev/null 2>&1 || exit 1
+	type -P "$DEP" > /dev/null 2>&1 || exit 1
 }
 
 #TODO: Ignore the entries already there on log-in.

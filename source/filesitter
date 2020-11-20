@@ -75,7 +75,7 @@ fi
 
 declare -i DEPCOUNT=0
 for DEP in stat systemctl sleep; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
+	if ! type -P "$DEP" > /dev/null 2>&1; then
 		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi

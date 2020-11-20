@@ -65,7 +65,7 @@ done
 
 declare -i DepCount=0
 for Dep in ffmpeg ffprobe rm mktemp dirname; {
-	if ! type -fP "$Dep" &> /dev/null; then
+	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		DepCount++
 	else

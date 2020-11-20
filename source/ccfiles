@@ -64,7 +64,7 @@ while [ "$1" ]; do
 	shift
 done
 
-if ! type -fP readlink > /dev/null 2>&1; then
+if ! type -P readlink > /dev/null 2>&1; then
 	Err 1 $LINENO "Dependency 'readlink' not met."
 fi
 

@@ -76,7 +76,7 @@ INTERVAL=$1
 
 declare -i DEPCOUNT=0
 for DEP in sleep notify-send wget; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
+	if ! type -P "$DEP" > /dev/null 2>&1; then
 		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi

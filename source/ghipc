@@ -55,7 +55,7 @@ done
 
 IP_LIST="$@"
 
-if ! type -fP wget > /dev/null 2>&1; then
+if ! type -P wget > /dev/null 2>&1; then
 	Err 1 $LINENO "Dependency 'wget' not met."
 fi
 

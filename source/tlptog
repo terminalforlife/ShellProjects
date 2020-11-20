@@ -55,7 +55,7 @@ while [ "$1" ]; do
 	shift
 done
 
-type -fP sed > /dev/null 2>&1 || Err 1 $LINENO "Dependency '/bin/sed' not met."
+type -P sed > /dev/null 2>&1 || Err 1 $LINENO "Dependency '/bin/sed' not met."
 
 [ $UID -eq 0 ] || Err 1 $LINENO "Root access is required for system-wide configuration."
 

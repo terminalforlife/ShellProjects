@@ -147,7 +147,7 @@ elif [ "$Borders" == 'true' ]; then
 	fi
 fi
 
-if ! type -fP tput > /dev/null 2>&1; then
+if ! type -P tput > /dev/null 2>&1; then
 	Err 0 $LINENO "Dependency 'tput' not met."
 else
 	if [ -t 1 ]; then
@@ -157,7 +157,7 @@ else
 fi
 
 if [ "$DoUpdate" == 'true' ]; then
-	if ! type -fP wget > /dev/null 2>&1; then
+	if ! type -P wget > /dev/null 2>&1; then
 		Err 1 $LINENO "Dependency 'wget' not met."
 	fi
 

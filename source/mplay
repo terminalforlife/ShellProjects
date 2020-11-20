@@ -68,7 +68,7 @@ while [ "$1" ]; do
 done
 
 if [ "$UPDATE" == 'true' ]; then
-	if ! type -fP wget > /dev/null 2>&1; then
+	if ! type -P wget > /dev/null 2>&1; then
 		Err 1 $LINENO "Dependency 'wget' not met."
 	fi
 
@@ -100,7 +100,7 @@ fi
 [ -d $THEMEDIR ] || Err 1 $LINENO "Theme directory not found."
 [ -f "$THEMEDIR/tfl_moc_theme" ] || Err 1 $LINENO "Theme file not found."
 
-if ! type -fP mocp > /dev/null 2>&1; then
+if ! type -P mocp > /dev/null 2>&1; then
 	Err 1 $LINENO "Dependency 'mocp' not met."
 fi
 

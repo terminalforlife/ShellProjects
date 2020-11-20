@@ -99,7 +99,7 @@ while [ "$1" ]; do
 	shift
 done
 
-PathLook(){ type -fP $@ &> /dev/null || return 1; }
+PathLook(){ type -P $@ &> /dev/null || return 1; }
 
 ChkDep(){
 	DepCount=0

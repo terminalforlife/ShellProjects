@@ -103,7 +103,7 @@ if [ -f "$HOME/.config/$_PROJECT_.conf" ]; then
 			exit 0
 		else
 			if ! [ -d "$HOME/.config" ]; then
-				if type -fP mkdir > /dev/null 2>&1; then
+				if type -P mkdir > /dev/null 2>&1; then
 					mkdir $HOME/.config
 				else
 					Err 1 $LINENO "Dependency 'mkdir' not met."

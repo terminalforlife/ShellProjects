@@ -88,9 +88,9 @@ URL="$Domain/jokes/joke-of-the-day"
 File="/tmp/${Progrm}_store.txt"
 
 MainOp(){
-	if type -fP curl 1> /dev/null 2>&1; then
+	if type -P curl 1> /dev/null 2>&1; then
 		RawJoke=`curl -s "$URL"`
-	elif type -fP wget 1> /dev/null 2>&1; then
+	elif type -P wget 1> /dev/null 2>&1; then
 		RawJoke=`wget -q "$URL" -O -`
 	else
 		Err 0 "Dependency 'wget' or 'curl' not met."

@@ -60,7 +60,7 @@ SSH_KEY_FILE=$2
 
 declare -i DEPCOUNT=0
 for DEP in find ssh-add ssh-agent ssh-keygen apt-get; {
-	if ! type -fP "$DEP" > /dev/null 2>&1; then
+	if ! type -P "$DEP" > /dev/null 2>&1; then
 		Err 0 $LINENO "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
@@ -73,18 +73,18 @@ for DEP in find ssh-add ssh-agent ssh-keygen apt-get; {
 [ "$DEBUGME" == 'true' ] && set -x
 
 if [ "$INSTALLGIT" == 'true' ]; then
-	if ! type -fP git > /dev/null 2>&1; then
+	if ! type -P git > /dev/null 2>&1; then
 		printf "INFO: Installing git packages with apt-get.\n"
 		apt-get -q --show-progress -o Dpkg::Progress-Fancy=true install git
 	else
 		Err 0 $LINENO "It seems git is already installed."
 	fi
-elif [ ! "$INSTALLGIT" == 'true' ] && ! type -fP git > /dev/null 2>&1; then
+elif [ ! "$INSTALLGIT" == 'true' ] && ! type -P git > /dev/null 2>&1; then
 	Err 0 $LINENO "Unable to find 'git'; is it installed?"
 fi
 
 if [ "$INSTALLSSH" == 'true' ]; then
-	if ! type -fP ssh > /dev/null 2>&1; then
+	if ! type -P ssh > /dev/null 2>&1; then
 		printf "INFO: Installing ssh packages with apt-get.\n"
 		apt-get -q --show-progress -o Dpkg::Progress-Fancy=true  install ssh
 	else
@@ -137,7 +137,7 @@ if ! ssh-add $SSH_KEY_FILE; then
 	Err 1 $LINENO "Non-zero exit status: /usr/bin/ssh-add"
 fi
 
-if type -fP xclip > /dev/null 2>&1; then
+if type -P xclip > /dev/null 2>&1; then
 	printf "INFO: Adding public key to clipboard with /usr/bin/xclip.\n"
 	if ! xclip -sel clip < ${SSH_KEY_FILE}.pub; then
 		Err 1 $LINENO "Non-zero exit status: /usr/bin/xclip"

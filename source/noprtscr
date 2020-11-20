@@ -25,7 +25,7 @@ Err(){
 	[ $1 -eq 1 ] && exit 1
 }
 
-if ! type -fP gsettings > /dev/null 2>&1; then
+if ! type -P gsettings > /dev/null 2>&1; then
 	Err 1 $LINENO "Dependency 'gsettings' not met."
 fi
 
