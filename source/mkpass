@@ -1,46 +1,39 @@
 #!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/mkpass
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/mkpass
 # Started On        - Fri 20 Oct 12:14:09 BST 2017
-# Last Change       - Sun 16 Feb 22:58:46 GMT 2020
+# Last Change       - Fri 20 Nov 00:39:20 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-set +e
-
-CurVer='2020-02-16'
+CurVer='2020-11-20'
 Progrm=${0##*/}
 
 Usage(){
 	while read; do
-		printf "%s\n" "$REPLY"
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] [LENGTH]
 
-		            Pure Bourne Again Shell approach to complex password generation.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -t, --type [TYPE]        - Where TYPE is the type to use.
 
-		SYNTAX:     $Progrm [OPTS] [INT]
+		  Valid types below.
 
-		OPTS:       --help|-h|-?            - Display this help information.
-		            --version|-v            - Output the version datestamp.
-		            --type|-t TYPE          - Where TYPE is the type to use.
+		    alnum, alpha, digit, punct, alnumpunct
 
-		TYPES:      Valid types below.
-
-		              alnum, alpha, digit, punct, alnumpunct
-
-		NOTE:       This small program uses '/dev/urandom' to generate a wide
-		            range of characters, just as you would expect from
-		            genpass, but fuller and with extra features and choices for
-		            the user.
-
-		            Where INT is the number of characters to generate.
+		  This small program uses '/dev/urandom' to generate a wide range of
+		  characters, just as you would expect from genpass, but fuller and
+		  with extra features and choices for the user.
 	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
 while [ "$1" ]; do
@@ -62,7 +55,7 @@ done
 if [[ $1 =~ ^[0-9]+$ ]]; then
 	Int=$1
 elif [ -z "$Int" ]; then
-	Err 1 'Invalid or missing INT.'
+	Err 1 'Invalid or missing LENGTH.'
 elif ! [ -e /dev/urandom ]; then
 	Err 1 "Unable to access the '/dev/urandom' device."
 elif ! [[ "$*" =~ [0-9]+ ]] && [ $Int -ge 1 ]; then
