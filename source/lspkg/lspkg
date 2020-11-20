@@ -84,7 +84,7 @@ fi
 
 Package=($@)
 
-type -fP dpkg-query 1> /dev/null 2>&1 ||
+type -P dpkg-query 1> /dev/null 2>&1 ||
 	Err 1 "Dependency 'dpkg-query' not met."
 
 [ "$DebugMe" == 'true' ] && set -x

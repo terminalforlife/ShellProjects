@@ -52,7 +52,7 @@ while [ "$1" ]; do
 
 			if [ -z "$1" ]; then
 				Err 1 'Name of command not provided.'
-			elif ! type -fP "$1" > /dev/null 2>&1; then
+			elif ! type -P "$1" > /dev/null 2>&1; then
 				Err 1 'Provided command not found in PATH.'
 			else
 				Exec=$1
@@ -89,7 +89,7 @@ ExecFile=$1; shift
 
 declare -i DepCount=0
 for Dep in tput sleep stat; {
-	if ! type -fP "$Dep" 1> /dev/null 2>&1; then
+	if ! type -P "$Dep" 1> /dev/null 2>&1; then
 		printf "Dependency '%s' not met.\n" "$Dep" 1>&2
 		DepCount++
 	fi
@@ -109,7 +109,7 @@ if [ "$Once" != 'true' ]; then
 fi
 
 Interpreter(){
-	type -fP "$1" &> /dev/null ||
+	type -P "$1" &> /dev/null ||
 		Err 1 "Interpreter '$1' not found."
 
 	Exec=$1
