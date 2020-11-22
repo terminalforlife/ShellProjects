@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Sun 22 Nov 15:53:44 GMT 2020
+# Last Change       - Sun 22 Nov 16:18:56 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,6 +16,8 @@
 
 CurVer='2020-11-22'
 Progrm=${0##*/}
+
+Comment="#"
 
 Usage(){
 	while read; do
@@ -46,7 +48,6 @@ Err(){
 	[ $1 -eq 1 ] && exit 1
 }
 
-Comment="#"
 ProjConf="$HOME/.config/$Progrm.conf"
 
 while [ "$1" ]; do
