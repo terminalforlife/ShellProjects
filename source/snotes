@@ -1,21 +1,45 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/snotes
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  6 Dec 22:54:44 GMT 2019
+# Last Change       - Sun 22 Nov 15:53:44 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# To use your own comment character, change the Comment variable. This feature will
-# eventually be included into snotes properly.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# To use your own comment character, change the Comment variable. This feature
+# will eventually be included into snotes properly.
+#------------------------------------------------------------------------------
 
-#TODO: Fix clash between snotes' arguments and when searching with notes for those
-#       arguments. Also, --edit/-e CMD is not working.
+#TODO: Fix clash between snotes' arguments and when searching with notes for
+#      those arguments. Also, --edit/-e CMD is not working.
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+CurVer='2020-11-22'
+Progrm=${0##*/}
+
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS] [MATCH_1 [MATCH_2 ...]]
+
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -C, --comment [STR]      - Where STR is a single comment character.
+		  -f, --file [PATH]        - Specify & remember the notes file to use.
+
+		  By default, the notes file saved in the $Progrm configuration file
+		  will be the one used.
+
+		  Regular expressions are used for MATCH. Comment lines are ignored. To
+		  tell $Progrm when you wish to stop searching for MATCH, have a line
+		  in the notes file which contains only:
+
+		    ${Comment}END
+
+		  The default comment character is '#'.
+	EOF
+}
 
 Err(){
 	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
@@ -23,57 +47,18 @@ Err(){
 }
 
 Comment="#"
-
-Usage(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
-	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
-
-		            Search your programming notes on-the-fly with this simple tool.
-
-		SYNTAX:     $_PROJECT_ [OPTS] MATCH1 MATCH2 MATCH3 . . .
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --comment|-C STR        - Where STR is the (single) comment character.
-		            --file|-f PATH          - Specify and remember the notes file to use.
-		            --edit|-e CMD           - Open up the notes file with CMD for editing.
-		                                      If no CMD is provided, the one saved in the
-		                                      $_PROJECT_ configuration file will be used.
-
-		NOTE:       Uses regular expressions for MATCH. Comment lines are ignored. To tell
-		            $_PROJECT_ when you wish to stop searching for the MATCH, have a line in
-		            the notes file which contains only:
-
-		              ${Comment}END
-
-		            When using --edit|-e for editing a file, the editor used will be the
-		            one pointed to within the
-
-		            The default comment notation is '#' but is modifiable.
-	EOF
-}
-
-ProjConf="$HOME/.config/$_PROJECT_.conf"
+ProjConf="$HOME/.config/$Progrm.conf"
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--comment|-C)
 			shift; Comment=${1:0:1} ;;
 		--file|-f)
 			shift; NotesFile=$1 ;;
-		--edit|-e)
-			shift; EDIT=$1 ;;
 		-*)
 			Err 1 $LINENO "Incorrect argument(s) specified." ;;
 		*)
@@ -86,15 +71,13 @@ if [ "$2" ]; then
 	Err 1 $LINENO "Argument error -- is your match correct?"
 fi
 
-[ "$DEBUGME" == 'true' ] && set -x
-
 SnotesChk(){
 	if ! [ -f "$NotesFile" ] || ! [ -r "$NotesFile" ]; then
 		Err 1 $LINENO "Notes file inaccessible or not found."
 	fi
 }
 
-if [ -f "$HOME/.config/$_PROJECT_.conf" ]; then
+if [ -f "$HOME/.config/$Progrm.conf" ]; then
 	if [ -n "$NotesFile" ]; then
 		SnotesChk
 		read -n 1 -e -p "Notes file already set -- replace? "
@@ -110,13 +93,13 @@ if [ -f "$HOME/.config/$_PROJECT_.conf" ]; then
 				fi
 			fi
 
-			printf "%q\n" "$NotesFile" > "$HOME/.config/$_PROJECT_.conf"
+			printf "%q\n" "$NotesFile" > "$HOME/.config/$Progrm.conf"
 		fi
 	else
-		NotesFile=$(< $HOME/.config/$_PROJECT_.conf)
+		NotesFile=$(< $HOME/.config/$Progrm.conf)
 	fi
 else
-	printf "$NotesFile\n" > "$HOME/.config/$_PROJECT_.conf"
+	printf "$NotesFile\n" > "$HOME/.config/$Progrm.conf"
 fi
 
 SnotesChk
