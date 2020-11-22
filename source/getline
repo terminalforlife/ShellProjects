@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/getline
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Sat 22 Feb 17:01:04 GMT 2020
+# Last Change       - Sun 22 Nov 15:18:18 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Features:
 #
 #TODO: Add ranges to 'line' action, like: line 2-50,57-59,70-74
@@ -23,84 +23,69 @@
 # Dependencies:
 #
 #   bash (>= 4.3-14)
-#   libtflbp-sh (>= 2019-12-10)
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-set +e
-
-CurVer='2020-02-22'
+CurVer='2020-11-22'
 Progrm=${0##*/}
 
 Usage(){
 	while read; do
-		printf "%s\n" "$REPLY"
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] [ACTION] [FILE_1 [FILE_2] ...]
 
-		            Pure Bourne Again Shell way to handle a plain text file.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  --names|-N              - Show filenames with results.
+		  --nocolor|-c            - Disable almost all color.
+		  --nums|-n               - Line numbers when viewing files.
+		  --sum|-S                - Display total with 'count'.
+		  --ttl|-t                - Lotal numbers, without filename.
 
-		SYNTAX:     $Progrm [OPTS] [ACTION] [FILE_1 [FILE_2] ...]
+		  ccount                  - Count number of chars in FILE.
+		  end N                   - Show last N number of lines.
+		  field L:F               - Show only F field on L line.
+		  gmatch GLOB             - Extended glob matching via GLOB.
+		  lcount                  - Count number of lines in FILE.
+		  line N[,N ...]          - Display Nth line(s) in FILE.
+		  read                    - Output all contents of FILE.
+		  read:N                  - Auto-scroll N number of seconds.
+		  rmatch REGEX            - Grep-like REGEX matching.
+		  start N                 - Show first N number of lines.
+		  wcount                  - Count number of words in FILE.
 
-		OPTS:       --help|-h|-?            - Display this help information.
-		            --version|-v            - Output the version datestamp.
-		            --debug|-D              - Enable built-in bash debugging.
-		            --names|-N              - Show filenames with results.
-		            --nocolor|-c            - Disable almost all color.
-		            --nums|-n               - Line numbers when viewing files.
-		            --sum|-S                - Display total with 'count'.
-		            --ttl|-t                - Lotal numbers, without filename.
-
-		ACTIONS:    ccount                  - Count number of chars in FILE.
-		            end N                   - Show last N number of lines.
-		            field L:F               - Show only F field on L line.
-		            gmatch GLOB             - Extended glob matching via GLOB.
-		            lcount                  - Count number of lines in FILE.
-		            line N[,N ...]          - Display Nth line(s) in FILE.
-		            read                    - Output all contents of FILE.
-		            read:N                  - Auto-scroll N number of seconds.
-		            rmatch REGEX            - Grep-like REGEX matching.
-		            start N                 - Show first N number of lines.
-		            wcount                  - Count number of words in FILE.
-
-		NOTE:       Words, lines, and chars are determined in a shell-like way.
-
-		EXAMPLE:    $Progrm field 14:2 /etc/bash.bashrc
-		            $Progrm --nums read ~/.bashrc
-		            $Progrm --ttl lcount /etc/fstab
-		            $Progrm -c gmatch "kernel:" /var/log/syslog
-		            $Progrm read /etc/passwd
+		  Words, lines, and chars are determined in a shell-like way.
 	EOF
 }
 
-declare -i ACTION_COUNT=0
-SHOW_NAMES='false'
-TOTAL_ONLY='false'
-LINE_NUMBERS='false'
-COLOR_MODE='true'
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+declare -i AcountCount=0
+ShowNames='false'
+TotalOnly='false'
+LineNumbers='false'
+ColorMode='true'
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"
-			exit 0 ;;
-		--debug|-D)
-			DebugMe='true' ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--nums|-n)
-			LINE_NUMBERS='true' ;;
+			LineNumbers='true' ;;
 		--ttl|-t)
-			TOTAL_ONLY='true' ;;
+			TotalOnly='true' ;;
 		--nocolor|-c)
-			COLOR_MODE='false' ;;
+			ColorMode='false' ;;
 		--names|-N)
-			SHOW_NAMES='true' ;;
+			ShowNames='true' ;;
 		--sum|-S)
 			Err 1 'Feature not yet available.'
-			SHOW_SUM='true' ;;
+			ShowSum='true' ;;
 		-*)
 			Err 1 'Unrecognised option(s) specified.' ;;
 		*)
@@ -112,18 +97,18 @@ done
 while [ "$1" ]; do
 	case $1 in
 		read)
-			ACTION_COUNT+=1
-			INSTRUCT="read" ;;
+			AcountCount+=1
+			Instruct='read' ;;
 		read:[1-9])
-			ACTION_COUNT+=1
-			INSTRUCT="read:${1/*:}" ;;
+			AcountCount+=1
+			Instruct="read:${1/*:}" ;;
 		start)
 			Err 1 'Feature not yet available.'
 
 			shift
 
-			ACTION_COUNT+=1
-			INSTRUCT="start"
+			AcountCount+=1
+			Instruct='start'
 			STARTNUM=$1
 
 			if [[ $STARTNUM =~ [0-9]+ ]]; then
@@ -134,8 +119,8 @@ while [ "$1" ]; do
 
 			shift
 
-			ACTION_COUNT+=1
-			INSTRUCT="end"
+			AcountCount+=1
+			Instruct='end'
 			ENDNUM=$1
 
 			if ! [[ $ENDNUM =~ ^[0-9]+$ ]]; then
@@ -144,8 +129,8 @@ while [ "$1" ]; do
 		line)
 			shift
 
-			ACTION_COUNT+=1
-			INSTRUCT="showline"
+			AcountCount+=1
+			Instruct="showline"
 
 			for L in ${1//,/ }; {
 				if ! [[ $L =~ ^[0-9]+$ ]]; then
@@ -157,35 +142,35 @@ while [ "$1" ]; do
 				# wc, yet see line 2, because arrays start at 0.
 				let L--
 
-				LINETOSHOW+=" $L"
+				LineToShow+=" $L"
 			} ;;
 		field)
 			shift
 
-			ACTION_COUNT+=1
-			INSTRUCT='showfield'
-			CUTLINE=$1
+			AcountCount+=1
+			Instruct='showfield'
+			CutLine=$1
 
-			if ! [[ $CUTLINE =~ [0-9]+:[0-9]+ ]]; then
+			if ! [[ $CutLine =~ [0-9]+:[0-9]+ ]]; then
 				Err 1 'Incorrect cut line/field selected'
 			fi ;;
 		lcount)
-			ACTION_COUNT+=1
-			INSTRUCT='lcount' ;;
+			AcountCount+=1
+			Instruct='lcount' ;;
 		wcount)
-			ACTION_COUNT+=1
-			INSTRUCT='wcount' ;;
+			AcountCount+=1
+			Instruct='wcount' ;;
 		ccount)
-			ACTION_COUNT+=1
-			INSTRUCT='ccount' ;;
+			AcountCount+=1
+			Instruct='ccount' ;;
 		gmatch)
 			shift
-			ACTION_COUNT+=1
-			INSTRUCT="gmatch=$1" ;;
+			AcountCount+=1
+			Instruct="gmatch=$1" ;;
 		rmatch)
 			shift
-			ACTION_COUNT+=1
-			INSTRUCT="rmatch=$1" ;;
+			AcountCount+=1
+			Instruct="rmatch=$1" ;;
 		*)
 			break ;;
 	esac
@@ -193,66 +178,66 @@ while [ "$1" ]; do
 	shift
 done
 
-if [ "$COLOR_MODE" == 'true' ]; then
-	GREY='\e[1;30m'
-	NORMAL='\e[0m'
+if [ "$ColorMode" == 'true' ]; then
+	C_Grey='\e[1;30m'
+	C_Normal='\e[0m'
 fi
 
-if [ $ACTION_COUNT -gt 1 ]; then
+if [ $AcountCount -gt 1 ]; then
 	Err 1 'Only one action at a time may be specified.'
 fi
 
 [ "$DebugMe" == 'true' ] && set -x
 
-if ! [ "$INSTRUCT" ]; then
+if ! [ "$Instruct" ]; then
 	Err 1 'Unrecognised or missing action(s).'
 else
-	[ "$*" ] && FILELIST+="$@ "
+	[ "$*" ] && FileList+="$@ "
 fi
 
-if [ "$INSTRUCT" == 'showfield' ]; then
+if [ "$Instruct" == 'showfield' ]; then
 	# As above, but with the f part in action show-field=l:f.
-	CUTFIELD=${CUTLINE/*:}
-	let CUTFIELD--
+	CutField=${CutLine/*:}
+	let CutField--
 
-	[ $CUTFIELD -lt 0 ] && Err 1 'Incorrect field selected.'
+	[ $CutField -lt 0 ] && Err 1 'Incorrect field selected.'
 fi
 
-if ! [[ $INSTRUCT == [wlc]count ]] && [ "$TOTAL_ONLY" == 'true'  ]; then
+if ! [[ $Instruct == [wlc]count ]] && [ "$TotalOnly" == 'true'  ]; then
 	Err 1 "Option '--ttl|-t' requires a paired option."
 fi
 
 # This function saves repetition when a line or lines need to be displayed. Use
 # $1 for the variable which contains the line number, $2 for the actual file's
 # data, and use $3 for the newline \n character, if desired.
-LINE_NUM_FUNC(){
-	if [ "$LINE_NUMBERS" == 'false' ]; then
+LineNumFunc(){
+	if [ "$LineNumbers" == 'false' ]; then
 		printf "%s$3" "$2"
 	else
 		[ "$2" ] || continue
-		printf "${GREY}%#6d$NORMAL  %s$3" "$1" "$2"
+		printf "${C_Grey}%#6d$C_Normal  %s$3" "$1" "$2"
 	fi
 }
 
-for FILE in $FILELIST; {
+for File in $FileList; {
 	# Initialize the variables used in this for loop. This is to ensure when
-	# working with a new file in FILELIST, the variables don't carry over.
-	CHARCOUNT=0; LINECOUNT=0; WORDCOUNT=0; GETWORDS=
+	# working with a new file in FileList, the variables don't carry over.
+	CharCount=0; LineCount=0; WordCount=0; GetWords=
 
-	if ! [[ $INSTRUCT == [wlc]count ]] && [ "$SHOW_NAMES" == 'true' ]; then
-		printf "FILE: %s\n" "$FILE"
+	if ! [[ $Instruct == [wlc]count ]] && [ "$ShowNames" == 'true' ]; then
+		printf "FILE: %s\n" "$File"
 	fi
 
-	if ! [ "$FILE" ]; then
+	if ! [ "$File" ]; then
 		Err 1 "No filename(s) specified."
-	elif ! [ -f "$FILE" -a -r "$FILE" ]; then
-		Err 1 "File missing or inaccessible: $FILE"
+	elif ! [ -f "$File" -a -r "$File" ]; then
+		Err 1 "File missing or inaccessible: $File"
 	fi
 
-	if [ "$INSTRUCT" == 'showline' ]; then
-		readarray REPLY < "$FILE"
-		for L in $LINETOSHOW; {
-			LINE_NUM_FUNC "$LINETOSHOW" "${REPLY[$L]}"
+	if [ "$Instruct" == 'showline' ]; then
+		readarray REPLY < "$File"
+		for L in $LineToShow; {
+			LineNumFunc "$LineToShow" "${REPLY[$L]}"
 		}
 
 		continue
@@ -273,76 +258,76 @@ for FILE in $FILELIST; {
 		# Replace each character in the current line with a + followed by
 		# a space, thus allowing the for loop to recognise each field and
 		# so able to count each one, using let's increment.
-		for CHAR in ${REPLY//?/+ }; { let CHARCOUNT++; }
+		for CHAR in ${REPLY//?/+ }; { let CharCount++; }
 
 		# Continue to the next line, ignoring what's left of the while loop
 		# if all you want is the character count. Saves unnecessary
 		# processing and likely conflicts.
-		[ "$INSTRUCT" == "ccount" ] && continue
+		[ "$Instruct" == 'ccount' ] && continue
 
-		let LINECOUNT++
+		let LineCount++
 
-		if [ "$INSTRUCT" == "showfield" ]; then
+		if [ "$Instruct" == "showfield" ]; then
 			# Check if on the right line for show-field.
-			if [ ${CUTLINE%:*} -eq $LINECOUNT ]; then
-				read -a ARRAY <<< "$REPLY"
-				printf "%s\n" "${ARRAY[$CUTFIELD]}"
+			if [ ${CutLine%:*} -eq $LineCount ]; then
+				read -a Array <<< "$REPLY"
+				printf "%s\n" "${Array[$CutField]}"
 				break
 			fi
 		fi
 
 		# Process the results of each action listed here.
-		case $INSTRUCT in
+		case $Instruct in
 			read)
 				# Output the file, like cat.
-				LINE_NUM_FUNC "$LINECOUNT" "$REPLY" "\\n" ;;
+				LineNumFunc "$LineCount" "$REPLY" "\\n" ;;
 			read:[1-9])
 				# Output the file, like cat, but autoscroll.
-				LINE_NUM_FUNC "$LINECOUNT" "$REPLY" "\\n"
+				LineNumFunc "$LineCount" "$REPLY" "\\n"
 
 				# Sleep for n number of seconds before scrolling.
-				sleep ${INSTRUCT/*:}s ;;
+				sleep ${Instruct/*:}s ;;
 			gmatch=*)
 				# If the current line contains the match given by
-				# the user and stored in INSTRUCT=*. Uses globbing.
-				if [[ $REPLY == *${INSTRUCT/*=}* ]]; then
-					LINE_NUM_FUNC "$LINECOUNT" "$REPLY" "\\n"
+				# the user and stored in Instruct=*. Uses globbing.
+				if [[ $REPLY == *${Instruct/*=}* ]]; then
+					LineNumFunc "$LineCount" "$REPLY" "\\n"
 				fi ;;
 			rmatch=*)
 				# As gmatch, but uses extended regex.
-				if [[ $REPLY =~ ${INSTRUCT/*=} ]]; then
-					LINE_NUM_FUNC "$LINECOUNT" "$REPLY" "\\n"
+				if [[ $REPLY =~ ${Instruct/*=} ]]; then
+					LineNumFunc "$LineCount" "$REPLY" "\\n"
 				fi ;;
 		esac
-	done < "$FILE"
+	done < "$File"
 
-	# Saves repetition by calling this function for each following INSTRUCT.
+	# Saves repetition by calling this function for each following Instruct.
 	# Supply the first positional parameter with the variable from which to get
 	# the total. Easier to add to.
-	TTL_OUTPUT(){
-		if ! [ "$TOTAL_ONLY" == 'true' ]; then
-			printf "%s %s\n" "$1" "$FILE"
+	TTLOutput(){
+		if ! [ "$TotalOnly" == 'true' ]; then
+			printf "%s %s\n" "$1" "$File"
 		else
 			printf "%s\n" "$1"
 		fi
 	}
 
 	# Process the results of each action listed here.
-	case $INSTRUCT in
+	case $Instruct in
 		lcount)
 			# Display total number of lines.
-			TTL_OUTPUT "$LINECOUNT" ;;
+			TTLOutput "$LineCount" ;;
 		wcount)
 			# Display total number of words.
-			GETWORDS=$(for I in `< "$FILE"`; { printf "%s\n" "$I"; })
-			for WORD in $GETWORDS; { let WORDCOUNT++; }
-			TTL_OUTPUT "$WORDCOUNT" ;;
+			GetWords=$(for I in `< "$File"`; { printf "%s\n" "$I"; })
+			for WORD in $GetWords; { let WordCount++; }
+			TTLOutput "$WordCount" ;;
 		ccount)
 			# Display total number of characters.
-			TTL_OUTPUT "$CHARCOUNT" ;;
+			TTLOutput "$CharCount" ;;
 	esac
 
-	if [ "$SHOW_SUM" == 'true' ]; then
+	if [ "$ShowSum" == 'true' ]; then
 		:
 	fi
 }
