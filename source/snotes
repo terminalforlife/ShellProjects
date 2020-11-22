@@ -3,16 +3,23 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes (Search Notes)
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Sun 22 Nov 16:18:56 GMT 2020
+# Last Change       - Sun 22 Nov 17:26:40 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+#TODO: Fix clash between snotes' arguments and those found in the notes file.
+#
+#      Also, --edit/-e CMD is not working.
+#
 # To use your own comment character, change the Comment variable. This feature
 # will eventually be included into snotes properly.
 #------------------------------------------------------------------------------
-
-#TODO: Fix clash between snotes' arguments and when searching with notes for
-#      those arguments. Also, --edit/-e CMD is not working.
 
 CurVer='2020-11-22'
 Progrm=${0##*/}
