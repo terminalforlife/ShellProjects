@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Sun 22 Nov 15:18:18 GMT 2020
+# Last Change       - Sun 22 Nov 15:38:12 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -36,23 +36,23 @@ Usage(){
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  --names|-N              - Show filenames with results.
-		  --nocolor|-c            - Disable almost all color.
-		  --nums|-n               - Line numbers when viewing files.
-		  --sum|-S                - Display total with 'count'.
-		  --ttl|-t                - Lotal numbers, without filename.
+		  -N, --names              - Show filenames with results.
+		  -S, --sum                - Display total with 'count'.
+		  -c, --nocolor            - Disable almost all color.
+		  -n, --nums               - Line numbers when viewing files.
+		  -t, --ttl                - Lotal numbers, without filename.
 
-		  ccount                  - Count number of chars in FILE.
-		  end N                   - Show last N number of lines.
-		  field L:F               - Show only F field on L line.
-		  gmatch GLOB             - Extended glob matching via GLOB.
-		  lcount                  - Count number of lines in FILE.
-		  line N[,N ...]          - Display Nth line(s) in FILE.
-		  read                    - Output all contents of FILE.
-		  read:N                  - Auto-scroll N number of seconds.
-		  rmatch REGEX            - Grep-like REGEX matching.
-		  start N                 - Show first N number of lines.
-		  wcount                  - Count number of words in FILE.
+		  ccount                   - Count number of chars in FILE.
+		  end N                    - Show last N number of lines.
+		  field L:F                - Show only F field on L line.
+		  gmatch GLOB              - Extended glob matching via GLOB.
+		  lcount                   - Count number of lines in FILE.
+		  line N[,N ...]           - Display Nth line(s) in FILE.
+		  read                     - Output all contents of FILE.
+		  read:N                   - Auto-scroll N number of seconds.
+		  rmatch REGEX             - Grep-like REGEX matching.
+		  start N                  - Show first N number of lines.
+		  wcount                   - Count number of words in FILE.
 
 		  Words, lines, and chars are determined in a shell-like way.
 	EOF
