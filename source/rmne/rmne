@@ -1,9 +1,9 @@
 #!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/rmne
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/rmne
+# Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Tue 11 Feb 03:38:14 GMT 2020
+# Last Change       - Thu 26 Nov 18:46:58 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,19 +14,10 @@
 #
 #   apt (>= 1.2.32)
 #   coreutils (>= 8.25-2)
-#   libtflbp-sh (>= 2019-12-10)
 #------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
-
-CurVer='2020-02-11'
+CurVer='2020-11-26'
 Progrm=${0##*/}
-
-StatusFile='/var/lib/dpkg/status'
-AvailFile='/var/lib/dpkg/available'
 
 Usage(){
 	while read -r CurLine; do
@@ -45,9 +36,17 @@ Usage(){
 	EOF
 }
 
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+StatusFile='/var/lib/dpkg/status'
+AvailFile='/var/lib/dpkg/available'
+
 Purge='--purge'
 
-ChkDep apt-get && DoAptGet='true'
+command -V apt-get 1> /dev/null 2>&1 && DoAptGet='true'
 
 while [ "$1" ]; do
 	case $1 in
