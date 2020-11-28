@@ -1,9 +1,9 @@
 #!/bin/sh
-#cito M:644 O:0 G:0 T:/usr/lib/tflbp-sh/DirName
+#cito M:644 O:0 G:0 T:/usr/lib/tflbp-sh/Translate
 #------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
-# Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Sat 28 Nov 18:53:02 GMT 2020
+# Started On        - Sat 28 Nov 18:52:15 GMT 2020
+# Last Change       - Sat 28 Nov 18:52:20 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,13 +12,15 @@
 # guidance of YASH in posixly-complaint mode.
 #------------------------------------------------------------------------------
 
-DirName(){ #: Output the directory name (like `dirname`) of $@.
-	for CurDir in "$@"; do
-		if [ -d "$CurDir" ]; then
-			printf 'DirName(): Non-directory specified.\n' 1>&2
-			exit 126
-		else
-			printf '%s\n' "${CurDir%/*}"
-		fi
-	done
+Translate(){ #: Replace character $1 with $2 for string $3.
+    IFS=$1
+    OFS=$2
+
+    set -- $3
+
+    for Field in "$@"; do
+        printf '%s%b' "$Field" "$OFS"
+    done
+
+    unset IFS Field
 }

@@ -1,16 +1,16 @@
 #!/bin/sh
 #cito M:644 O:0 G:0 T:/usr/lib/tflbp-sh/GetInsPkgs
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Sun 15 Dec 11:48:49 GMT 2019
+# Last Change       - Sat 28 Nov 18:53:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# POSIX-adhering function library for extra, portable Bourne Shell functionality.
-#
-# NOTE: POSIX compliance has largely been determined through the guidance of YASH.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# POSIX-adhering function library for extra, portable Bourne Shell
+# functionality. POSIX compliance has largely been determined through the
+# guidance of YASH in posixly-complaint mode.
+#------------------------------------------------------------------------------
 
 GetInsPkgs(){ #: List, from `status` file $1, all installed (`ii`) Debian packages.
 	while read Key Value _; do
