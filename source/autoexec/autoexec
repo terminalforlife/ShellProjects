@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 28 Nov 18:03:03 GMT 2020
+# Last Change       - Sat 28 Nov 18:13:39 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Usage(){
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  -W, --no-waiting         - Omit the waiting message at the end.
+		  -W, --no-waitmsg         - Omit the waiting message at the end.
 		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
 		  -o, --once               - Execute FILE only once; no looping.
 		  -r, --refresh <INT>      - Adjust to fit your performance needs.
@@ -78,8 +78,8 @@ while [ "$1" ]; do
 			fi ;;
 		--once|-o)
 			Once='true' ;;
-		--no-waiting|-W)
-			NoWaiting='true' ;;
+		--no-waitmsg|-W)
+			NoWaitMSG='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -126,7 +126,7 @@ Interpreter(){
 	Exec=$1
 }
 
-Lines=`tput lines`
+[ "$NoWaitMSG" == 'True' ] || Lines=`tput lines`
 
 printf '\n'
 while :; do
@@ -163,7 +163,7 @@ while :; do
 		Err 1 'File not found or inaccessible.'
 	fi
 
-	if [ "$NoWaiting" != 'True' ]; then
+	if [ "$NoWaitMSG" != 'True' ]; then
 		for Char in '|' '/' '-' '\'; {
 			tput cud $Lines
 			printf '\r[%s] Waiting for changes... ' "$Char"
