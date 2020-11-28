@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 28 Nov 17:58:08 GMT 2020
+# Last Change       - Sat 28 Nov 18:03:03 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ Usage(){
 		  you're not sure if you're stuck within a loop.
 
 		  The refresh interval is in seconds. By default, it's 0.05, with an
-		  extra 0.03s for the waiting message's spinner at the end. If you
+		  extra 0.04s for the waiting message's spinner at the end. If you
 		  disable the waiting message, the interval becomes just 0.05.
 	EOF
 }
@@ -167,7 +167,7 @@ while :; do
 		for Char in '|' '/' '-' '\'; {
 			tput cud $Lines
 			printf '\r[%s] Waiting for changes... ' "$Char"
-			sleep 0.03
+			sleep 0.04
 		}
 	fi
 
