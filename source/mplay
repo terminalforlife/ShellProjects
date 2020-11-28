@@ -3,12 +3,12 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Fri  6 Dec 22:52:32 GMT 2019
+# Last Change       - Fri 27 Nov 16:16:06 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
+_VERSION_="2020-11-27"
 _PROJECT_=${0##*/}
 
 DOM="https://github.com"
@@ -33,7 +33,6 @@ USAGE(){
 
 		OPTS:       --help|-h|-?            - Displays this help information.
 		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to mplay.
 		            --run-once|-o           - Exit the MOC server when closed.
 
 		NOTE:       Where PATH is the location in which music is found.
@@ -57,8 +56,6 @@ while [ "$1" ]; do
 			USAGE; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--update|-U)
-			UPDATE='true' ;;
 		--once|-o)
 			ONCE='true' ;;
 		-*)
@@ -66,34 +63,6 @@ while [ "$1" ]; do
 	esac
 	shift
 done
-
-if [ "$UPDATE" == 'true' ]; then
-	if ! type -P wget > /dev/null 2>&1; then
-		Err 1 $LINENO "Dependency 'wget' not met."
-	fi
-
-	VERSION_URL="$DOM/terminalforlife/Extra/raw/master/versions"
-	while IFS='=' read -a LINE; do
-		if  [ "${LINE[0]}" == 'mplay' ]; then
-			LATEST=${LINE[1]}
-
-			if [[ ${LATEST//-} =~ ^[0-9]{8}$ ]]; then
-				if [ ${LATEST//-} -gt ${_VERSION_//-} ]; then
-					while read -r; do
-						printf "%s\n" "$REPLY"
-					done <<-EOF
-						New version available:    $LATEST
-						Current version:          $_VERSION_
-					EOF
-				fi
-			else
-				Err 1 $LINENO "Failed to check for available updates."
-			fi
-		fi
-	done <<< "$(wget -q "$VERSION_URL" -O -)"
-
-	exit 0
-fi
 
 [ "$1" -a ! -d "$1" ] && Err 1 $LINENO "Unable to find the given music directory."
 
