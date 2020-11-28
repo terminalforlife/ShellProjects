@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 28 Nov 17:54:36 GMT 2020
+# Last Change       - Sat 28 Nov 17:58:08 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ while [ "$1" ]; do
 
 			if [ -z "$1" ]; then
 				Err 1 'Unspecified refresh rate.'
-			elif ! [[ $1 =~ ^[0-9]+$ ]]; then
+			elif ! [[ $1 =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
 				Err 1 'Invalid refresh rate.'
 			else
 				Refresh=$1
