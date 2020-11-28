@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Wed 11 Nov 04:07:17 GMT 2020
+# Last Change       - Sat 28 Nov 17:44:51 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-11'
+CurVer='2020-11-28'
 Progrm=${0##*/}
 
 Usage(){
@@ -31,6 +31,11 @@ Usage(){
 		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
 		  -o, --once               - Execute FILE only once; no looping.
 		  -r, --refresh <INT>      - Adjust to fit your performance needs.
+		  -W, --no-waiting         - Omit the waiting message at the end.
+
+		  By default, a waiting message -- most notably, its spinner -- is
+		  displayed at the end of the output, which can be useful for times
+		  you're not sure if you're stuck within a loop.
 	EOF
 }
 
@@ -115,6 +120,9 @@ Interpreter(){
 	Exec=$1
 }
 
+Lines=`tput lines`
+
+printf '\n'
 while :; do
 	# Determine the interpreter to use.
 	if [ ${#Exec} -eq 0 ]; then
@@ -147,6 +155,16 @@ while :; do
 		fi
 
 		Err 1 'File not found or inaccessible.'
+	fi
+
+	if [ "$WaitingMSG" == 'True' ]; then
+		for Char in '|' '/' '-' '\'; {
+			tput cud $Lines
+
+			printf '\r[%s] Waiting for changes... ' "$Char"
+
+			sleep 0.03
+		}
 	fi
 
 	[ "$Once" == 'true' ] && exit 0

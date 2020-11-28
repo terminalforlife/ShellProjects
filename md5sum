@@ -9,7 +9,7 @@ f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 39e3ab0a4b5844bfe882a87abb5cd0f1  misc/.keynavrc
 f639ee6ecade61317bb61acd38ee0f53  misc/terminalrc
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
-6c622a0f1cad391e026de863712c7c3d  source/autoexec/autoexec
+343643098018fd878b85167ac3acb099  source/autoexec/autoexec
 3584a1021609f027c55fac0bb722969d  source/autoexec/autoexec.1.gz
 7bc62dc546cb673a1c864d358b727622  source/autoexec/completions
 7ee742ad5bccdcf3a18561768b3c6973  source/autoscrot
@@ -88,7 +88,7 @@ aa392c51af3a6ad7d57c2774c88db5b9  source/lspkg/lspkg-set
 703164929424abafd3a3b08003354584  source/mfw
 66d570e6b36db5c5f06566d71bc266d6  source/mif
 84c8f70832df616a9ed076da4abbc1de  source/mkpass
-553f188740c5487135d869655e470f53  source/mplay
+4a74fbe18186a80661b57b400ffcc6ce  source/mplay
 25a8f2610da1e653b61e0f35dd206b6c  source/narc
 8d13983337d8c0e346c18f8161cb6b27  source/noprtscr
 9dcb0a928a104115e7ea15b3e75978aa  source/nosp
@@ -113,4 +113,3 @@ d0dcf2eef43ebff4a547ab03a51758ae  source/snotes
 775fa57eefd8ff3b9a047d78c7d00b29  source/tfl-ubuntu-setup
 9c0e175d91e89f36daa1c3e3ffffb7fb  source/tlptog
 dba29f112275caecffec13c3d0b93e46  source/tozero
-9ea8da9c08d7665f1e6bb19f4d1fdb82  source/yol/yol
