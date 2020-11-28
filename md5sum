@@ -75,7 +75,7 @@ cca53e62bfc91df35cb656310bc30d15  source/libtflbp-sh/source/functions/LibFChk
 8996e42b81edc07b8b96afa2bc6b9cfd  source/libtflbp-sh/source/functions/LibTFLBPVer
 6869b5c609617de842020f41ab45f000  source/libtflbp-sh/source/functions/OneSearch
 34cc57c159f10c10dbc946140bf0b38f  source/libtflbp-sh/source/functions/SplitStr
-c80d022cfe9b8827564adf8c94618a20  source/libtflbp-sh/source/functions/Translate
+d2a54898c07644b411203ecd7cb14894  source/libtflbp-sh/source/functions/Translate
 658f5c3be11c4f5e9bc2fa6f868bf694  source/libtflbp-sh/source/functions/WCount
 5f7c1d051731252eb1383f2fc99eaba8  source/libtflbp-sh/source/functions/YNInput
 f08d041e060075a927814305b92b22a5  source/libtflbp-sh/source/tflbp-installer

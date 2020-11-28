@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Sat 28 Nov 18:52:15 GMT 2020
-# Last Change       - Sat 28 Nov 18:52:20 GMT 2020
+# Last Change       - Sat 28 Nov 19:07:50 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,5 +22,5 @@ Translate(){ #: Replace character $1 with $2 for string $3.
         printf '%s%b' "$Field" "$OFS"
     done
 
-    unset IFS Field
+    unset IFS Field OFS
 }
