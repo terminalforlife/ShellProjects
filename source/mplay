@@ -1,14 +1,21 @@
 #!/bin/bash
 #cito M:755 O:0 G:0 T:/usr/bin/mplay
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Fri 27 Nov 16:16:06 GMT 2020
+# Last Change       - Sun 29 Nov 04:28:36 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Abandoned in favor of the recent Python3.6 rewrite, which turned out to be a
+# surprising replacement. Reported bugs may be addressed, but new features or
+# effort to update or optimize the code will probably not be made.
+#
+# The Python3.6 rewrite of `mplay` can be found in the PythonProjects
+# repository on the same GitHub store from which this file originated.
+#------------------------------------------------------------------------------
 
-_VERSION_="2020-11-27"
+_VERSION_="2020-11-29"
 _PROJECT_=${0##*/}
 
 DOM="https://github.com"
@@ -98,4 +105,3 @@ fi
 if [ "$ONCE" == 'true' ]; then
 	wait; mocp -x
 fi
-
