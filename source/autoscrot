@@ -3,44 +3,42 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoscrot
 # Started On        - Sun 17 Sep 05:06:50 BST 2017
-# Last Change       - Mon  3 Feb 16:17:41 GMT 2020
+# Last Change       - Sun 29 Nov 04:23:24 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# Take screenshots at user-specified intervals with scrot(1).
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   coreutils (>= 8.25-2)
+#   scrot (>= 0.8-17)
+#------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
-
-CurVer='2020-02-03'
+CurVer='2020-11-29'
 Progrm=${0##*/}
 
 Usage(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] [SCROT_ARGS]
 
-		            Take screenshots at user-specified intervals using scrot.
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  -i, --interval [INT]     - Where INT is seconds of interval.
+		  -q, --quiet              - Quieter operation, with errors.
 
-		SYNTAX:     $Progrm [OPTS] [SCROT_ARGS]
+		  If no interval is provided, a default of '3' will be used.
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output the version datestamp.
-		            --quiet|-q              - Quieter operation, with errors.
-		            --interval|-I N         - Where N is seconds of interval.
+		  The scrot arguments (via SCROT_ARGS) are optional. Due to the nature
+		  of $Progrm, some arguments will make no sense to pass over to scrot
+		  to process.
 
-		NOTE:       If no interval is provided, a default of 3 will be used.
+		  Images are saved using the default quality for JPG images.
 
-		            The scrot arguments (via SCROT_ARGS) are optional. Due to
-		            the nature of $Progrm, some arguments will make no sense to
-		            pass over to scrot to process.
-
-		            Images are saved using the default quality for JPG images.
-
-		FILE:       ~/Pictures/AutoScrot/
+		  Screenshots will be saved in: '~/Pictures/AutoScrot'
 	EOF
 }
 
@@ -49,26 +47,33 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"; exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--quiet|-q)
 			BeQuiet='true' ;;
 		--interval|-I)
 			shift; Interval=$1
-			if ! [[ ${Interval} =~ ^[0-9]+$ ]]\
-			|| [ $Interval -lt 1 ]; then
-				Err 1 "Invalid interval selected."
+			if ! [[ ${Interval} =~ ^[0-9]+$ ]] || [ $Interval -lt 1 ]; then
+				Err 1 'Invalid interval selected.'
 			fi ;;
 		-*)
-			Err 1 "Incorrect argument specified." ;;
+			Err 1 'Incorrect argument specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-ChkDep scrot mkdir sleep
+DepCount=0
+for Dep in scrot mkdir sleep; {
+	if ! type -P "$Dep" &> /dev/null; then
+		Err 0 "Dependency '$Dep' not met."
+		let DepCount++
+	fi
+}
 
-[ "$BeQuiet" == 'true' ] && exec > /dev/null
+[ $DepCount -eq 0 ] || exit 1
+
+[ "$BeQuiet" == 'true' ] && exec 1> /dev/null
 
 printf "Press Ctrl + C to cancel and exit $Progrm.\n"
 
