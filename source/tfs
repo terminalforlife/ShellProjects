@@ -1,0 +1,96 @@
+#!/bin/sh -e
+#cito M:755 O:0 G:0 T:/usr/bin/tfs
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/tfs
+# Started On        - Fri  4 Dec 00:12:10 GMT 2020
+# Last Change       - Fri  4 Dec 01:07:49 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# [T]esseract [f]rom [S]creenshot.
+#
+# Written to help 'IonParticles' from the Linux Mint support forums, after they
+# sadly had a chunk of data loss -- consolation prize?
+#
+#   https://forums.linuxmint.com/viewtopic.php?f=90&t=336520&p=1931060#p1931060
+#
+# Dependencies:
+#
+#   coreutils (>= 8.28-1ubuntu1)
+#   scrot (>= 0.8-18)
+#   tesseract-ocr (>= 4.00~git2288-10f4998a-2)
+#   xclip (>= 0.12+svn84-4build1)
+#------------------------------------------------------------------------------
+
+Progrm=${0##*/}
+
+Usage(){
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
+	done <<-EOF
+		\rUsage: $Progrm [OPTS] [TESSERACT_ARGS]
+
+		\r  -h, --help               - Display this help information.
+		\r  -q, --quiet              - Hush $Progrm' standard output.
+
+		\r  The use of '--' is supported.
+
+		\r  Any arguments provided which are not in the above list, are handed
+		\r  over to tesseract(1) for processing.
+
+		\r  If a DPI setting is not provided as an argument to be handed over
+		\r  to tesseract(1), then one of '70' is provided as a working default.
+	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
+while [ "$1" ]; do
+	case $1 in
+		--)
+			break ;;
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--quiet|-q)
+			Quiet='True' ;;
+		*)
+			Err 1 'Incorrect option(s) specified.' ;;
+	esac
+	shift
+done
+
+for Arg in "$@"; do
+	[ "$Arg" = '--dpi' ] && Found='True'
+done
+
+[ "$Found" = 'True' ] || DPI='--dpi 70'
+
+DepCount=0
+for Dep in scrot tesseract xclip rm mktemp; do
+	if ! command -V 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$Dep' not met."
+		DepCount=$((DepCount + 1))
+	fi
+done
+
+[ $DepCount -gt 0 ] && exit 1
+
+[ "$Quiet" = 'True' ] && exec 1> /dev/null
+
+TempFile=`mktemp --suffix='.png'`
+
+SigHandler(){
+	Sig=$?
+	printf 'Clearing temporary file...\n'
+	rm -v "$TempFile"
+	exit $Sig
+}
+
+trap 'SigHandler' EXIT || Err 1 "Failed to trap 'EXIT' signal."
+
+if scrot -sq 100 "$TempFile"; then
+	tesseract "$@" "$TempFile" stdout | xclip -i -selection clipboard
+fi
