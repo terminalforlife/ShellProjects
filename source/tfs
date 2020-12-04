@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfs
 # Started On        - Fri  4 Dec 00:12:10 GMT 2020
-# Last Change       - Fri  4 Dec 16:03:14 GMT 2020
+# Last Change       - Fri  4 Dec 16:14:03 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,6 +13,10 @@
 # sadly had a chunk of data loss -- consolation prize?
 #
 #   https://forums.linuxmint.com/viewtopic.php?f=90&t=336520&p=1931060#p1931060
+#
+# Bug in the version of tesseract(1) available in Ubuntu 20.04's repositories
+# now seems to be sorted, although I haven't a clue how; couldn't get any info
+# anywhere online. See the above thread for more information on this.
 #
 # Dependencies:
 #
