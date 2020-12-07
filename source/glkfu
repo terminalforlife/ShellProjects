@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon  7 Dec 04:01:59 GMT 2020
+# Last Change       - Mon  7 Dec 04:03:59 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -307,8 +307,6 @@ for KeyVal in "${Found[@]}"; {
 printf "Using file: '%s'\n" "${Top%=*}"
 
 cp -v "${Top%=*}" "$BuildDir/${LatestTar%.tar.xz}/.config"
-
-exit
 
 #--------------------------------------------------------Process Configurations
 
