@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon  7 Dec 03:46:51 GMT 2020
+# Last Change       - Mon  7 Dec 04:00:36 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ if [ "$IgnoreDeps" != 'True' ]; then
 
 		for StatusPKG in "${Packages[@]}"; {
 			if [ "$DepPKG" == "$StatusPKG" ]; then
-				printf 'Dependency met: %s\n' "$StatusPKG"
+				#printf 'Dependency met: %s\n' "$StatusPKG"
 				Found='True'
 				let Count++
 			fi
@@ -289,6 +289,7 @@ fi
 
 #----------------------------------------------Copy Over Existing Configuration
 
+Found=()
 printf 'Looking for kernel configurations...\n'
 for File in /boot/config-*; {
 	Found+=("$File=${File//[!0-9]/}")
@@ -301,9 +302,11 @@ for KeyVal in "${Found[@]}"; {
 	[ ${KeyVal##*=} -gt ${Top##*=} ] && Top=$KeyVal
 }
 
-printf 'Using file: '%s'\n' "${Top%=*}"
+printf "Using file: '%s'\n" "${Top%=*}"
 
 cp -v "${Top%=*}" "$BuildDir/${LatestTar%.tar.xz}/.config"
+
+exit
 
 #--------------------------------------------------------Process Configurations
 
