@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon  7 Dec 04:03:59 GMT 2020
+# Last Change       - Mon  7 Dec 04:07:56 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -63,10 +63,13 @@ BuildDir='.'
 
 # Dependencies noted to be required in building Linux v5.9.12.
 ReqPKGs=(
+	'bc' # - GNU bc arbitrary precision calculator language
 	'bison' # - YACC-compatible parser generator
+	'build-essential' # - Informational list of build-essential packages
 	'fakeroot' # - tool for simulating superuser privileges
 	'flex' # - fast lexical analyzer generator
 	'libelf-dev' # - libelf1 development libraries and header files
+	'libssl-dev' # - Secure Sockets Layer toolkit - development files
 	'rsync' # - fast, versatile, remote (and local) file-copying tool
 )
 
