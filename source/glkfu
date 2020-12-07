@@ -1,0 +1,326 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/glkfu
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/glkfu
+# Started On        - Sun  6 Dec 19:41:35 GMT 2020
+# Last Change       - Mon  7 Dec 03:46:51 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# [G]et [L]atest [K]ernel [f]or [U]buntu. That said, this could probably work
+# fine with Debian, and no doubt for distributions based thereon.
+#
+# Compile the latest kernel from source, using your current kernel's
+# configuration file, then pack it all up into Debian packages for easy
+# installation.
+#
+# Written and tested on a minimalistic, non-standard Ubuntu 18.04 installation.
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   coreutils (>= 8.28-1ubuntu1)
+#   make (>= 4.1-9.1ubuntu1)
+#   tar (>= 1.29b-2)
+#   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
+#------------------------------------------------------------------------------
+
+CurVer='2020-12-07'
+Progrm=${0##*/}
+
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  -D, --build-dir [PATH]   - Build in PATH instead of CWD.
+		  -O, --override [FILE]    - Use FILE instead of the latest. See below.
+		  -y, --assume-yes         - Assume user answers yes when prompted.
+
+		  When specifying an alternative tarball FILE, ensure that you use the
+		  same filename format as it normally is. Below is the REGEX for the
+		  expected format:
+
+		    '^linux-[0-9]+\\\.[0-9]+\\\.[0-9]+\\\.tar\\\.xz$'
+
+		  Otherwise $Progrm will error out.
+	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+VerFile='/proc/version'
+StatusFile='/var/lib/dpkg/status'
+KernOrg='https://www.kernel.org'
+KernOrgMirrs='https://mirrors.edge.kernel.org'
+BuildDir='.'
+
+# Dependencies noted to be required in building Linux v5.9.12.
+ReqPKGs=(
+	'bison' # - YACC-compatible parser generator
+	'fakeroot' # - tool for simulating superuser privileges
+	'flex' # - fast lexical analyzer generator
+	'libelf-dev' # - libelf1 development libraries and header files
+	'rsync' # - fast, versatile, remote (and local) file-copying tool
+)
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--override|-O)
+			shift
+
+			if [ -z "$1" ]; then
+				Err 1 'Missing tarball FILE with which to override.'
+			else
+				LatestTar=$1
+			fi ;;
+		--assume-yes|-y)
+			AssumeYes='True' ;;
+		--build-dir|-D)
+			shift
+
+			if [ -z "$1" ]; then
+				Err 1 "Build PATH not specified."
+			elif ! [ -d "$1" ]; then
+				Err 1 "Directory '$1' not found."
+			else
+				BuildDir=$1
+			fi ;;
+		--ignore-deps|-I)
+			IgnoreDeps='True' ;;
+		*)
+			Err 1 'Incorrect option(s) specified.' ;;
+	esac
+	shift
+done
+
+DepCount=0
+for Dep in make tar rm cp sha256sum; do
+	if ! type -P "$Dep" &> /dev/null; then
+		Err 0 "Dependency '$Dep' not met."
+		let DepCount++
+	fi
+done
+
+[ $DepCount -gt 0 ] && exit 1
+
+[ "$AssumeYes" == 'True' ] && printf "Assuming 'Y' to everything.\n"
+
+#----------------------------------------------------------------Main Functions
+
+Get(){
+	if type -P curl &> /dev/null; then
+		[ "$1" == '-' ] || Progress='--progress-bar'
+
+		curl ${Progress:-\-s} -o "$1" "$2" ||
+			Err $? 'Downloading with cURL failed.'
+	elif type -P wget &> /dev/null; then
+		[ "$1" == '-' ] || Progress='--show-progress'
+
+		wget $Progress -q -O "$1" "$2" ||
+			Err $? 'Downloading with WGet failed.'
+	else
+		Err 1 "Neither 'WGet' nor 'cURL' were found."
+	fi
+
+	unset DoStdIn Args
+}
+
+Ask(){
+	[ "$AssumeYes" == 'True' ] && return 0
+
+	read -ep "Q: $1 (Y/N) " Response
+	case $Response in
+		[Yy]|[Yy][Ee][Ss])
+			return 0 ;;
+		[Nn]|[Nn][Oo])
+			return 1 ;;
+		*)
+			Err 1 'Unrecognised response -- quitting.' ;;
+	esac
+}
+
+FileChk(){
+	[ -f "$1" ] || Err 1 "File '$1' not found."
+	[ -r "$1" ] || Err 1 "File '$1' unreadable."
+}
+
+#------------------------------------Determine the Latest Stable Kernel Version
+
+# Parse page data to get the tarball filename of the latest stable kernel.
+if [ -z "$LatestTar" ]; then
+	while read; do
+		if [[ $REPLY =~ ^[[:space:]]+'<td id="latest_link">'$ ]]; then
+			FirstLineFound='True'
+		elif [ "$FirstLineFound" == 'True' ]; then
+			IFS='/' read -a Buffer <<< "$REPLY"
+			LatestTar=${Buffer[7]%%\"*}
+			break
+		fi
+	done <<< "$(Get - "$KernOrg")"
+fi
+
+# Just in-case, check the resulting filename is valid.
+if ! [[ $LatestTar =~ ^linux-[0-9]+\.[0-9]+\.[0-9]+\.tar\.xz$ ]]; then
+	Err 1 "Tarball filename '$LatestTar' not valid."
+fi
+
+# From the tarball filename, store just the version string. Shouldn't be a need
+# to check the value here, as checking is done above.
+LatestVerBuffer=${LatestTar//[!0-9.]/}
+LatestVer=${LatestVerBuffer%..}
+
+# Get the major number of the latest version.
+LatestVerMaj=${LatestVer%%.*}
+
+printf 'Latest Linux version: %s\n' "$LatestVer"
+
+#---------------------Determine if the Latest is Newer than the Current Version
+
+FileChk "$VerFile"
+
+read -a Line < "$VerFile"
+CurVer=${Line[2]}
+
+if [[ $CurVer =~ ^[0-9]+\.[0-9]+\.[0-9]+-.* ]]; then
+	printf 'Unable to determine if latest kernel is newer.\n' 1>&2
+	Ask "Continue with $Progrm?" || exit 1
+elif [ ${CurVer//[!0-9]/} -lt ${LatestVer//[!0-9]/} ]; then
+	printf "You're already up-to-date -- nothing to do.\n"
+	exit 0
+fi
+
+printf 'Current Linux version: %s\n' "$CurVer"
+
+#----------------------------------Look for Compilation & Building Dependencies
+
+if [ "$IgnoreDeps" != 'True' ]; then
+	FileChk "$StatusFile"
+
+	II=' install ok installed'
+	while IFS=':' read -a Line; do
+		if [ "${Line[0]}" == 'Package' ]; then
+			Package=${Line[1]// }
+		elif [ "${Line[0]}" == 'Status' ] && [ "${Line[1]}" == "$II" ]; then
+			Packages+=("$Package")
+		fi
+	done < "$StatusFile"
+
+	for DepPKG in "${ReqPKGs[@]}"; {
+		Found='False'
+
+		for StatusPKG in "${Packages[@]}"; {
+			if [ "$DepPKG" == "$StatusPKG" ]; then
+				printf 'Dependency met: %s\n' "$StatusPKG"
+				Found='True'
+				let Count++
+			fi
+		}
+
+		if [ "$Found" != 'True' ]; then
+			printf 'Dependency NOT met: %s\n' "$DepPKG"
+			MissingDeps+=("$DepPKG")
+		fi
+	}
+
+	# Instruct the user accordingly, if dependencies are missing.
+	if [ $Count -ne ${#ReqPKGs[@]} ]; then
+		Err 0 'One or more dependencies not met.'
+
+		if type -P sudo &> /dev/null; then
+			printf 'Refer to the following command:\n'
+			printf '$ sudo apt-get install '
+		else
+			printf '# apt-get install '
+		fi
+
+		for PKG in "${MissingDeps[@]}"; {
+			printf '%s ' "$PKG"
+		}
+
+		printf '\nNothing to do -- quitting.\n'
+		exit 1
+	fi
+else
+	printf 'Told to ignore dependencies.\n'
+fi
+
+#---------------------------------Download Applicable Tarball & Verify the File
+
+Ask "Begin downloading '$LatestTar' tarball?" || exit 1
+Ask 'No build directory specified -- use CWD?' || exit 1
+
+printf 'Downloading tarball...\n'
+URL="$KernOrgMirrs/pub/linux/kernel/v$LatestVerMaj.x/$LatestTar"
+Get "$BuildDir/$LatestTar" "$URL"
+
+printf 'Downloading sha256sums...\n'
+URL="$KernOrgMirrs/pub/linux/kernel/v$LatestVerMaj.x/sha256sums.asc"
+Get "$BuildDir/sha256sums.asc" "$URL"
+
+printf 'Verifying...\n'
+sha256sum --status --ignore-missing -c "${BuildDir%/}"/sha256sums.asc
+
+if [ $? -gt 0 ]; then
+	Err 1 'Non-zero exit status when verifying download.'
+else
+	printf 'File verified successfully.\n'
+fi
+
+#-----------------------------------------------Extract Contents of the Tarball
+
+Ask 'Begin extracting tarball?' || exit 1
+printf 'Extracting tarball...\n'
+tar -C "$BuildDir" -xvf "$BuildDir/$LatestTar"
+
+if Ask 'Now that files are extracted, delete the tarball?'; then
+	rm -v "$BuildDir/$LatestTar"
+fi
+
+#----------------------------------------------Copy Over Existing Configuration
+
+printf 'Looking for kernel configurations...\n'
+for File in /boot/config-*; {
+	Found+=("$File=${File//[!0-9]/}")
+}
+
+printf 'Found %d configuration file(s).\n' ${#Found[@]}
+
+Top=0
+for KeyVal in "${Found[@]}"; {
+	[ ${KeyVal##*=} -gt ${Top##*=} ] && Top=$KeyVal
+}
+
+printf 'Using file: '%s'\n' "${Top%=*}"
+
+cp -v "${Top%=*}" "$BuildDir/${LatestTar%.tar.xz}/.config"
+
+#--------------------------------------------------------Process Configurations
+
+cd "$BuildDir/${LatestTar%.tar.xz}"
+
+if Ask 'Use default values for new CONFIG parameters?'; then
+	make olddefconfig
+else
+	make silentoldconfig
+fi
+
+#---------------------------------------Begin Compiling and Building the Kernel
+
+printf 'Attempting to compile kernel & build Debian packages...\n'
+make deb-pkg
+ExitStatus=$?
+
+printf 'Finished.\n'
+
+exit $ExitStatus
