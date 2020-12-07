@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon  7 Dec 22:01:10 GMT 2020
+# Last Change       - Mon  7 Dec 22:05:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,6 +15,14 @@
 # installation.
 #
 # Written and tested on a minimalistic, non-standard Ubuntu 18.04 installation.
+#
+# Features:
+#
+#TODO: Check there is enough disk space, somehow? Maybe just warn?
+#
+# Bugs:
+#
+#TODO: Final rm(1) command isn't working properly; why?
 #
 # Dependencies:
 #
