@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon  7 Dec 20:55:31 GMT 2020
+# Last Change       - Mon  7 Dec 22:01:10 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ while [ "$1" ]; do
 			elif ! [ -d "$1" ]; then
 				Err 1 "Directory '$1' not found."
 			else
-				BuildDir=$1
+				BuildDir=${1%/}
 			fi ;;
 		--ignore-deps|-I)
 			IgnoreDeps='True' ;;
