@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  8 Dec 16:10:26 GMT 2020
+# Last Change       - Tue  8 Dec 16:11:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ while [ "$1" ]; do
 			else
 				Cores=$1
 			fi ;;
-		-i, --ignore-versions)
+		-i|--ignore-versions)
 			IgnoreVers='True' ;;
 		--just-check|-j)
 			JustCheck='True' ;;
