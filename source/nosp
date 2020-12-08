@@ -1,23 +1,31 @@
 #!/bin/sh
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/nosp (No Smart-Placement)
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Sat 11 Jan 22:13:39 GMT 2020
+# Last Change       - Tue  8 Dec 00:20:49 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# A workaround for the issue in XFCE wherein Smart Placement refuses to go away.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Workaround for the issue causing XFCE Smart Placement to refuses to go away.
+#------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
 
 [ $# -eq 0 ] || Err 1 "No arguments are required."
 
-ChkDep xfconf-query sleep
+DepCount=0
+for Dep in xfconf-query sleep; do
+	if ! command -V 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$Dep' not met."
+		DepCount=$((DepCount + 1))
+	fi
+done
+
+[ $DepCount -gt 0 ] && exit 1
 
 LocalXMLFile="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
 CurrentValue=`xfconf-query -c xfwm4 -p /general/placement_ratio -t int`
@@ -33,4 +41,3 @@ if [ -f "$LocalXMLFile" ] && [ -w "$LocalXMLFile" ]; then
 else
 	Err 1 "Unable to fix Smart Placement."
 fi
-
