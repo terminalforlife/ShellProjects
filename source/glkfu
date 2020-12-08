@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  8 Dec 16:11:30 GMT 2020
+# Last Change       - Tue  8 Dec 16:13:59 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -149,6 +149,10 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+if [ "$JustCheck" == 'True' -a "$JustDownload" == 'True' ]; then
+	Err 1 "OPTs '--just-check|-j' and '--just-download|-d' both used."
+fi
 
 DepCount=0
 for Dep in sync make tar rm cp sha256sum; do
