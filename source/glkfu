@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  8 Dec 16:07:45 GMT 2020
+# Last Change       - Tue  8 Dec 16:10:26 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -44,11 +44,12 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
-		  --ignore-versions        - Disregard current & new version strings.
 		  -D, --build-dir [PATH]   - Build in PATH instead of CWD.
+		  -I, --ignore-deps        - Ignore compile & build dependencies.
 		  -O, --override [FILE]    - Use FILE instead of the latest. See below.
 		  -c, --cores [INT]        - Use INT CPU cores (jobs) for make(1).
 		  -d, --just-download      - Just download the Linux Tar archive.
+		  -i, --ignore-versions    - Disregard current & new version strings.
 		  -j, --just-check         - Just check kernel.org for a newer version.
 		  -k, --keep-files         - Keep files if $Progrm unexpectedly exits.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
@@ -135,7 +136,7 @@ while [ "$1" ]; do
 			else
 				Cores=$1
 			fi ;;
-		--ignore-versions)
+		-i, --ignore-versions)
 			IgnoreVers='True' ;;
 		--just-check|-j)
 			JustCheck='True' ;;
