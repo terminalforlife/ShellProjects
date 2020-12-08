@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  8 Dec 14:51:51 GMT 2020
+# Last Change       - Tue  8 Dec 15:59:59 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #
 # Bugs:
 #
-#TODO: Final rm(1) command isn't working properly; why?
+#TODO: If we exit during `$Make deb-pkg`, SignalHandler() won't work; why?
 #
 # Dependencies:
 #
@@ -49,6 +49,7 @@ Usage(){
 		  -O, --override [FILE]    - Use FILE instead of the latest. See below.
 		  -c, --cores [INT]        - Use INT CPU cores (jobs) for make(1).
 		  -j, --just-check         - Just check kernel.org for a newer version.
+		  -k, --keep-files         - Keep files if $Progrm unexpectedly exits.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
 
 		  When specifying an alternative tarball FILE, ensure that you use the
@@ -137,6 +138,8 @@ while [ "$1" ]; do
 			IgnoreVers='True' ;;
 		--just-check|-j)
 			JustCheck='True' ;;
+		--keep-files|-k)
+			KeepFiles='True' ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
 	esac
@@ -343,7 +346,50 @@ fi
 
 printf 'Using %d/%d available CPU core(s).\n' $Cores $TTLCores
 
+#--------------------------------------------Begin Trapping Signals for Cleanup
+
+# Needs to be here because we need values from above.
+SigHandler(){
+	Sig=$?
+
+	# Clear the ^C notation for SIGINT.
+	printf '\r'
+
+	ActionsDetected=0
+
+	if [ -f "$BuildDir/$LatestTar" ]; then
+		rm -v "$BuildDir/$LatestTar"
+		let ActionsDetected++
+	fi
+
+	if [ -f "$BuildDir/sha256sums.asc" ]; then
+		rm -v "$BuildDir/sha256sums.asc"
+		let ActionsDetected++
+	fi
+
+	if [ -d "$BuildDir/${LatestTar%.tar.xz}" ]; then
+		# Some files are write-protected, hence the `-f` flag.
+		rm -rfv "$BuildDir/${LatestTar%.tar.xz}"
+		let ActionsDetected++
+	fi
+
+	# Files, like Debian packages, created by make(1) will not be removed
+	# in-case the user stores other files there. This could be handled by just
+	# using the filenames produced, but who knows what the filenames will be.
+	# Does it vary with kernel version? Better leave this to the user.
+	if [ $ActionsDetected -gt 0 ]; then
+		printf '%s finished cleaning up after unexpected exit.\n' "${Progrm^^}"
+	fi
+
+	exit $Sig
+}
+
+[ "$KeepFiles" == 'True' ] || trap SigHandler EXIT
+
 #---------------------------------Download Applicable Tarball & Verify the File
+
+printf 'NOTE: Compilation takes up several GBs of disk space.\n'
+printf '      Depending on the options selected, you may use >20GB.\n'
 
 Ask "Begin downloading '$LatestTar' tarball?" || exit 1
 Ask 'No build directory specified -- use CWD?' || exit 1
@@ -370,6 +416,7 @@ rm -v "${BuildDir%/}"/sha256sums.asc
 #-----------------------------------------------Extract Contents of the Tarball
 
 Ask 'Begin extracting tarball?' || exit 1
+
 printf 'Extracting tarball...\n'
 tar -C "$BuildDir" -xvf "$BuildDir/$LatestTar"
 
@@ -420,13 +467,16 @@ fi
 #---------------------------------------Begin Compiling and Building the Kernel
 
 printf 'Attempting to compile kernel & build Debian packages...\n'
-$Make deb-pkg || exit $?
+$Make deb-pkg
 
 if [ $? -gt 0 ]; then
-	Err 1 'Non-zero exit status detected by make(1).'
+	Err 0 'Non-zero exit status detected by make(1).'
 fi
 
 #-----------------------------------------------------------------------Cleanup
+
+# Revert signal handling back to the way it was.
+[ "$KeepFiles" == 'True' ] || trap - EXIT
 
 if Ask 'Remove Kernel source files?'; then
 	rm -rv "$BuildDir/${LatestTar%.tar.xz}"
