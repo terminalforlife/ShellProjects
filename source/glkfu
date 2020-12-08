@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  8 Dec 16:05:01 GMT 2020
+# Last Change       - Tue  8 Dec 16:07:45 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ Usage(){
 		  -D, --build-dir [PATH]   - Build in PATH instead of CWD.
 		  -O, --override [FILE]    - Use FILE instead of the latest. See below.
 		  -c, --cores [INT]        - Use INT CPU cores (jobs) for make(1).
-		  -d, --download-only      - Just download the Linux Tar archive.
+		  -d, --just-download      - Just download the Linux Tar archive.
 		  -j, --just-check         - Just check kernel.org for a newer version.
 		  -k, --keep-files         - Keep files if $Progrm unexpectedly exits.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
