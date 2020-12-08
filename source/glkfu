@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon  7 Dec 22:16:50 GMT 2020
+# Last Change       - Tue  8 Dec 03:54:44 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,7 +33,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-07'
+CurVer='2020-12-08'
 Progrm=${0##*/}
 
 Usage(){
@@ -48,6 +48,7 @@ Usage(){
 		  -D, --build-dir [PATH]   - Build in PATH instead of CWD.
 		  -O, --override [FILE]    - Use FILE instead of the latest. See below.
 		  -c, --cores [INT]        - Use INT CPU cores (jobs) for make(1).
+		  -j, --just-check         - Just check kernel.org for a newer version.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
 
 		  When specifying an alternative tarball FILE, ensure that you use the
@@ -57,6 +58,13 @@ Usage(){
 		    '^linux-[0-9]+\\\.[0-9]+\\\.[0-9]+\\\.tar\\\.xz$'
 
 		  Otherwise $Progrm will error out.
+
+		  When just checking for a new kernel version, the following exit
+		  statuses will be used by $Progrm:
+
+		    3 = Unable to determine if the latest version is newer or not.
+		    2 = No new version was found.
+		    0 = A new version was (probably) found.
 
 		  By default, $Progrm will use the maximum number of cores for make(1).
 	EOF
@@ -127,6 +135,8 @@ while [ "$1" ]; do
 			fi ;;
 		--ignore-versions)
 			IgnoreVers='True' ;;
+		--just-check|-j)
+			JustCheck='True' ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
 	esac
@@ -223,16 +233,37 @@ CurVer=${Line[2]}
 
 printf 'Current Linux version: %s\n' "$CurVer"
 
+NewVerAvail='False'
 if [ "$IgnoreVers" != 'True' ]; then
 	if [[ $CurVer =~ ^[0-9]+\.[0-9]+\.[0-9]+-.* ]]; then
 		printf 'Unable to determine if latest kernel is newer.\n' 1>&2
-		Ask "Continue with $Progrm?" || exit 1
+
+		if [ "$JustCheck" == 'True' ]; then
+			NewVerAvail='Error'
+		else
+			Ask "Continue with $Progrm?" || exit 3
+		fi
 	elif [ ${CurVer//[!0-9]/} -ge ${LatestVer//[!0-9]/} ]; then
 		printf "You're already up-to-date -- nothing to do.\n"
-		exit 0
+
+		if [ "$JustCheck" == 'True' ]; then
+			NewVerAvail='True'
+		else
+			exit 0
+		fi
 	fi
 else
 	printf 'Ignoring version strings.\n'
+fi
+
+if [ "$JustCheck" == 'True' ]; then
+	if [ "$NewVerAvail" == 'False' ]; then
+		exit 0
+	elif [ "$NewVerAvail" == 'Error' ]; then
+		exit 3
+	fi
+
+	exit 2 # <-- No new version is available.
 fi
 
 #----------------------------------Look for Compilation & Building Dependencies
