@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  8 Dec 16:13:59 GMT 2020
+# Last Change       - Tue  8 Dec 16:32:50 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,6 +23,12 @@
 # Bugs:
 #
 #TODO: If we exit during `$Make deb-pkg`, SignalHandler() won't work; why?
+#TODO: If prematurely exit before doing anything, existing files still go poof.
+#
+#      This only happens with, for example, an existing file by the same name
+#      as the target Linux Tar archive. A workaround, if you must keep these
+#      files, which would be overwritten by GLKFU anyway, would be to use one
+#      of the `-k` or `--keep-files` flags.
 #
 # Dependencies:
 #
