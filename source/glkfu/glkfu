@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Wed  9 Dec 01:36:36 GMT 2020
+# Last Change       - Wed  9 Dec 18:02:02 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -301,6 +301,8 @@ if [ "$IgnoreDeps" != 'True' ]; then
 		Found='False'
 
 		for StatusPKG in "${Packages[@]}"; {
+			[ "$StatusPKG" == 'initramfs-tools' ] && HaveInitramfsPKG='True'
+
 			if [ "$DepPKG" == "$StatusPKG" ]; then
 				#printf 'Dependency met: %s\n' "$StatusPKG"
 				Found='True'
@@ -328,7 +330,6 @@ if [ "$IgnoreDeps" != 'True' ]; then
 		fi
 
 		for PKG in "${MissingDeps[@]}"; {
-			[ "$PKG" == 'initramfs-tools' ] && HaveInitramfsPKG='True'
 			printf '%s ' "$PKG"
 		}
 
