@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  8 Dec 16:32:50 GMT 2020
+# Last Change       - Wed  9 Dec 01:25:26 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -39,7 +39,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-08'
+CurVer='2020-12-09'
 Progrm=${0##*/}
 
 Usage(){
@@ -314,23 +314,52 @@ if [ "$IgnoreDeps" != 'True' ]; then
 		fi
 	}
 
+	type -P sudo &> /dev/null && HasSudo='True'
+
 	# Instruct the user accordingly, if dependencies are missing.
 	if [ $Count -ne ${#ReqPKGs[@]} ]; then
 		Err 0 'One or more dependencies not met.'
 
-		if type -P sudo &> /dev/null; then
+		if [ "$HasSudo" == 'True' ]; then
 			printf 'Refer to the following command:\n'
-			printf '$ sudo apt-get install '
+			printf '\n$ sudo apt-get install '
 		else
-			printf '# apt-get install '
+			printf '\n# apt-get install '
 		fi
 
 		for PKG in "${MissingDeps[@]}"; {
+			[ "$PKG" == 'initramfs-tools' ] && HaveInitramfsPKG='True'
 			printf '%s ' "$PKG"
 		}
 
-		printf '\nNothing to do -- quitting.\n'
+		printf '\n\nNothing to do -- quitting.\n'
 		exit 1
+	fi
+
+	if [ "$HaveInitramfsPKG" != 'True' ]; then
+		if [ "$HasSudo" == 'True' ]; then
+			CMD='$ sudo apt-get install initramfs-tools'
+		else
+			CMD='# apt-get install initramfs-tools'
+		fi
+
+		while read; do
+			printf '%s\n' "$REPLY"
+		done <<-EOF
+
+			NOTE:      Before you install the Debian packages for at least the 'image'
+			           and 'headers', be sure that you install the 'initramfs-tools'
+			           package in order to have an 'initrd' file generated for you.
+
+			WARNING:   Failure to correctly generate an 'initrd' file for the installed
+			           kernel will typically result in a kernel panic when trying to
+			           boot from it.
+
+			           Refer to the following command to remedy this:
+
+			           $CMD
+
+		EOF
 	fi
 else
 	printf 'Told to ignore dependencies.\n'
@@ -402,8 +431,16 @@ SigHandler(){
 
 #---------------------------------Download Applicable Tarball & Verify the File
 
-printf 'NOTE: Compilation takes up several GBs of disk space.\n'
-printf '      Depending on the options selected, you may use >20GB.\n'
+while read; do
+	printf '%s\n' "$REPLY"
+done <<-EOF
+
+	CAUTION: Compilation takes up several GBs of disk space. Depending on the
+	         options selected, you may use over 20GB. If you don't have enough
+	         disk space during compilation, it will fail and your time will be
+	         wasted.
+
+EOF
 
 Ask "Begin downloading '$LatestTar' tarball?" || exit 1
 Ask 'No build directory specified -- use CWD?' || exit 1
