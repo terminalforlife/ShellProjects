@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Wed  9 Dec 01:25:26 GMT 2020
+# Last Change       - Wed  9 Dec 01:36:36 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,7 +18,7 @@
 #
 # Features:
 #
-#TODO: Check there is enough disk space, somehow? Maybe just warn?
+# N/A
 #
 # Bugs:
 #
