@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu 10 Dec 20:40:24 GMT 2020
+# Last Change       - Thu 10 Dec 23:25:27 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -135,10 +135,15 @@ Interpreter(){
 	Exec=$1
 }
 
-Lines=`tput lines`
-Columns=`tput cols`
+WinchHandler(){
+	tput clear
+	Lines=`tput lines`
+	Columns=`tput cols`
+}
 
-trap 'tput clear' WINCH
+trap 'WinchHandler' WINCH
+
+WinchHandler
 
 printf '\n'
 while :; do
