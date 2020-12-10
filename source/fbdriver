@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/fbdriver
+# Started On        - Thu 10 Dec 14:59:18 GMT 2020
+# Last Change       - Thu 10 Dec 15:01:16 GMT 2020
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Written in response to this thread:
+#
+#   https://forums.linuxmint.com/viewtopic.php?f=213&t=337105
+#------------------------------------------------------------------------------
+
+UEventFile='/sys/class/graphics/fb0/device/uevent'
+if type -P lshw &> /dev/null; then
+	while IFS=':' read -a Line; do
+		if [ "${Line[0]// /}" == 'configuration' ]; then
+			for Field in ${Line[1]}; {
+				IFS='=' read -a KeyVal <<< "$Field"
+				if [ "${KeyVal[0]}" == 'driver' ]; then
+					printf '%s\n' "${KeyVal[1]}"
+					break
+				fi
+			}
+
+			break
+		fi
+	done <<< "$(lshw -c video 2> /dev/null)"
+elif [ -f "$UEventFile" -a -r "$UEventFile" ]; then
+	while IFS='=' read -a Line; do
+		if [ "${Line[0]}" == 'DRIVER' ]; then
+			printf '%s\n' "${Line[1]}"
+			break
+		fi
+	done < "$UEventFile"
+else
+	exit 1
+fi
