@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu 10 Dec 20:36:38 GMT 2020
+# Last Change       - Thu 10 Dec 20:40:24 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,6 +28,7 @@ Usage(){
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
+		  -C, --no-color           - Disable ANSI color escape sequences.
 		  -E, --no-exit            - Omit the exit status on the bottom-right.
 		  -S, --no-spinner         - Omit 'spinner' from the waiting message.
 		  -W, --no-waitmsg         - Omit the waiting message at the end.
@@ -86,6 +87,8 @@ while [ "$1" ]; do
 			NoSpinner='True' ;;
 		--no-exit|-E)
 			NoExitStatus='True' ;;
+		--no-color|-C)
+			NoColor='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -177,7 +180,12 @@ while :; do
 	if [ "$NoExitStatus" != 'True' ]; then
 		tput cup $((Lines - 2)) 0
 		tput cup $Lines $((Columns - 3))
-		printf '\e[2;37m%#3d\e[0m' "$Exit"
+
+		if [ "$NoColor" != 'True' ]; then
+			printf '\e[2;37m%#3d\e[0m' "$Exit"
+		else
+			printf '%#3d' "$Exit"
+		fi
 	fi
 
 	if [ "$NoWaitMSG" != 'True' ]; then
@@ -187,7 +195,13 @@ while :; do
 		else
 			for Char in '|' '/' '-' '\'; {
 				tput cup $Lines 1
-				printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
+
+				if [ "$NoColor" != 'True' ]; then
+					printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
+				else
+					printf '\r[%s] Waiting for changes... ' "$Char"
+				fi
+
 				sleep 0.04
 			}
 		fi
