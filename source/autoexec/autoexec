@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu 10 Dec 19:55:21 GMT 2020
+# Last Change       - Thu 10 Dec 20:36:38 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,6 +28,7 @@ Usage(){
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
+		  -E, --no-exit            - Omit the exit status on the bottom-right.
 		  -S, --no-spinner         - Omit 'spinner' from the waiting message.
 		  -W, --no-waitmsg         - Omit the waiting message at the end.
 		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
@@ -83,6 +84,8 @@ while [ "$1" ]; do
 			NoWaitMSG='True' ;;
 		--no-spinner|-S)
 			NoSpinner='True' ;;
+		--no-exit|-E)
+			NoExitStatus='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -129,7 +132,10 @@ Interpreter(){
 	Exec=$1
 }
 
-[ "$NoWaitMSG" == 'True' ] || Lines=`tput lines`
+Lines=`tput lines`
+Columns=`tput cols`
+
+trap 'tput clear' WINCH
 
 printf '\n'
 while :; do
@@ -155,6 +161,7 @@ while :; do
 			[ "$Once" == 'true' ] || tput clear
 
 			"$Exec" "$ExecFile" "$@"
+			Exit=$?
 		fi
 
 		SSEOld=${SSE//[!0-9]}
@@ -166,14 +173,21 @@ while :; do
 		Err 1 'File not found or inaccessible.'
 	fi
 
+	# Have the exit status on the bottom-right of the terminal.
+	if [ "$NoExitStatus" != 'True' ]; then
+		tput cup $((Lines - 2)) 0
+		tput cup $Lines $((Columns - 3))
+		printf '\e[2;37m%#3d\e[0m' "$Exit"
+	fi
+
 	if [ "$NoWaitMSG" != 'True' ]; then
 		if [ "$NoSpinner" == 'True' ]; then
 			tput cud $Lines
-			printf '\rWaiting for changes... '
+			printf '\r\e[2;37mWaiting for changes...\e[0m '
 		else
 			for Char in '|' '/' '-' '\'; {
-				tput cud $Lines
-				printf '\r[%s] Waiting for changes... ' "$Char"
+				tput cup $Lines 1
+				printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
 				sleep 0.04
 			}
 		fi
