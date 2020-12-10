@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 28 Nov 18:13:39 GMT 2020
+# Last Change       - Thu 10 Dec 19:55:21 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-28'
+CurVer='2020-12-10'
 Progrm=${0##*/}
 
 Usage(){
@@ -28,6 +28,7 @@ Usage(){
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
+		  -S, --no-spinner         - Omit 'spinner' from the waiting message.
 		  -W, --no-waitmsg         - Omit the waiting message at the end.
 		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
 		  -o, --once               - Execute FILE only once; no looping.
@@ -80,6 +81,8 @@ while [ "$1" ]; do
 			Once='true' ;;
 		--no-waitmsg|-W)
 			NoWaitMSG='True' ;;
+		--no-spinner|-S)
+			NoSpinner='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -164,11 +167,16 @@ while :; do
 	fi
 
 	if [ "$NoWaitMSG" != 'True' ]; then
-		for Char in '|' '/' '-' '\'; {
+		if [ "$NoSpinner" == 'True' ]; then
 			tput cud $Lines
-			printf '\r[%s] Waiting for changes... ' "$Char"
-			sleep 0.04
-		}
+			printf '\rWaiting for changes... '
+		else
+			for Char in '|' '/' '-' '\'; {
+				tput cud $Lines
+				printf '\r[%s] Waiting for changes... ' "$Char"
+				sleep 0.04
+			}
+		fi
 	fi
 
 	[ "$Once" == 'true' ] && exit 0
