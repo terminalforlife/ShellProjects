@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Wed  9 Dec 18:02:02 GMT 2020
+# Last Change       - Mon 14 Dec 15:33:49 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -39,7 +39,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-09'
+CurVer='2020-12-14'
 Progrm=${0##*/}
 
 Usage(){
@@ -64,7 +64,7 @@ Usage(){
 		  same filename format as it normally is. Below is the REGEX for the
 		  expected format:
 
-		    '^linux-[0-9]+\\\.[0-9]+\\\.[0-9]+\\\.tar\\\.xz$'
+		    '^linux-[0-9\\\.]+\\\.tar\\\.xz$'
 
 		  Otherwise $Progrm will error out.
 
@@ -227,7 +227,7 @@ if [ -z "$LatestTar" ]; then
 fi
 
 # Just in-case, check the resulting filename is valid.
-if ! [[ $LatestTar =~ ^linux-[0-9]+\.[0-9]+\.[0-9]+\.tar\.xz$ ]]; then
+if ! [[ $LatestTar =~ ^linux-[0-9]+\.[0-9\.]+.tar\.xz$ ]]; then
 	Err 1 "Tarball filename '$LatestTar' not valid."
 fi
 
