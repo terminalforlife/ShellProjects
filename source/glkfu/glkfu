@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon 14 Dec 15:33:49 GMT 2020
+# Last Change       - Mon 14 Dec 17:13:45 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -158,6 +158,8 @@ done
 
 if [ "$JustCheck" == 'True' -a "$JustDownload" == 'True' ]; then
 	Err 1 "OPTs '--just-check|-j' and '--just-download|-d' both used."
+elif [ "$IgnoreVers" == 'True' -a "$JustCheck" == 'True' ]; then
+	Err 1 "OPTs '--just-check|-j' and '--ignore-versions|-i' both used."
 fi
 
 DepCount=0
@@ -248,11 +250,15 @@ FileChk "$VerFile"
 read -a Line < "$VerFile"
 CurVer=${Line[2]}
 
+# Testing lines.
+#LatestVer='5.10'
+#CurVer='5.10'
+
 printf 'Current Linux version: %s\n' "$CurVer"
 
 NewVerAvail='False'
 if [ "$IgnoreVers" != 'True' ]; then
-	if [[ $CurVer =~ ^[0-9]+\.[0-9]+\.[0-9]+-.* ]]; then
+	if [[ $CurVer =~ ^[0-9\.]+-.* ]]; then
 		printf 'Unable to determine if latest kernel is newer.\n' 1>&2
 
 		if [ "$JustCheck" == 'True' ]; then
@@ -260,22 +266,32 @@ if [ "$IgnoreVers" != 'True' ]; then
 		else
 			Ask "Continue with $Progrm?" || exit 3
 		fi
-	elif [ ${CurVer//[!0-9]/} -ge ${LatestVer//[!0-9]/} ]; then
-		printf "You're already up-to-date -- nothing to do.\n"
+	else
+		# Split strings up by major, minor, and revision, then compare them.
+		# Where C_* is for the current version, and L_* for the latest.
+		read C_Maj C_Min C_Rev <<< "${CurVer//./ }"
+		read L_Maj L_Min L_Rev <<< "${LatestVer//./ }"
+		for Field in "$C_Maj:$L_Maj" "$C_Min:$L_Min" "$C_Rev:$L_Rev"; {
+			Left=${Field%:*}; Right=${Field#*:}
+			if [ ${Right:-0} -gt ${Left:-0} ]; then
+				NewVerAvail='True'
+				break
+			fi
+		}
+	fi
 
-		if [ "$JustCheck" == 'True' ]; then
-			NewVerAvail='True'
-		else
-			exit 0
-		fi
+	if [ $NewVerAvail == 'False' ]; then
+		printf "No new version available -- nothing to do.\n"
 	fi
 else
 	printf 'Ignoring version strings.\n'
 fi
 
 if [ "$JustCheck" == 'True' ]; then
-	if [ "$NewVerAvail" == 'False' ]; then
+	if [ "$NewVerAvail" == 'True' ]; then
 		exit 0
+	elif [ "$NewVerAvail" == 'False' ]; then
+		exit 2
 	elif [ "$NewVerAvail" == 'Error' ]; then
 		exit 3
 	fi
