@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon 14 Dec 17:13:45 GMT 2020
+# Last Change       - Mon 14 Dec 17:48:30 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -58,6 +58,7 @@ Usage(){
 		  -i, --ignore-versions    - Disregard current & new version strings.
 		  -j, --just-check         - Just check kernel.org for a newer version.
 		  -k, --keep-files         - Keep files if $Progrm unexpectedly exits.
+		  -o, --output [TYPE]      - Output TYPE, for scripting. See below.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
 
 		  When specifying an alternative tarball FILE, ensure that you use the
@@ -67,6 +68,16 @@ Usage(){
 		    '^linux-[0-9\\\.]+\\\.tar\\\.xz$'
 
 		  Otherwise $Progrm will error out.
+
+		  Available TYPEs to output:
+
+		    current                - Current Linux version.
+		    current.[maj|min|rev]  - Major, minor, or revision of 'current'.
+		    current.split          - Current Linux version, split by spaces.
+		    latest                 - Latest Linux version.
+		    latest.[maj|min|rev]   - Major, minor, or revision of 'latest'.
+		    latest.split           - Latest Linux version, split by spaces.
+		    latest.tarball         - Filename of the latest tarball.
 
 		  When just checking for a new kernel version, the following exit
 		  statuses will be used by $Progrm:
@@ -91,6 +102,12 @@ StatusFile='/var/lib/dpkg/status'
 KernOrg='https://www.kernel.org'
 KernOrgMirrs='https://mirrors.edge.kernel.org'
 BuildDir='.'
+
+ValidOutputs=(
+    'current' 'current.split' 'current.maj' 'current.min' 'current.rev'
+    'latest' 'latest.split' 'latest.maj' 'latest.min' 'latest.rev'
+    'latest.tarball'
+)
 
 # Dependencies noted to be required in building Linux v5.9.12.
 ReqPKGs=(
@@ -150,6 +167,14 @@ while [ "$1" ]; do
 			KeepFiles='True' ;;
 		--just-download|-d)
 			JustDownload='True' ;;
+		--output|-o)
+			shift
+
+			if [ -z "$1" ]; then
+				Err 1 "No TYPE provided for '--output|-o' OPT."
+			else
+				Output=$1
+			fi ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
 	esac
@@ -213,6 +238,24 @@ FileChk(){
 	[ -r "$1" ] || Err 1 "File '$1' unreadable."
 }
 
+JustOutput(){
+	[ -z "$Output" ] && return 0
+
+	for CurOutput in "${ValidOutputs[@]}"; {
+		if [ "$CurOutput" == "$Output" ]; then
+			Found='True'
+			break
+		fi
+	}
+
+	if [ "$Found" != 'True' ]; then
+		Err 1 "Output TYPE not found -- see: $Progrm --help"
+	fi
+
+	printf '%s\n' "$2"
+	exit 0
+}
+
 #------------------------------------Determine the Latest Stable Kernel Version
 
 # Parse page data to get the tarball filename of the latest stable kernel.
@@ -228,6 +271,8 @@ if [ -z "$LatestTar" ]; then
 	done <<< "$(Get - "$KernOrg")"
 fi
 
+JustOutput 'latest.tarball' "$LatestTar"
+
 # Just in-case, check the resulting filename is valid.
 if ! [[ $LatestTar =~ ^linux-[0-9]+\.[0-9\.]+.tar\.xz$ ]]; then
 	Err 1 "Tarball filename '$LatestTar' not valid."
@@ -241,7 +286,9 @@ LatestVer=${LatestVerBuffer%..}
 # Get the major number of the latest version.
 LatestVerMaj=${LatestVer%%.*}
 
-printf 'Latest Linux version: %s\n' "$LatestVer"
+JustOutput 'latest' "$LatestVer"
+
+[ -z "$Output" ] && printf 'Latest Linux version: %s\n' "$LatestVer"
 
 #---------------------Determine if the Latest is Newer than the Current Version
 
@@ -250,11 +297,13 @@ FileChk "$VerFile"
 read -a Line < "$VerFile"
 CurVer=${Line[2]}
 
+JustOutput 'current' "$CurVer"
+
 # Testing lines.
 #LatestVer='5.10'
 #CurVer='5.10'
 
-printf 'Current Linux version: %s\n' "$CurVer"
+[ -z "$Output" ] && printf 'Current Linux version: %s\n' "$CurVer"
 
 NewVerAvail='False'
 if [ "$IgnoreVers" != 'True' ]; then
@@ -271,6 +320,16 @@ if [ "$IgnoreVers" != 'True' ]; then
 		# Where C_* is for the current version, and L_* for the latest.
 		read C_Maj C_Min C_Rev <<< "${CurVer//./ }"
 		read L_Maj L_Min L_Rev <<< "${LatestVer//./ }"
+
+		JustOutput 'current.split' "$C_Maj $C_Min $C_Rev"
+		JustOutput 'latest.split' "$L_Maj $L_Min $L_Rev"
+		JustOutput 'current.maj' "$C_Maj"
+		JustOutput 'current.min' "$C_Min"
+		JustOutput 'current.rev' "$C_Rev"
+		JustOutput 'latest.maj' "$L_Maj"
+		JustOutput 'latest.min' "$L_Min"
+		JustOutput 'latest.rev' "$L_Rev"
+
 		for Field in "$C_Maj:$L_Maj" "$C_Min:$L_Min" "$C_Rev:$L_Rev"; {
 			Left=${Field%:*}; Right=${Field#*:}
 			if [ ${Right:-0} -gt ${Left:-0} ]; then
