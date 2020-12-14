@@ -4,7 +4,7 @@ f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 68b5994bf2a361911a65981870d3bee0  devutils/standard.sh
 7fe7e618f05665df719ab73574a47a61  misc/01-vendor-ubuntu
 2520f059c1f95c5288bdc0b33e9c9da4  misc/autostart
-be2c5116b72167b3467f63177ea38909  misc/compton.conf
+a528b8ac1a4104674af189d153612689  misc/compton.conf
 02d7212eae8e28085cb2302d5722a063  misc/dunstrc
 39e3ab0a4b5844bfe882a87abb5cd0f1  misc/.keynavrc
 91d865b21b6f0e907beee95ceb34dc53  misc/terminalrc
