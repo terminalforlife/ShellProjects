@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon 14 Dec 17:48:30 GMT 2020
+# Last Change       - Mon 14 Dec 18:00:51 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -173,6 +173,17 @@ while [ "$1" ]; do
 			if [ -z "$1" ]; then
 				Err 1 "No TYPE provided for '--output|-o' OPT."
 			else
+				for CurOutput in "${ValidOutputs[@]}"; {
+					if [ "$CurOutput" == "$1" ]; then
+						Found='True'
+						break
+					fi
+				}
+
+				if [ "$Found" != 'True' ]; then
+					Err 1 "Output TYPE not found -- see: $Progrm --help"
+				fi
+
 				Output=$1
 			fi ;;
 		*)
@@ -240,17 +251,7 @@ FileChk(){
 
 JustOutput(){
 	[ -z "$Output" ] && return 0
-
-	for CurOutput in "${ValidOutputs[@]}"; {
-		if [ "$CurOutput" == "$Output" ]; then
-			Found='True'
-			break
-		fi
-	}
-
-	if [ "$Found" != 'True' ]; then
-		Err 1 "Output TYPE not found -- see: $Progrm --help"
-	fi
+	[ "$Output" == "$1" ] || return 0
 
 	printf '%s\n' "$2"
 	exit 0
