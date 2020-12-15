@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue 15 Dec 14:01:10 GMT 2020
+# Last Change       - Tue 15 Dec 14:16:44 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -50,6 +50,7 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  -C, --config [FILE]      - Use FILE instead of newest available.
 		  -D, --build-dir [PATH]   - Build in PATH instead of CWD.
 		  -I, --ignore-deps        - Ignore compile & build dependencies.
 		  -O, --override [FILE]    - Use FILE instead of the latest. See below.
@@ -185,6 +186,16 @@ while [ "$1" ]; do
 				fi
 
 				Output=$1
+			fi ;;
+		--config|-C)
+			shift
+
+			if [ -z "$1" ]; then
+				Err 1 'Kernel configuration FILE not provided.'
+			elif ! [ -f "$1" ]; then
+				Err 1 "File '$1' not found."
+			else
+				ConfigOverrideFile=$1
 			fi ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
@@ -505,7 +516,7 @@ SigHandler(){
 	exit $Sig
 }
 
-[ "$KeepFiles" == 'True' ] || trap SigHandler EXIT
+trap SigHandler EXIT
 
 #---------------------------------Download Applicable Tarball & Verify the File
 
@@ -560,22 +571,30 @@ fi
 
 #----------------------------------------------Copy Over Existing Configuration
 
-Found=()
-printf 'Looking for kernel configurations...\n'
-for File in /boot/config-*; {
-	Found+=("$File=${File//[!0-9]/}")
-}
+if [ -n "$ConfigOverrideFile" ]; then
+	printf "Using file: '%s'\n" "$ConfigOverrideFile"
 
-printf 'Found %d configuration file(s).\n' ${#Found[@]}
+	cp -v "$ConfigOverrideFile" "$BuildDir/${LatestTar%.tar.xz}/.config"
+else
+	printf 'Finding a suitable kernel configuration file to use.\n'
 
-Top=0
-for KeyVal in "${Found[@]}"; {
-	[ ${KeyVal##*=} -gt ${Top##*=} ] && Top=$KeyVal
-}
+	Found=()
+	printf 'Looking for kernel configurations...\n'
+	for File in /boot/config-*; {
+		Found+=("$File=${File//[!0-9]/}")
+	}
 
-printf "Using file: '%s'\n" "${Top%=*}"
+	printf 'Found %d configuration file(s).\n' ${#Found[@]}
 
-cp -v "${Top%=*}" "$BuildDir/${LatestTar%.tar.xz}/.config"
+	Top=0
+	for KeyVal in "${Found[@]}"; {
+		[ ${KeyVal##*=} -gt ${Top##*=} ] && Top=$KeyVal
+	}
+
+	printf "Using file: '%s'\n" "${Top%=*}"
+
+	cp -v "${Top%=*}" "$BuildDir/${LatestTar%.tar.xz}/.config"
+fi
 
 #--------------------------------------------------------Process Configurations
 
