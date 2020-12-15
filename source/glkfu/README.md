@@ -27,7 +27,7 @@ If you spot a dependency neither listed here nor checked for by **GLKFU**, pleas
 
 # Video Demonstration & Thoughts
 
-If you'd like a demonstration of, some thoughts on, or updates about **GLKFU**, check out **Learn Linux** on **YouTube**, available here [here](https://www.youtube.com/c/learnlinux). Perform a search for 'GLKFU' and you're sure to find relevant videos.
+If you'd like a demonstration of, some thoughts on, or updates about **GLKFU**, check out the **Learn Linux** channel on **YouTube**, available [here](https://www.youtube.com/c/learnlinux). Perform a search for 'GLKFU' and you're sure to find relevant videos.
 
 # Bugs
 
