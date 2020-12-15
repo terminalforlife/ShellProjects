@@ -12,6 +12,30 @@ A series of compilation and package building dependencies will be required in or
 
 You don't even have to compile & build packages for Linux using **GLKFU**, as you can choose to simply download the tarball, or even simply check if a new version is available. Plenty of options are available.
 
+# Installation
+
+You can install either with [cito(8)](https://github.com/terminalforlife/Extra/tree/master/source/cito) or use the Bourne Shell installer. Installation can be performed with this one-liner:
+
+```
+wget -q 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/glkfu/glkfu-installer' && sudo sh glkfu-installer
+```
+
+The installer wasn't written for use by BASH, and if you do execute it as such, you'll likely get errors. A shell in Bourne Shell compatibility mode will probably be fine, however.
+
+# Uninstallation
+
+If you installed a Debian package for GLKFU, use your package manager, such as:
+
+```
+sudo apt-get remove glkfu
+```
+
+But if you used the installer, run:
+
+```
+sudo rm -v /usr/share/bash-completion/completions/glkfu /usr/bin/glkfu /usr/share/man/man1/glkfu.1.gz
+```
+
 # Dependencies for Compilation & Package Building
 
 **bc** - GNU bc arbitrary precision calculator language\
