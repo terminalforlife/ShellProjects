@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue 15 Dec 14:16:44 GMT 2020
+# Last Change       - Tue 15 Dec 16:51:03 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -489,6 +489,9 @@ SigHandler(){
 
 	ActionsDetected=0
 
+	# Should solve error when trying to clean up extracted archive contents.
+	[[ "$PWD" == */"$BuildDir" ]] && cd ..
+
 	if [ -f "$BuildDir/$LatestTar" ]; then
 		rm -v "$BuildDir/$LatestTar"
 		let ActionsDetected++
@@ -516,7 +519,7 @@ SigHandler(){
 	exit $Sig
 }
 
-trap SigHandler EXIT
+trap SigHandler EXIT INT
 
 #---------------------------------Download Applicable Tarball & Verify the File
 
@@ -601,7 +604,22 @@ fi
 cd "$BuildDir/${LatestTar%.tar.xz}"
 
 if Ask 'Use default values for new CONFIG parameters?'; then
-	$Make olddefconfig
+	while read; do
+		if [[ $REPLY =~ ^.config:[0-9]+:warning:\ unexpected\ data: ]]; then
+			UnexpectedData='True'
+			printf '%s\n' "$REPLY"
+		elif [[ $REPLY =~ ^.config:[0-9]+: ]]; then
+			PossibleErrors='True'
+			printf '%s\n' "$REPLY"
+		fi
+	done <<< "$($Make olddefconfig 2>&1)"
+
+	if [ "$UnexpectedData" == 'True' ]; then
+		Err 1 "Unexpected data found in '.config' file."
+	elif [ "$PossibleErrors" == 'True' ]; then
+		Err 0 "Possible errors found in '.config' file."
+		Ask "Continue with potentially problematic '.config' file?"
+	fi
 else
 	$Make silentoldconfig
 fi
@@ -619,20 +637,25 @@ fi
 
 #---------------------------------------Begin Compiling and Building the Kernel
 
+# Revert signal handling back to the way it was.
+[ "$KeepFiles" == 'True' ] || trap - EXIT INT
+
+Ask 'Begin compiling kernel, then building Debian packages for it?'
 printf 'Attempting to compile kernel & build Debian packages...\n'
 $Make deb-pkg
 
-if [ $? -gt 0 ]; then
-	Err 0 'Non-zero exit status detected by make(1).'
-fi
+DebPKGExit=$?
 
 #-----------------------------------------------------------------------Cleanup
 
-# Revert signal handling back to the way it was.
-[ "$KeepFiles" == 'True' ] || trap - EXIT
+if [ $DebPKGExit -eq 0 ]; then
+	printf 'Kernel compilation and package building finished.\n'
+else
+	Err 0 "Non-zero exit status detected by make(1) after 'deb-pkg' operation."
+fi
 
 if Ask 'Remove Kernel source files?'; then
-	rm -rv "$BuildDir/${LatestTar%.tar.xz}"
+	rm -rv "../${LatestTar%.tar.xz}"
 fi
 
 printf 'Synchronising cached writes...\n'
