@@ -3,12 +3,17 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu 10 Dec 23:25:27 GMT 2020
+# Last Change       - Tue 15 Dec 22:15:07 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Previously named AutoSH; it needed updating, because it's no longer just for
-# use when programming in Shell. Refer to NOTES of autoexec(1).
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
 #
 # Dependencies:
 #
@@ -17,7 +22,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-10'
+CurVer='2020-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -36,13 +41,8 @@ Usage(){
 		  -o, --once               - Execute FILE only once; no looping.
 		  -r, --refresh <INT>      - Adjust to fit your performance needs.
 
-		  By default, a waiting message -- most notably, its spinner -- is
-		  displayed at the end of the output, which can be useful for times
-		  you're not sure if you're stuck within a loop.
-
-		  The refresh interval is in seconds. By default, it's 0.05, with an
-		  extra 0.04s for the waiting message's spinner at the end. If you
-		  disable the waiting message, the interval becomes just 0.05.
+		  To exit AutoExec, send the SIGINT (130) signal using the Ctrl + C
+		  shortcut (^C). Your previous terminal layout will be restored.
 	EOF
 }
 
