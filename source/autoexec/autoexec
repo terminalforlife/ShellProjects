@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu 17 Dec 20:39:49 GMT 2020
+# Last Change       - Thu 17 Dec 20:52:49 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -44,11 +44,14 @@ Usage(){
 		  -S, --no-spinner         - Omit 'spinner' from the waiting message.
 		  -W, --no-waitmsg         - Omit the waiting message at the end.
 		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
+		  -f, --force              - Forces use of that which is unsupported.
 		  -o, --once               - Execute FILE only once; no looping.
 		  -r, --refresh <INT>      - Adjust to fit your performance needs.
 
 		  To exit AutoExec, send the SIGINT (130) signal using the Ctrl + C
 		  shortcut (^C). Your previous terminal layout will be restored.
+
+		  When forcing, unsupported mimetypes and executables will be allowed.
 	EOF
 }
 
@@ -95,6 +98,8 @@ while [ "$1" ]; do
 			NoExitStatus='True' ;;
 		--no-color|-C)
 			NoColor='True' ;;
+		--force|-f)
+			Force='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -123,13 +128,17 @@ for Dep in file tput sleep stat; {
 
 [ "$DepCount" == 'True' ] && exit 1
 
-# Check the mimetype of the file.
-case `file -b --mime-type "$ExecFile"` in
-	application|application/*)
-		Err 1 "Binary files are not supported." ;;
-	text/troff)
-		printf 'CAUTION: Unsupported Troff file detected.\n' 1>&2 ;;
-esac
+if [ "$Force" != 'True' ]; then
+	case $Exec in
+		*/man|man|*/less|less|*/pager|pager|*/more|more)
+			Err 1 "Using pagers with $Progrm is unsupported." ;;
+	esac
+
+	case `file -b --mime-type "$ExecFile"` in
+		application|application/*)
+			Err 1 "Binary files are not supported." ;;
+	esac
+fi
 
 if [ "$Once" != 'true' ]; then
 	TRAP(){
