@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Wed 11 Nov 18:36:42 GMT 2020
+# Last Change       - Thu 17 Dec 19:50:57 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,10 +13,10 @@
 #
 #TODO: Add an Insit-style backup feature in-case of a botched install/upgrade.
 #TODO: Somehow catch condition under which a file already exists.
+#TODO: Add uninstallation feature, maybe by referring to the log file?
 #
 # Bugs:
 #
-#TODO: Multiple files failing to install properly, if at all.
 #TODO: Non-existant remote files don't work. (last does; all prior fail)
 #
 # Dependencies:
