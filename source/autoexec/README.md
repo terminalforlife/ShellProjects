@@ -6,7 +6,7 @@ Flexibly, the user can make use of AutoExec when working with Perl, Python, Shel
 
 The user can either rely on AutoExec's own interpreter auto-detection, or override with his or her own choice of executable.
 
-Demonstrations of AutoExec can be found all over YouTube channel, [Learn Linux](youtube.com/c/learnlinux).
+Demonstrations of AutoExec can be found all over YouTube channel of the author of AutoExec, [Learn Linux](https://www.youtube.com/channel/UCfp-lNJy4QkIGnaEE6NtDSg).
 
 # Installation & Uninstallation
 
