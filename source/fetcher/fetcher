@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Fri 18 Dec 02:53:03 GMT 2020
+# Last Change       - Fri 18 Dec 03:00:06 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -42,9 +42,10 @@ Usage(){
 
 		  Below are a list of ACTIONs:
 
+		  add [URL]                - Add a URL to the list.
 		  fetch                    - Download all of the saved URLs.
 		  list                     - List all of the stored URLs.
-		  add                      - Add a URL to the list.
+		  remove                   - Remove a stored URL.
 	EOF
 }
 
@@ -98,7 +99,7 @@ while [ "$1" ]; do
 done
 
 DepCount=0
-for Dep in mkdir; do
+for Dep in mkdir wget; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		let DepCount++
@@ -106,12 +107,6 @@ for Dep in mkdir; do
 done
 
 [ $DepCount -gt 0 ] && exit 1
-
-if type -P curl &> /dev/null; then
-	Get='curl -sC - --progress-bar'
-elif type -P wget &> /dev/null; then
-	Get='wget -Cq --show-progress'
-fi
 
 [ -d "$MainDir" ] || mkdir -p "$MainDir"
 
@@ -202,4 +197,16 @@ if [ "$Action" == 'remove' ]; then
 		*|'')
 			Err 1 'Invalid or missing URL number provided.'
 	esac
+fi
+
+#----------------------------------------------------Fetch (Download) from URLs
+
+if [ "$Action" == 'fetch' ]; then
+	CheckIfEmpty "$Action"
+
+	while read; do
+		[[ $REPLY == \#* || $REPLY == '' ]] && continue
+
+		wget -qc --show-progress "$REPLY"
+	done < "$LinkFile"
 fi
