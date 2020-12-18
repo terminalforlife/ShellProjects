@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Fri 18 Dec 03:00:06 GMT 2020
+# Last Change       - Fri 18 Dec 03:03:32 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -155,6 +155,16 @@ fi
 #----------------------------------------------------------Add URL to Link File
 
 if [ "$Action" == 'add' ]; then
+	while read; do
+		[[ $REPLY == \#* || $REPLY == '' ]] && continue
+
+		# Avoid duplicates.
+		if [ "$REPLY" == "$AddURL" ]; then
+			Err 1 'URL already exists -- nothing to do.'
+		fi
+	done < "$LinkFile"
+	printf '\n'
+
 	printf '%s\n' "$AddURL" >> "$LinkFile"
 fi
 
