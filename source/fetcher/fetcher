@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Fri 18 Dec 03:03:32 GMT 2020
+# Last Change       - Fri 18 Dec 03:16:03 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,7 +14,10 @@
 #
 # Features:
 #
-# N/A
+#TODO: Add ability to download specific items and ranges from URL list.
+#TODO: Add paging support via less(1) and more(1).
+#TODO: Confirm URLs are valid.
+#TODO: Consider handling long URLs when using 'list' or 'remove'.
 #
 # Bugs:
 #
@@ -24,7 +27,8 @@
 #
 #   bash (>= 4.3-14)
 #   coreutils (>= 8.28)
-#   curl (>= 7.58.0) | wget (>= 1.19.4-1)
+#   sed (>= 4.4-2)
+#   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
 CurVer='2020-12-18'
@@ -166,6 +170,8 @@ if [ "$Action" == 'add' ]; then
 	printf '\n'
 
 	printf '%s\n' "$AddURL" >> "$LinkFile"
+
+	exit 0
 fi
 
 #-----------------------------------------------------Remove URL from Link File
@@ -200,13 +206,15 @@ if [ "$Action" == 'remove' ]; then
 			if [ -n "$ToRemove" ]; then
 				sed -i "/${ToRemove//\//\\\/}/d" "$LinkFile"
 			else
-				Err 1 "Requested number of URL not found."
+				Err 1 "Requested URL not found."
 			fi
 
 			;;
 		*|'')
 			Err 1 'Invalid or missing URL number provided.'
 	esac
+
+	exit 0
 fi
 
 #----------------------------------------------------Fetch (Download) from URLs
@@ -219,4 +227,6 @@ if [ "$Action" == 'fetch' ]; then
 
 		wget -qc --show-progress "$REPLY"
 	done < "$LinkFile"
+
+	exit 0
 fi
