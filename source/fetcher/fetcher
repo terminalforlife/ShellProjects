@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Fri 18 Dec 03:16:03 GMT 2020
+# Last Change       - Fri 18 Dec 03:18:46 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -124,10 +124,12 @@ fi
 CheckIfEmpty(){
 	Line=0
 	while read; do
+		[[ $REPLY == \#* || $REPLY == '' ]] && continue
+
 		let Line++
 	done < "$LinkFile"
 
-	[ $Line -eq 2 ] && Err 1 "No stored URLs found -- nothing to $1."
+	[ $Line -eq 0 ] && Err 1 "No stored URLs found -- nothing to $1."
 }
 
 #---------------------------------------------------Create Link File If Missing
