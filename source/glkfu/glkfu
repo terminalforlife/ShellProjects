@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Wed 16 Dec 04:55:10 GMT 2020
+# Last Change       - Fri 18 Dec 01:30:50 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -39,7 +39,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-16'
+CurVer='2020-12-18'
 Progrm=${0##*/}
 
 Usage(){
@@ -642,7 +642,7 @@ fi
 
 Ask 'Begin compiling kernel, then building Debian packages for it?' || exit 1
 printf 'Attempting to compile kernel & build Debian packages...\n'
-$Make deb-pkg
+$Make bindeb-pkg # <-- As of 2020-12-18, no longer building source packages.
 
 DebPKGExit=$?
 
