@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Fri 18 Dec 03:22:19 GMT 2020
+# Last Change       - Fri 18 Dec 03:26:11 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -80,6 +80,8 @@ while [ "$1" ]; do
 	shift
 done
 
+[ $# -eq 0 ] && Err 1 "Argument error -- see: $Progrm -h"
+
 while [ "$1" ]; do
 	case $1 in
 		fetch|list|remove)
@@ -101,8 +103,6 @@ while [ "$1" ]; do
 	esac
 	shift
 done
-
-[ $# -eq 0 ] && Err 1 "Argument error -- see: $Progrm -h"
 
 DepCount=0
 for Dep in mkdir wget; do
@@ -155,7 +155,7 @@ if [ "$Action" == 'list' ]; then
 		[[ $REPLY == \#* || $REPLY == '' ]] && continue
 
 		let Line++
-		printf '\e[1;32m%2d\e[0m:  \e[1;31m%s\e[0m\n' $Line "$REPLY"
+		printf "$C_Green%2d$C_Reset:  $C_Red%s$C_Reset\n" $Line "$REPLY"
 	done < "$LinkFile"
 	printf '\n'
 fi
@@ -192,7 +192,7 @@ if [ "$Action" == 'remove' ]; then
 
 		let Line++
 		URLs+=("$Line|$REPLY")
-		printf '\e[1;32m%2d\e[0m:  \e[1;31m%s\e[0m\n' $Line "$REPLY"
+		printf "$C_Green%2d$C_Reset:  $C_Red%s$C_Reset\n" $Line "$REPLY"
 	done < "$LinkFile"
 	printf '\n'
 
