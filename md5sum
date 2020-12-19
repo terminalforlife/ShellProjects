@@ -40,7 +40,6 @@ e6e9036b9c16fa35b92ac81e2b4451de  source/completions/nxbt
 4a0675a940e09acb553b665fdfb628ee  source/completions/shlides
 5db2cee5f2051242a5c5f71b29f9fd6c  source/completions/simplify-ubuntu
 30c61858b52bd2ed7dc33713bd8800ce  source/completions/simwea
-4cac08df30f02f4b296043b5971f1011  source/completions/tozero
 197dcc70cf5850bde53cbfe53a57a7ee  source/completions/ubuntu-syschk
 a8169d7f7fc48a2499e0fd42305e9bdf  source/cron_tasks/notify-upgrade
 608220cedba01e5db4ea43471d3e8d3f  source/cron_tasks/tfl-freshclam
@@ -118,4 +117,3 @@ d0dcf2eef43ebff4a547ab03a51758ae  source/snotes
 775fa57eefd8ff3b9a047d78c7d00b29  source/tfl-ubuntu-setup
 db46b4d765aa3bec00035b8c5bff8473  source/tfs
 9c0e175d91e89f36daa1c3e3ffffb7fb  source/tlptog
-dba29f112275caecffec13c3d0b93e46  source/tozero
