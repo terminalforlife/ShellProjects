@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Tue 15 Dec 19:59:51 GMT 2020
+# Last Change       - Sun 20 Dec 04:47:08 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ trap SigHandler EXIT INT QUIT ABRT TERM
 
 printf 'Fetching files from GitHub:\n'
 ErrCount=0
-for File in 'completions' 'glkfu' 'glkfu.1.gz'; do
+for File in 'completions' 'glkfu' 'glkfu-list' 'glkfu.1.gz'; do
 	printf "* Downloading '%s' ... " "$File"
 	if $DLCMD "$TmpDir/$File" "$URL/$File" 2>> "$LogFile"; then
 		printf '\033[32m[OK]\033[0m\n'
@@ -128,7 +128,7 @@ fi
 
 printf '* Assigning modes ... '
 ErrCount=0
-for File in 'glkfu:755' 'glkfu.1.gz:644' 'completions:644'; do
+for File in 'glkfu:755' 'glkfu-list:755' 'glkfu.1.gz:644' 'completions:644'; do
 	chmod ${File##*:} "$TmpDir/${File%:*}" 2>> "$LogFile" ||
 		ErrCount=$((ErrCount + 1))
 done
@@ -145,6 +145,7 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/glkfu'\
 	'glkfu.1.gz:/usr/share/man/man1/glkfu.1.gz'\
+	'glkfu-list:/usr/bin/glkfu-list'\
 	'glkfu:/usr/bin/glkfu'
 do
 	printf "* Installing '%s' ... " "${File%%:*}"
