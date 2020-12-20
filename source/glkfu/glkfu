@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Fri 18 Dec 01:30:50 GMT 2020
+# Last Change       - Sun 20 Dec 05:05:53 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -39,7 +39,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-18'
+CurVer='2020-12-20'
 Progrm=${0##*/}
 
 Usage(){
@@ -61,33 +61,6 @@ Usage(){
 		  -k, --keep-files         - Keep files if $Progrm unexpectedly exits.
 		  -o, --output [TYPE]      - Output TYPE, for scripting. See below.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
-
-		  When specifying an alternative tarball FILE, ensure that you use the
-		  same filename format as it normally is. Below is the REGEX for the
-		  expected format:
-
-		    '^linux-[0-9\\\.]+\\\.tar\\\.xz$'
-
-		  Otherwise $Progrm will error out.
-
-		  Available TYPEs to output:
-
-		    current                - Current Linux version.
-		    current.[maj|min|rev]  - Major, minor, or revision of 'current'.
-		    current.split          - Current Linux version, split by spaces.
-		    latest                 - Latest Linux version.
-		    latest.[maj|min|rev]   - Major, minor, or revision of 'latest'.
-		    latest.split           - Latest Linux version, split by spaces.
-		    latest.tarball         - Filename of the latest tarball.
-
-		  When just checking for a new kernel version, the following exit
-		  statuses will be used by $Progrm:
-
-		    3 = Unable to determine if the latest version is newer or not.
-		    2 = No new version was found.
-		    0 = A new version was (probably) found.
-
-		  By default, $Progrm will use the maximum number of cores for make(1).
 	EOF
 }
 

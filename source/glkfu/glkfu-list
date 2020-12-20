@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Sun 20 Dec 04:42:21 GMT 2020
+# Last Change       - Sun 20 Dec 05:06:52 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ my @Data = split("\n", get("$Domain/pub/linux/kernel"));
 my @KernVers;
 foreach (@Data) {
 	my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
-	push(@KernVers, $File) if $File =~ '^v[0-9]+\.[0-9x]+/'
+	push(@KernVers, $File) if $File =~ '^v\d+\.[\dx]+/'
 }
 
 my @Tarballs;
@@ -62,7 +62,7 @@ foreach my $Version (@KernVers) {
 
 	foreach (@Data) {
 		my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
-		next unless $File =~ '^linux-[0-9\.]+.tar.xz$';
+		next unless $File =~ '^linux-[\d\.]+.tar.xz$';
 		print("$File\n")
 	}
 }
