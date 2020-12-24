@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Thu 24 Dec 01:41:55 GMT 2020
+# Last Change       - Thu 24 Dec 01:53:40 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,6 +12,7 @@
 #
 # Dependencies:
 #
+#   glkfu (>= 2020-12-20)
 #   libsort-versions-perl (>= 1.62-1)
 #   libwww-perl (>= 6.31-1)
 #   perl (>= 5.22.1-9)
@@ -33,9 +34,13 @@ sub Usage {
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  -C, --no-color           - Disable ANSI color escape sequences.
+
+		  The current version is by default highlighted in green, if possible.
 	} =~ tr/\t//dr)
 }
 
+my $DoColor = 'True';
 my $Domain = 'https://www.kernel.org';
 
 while (defined($ARGV[0])) {
@@ -43,6 +48,8 @@ while (defined($ARGV[0])) {
 		Usage(); exit(0)
 	} elsif ($ARGV[0] =~ '^(--version|-v)$') {
 		print("$CurVer\n"); exit(0)
+	} elsif ($ARGV[0] =~ '^(--no-color|-C)$') {
+		$DoColor = 'False'
 	} else {
 		die("Incorrect option(s) specified")
 	}
@@ -69,4 +76,11 @@ foreach my $Version (@KernVers) {
 	}
 }
 
-map(printf("linux-%s.tar.xz\n", $_), sort({versioncmp($a, $b)} @Versions))
+chomp(my $CurKernVer = `glkfu -o current`);
+foreach my $Version (sort({versioncmp($a, $b)} @Versions)) {
+	if ($Version eq $CurKernVer and $DoColor eq 'True') {
+		printf("\e[1;32mlinux-%s.tar.xz\e[0m\n", $Version)
+	} else {
+		printf("linux-%s.tar.xz\n", $Version)
+	}
+}
