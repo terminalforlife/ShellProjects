@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Sun 20 Dec 05:06:52 GMT 2020
+# Last Change       - Thu 24 Dec 01:41:55 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,6 +12,7 @@
 #
 # Dependencies:
 #
+#   libsort-versions-perl (>= 1.62-1)
 #   libwww-perl (>= 6.31-1)
 #   perl (>= 5.22.1-9)
 #------------------------------------------------------------------------------
@@ -20,10 +21,11 @@ use strict;
 use warnings;
 use autodie;
 use LWP::Simple;
+use Sort::Versions 'versioncmp';
 
 no warnings 'uninitialized';
 
-my $CurVer = '2020-12-20';
+my $CurVer = '2020-12-24';
 my $Progrm = ($0 =~ m{(?:.*/)?([^/].*)})[0];
 
 sub Usage {
@@ -56,13 +58,15 @@ foreach (@Data) {
 	push(@KernVers, $File) if $File =~ '^v\d+\.[\dx]+/'
 }
 
-my @Tarballs;
+my (@Tarballs, @Versions);
 foreach my $Version (@KernVers) {
 	@Data = split("\n", get("$Domain/pub/linux/kernel/$Version"));
 
 	foreach (@Data) {
 		my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
 		next unless $File =~ '^linux-[\d\.]+.tar.xz$';
-		print("$File\n")
+		push(@Versions, (m{(?:linux-)([\d\.]+)(?:\.tar\.xz)})[0])
 	}
 }
+
+map(printf("linux-%s.tar.xz\n", $_), sort({versioncmp($a, $b)} @Versions))
