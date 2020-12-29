@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu 17 Dec 20:52:49 GMT 2020
+# Last Change       - Tue 29 Dec 01:54:32 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-17'
+CurVer='2020-12-29'
 Progrm=${0##*/}
 
 Usage(){
@@ -47,6 +47,7 @@ Usage(){
 		  -f, --force              - Forces use of that which is unsupported.
 		  -o, --once               - Execute FILE only once; no looping.
 		  -r, --refresh <INT>      - Adjust to fit your performance needs.
+		  -t, --time               - Time the execution of FILE.
 
 		  To exit AutoExec, send the SIGINT (130) signal using the Ctrl + C
 		  shortcut (^C). Your previous terminal layout will be restored.
@@ -100,6 +101,8 @@ while [ "$1" ]; do
 			NoColor='True' ;;
 		--force|-f)
 			Force='True' ;;
+		--time|-t)
+			DoTime='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -191,7 +194,13 @@ while :; do
 		if [ 0${SSEOld//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
 			[ "$Once" == 'true' ] || tput clear
 
-			"$Exec" "$ExecFile" "$@"
+			if [ "$DoTime" == 'True' ]; then
+				TIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
+				time "$Exec" "$ExecFile" "$@"
+			else
+				"$Exec" "$ExecFile" "$@"
+			fi
+
 			Exit=$?
 		fi
 
