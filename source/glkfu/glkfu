@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Thu 24 Dec 02:00:08 GMT 2020
+# Last Change       - Tue 29 Dec 02:10:54 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -40,7 +40,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-24'
+CurVer='2020-12-29'
 Progrm=${0##*/}
 
 Usage(){
@@ -252,37 +252,42 @@ JustOutput(){
 
 #------------------------------------Determine the Latest Stable Kernel Version
 
-# Parse page data to get the tarball filename of the latest stable kernel.
-if [ -z "$LatestTar" ]; then
-	while read; do
-		if [[ $REPLY =~ ^[[:space:]]+'<td id="latest_link">'$ ]]; then
-			FirstLineFound='True'
-		elif [ "$FirstLineFound" == 'True' ]; then
-			IFS='/' read -a Buffer <<< "$REPLY"
-			LatestTar=${Buffer[7]%%\"*}
-			break
+case $Output in
+	current|current.*)
+		;;
+	*|'')
+		# Parse page data to get tarball filename of the latest stable kernel.
+		if [ -z "$LatestTar" ]; then
+			while read; do
+				if [[ $REPLY =~ ^[[:space:]]+'<td id="latest_link">'$ ]]; then
+					FirstLineFound='True'
+				elif [ "$FirstLineFound" == 'True' ]; then
+					IFS='/' read -a Buffer <<< "$REPLY"
+					LatestTar=${Buffer[7]%%\"*}
+					break
+				fi
+			done <<< "$(Get - "$KernOrg")"
 		fi
-	done <<< "$(Get - "$KernOrg")"
-fi
 
-JustOutput 'latest.tarball' "$LatestTar"
+		JustOutput 'latest.tarball' "$LatestTar"
 
-# Just in-case, check the resulting filename is valid.
-if ! [[ $LatestTar =~ ^linux-[0-9]+\.[0-9\.]+.tar\.xz$ ]]; then
-	Err 1 "Tarball filename '$LatestTar' not valid."
-fi
+		# Just in-case, check the resulting filename is valid.
+		if ! [[ $LatestTar =~ ^linux-[0-9]+\.[0-9\.]+.tar\.xz$ ]]; then
+			Err 1 "Tarball filename '$LatestTar' not valid."
+		fi
 
-# From the tarball filename, store just the version string. Shouldn't be a need
-# to check the value here, as checking is done above.
-LatestVerBuffer=${LatestTar//[!0-9.]/}
-LatestVer=${LatestVerBuffer%..}
+		# From the tarball filename, store just the version string. Shouldn't
+		# be a need to check the value here, as checking is done above.
+		LatestVerBuffer=${LatestTar//[!0-9.]/}
+		LatestVer=${LatestVerBuffer%..}
 
-# Get the major number of the latest version.
-LatestVerMaj=${LatestVer%%.*}
+		# Get the major number of the latest version.
+		LatestVerMaj=${LatestVer%%.*}
 
-JustOutput 'latest' "$LatestVer"
+		JustOutput 'latest' "$LatestVer"
 
-[ -z "$Output" ] && printf 'Latest Linux version: %s\n' "$LatestVer"
+		[ -z "$Output" ] && printf 'Latest Linux version: %s\n' "$LatestVer" ;;
+esac
 
 #---------------------Determine if the Latest is Newer than the Current Version
 
