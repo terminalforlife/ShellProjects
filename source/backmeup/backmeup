@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Mon  4 Jan 17:47:48 GMT 2021
+# Last Change       - Mon  4 Jan 17:56:33 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,10 +17,10 @@
 #
 # Dependencies:
 #
-#   coreutils (>= 8.28)
-#   gzip (>= 1.6)
-#   libnotify-bin (>= 0.7.7-3)
-#   tar (>= 1.29b-2)
+#   coreutils (>= 8.25-2)
+#   gzip (>= 1.6-4)
+#   libnotify-bin (>= 0.7.6-2svn1)
+#   tar (>= 1.28-2.1)
 #------------------------------------------------------------------------------
 
 CurVer='2021-01-04'
