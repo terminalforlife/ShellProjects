@@ -1,14 +1,29 @@
 #!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/backmeup
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Fri 13 Nov 15:53:58 GMT 2020
+# Last Change       - Mon  4 Jan 17:47:48 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   coreutils (>= 8.28)
+#   gzip (>= 1.6)
+#   libnotify-bin (>= 0.7.7-3)
+#   tar (>= 1.29b-2)
+#------------------------------------------------------------------------------
 
-CurVer='2020-11-13'
+CurVer='2021-01-04'
 Progrm=${0##*/}
 
 Usage(){
@@ -154,8 +169,6 @@ if [ $ExitStatus -eq 0 ]; then
 	if [ "$Notify" = 'true' ]; then
 		notify-send "Instance of '$Progrm' successfully finished."
 	fi
-
-	exit 0
 else
 	printf 'WARNING: One or more errors detected during backup.\n' 1>&2
 
