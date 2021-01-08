@@ -11,7 +11,7 @@ f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
 3b9278b0febf0f9a47544e578d92692f  source/autoexec/autoexec
 f1c3fc4c1a462c6f52bbc5c1d2949590  source/autoexec/autoexec.1.gz
-f4d369207f0332156773a4583b0ed9f1  source/autoexec/autoexec-installer
+0c51eea26845c49eb762bb8f950a2093  source/autoexec/autoexec-installer
 7bc62dc546cb673a1c864d358b727622  source/autoexec/completions
 027afc0427081a418fe54611ce871f4b  source/autoscrot
 ac9937a9f9b5b5802fc67cb6bef745be  source/backmeup/backmeup
@@ -65,7 +65,7 @@ a5c9e77143d8739e31e7d9945cd2354f  source/getline
 bf13c1d86311839fb047ea751033e76d  source/glkfu/completions
 8b7f97aa4084f18da9fae1c744035893  source/glkfu/glkfu
 9ce72241811b6fd5afcd64010d246084  source/glkfu/glkfu.1.gz
-c062f81345fcbe0775f2193c63274b6b  source/glkfu/glkfu-installer
+a241c1075d5bdc256a0a999359e05993  source/glkfu/glkfu-installer
 4f999e49c2dc37662dbec0c1b8bd7770  source/glkfu/glkfu-list
 c9a3243f1e2635480a6d13bc2e7ad2dd  source/iplite
 5e740abb0c9cbdb0ac18c9e87238ea99  source/isbatlow

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Fri  8 Jan 19:50:46 GMT 2021
+# Last Change       - Fri  8 Jan 19:52:57 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ for File in 'completions' 'autoexec' 'autoexec.1.gz'; do
 
 		printf '* Verifying file contents ... '
 		Contents=`< "$TmpDir/$File"`
-		if [ "$(sed '1!d' "$TmpDir/$File")" = '404: Not Found' ]; then
+		if [ "$(head -n 1 "$TmpDir/$File")" = '404: Not Found' ]; then
 			ErrCount=$((ErrCount + 1))
 			printf '\033[31m[ERR]\033[0m\n'
 			rm "$TmpDir/$File" > /dev/null 2>&1
