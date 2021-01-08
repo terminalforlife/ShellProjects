@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Tue 29 Dec 01:54:32 GMT 2020
+# Last Change       - Fri  8 Jan 15:31:42 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-29'
+CurVer='2021-01-08'
 Progrm=${0##*/}
 
 Usage(){
@@ -123,13 +123,13 @@ ExecFile=$1; shift
 
 declare -i DepCount=0
 for Dep in file tput sleep stat; {
-	if ! type -P "$Dep" 1> /dev/null 2>&1; then
+	if ! type -P "$Dep" &> /dev/null; then
 		printf "Dependency '%s' not met.\n" "$Dep" 1>&2
 		DepCount++
 	fi
 }
 
-[ "$DepCount" == 'True' ] && exit 1
+[ $DepCount -gt 0 ] && exit 1
 
 if [ "$Force" != 'True' ]; then
 	case $Exec in
