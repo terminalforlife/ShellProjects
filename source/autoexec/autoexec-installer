@@ -1,0 +1,165 @@
+#!/bin/sh
+#cito M:755 O:0 G:0 T:/usr/bin/autoexec-installer
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/autoexec/autoexec-installer
+# Started On        - Thu 12 Mar 14:54:26 GMT 2020
+# Last Change       - Fri  8 Jan 19:50:46 GMT 2021
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Simple, but pretty and mindful Bourne Shell installer for AutoExec, for those
+# unable or unwilling to use the provided Debian packages available in the
+# DEB-Packages repository.
+#
+# To use this installer, you can either:
+#
+#   Clone the repository, using git(1) command.
+#
+#     OR
+#
+#   Download the archive of it directly from GitHub, then extract its contents.
+#
+# Since this installer just fetches from GitHub, you needn't actually download
+# the entire Extra repository to install it; only the installer.
+#
+# If you want a HOME-only installation, you'll have to either use Cito, or
+# otherwise install it manually, but you may miss out on a lot of features.
+#
+# Dependencies:
+#
+#   coreutils (>= 8.25-2)
+#   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
+#------------------------------------------------------------------------------
+
+if command -v curl 1> /dev/null 2>&1; then
+	DLCMD='curl -so'
+elif command -v wget 1> /dev/null 2>&1; then
+	DLCMD='wget -qO'
+else
+	printf "ERROR: Neither 'wget' nor 'curl' are available.\n" 1>&2
+	exit 1
+fi
+
+if [ `id -u` -ne 0 ]; then
+	printf "ERROR: Root access is required for system-wide changes.\n" 1>&2
+	exit 1
+fi
+
+printf 'Install latest version of AutoExec? [Y/N] '
+read Answer
+case $Answer in
+	[Yy]|[Yy][Ee][Ss])
+		printf 'Continuing with installation.\n' ;;
+	[Nn]|[Nn][Oo])
+		printf 'Abandoning installation.\n'
+		exit 0 ;;
+	*)
+		printf 'ERROR: Invalid response -- quitting.\n' 1>&2
+		exit 2 ;;
+esac
+
+LogFile='/tmp/autoexec-installer.log'
+[ -f "$LogFile" ] || 1> "$LogFile"
+chmod 644 "$LogFile"
+
+TmpDir=`mktemp -d --suffix '_tfl'`
+
+URL='https://raw.githubusercontent.com/terminalforlife'
+URL="$URL/Extra/master/source/autoexec"
+
+SigHandler(){
+	Sig=$?
+
+	printf 'Cleaning up temporary files:\n'
+	printf '* Removing '%s' ... ' "$TmpDir"
+	ErrCount=0
+	if rm -r "$TmpDir" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+
+	if [ -s "$LogFile" ]; then
+		printf "Done! -- errors logged in: '${LogFile#$HOME}'\n"
+	else
+		printf 'Done!\n'
+	fi
+
+	exit $Sig
+}
+
+trap SigHandler EXIT INT QUIT ABRT TERM
+
+printf 'Fetching files from GitHub:\n'
+ErrCount=0
+for File in 'completions' 'autoexec' 'autoexec.1.gz'; do
+	printf "* Downloading '%s' ... " "$File"
+	if $DLCMD "$TmpDir/$File" "$URL/$File" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+
+		printf '* Verifying file contents ... '
+		Contents=`< "$TmpDir/$File"`
+		if [ "$(sed '1!d' "$TmpDir/$File")" = '404: Not Found' ]; then
+			ErrCount=$((ErrCount + 1))
+			printf '\033[31m[ERR]\033[0m\n'
+			rm "$TmpDir/$File" > /dev/null 2>&1
+		else
+			printf '\033[32m[OK]\033[0m\n'
+		fi
+	else
+		ErrCount=$((ErrCount + 1))
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+done
+
+if [ $ErrCount -gt 0 ]; then
+	printf 'ERROR: Failed to download one or more files.\n' 1>&2
+	exit 1
+fi
+
+printf 'Setting correct file attributes:\n'
+
+printf '* Assigning owner and group ... '
+if chown 0:0 "$TmpDir"/* 2>> "$LogFile"; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf '* Assigning modes ... '
+ErrCount=0
+for File in 'autoexec:755' 'completions:644' 'autoexec.1.gz:644'; do
+	chmod ${File##*:} "$TmpDir/${File%:*}" 2>> "$LogFile" ||
+		ErrCount=$((ErrCount + 1))
+done
+
+if [ $ErrCount -eq 0 ]; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf 'Moving files into place:\n'
+ErrCount=0
+for File in\
+\
+	'completions:/usr/share/bash-completion/completions/autoexec'\
+	'autoexec.1.gz:/usr/share/man/man1/autoexec.1.gz'\
+	'autoexec:/usr/bin/autoexec'
+do
+	printf "* Installing '%s' ... " "${File%%:*}"
+	if mv "$TmpDir/${File%%:*}" "${File#*:}" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+done
+
+printf 'Checking executables work:\n'
+
+printf "* Verifying 'autoexec' ... "
+if autoexec -v > /dev/null 2>&1; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
