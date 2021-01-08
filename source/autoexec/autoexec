@@ -174,7 +174,7 @@ WinchHandler
 printf '\n'
 while :; do
 	# Determine the interpreter to use.
-	if [ ${#Exec} -eq 0 ]; then
+	if [ -z "$Exec" ]; then
 		read SheBang < "$ExecFile"
 		SheBang1=${SheBang#*\!}
 		SheBang2=${SheBang1##*/}
