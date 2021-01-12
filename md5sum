@@ -32,7 +32,6 @@ fda3cbde8955b83ae5a7944d327b10e7  source/ccfiles
 1b6c1a3cfd94b22826eedcbd440841d4  source/cmdttl
 94bb442073283389c8f6e317582067b8  source/completions/autoscrot
 c381c817f1ff17cebcf679b06a120b7a  source/completions/bdl
-cbb9dbc66a9130d32ac08d13e1596b87  source/completions/insit
 a18355166e233cd6001a33ea88e62717  source/completions/mif
 0452177831ac7fe38dd6ae55a59fc3d7  source/completions/mkpass
 031bf1b293f2bea3fd24a9e719dc3a2a  source/completions/nwchk
@@ -41,7 +40,6 @@ e6e9036b9c16fa35b92ac81e2b4451de  source/completions/nxbt
 4a0675a940e09acb553b665fdfb628ee  source/completions/shlides
 5db2cee5f2051242a5c5f71b29f9fd6c  source/completions/simplify-ubuntu
 30c61858b52bd2ed7dc33713bd8800ce  source/completions/simwea
-197dcc70cf5850bde53cbfe53a57a7ee  source/completions/ubuntu-syschk
 a8169d7f7fc48a2499e0fd42305e9bdf  source/cron_tasks/notify-upgrade
 608220cedba01e5db4ea43471d3e8d3f  source/cron_tasks/tfl-freshclam
 0961be76093c4062be68357579dff2b9  source/dlclecs
