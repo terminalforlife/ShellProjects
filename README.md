@@ -23,9 +23,7 @@ Continue to the next section to see how you can get them...
 
 # Instructions for Installation
 
-Before I begin, some of these programs, including Cito, depend on `libtflbp-sh` (get it [here](https://github.com/terminalforlife/Extra/tree/master/source/libtflbp-sh)).
-
-Some of the following commands tell you to use [sudo](https://en.wikipedia.org/wiki/Sudo), but not everybody _has_ that utility; if you're one of those special snowflakes, then you'll likely want to use [su](https://en.wikipedia.org/wiki/Su_\(Unix\)) prior to running the commands otherwise ran with sudo.
+Some of the following commands tell you to use [sudo](https://en.wikipedia.org/wiki/Sudo), but not everybody _has_ that utility; if you're such a person, then you'll likely want to use [su](https://en.wikipedia.org/wiki/Su_\(Unix\)) prior to running the commands otherwise ran with sudo.
 
 You have four options available to you, at the time of writing this:
 
@@ -37,18 +35,4 @@ You have four options available to you, at the time of writing this:
     wget -q 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito'; sudo sh cito cito
     ```
 
-  * If you're on a Debian- or Ubuntu-based distribution of Linux:
-
-    ```bash
-    wget -q 'https://raw.githubusercontent.com/terminalforlife/DEB-Packages/master/cito/cito_2019-12-10_all.deb'; sudo dpkg -i cito_2019-12-10_all.deb
-    ```
-
-  * It's clunky and it's inconvenient, but if you must, you can clone this repository then install them yourself, line-by-line.
-
-    1. Open up a terminal, and keep it open until this is done.
-    2. Make sure you have git installed. IE: `sudo apt-get install git`
-    3. Run: `git clone 'https://github.com/terminalforlife/Extra'`
-    4. Run: `cd Extra` to change to the newly-cloned directory.
-    5. From here, it depends on the file you want. Hence: clunky method.
-
-You should be ready to go, now. If you have any problems, don't hesitate to let me know, either here on GitHub, YouTube, or via the following E-Mail address: terminalforlife@yahoo.com
+  * If you're on a Debian- or Ubuntu-based distribution of Linux, refer to the (https://github.com/terminalforlife/DEB-Packages){DEB-Packages} repository for a list of Debian packages for various versions of TFL programs which you can install.
