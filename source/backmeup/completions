@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/completions
 # Started On        - Wed 12 Feb 18:58:13 GMT 2020
-# Last Change       - Wed 12 Feb 18:58:18 GMT 2020
+# Last Change       - Tue 12 Jan 00:08:11 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,14 @@ _backmeup(){
 		fi
 	done <<< "$(backmeup -h)"
 
-	COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	if [[ $2 == -* ]]; then
+		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	else
+		case $3 in
+			-s|--set-store|-E|--exclude)
+				COMPREPLY=(`compgen -o default -- "$2"`) ;;
+		esac
+	fi
 
 	unset Option Arg Args
 }
