@@ -7,21 +7,17 @@ Thank you for your interest. Despite the non-descript name of this repository, i
 
 Some of the programs within this repository were written and are maintained for a Bourne POSIX-compliant shell (with [Yash](https://yash.osdn.jp/) as guidance), and others are written for the Bourne Again Shell.
 
-As of 2020-01-15, here are some highlights:
+As of 2021-01-12, here are some highlights:
 
-  * autosh - Development tool for shell programmers needing live updates.
-  * cito - Bourne POSIX installer for local or GitHub files.
-  * libtflbp-sh - Bourne POSIX function library used by TFL programs.
-  * lspkg - Test for, describe, and list out installed packages.
-  * mif - Shell program to filter films by year and whether seen or not.
-  * mkpass - Pure Bourne Again Shell approach to complex password generation.
-  * rmne - POSIX Bourne method to remove non-essential Debian packages.
-  * roks - Remove old kernel versions on an Ubuntu- or Debian-based system.
-  * shlides - Present a project on your terminal via formatted slides.
+  * autoexec - Development tool for automatic execution of scripts
+  * backmeup - Simple and portable solution to HOME backup
+  * cito - Portable installer for local or GitHub files
+  * glkfu - Easily compile & build Debian packages for Linux kernels
+  * lspkg - Search through, test for, and list out installed packages
+  * lspkg-set - Output various sets of installed packages
+  * mkpass - Complex password generation.
+  * rmne - Remove all of the non-essential Debian packages
   * simplify-ubuntu - Project to lighten Ubuntu 16.04.* LTS installations.
-  * simwea - Display various weather statistics on a terminal.
-  * snotes - Search your programming notes on-the-fly with this simple tool.
-  * ubuntu-syschk - Performs various non-root system health checks on Ubuntu and similar.
 
 Continue to the next section to see how you can get them...
 
