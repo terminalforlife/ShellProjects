@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/completions
 # Started On        - Tue  8 Dec 16:34:46 GMT 2020
-# Last Change       - Tue  8 Dec 16:34:49 GMT 2020
+# Last Change       - Tue 12 Jan 00:18:43 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,12 @@ _glkfu(){
 		fi
 	done <<< "$(glkfu -h)"
 
-	COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	case $3 in
+		-C|--config|-o|--output|-D|--build-dir)
+			COMPREPLY=(`compgen -o default -- "$2"`) ;;
+		*)
+			COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
+	esac
 
 	unset Option Arg Args
 }

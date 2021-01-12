@@ -60,7 +60,7 @@ e564b310040fa4bcc9c7918bb222ae2c  source/fetcher/fetcher
 a5c9e77143d8739e31e7d9945cd2354f  source/getline
 2943e30989e211d156f6e6ed79ea2371  source/ghipc
 6527a9de2de554acf39e29dbb5f0dabd  source/github-ssh-setup
-bf13c1d86311839fb047ea751033e76d  source/glkfu/completions
+65f1fe7f2ff1433abdd2cb35a91ee39c  source/glkfu/completions
 8b7f97aa4084f18da9fae1c744035893  source/glkfu/glkfu
 9ce72241811b6fd5afcd64010d246084  source/glkfu/glkfu.1.gz
 a241c1075d5bdc256a0a999359e05993  source/glkfu/glkfu-installer
