@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/completions
 # Started On        - Wed 12 Feb 18:58:13 GMT 2020
-# Last Change       - Sat 22 Feb 02:05:12 GMT 2020
+# Last Change       - Tue 12 Jan 00:26:09 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,9 +20,15 @@ _autoexec(){
 		fi
 	done <<< "$(autoexec -h)"
 
-	COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	if [[ $2 == -* ]]; then
+		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	elif [ "$3" == '-e' ] || [ "$3" == '--exec' ]; then
+		COMPREPLY=(`compgen -A command -- "$2"`)
+	else
+		COMPREPLY=(`compgen -o default -- "$2"`)
+	fi
 
 	unset Option Arg Args
 }
 
-complete -F _autoexec -o default autoexec
+complete -F _autoexec autoexec
