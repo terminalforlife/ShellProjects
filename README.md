@@ -25,11 +25,11 @@ Continue to the next section to see how you can get them...
 
 Some of the following commands tell you to use [sudo](https://en.wikipedia.org/wiki/Sudo), but not everybody _has_ that utility; if you're such a person, then you'll likely want to use [su](https://en.wikipedia.org/wiki/Su_\(Unix\)) prior to running the commands otherwise ran with sudo.
 
-You have four options available to you, at the time of writing this:
+You have various options available to you:
 
-  * You can install via one of the many Debian packages I've built and stored within the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository. This won't guarantee the latest version, however, but it's the easiest method, provided you're on a Debian-based installation of Linux, and as of 2019-12-10, multiple versions will become available for the foreseeable future.
+  * You can install one of the many Debian packages I've built and stored within the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository. This won't always be the latest version, but it's the easiest method, provided you're on an Ubuntu- or Debian-based installation of Linux.
 
-  * You can install via the new, exhaustive [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito/cito) program I've written for just this purpose. It's lightweight, portable, and installable with the following one-liner, after which many programs or files on GitHub or locally are quick, robust, and painless to install -- not just my own!
+  * You can install [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito/cito). It's lightweight and portable, installable with the following one-liner, after which many programs or files on GitHub or locally are quick, robust, and painless to install -- not just my own!
 
     ```bash
     wget -q 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito'; sudo sh cito cito
