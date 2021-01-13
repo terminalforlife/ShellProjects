@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Tue 12 Jan 16:27:21 GMT 2021
+# Last Change       - Wed 13 Jan 16:35:23 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -25,7 +25,7 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-12'
+CurVer='2021-01-13'
 Progrm=${0##*/}
 
 Usage(){
@@ -82,9 +82,12 @@ while [ -n "$1" ]; do
 			SkipLog='true' ;;
 		--remote|-r)
 			DoRemote='true'
+			GHUser=$2
+			Repo=$3
+			Branch=$4
 
 			RemCount=0
-			for Iter in "x$2" "x$3" "x$4"; do
+			for Iter in "x$GHUser" "x$Repo" "x$Branch"; do
 				RemCount=$((RemCount + 1))
 
 				case $RemCount in
