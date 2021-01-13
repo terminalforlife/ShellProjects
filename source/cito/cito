@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Wed 13 Jan 16:35:23 GMT 2021
+# Last Change       - Wed 13 Jan 16:37:59 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -82,6 +82,8 @@ while [ -n "$1" ]; do
 			SkipLog='true' ;;
 		--remote|-r)
 			DoRemote='true'
+
+			# These variables are also used later.
 			GHUser=$2
 			Repo=$3
 			Branch=$4
