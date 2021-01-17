@@ -3,44 +3,39 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Sun  2 Feb 23:57:15 GMT 2020
+# Last Change       - Sun 17 Jan 01:15:39 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+#TODO: Use `/sys/class/power_supply` instead, or perhaps as an alternative.
+#------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
-
-CurVer='2020-02-02'
+CurVer='2021-01-17'
 Progrm=${0##*/}
 
-Domain='https://github.com'
-
 Usage(){
-	while read; do
-		printf '%s\n' "$REPLY"
+	while read CurLine; do
+		printf '%s\n' "$CurLine"
 	done <<-EOF
-		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] [CMD]
 
-		            Simple utility for laptops, to check if the battery is low.
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  -B, --battery [NAME]     - Specify which battery to watch.
+		  -i, --interval [INT]     - Set seconds of interval to INT.
+		  -l, --limit [INT]        - Set battery limit to INT percent.
 
-		SYNTAX:     $Progrm [OPTS] [CMD]
-
-		OPTS:       --help|-h|-?            - Display this help information.
-		            --version|-v            - Output the version datestamp.
-		            --battery|-B NAME       - Specify which battery to watch.
-		            --interval|-I N         - Set interval, in seconds, to N.
-		            --limit|-L N            - Set battery limit to N percent.
-
-		NOTE:       Where CMD is one or more commands to run upon the battery
-		            limit being detected, which is by default 15%, remaining.
-
-		SITE:       $Domain/terminalforlife/Extra
+		  Where CMD is one or more commands to run upon the battery limit being
+		  detected, which is by default '15' (percent remaining).
 	EOF
 }
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+Domain='https://github.com'
 
 Battery='battery_BAT0'
 Interval=30
@@ -84,22 +79,28 @@ while [ "$1" ]; do
 	shift
 done
 
-#TODO: Use `/sys/class/power_supply` instead, or perhaps as an alternative.
+DepCount=0
+for Dep in notify-send on_ac_power sleep; do
+	if ! type -P "$Dep" &> /dev/null; then
+		Err 0 "Dependency '$Dep' not met."
+		let DepCount++
+	fi
+done
 
-DepChk notify-send on_ac_power sleep
+[ $DepCount -gt 0 ] && exit 1
 
 if ! on_ac_power; then
-	while IFS=":" read -a X; do
-		if [ "${X[0]// }" == 'percentage' ]; then
-			if ! [[ ${X[1]// } =~ ^[0-9]+%$ ]]; then
+	while IFS=':' read -a Line; do
+		if [ "${Line[0]// }" == 'percentage' ]; then
+			if ! [[ ${Line[1]// } =~ ^[0-9]+%$ ]]; then
 				notify-send --urgency=critical 'Unable to get valid battery value.'
 				Err 0 'Unable to get valid percentile.'
 			else
-				if [ ${X[1]%\%} -le $Limit ]; then
+				if [ ${Line[1]%\%} -le $Limit ]; then
 					notify-send --urgency=critical 'Battery is critically low!'
 
 					(
-						$@
+						"$@"
 					)
 				fi
 			fi
