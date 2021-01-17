@@ -3,11 +3,15 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/nosp (No Smart-Placement)
 # Started On        - Sat 16 Sep 20:03:52 BST 2017
-# Last Change       - Tue  8 Dec 00:20:49 GMT 2020
+# Last Change       - Sun 17 Jan 00:34:04 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Workaround for the issue causing XFCE Smart Placement to refuses to go away.
+#
+# This was used in Ubuntu 16.04 (not GNOME3 or Unity, but with XFCE) but now we
+# are on 20.04 (at the time of writing this), so I'm not sure if this is still
+# needed to effectively disable Smart Placement.
 #------------------------------------------------------------------------------
 
 Err(){
