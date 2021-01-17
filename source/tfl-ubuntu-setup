@@ -3,13 +3,15 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Sat 29 Feb 01:56:27 GMT 2020
+# Last Change       - Sun 17 Jan 01:18:55 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # This installation script is for use after installing via something like the
 # `mini.iso` of Ubuntu 16.04, or after using rmne(8) and installing only the
 # basics, like the kernel, UFW, etc. Would probably work on 18.04, however.
+#
+# This is unfinished, and I cannot guarantee it'll even work. It's untested.
 #
 # Features:
 #
@@ -26,7 +28,7 @@
 #   dpkg (>= 1.18.4)
 #------------------------------------------------------------------------------
 
-CurVer='2020-02-29'
+CurVer='2021-01-17'
 Progrm=${0##*/}
 
 Err(){
