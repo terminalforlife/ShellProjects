@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dwwdl
 # Started On        - Sat 16 Sep 22:41:54 BST 2017
-# Last Change       - Sun 17 Jan 01:04:27 GMT 2021
+# Last Change       - Sun 17 Jan 01:06:27 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -30,10 +30,8 @@ Usage(){
 		  --quiet-sleep            - Omit the sleep messages, if being kind.
 		  --server-kind            - Use a random interval between downloads.
 		  --show-progress          - Display the WGet download progress bar.
-		  -S, --shutdown           - Shut system down after $Progrm finishes.
 		  -d, --date [YYYYMMDD]    - Specify the podcast to download, by date.
 		  -i, --interval [N]       - Use a specific interval between downloads.
-		  -s, --suspend            - Suspend system after $Progrm finishes.
 		  -t, --type [OGG|MP3]     - Use file type of either 'OGG' or 'MP3'.
 
 		  All podcasts will be downloaded to the current working directory and
@@ -89,18 +87,6 @@ while [ "$1" ]; do
 				Podcasts+=" $1"
 			else
 				Err 1 "Incorrect podcast date provided."
-			fi ;;
-		--suspend|-s)
-			Suspend='true'
-
-			if ! type -P systemctl &> /dev/null; then
-				Err 1 "Dependency 'systemctl' not met."
-			fi ;;
-		--shutdown|-S)
-			Shutdown='true'
-
-			if ! type -P shutdown &> /dev/null; then
-				Err 1 "Dependency 'shutdown' not met."
 			fi ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
@@ -173,24 +159,3 @@ for Date in $Podcasts; {
 		Err 0 "Podcast '$Date' failed."
 	fi
 }
-
-if [ "$Shutdown" == 'true' ]; then
-	shutdown '+3' &> /dev/null
-	printf "%s\n" "Shutting down in 3 minutes..."
-	read -n 1 -ep "Type 'C' to cancel, or 'N' to shutdown now: "
-
-	case ${REPLY:-EMPTY} in
-		[Cc])
-			shutdown --no-wall -c
-			exit 0 ;;
-		[Nn])
-			shutdown --no-wall now ;;
-		EMPTY|*)
-			Err 1 "Invalid response -- quitting." ;;
-	esac
-elif [ "$Suspend" == 'true' ]; then
-	sync
-	printf 'System will suspend in 3s! Ctrl + C to cancel.\n'
-	sleep 3
-	systemctl suspend
-fi
