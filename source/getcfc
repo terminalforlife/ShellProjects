@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/getcfc
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017
-# Last Change       - Sun 24 Jan 14:23:13 GMT 2021
+# Last Change       - Sun 24 Jan 14:29:47 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,16 +14,16 @@ CurVer='2021-01-24'
 Progrm=${0##*/}
 
 Usage(){
-	while read; do
-		printf '%s\n' "$REPLY"
+	while read -r Line; do
+		printf '%b\n' "$Line"
 	done <<-EOF
-		Usage: $Progrm [OPTS]
+		\rUsage: $Progrm [OPTS]
 
-		  -h, --help               - Displays this help information.
-		  -v, --version            - Output only the version datestamp.
+		\r  -h, --help               - Displays this help information.
+		\r  -v, --version            - Output only the version datestamp.
 
-		  Where DISC_NUMBER is a zero-padded number between 01 and 60. Sadly, -
-		  discs 17 and 47 are missing.
+		\r  Where DISC_NUMBER is a zero-padded number between 01 and 60. Sadly, -
+		\r  discs 17 and 47 are missing.
 	EOF
 }
 
@@ -33,6 +33,7 @@ Err(){
 }
 
 Domain='https://archive.org'
+URL='download/cdrom-classic-fond'
 
 while [ "$1" ]; do
 	case $1 in
@@ -48,17 +49,19 @@ while [ "$1" ]; do
 	shift
 done
 
-[ -x /usr/bin/wget ] || Err 1 "Dependency '/usr/bin/wget' not met."
+if ! command -v wget 1> /dev/null 2>&1; then
+	Err 1 "Dependency '/usr/bin/wget' not met."
+fi
 
 [ "$*" ] || Err 1 'Specifiy at least one CD to download.'
 
-URL='download/cdrom-classic-fond'
-
-for CD in "$@"; {
-	if ! [[ $CD == [0-9][0-9] ]]; then
-		Err 0 "Specified ISO '$CD' is invalid."
-		continue
-	fi
-
-	wget -qc --show-progress "$Domain/${URL}-${CD}/ClassicFond${CD}.iso"
-}
+for CD in "$@"; do
+	case $CD in
+		[0-9][0-9])
+			Link="$Domain/${URL}-${CD}/ClassicFond${CD}.iso"
+			wget -qc --show-progress "$Link" ;;
+		*)
+			Err 0 "Specified ISO '$CD' is invalid."
+			continue ;;
+	esac
+done
