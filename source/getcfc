@@ -1,83 +1,64 @@
-#!/bin/bash
-
-#----------------------------------------------------------------------------------
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/getcfc
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017
-# Last Change       - Wed 27 Nov 15:56:07 GMT 2019
+# Last Change       - Sun 24 Jan 14:23:13 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Download many classic ISO images contained a bundle of PC games.
+#------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
-_PROJECT_=${0##*/}
+CurVer='2021-01-24'
+Progrm=${0##*/}
 
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
-
-DOM="https://archive.org/"
-
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS]
 
-		            Download many classic ISO images contained a bundle of PC games.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
 
-		SYNTAX:     $_PROJECT_ [OPTS] DISC_NUMBER
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --debug|-D              - Enables the built-in bash debugging.
-
-		NOTE:       Where DISC_NUMBER is a zero-padded number between 01 and 60. Sadly, -
-		            discs 17 and 47 are missing.
-
-		SITE:       ${DOM%\/}
+		  Where DISC_NUMBER is a zero-padded number between 01 and 60. Sadly, -
+		  discs 17 and 47 are missing.
 	EOF
 }
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+Domain='https://archive.org'
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--quiet|-q)
-			BEQUIET='true' ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-[ -x /usr/bin/wget ] || Err 1 $LINENO "Dependency '/usr/bin/wget' not met."
+[ -x /usr/bin/wget ] || Err 1 "Dependency '/usr/bin/wget' not met."
 
-# Newer versions of wget by default request unwanted server-side compression.
-read -a WGET_VER_LINE <<< "$(wget --version)"
-[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+[ "$*" ] || Err 1 'Specifiy at least one CD to download.'
 
-[ "$*" ] || Err 1 $LINENO "Specifiy at least one CD to download."
+URL='download/cdrom-classic-fond'
 
-[ "$BEQUIET" == 'true' ] && exec > /dev/null
-[ "$DEBUGME" == 'true' ] && set -x
-
-URL="download/cdrom-classic-fond"
-
-for SEL in $@; {
-	if ! [[ $SEL == [0-9][0-9] ]]; then
-		Err 0 $LINENO "Specified ISO '$SEL' is invalid."
+for CD in "$@"; {
+	if ! [[ $CD == [0-9][0-9] ]]; then
+		Err 0 "Specified ISO '$CD' is invalid."
 		continue
 	fi
 
-	wget -qc --show-progress $NOWARC "$DOM${URL}-${SEL}/ClassicFond${SEL}.iso"
+	wget -qc --show-progress "$Domain/${URL}-${CD}/ClassicFond${CD}.iso"
 }
-
