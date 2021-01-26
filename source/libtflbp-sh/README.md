@@ -3,13 +3,11 @@
 
 # Introduction to Extra/source/libtflbp-sh
 
-These are files in each of which resides a function used in various programs and standard shell scripts I've written and continue to write. These are therefore considered dependencies in those cases. However, these are actually not just any old functions, but pure-Bourne [POSIX-compliant](https://en.wikipedia.org/wiki/POSIX) functions.
-
-A more detailed write-up will be here eventually -- grizzly bear with me!
+These are files in each of which resides a function which _used_ to be included in various programs and standard shell scripts I'd written. These were therefore considered dependencies in those cases. However, these are actually not just any old functions, but pure-Bourne [POSIX-compliant](https://en.wikipedia.org/wiki/POSIX) functions.
 
 # Installation Instructions
 
-If you're on a Debian- or Ubuntu-based distribution of Linux, installation is no problem. Head on over to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository, then download then install the `libtflbp-sh` package.
+If you're on a Debian- or Ubuntu-based distribution of Linux, installation is no problem. Head on over to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository, download one of the packages, then install it.
 
 Otherwise, execute the following, assuming you have sudo(8):
 
