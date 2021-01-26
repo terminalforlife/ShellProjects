@@ -7,17 +7,17 @@ Thank you for your interest. Despite the non-descript name of this repository, i
 
 Some of the programs within this repository were written and are maintained for a Bourne POSIX-compliant shell (with [Yash](https://yash.osdn.jp/) as guidance), and others are written for the Bourne Again Shell.
 
-As of 2021-01-12, here are some highlights:
+As of 2021-01-26, here are some highlights:
 
-  * autoexec - Development tool for automatic execution of scripts
-  * backmeup - Simple and portable solution to HOME backup
-  * cito - Portable installer for local or GitHub files
-  * glkfu - Easily compile & build Debian packages for Linux kernels
-  * lspkg - Search through, test for, and list out installed packages
-  * lspkg-set - Output various sets of installed packages
-  * mkpass - Complex password generation.
-  * rmne - Remove all of the non-essential Debian packages
-  * simplify-ubuntu - Project to lighten Ubuntu 16.04.* LTS installations.
+  * [autoexec](source/autoexec) - Development tool for automatic execution of scripts
+  * [backmeup](source/backmeup) - Simple and portable solution to HOME backup
+  * [cito](source/cito) - Portable installer for local or GitHub files
+  * [fetcher](source/fetcher) - Simple interactive multi-file downloader for the terminal.
+  * [glkfu](source/glkfu) - Easily compile & build Debian packages for Linux kernels
+  * [libtflbp-sh](source/libtflbp-sh) - Function library for Bourne Shell programs.
+  * [lspkg](source/lspkg) - Search through, test for, and list out installed packages
+  * [rmne](source/rmne) - Remove all of the non-essential Debian packages
+  * [simplify-ubuntu](source/simplify-ubuntu) - Project to lighten Ubuntu 16.04.* LTS installations.
 
 Continue to the next section to see how you can get them...
 
