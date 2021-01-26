@@ -24,9 +24,9 @@ dbb2ba488867cb30b84fc8f65fc97813  source/bios-info
 203f4d3ec20b19bb7684cb7be093cccc  source/bn-parser.awk
 fda3cbde8955b83ae5a7944d327b10e7  source/ccfiles
 55c6a093ae23ca6ba028a3f3f039d8c9  source/chkrf
-12d8a3cde89ba1b6e8d4d11b03346e59  source/cito/cito
+45a4379076e46f0214cdbe2f18bcc00f  source/cito/cito
 55189e506d03c87c04890c6ad48ba4e7  source/cito/cito.8.gz
-456d225cb2ff16f3a67bc4ef5e7108b4  source/cito/cito-list
+fb8baae300eb879a684524d56f34a8d5  source/cito/cito-list
 9de7596281e72f0fb089949084f20d3b  source/cito/completions
 94bb442073283389c8f6e317582067b8  source/completions/autoscrot
 c381c817f1ff17cebcf679b06a120b7a  source/completions/bdl
