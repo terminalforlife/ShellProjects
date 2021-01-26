@@ -12,6 +12,8 @@ Demonstrations of AutoExec can be found all over YouTube channel of the author o
 
 AutoExec is installable with [cito(8)](https://github.com/terminalforlife/Extra/tree/master/source/cito), Debian packages found in the DEB-Packages repository, or, if you're on Arch Linux, can be installed using the AUR, thanks to Minhaj.
 
+You can also use the 'autoexec-installer' script to have it done for you.
+
 # Bugs
 
 Bugs will be handled as soon as possible, but you can speed things up by reporting them. I cannot fix what I don't know exists! Please refer to the **AutoExec** man page (`man autoexec`) and refer to the **BUGS** section.
