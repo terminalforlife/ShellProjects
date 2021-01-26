@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tflbp-sh/source/tflbp-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Fri 13 Mar 23:29:53 GMT 2020
+# Last Change       - Tue 26 Jan 13:12:54 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -30,21 +30,23 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
 if command -v curl 1> /dev/null 2>&1; then
 	DLCMD='curl -so'
 elif command -v wget 1> /dev/null 2>&1; then
 	DLCMD='wget -qO'
 else
-	printf "ERROR: Neither 'wget' nor 'curl' are available.\n" 1>&2
-	exit 1
+	Err 1 "Neither 'wget' nor 'curl' are available."
 fi
 
-if [ `id -u` -ne 0 ]; then
-	printf "ERROR: Root access is required for system-wide changes.\n" 1>&2
-	exit 1
-elif ! command -v id 1> /dev/null 2>&1; then
-	printf "ERROR: Unable to determine current user's ID.\n" 1>&2
-	exit 1
+if ! command -v id 1> /dev/null 2>&1; then
+	Err 1 "Unable to determine current user's ID."
+elif [ `id -u` -ne 0 ]; then
+	Err 1 'Root access is required for system-wide changes.'
 fi
 
 printf 'Install latest version of tflbp? [Y/N] '
@@ -56,8 +58,7 @@ case $Answer in
 		printf 'Abandoning installation.\n'
 		exit 0 ;;
 	*)
-		printf 'ERROR: Invalid response -- quitting.\n' 1>&2
-		exit 2 ;;
+		Err 2 'Invalid response -- quitting.' ;;
 esac
 
 LogFile='/tmp/tflbp-installer.log'
@@ -109,10 +110,7 @@ do
 	fi
 done
 
-if [ $ErrCount -gt 0 ]; then
-	printf 'ERROR: Failed to download one or more files.\n' 1>&2
-	exit 1
-fi
+[ $ErrCount -gt 0 ] && Err 1 'Failed to download one or more files.'
 
 printf '* Making director(ies) ... '
 if mkdir -p /usr/lib/tflbp-sh 2>> "$LogFile"; then
