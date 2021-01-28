@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/snotes
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/snotes (Search Notes)
+# Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Sun 22 Nov 17:26:40 GMT 2020
+# Last Change       - Thu 28 Jan 23:49:09 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Features:
 #
-# N/A
+#TODO: Support multiple MATCHes.
 #
 # Bugs:
 #
@@ -21,20 +21,20 @@
 # will eventually be included into snotes properly.
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-22'
+CurVer='2021-01-28'
 Progrm=${0##*/}
 
-Comment="#"
+Comment='#'
 
 Usage(){
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
-		Usage: $Progrm [OPTS] [MATCH_1 [MATCH_2 ...]]
+		Usage: $Progrm [OPTS] [MATCH]
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  -C, --comment [STR]      - Where STR is a single comment character.
+		  -C, --comment [STR]      - Use STR as the single comment character.
 		  -f, --file [PATH]        - Specify & remember the notes file to use.
 
 		  By default, the notes file saved in the $Progrm configuration file
@@ -46,13 +46,13 @@ Usage(){
 
 		    ${Comment}END
 
-		  The default comment character is '#'.
+		  The default comment character is '$Comment'.
 	EOF
 }
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
 ProjConf="$HOME/.config/$Progrm.conf"
@@ -62,52 +62,51 @@ while [ "$1" ]; do
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"; exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--comment|-C)
 			shift; Comment=${1:0:1} ;;
 		--file|-f)
 			shift; NotesFile=$1 ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-if [ "$2" ]; then
-	Err 1 $LINENO "Argument error -- is your match correct?"
-fi
+[ -n "$2" ] && Err 1 'Multiple matches are not supported.'
 
 SnotesChk(){
 	if ! [ -f "$NotesFile" ] || ! [ -r "$NotesFile" ]; then
-		Err 1 $LINENO "Notes file inaccessible or not found."
+		Err 1 'Notes file inaccessible or not found.'
 	fi
 }
 
-if [ -f "$HOME/.config/$Progrm.conf" ]; then
+if [ -f "$ProjConf" ]; then
 	if [ -n "$NotesFile" ]; then
 		SnotesChk
-		read -n 1 -e -p "Notes file already set -- replace? "
-		if ! [[ $REPLY == [Yy] ]]; then
-			printf "No action taken -- quitting.\n"
-			exit 0
-		else
-			if ! [ -d "$HOME/.config" ]; then
-				if type -P mkdir > /dev/null 2>&1; then
-					mkdir $HOME/.config
-				else
-					Err 1 $LINENO "Dependency 'mkdir' not met."
+		read -n 1 -ep 'Notes file already set -- replace? [Y/N] '
+		case $REPLY in
+			[Yy]|[Yy][Ee][Ss])
+				if ! [ -d "$HOME/.config" ]; then
+					if type -P mkdir > /dev/null 2>&1; then
+						mkdir "$HOME/.config"
+					else
+						Err 1 "Dependency 'mkdir' not met."
+					fi
 				fi
-			fi
 
-			printf "%q\n" "$NotesFile" > "$HOME/.config/$Progrm.conf"
-		fi
+				printf '%q\n' "$NotesFile" > "$ProjConf" ;;
+			[Nn]|[Nn][Oo])
+				printf 'No action taken -- quitting.\n'
+				exit 0 ;;
+		esac
 	else
-		NotesFile=$(< $HOME/.config/$Progrm.conf)
+		NotesFile=$(< "$ProjConf")
 	fi
 else
-	printf "$NotesFile\n" > "$HOME/.config/$Progrm.conf"
+	printf "$NotesFile\n" > "$ProjConf"
 fi
 
 SnotesChk
@@ -115,7 +114,7 @@ Match=$1
 declare -i LineCount=0
 while read -r CurLine; do
 	CurLineCount+=1
-	[ "$CurLine" == "${Comment}END" ] && break
+	[ "$CurLine" == "${Comment}"END ] && break
 	if [[ $CurLine =~ ^(|${Comment}.*)$ ]]; then
 		continue
 	elif [[ $CurLine =~ "$Match" ]]; then
