@@ -74,7 +74,7 @@ d2a54898c07644b411203ecd7cb14894  source/libtflbp-sh/source/functions/Translate
 c8fb82c93714ef9a5e5dc7cd2eece4bf  source/libtflbp-sh/source/tflbp-installer
 b5ac0fc4ff9e3cdee43dcb126348a5c5  source/lnldl
 a5532fffa78edb369808bab500a85574  source/lspkg/completions
-39b4c7873124db44b1dd899845f5dd51  source/lspkg/lspkg
+bff0a78ea46f652af6b287979ea66800  source/lspkg/lspkg
 3a7240c100d0a47ff44c4b361266d0c9  source/lspkg/lspkg.1.gz
 aa392c51af3a6ad7d57c2774c88db5b9  source/lspkg/lspkg-set
 1b67d731bf2c3c96f4b46a3030afff78  source/lspkg/lspkg-set.1.gz
@@ -95,7 +95,7 @@ e5fdc98e91640817491665754c0c8808  source/rmne/rmne.8.gz
 e665371f0bfb242f3ebfbf7f316b4d53  source/rudbgvid
 d628b9130c9a37df49d0fd9cb0a6b159  source/seewttr
 8d76efae363b1d6126424c92469f9ab1  source/shlides
-540ae777116ff8bf575ee2a52b3a9743  source/simplify-ubuntu/simplify-ubuntu
+db8ee61e69f69d72d70d9df10196926d  source/simplify-ubuntu/simplify-ubuntu
 154720cdedabafadbb8c769c4fe6a418  source/simwea
 90254e4f00edd9b7b62edd85aa4cda01  source/snotes
 6491eadb9044df2e57c448e144bbc55e  source/swap-file

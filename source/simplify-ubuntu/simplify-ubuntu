@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/simplify-ubuntu
-#----------------------------------------------------------------------------------
-# Project Name      - Extra/source/simplify-ubuntu
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Wed 11 Nov 03:46:16 GMT 2020
+# Last Change       - Fri 29 Jan 01:07:56 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Q-COUNT = 169
 #
 # Features:
@@ -19,145 +19,98 @@
 #
 # Dependencies:
 #
+#   apt (>= 1.2.32)
 #   bash (>= 4.3-14)
-#----------------------------------------------------------------------------------
+#   coreutils (>= 8.25-2)
+#------------------------------------------------------------------------------
 
-CurVer='2020-11-11'
+CurVer='2021-01-29'
 Progrm=${0##*/}
-
-DoSay(){ printf "%s\n" "$1"; }
-
-Domain='https://github.com'
 
 Usage(){
 	while read; do
-		printf "%s\n" "$REPLY"
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS]
 
-		            Project to lighten Ubuntu installations.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -F, --ignore-fonts       - Don't ask font-specific questions.
+		  -L, --ignore-lsb         - Don't check distribution via lsb_release.
+		  -N, --no-ask-de          - Don't ask DE-specific questions.
+		  -Y, --yes-apt            - Equivalent of the -qq flag for apt-get(8).
+		  -p, --purge              - Also purge the chosen packages.
 
-		SYNTAX:     $Progrm [OPTS]
+		  WARNING: If used recklessly, $Progrm WILL make an utter mess
+		           of your Linux installation. Be sure you understand which
+		           packages would be removed before agreeing to anything.
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --update|-U             - Check for updates to $Progrm.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --purge|-p              - Purge package's global configuration files.
-		            --ignore-fonts|-F       - Don't ask any questions about fonts.
-		            --no-ask-de|-N          - Don't ask questions related to a specific DE.
-		            --ignore-lsb|-L         - Don't check the distribution via lsb_release.
-		            --yes-apt|-Y            - Put APT in the driving seat. Dangerous! This
-		                                      is the equivalent of apt-get's -qq flag.
-
-		NOTE:       Linux Mint is supported, and potentially other distros.
-
-		CAVEAT:     This utility will not be suitable if you're compiling software, -
-		            yourself, or heavily relying on another package manager, such as PIP.
-
-		WARNING:    It's recommended that you don't run $Progrm on a system with
-		            more than one of the supported desktop environments installed at any
-		            one time. If you choose to do so, note that you will likely run into
-		            conflicts.
-
-		SITE:       $Domain/terminalforlife/Extra
+		  This utility may not be suitable for software you compile yourself, -
+		  or which relies on another package manager, such as PIP.
 	EOF
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$1" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -eq 1 ] && exit $1
 }
 
-while [ "$1" ]; do
+StatusFile='/var/lib/dpkg/status'
+
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"
+			printf '%s\n' "$CurVer"
 			exit 0 ;;
-		--update|-U)
-			DoUpdate='true' ;;
-		--debug|-D)
-			DebugMe='true' ;;
 		--ignore-fonts|-F)
 			IgnoreFonts='true' ;;
 		--no-ask-de|-N)
-			NO_ASK_DE='true' ;;
+			NoAskDE='true' ;;
 		--ignore-lsb|-L)
 			LSBCheck='false' ;;
 		--purge|-p)
-			DoPurge="--purge" ;;
+			DoPurge='--purge' ;;
 		--yes-apt|-Y)
-			YesAPT="-qq" ;;
+			YesAPT='-qq' ;;
 		-*)
-			Err 1 "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-PathLook(){ type -P $@ &> /dev/null || return 1; }
+DepCount=0
+for CurDep in rm clean-locales apt-get; do
+	if ! type -P "$CurDep" &> /dev/null; then
+		Err 0 "Dependency '$CurDep' not met."
+		let DepCount+=1
+	fi
+done
 
-ChkDep(){
-	DepCount=0
-	for CurDep in "$@"; do
-		if command -v "$CurDep" 1> /dev/null 2>&1; then
-			DepCount=$((DepCount + 1))
-		else
-			Err 0 "Dependency '$CurDep' not met."
-		fi
-	done
+[ $DepCount -eq 0 ] || exit 1
 
-	[ $DepCount -eq $# ] || exit 1
-}
+[ $UID -eq 0 ] || SIM='-s'
 
-ChkDep rm lspkg clean-locales apt-get
-
-if [ "$DoUpdate" == 'true' ]; then
-	PathLook wget || Err 1 "Dependency 'wget' not met."
-
-	VerURL="$Domain/terminalforlife/Extra/raw/master/versions"
-	while IFS='=' read -a CurLine; do
-		if  [ "${CurLine[0]}" == "$Progrm" ]; then
-			NewVer=${CurLine[1]}
-
-			if [[ ${NewVer//-} =~ ^[0-9]{8}$ ]]; then
-				if [ ${NewVer//-} -gt ${CurVer//-} ]; then
-					while read -r; do
-						printf "%s\n" "$REPLY"
-					done <<-EOF
-						New version available:    $NewVer
-						Current version:          $CurVer
-					EOF
-				fi
-			else
-				Err 1 "Failed to check for available updates."
-			fi
-		fi
-	done <<< "$(wget -q "$VerURL" -O -)"
-
-	exit 0
-fi
-
-[ "$DebugMe" == 'true' ] && set -x
-
-[ $UID -eq 0 ] || SIM="-s"
+#---------------------------------------------------------------Welcome Message
 
 while read -r; do
 	printf "%s\n" "$REPLY"
 done <<-EOF
 
-	Simplify-ubuntu works best on a fresh installation from an official ISO, as it's
-	less likely to try to bring in other, needed packages upon package removals.
+	Simplify-ubuntu works best on a fresh installation from an official ISO, as
+	it's less likely to try to bring in other, needed packages upon package
+	removals.
 
-	What will follow is a series of prompts which will ascertain how you would like to
-	tweak (lighten) your Ubuntu installation of Linux, based on your needs.
+	What will follow is a series of prompts which will ascertain how you would
+	like to tweak (lighten) your Ubuntu installation of Linux, based on your
+	needs.
 
-	NOTE: Each question, for troubleshooting reasons, is assigned a number; if you run
-	      into any issues with a question, please feel free to reference it.
+	NOTE: Each question, for troubleshooting reasons, is assigned a number; if
+	      you run into any issues with a question, please feel free to
+	      reference it.
 
 	At any point during a question, the following can be entered:
 
@@ -167,15 +120,41 @@ done <<-EOF
 	  W        - You're asking for a description of the applicable package(s).
 	  Q        - You're opting to immediately quit the program.
 
-	WARNING: Since unforeseen changes can and probably will occur, it's therefore very
-	         important that you take great care using $Progrm.
+	WARNING: Since unforeseen changes can and probably will occur, it's
+	         therefore very important that you take great care using
+	         $Progrm.
 
-	         The most direct issue you're likely to come across, is that packages
-	         described here, or deemed by you, to be worthy of removal, will try to
-	         kick out other packages you need or want; in this case, either keep the
-	         unwanted package(s) or try something else after $Progrm finishes.
+	         The most direct issue you're likely to come across, is that
+	         packages described here, or deemed by you, to be worthy of
+	         removal, will try to kick out other packages you need or want; in
+	         this case, either keep the unwanted package(s) or try something
+	         else after $Progrm finishes.
 
 EOF
+
+#------------------------------Generate Associative Array of Installed Packages
+
+if [ -f "$StatusFile" -a -r "$StatusFile" ]; then
+	declare -A Packages
+	while IFS=':' read Key Value; do
+		case $Key in
+			Package)
+				Name=${Value# } ;;
+			Status)
+				if [ "${Value# }" == 'install ok installed' ]; then
+					Packages["$Name"]='True'
+				fi ;;
+		esac
+	done < "$StatusFile"
+else
+	Err 1 "File '$StatusFile' missing or unreadable."
+fi
+
+#----------------------------------------------------------------Main Functions
+
+DoSay(){ printf '%s\n' "$1"; }
+
+PathLook(){ type -P "$@" &> /dev/null || return 1; }
 
 Prompt(){
 	while :; do
@@ -198,12 +177,30 @@ Prompt(){
 	done
 }
 
-FindPKG(){ lspkg --match-with glob -n "$@" &> /dev/null || return 4; }
-
 RemPKG(){
 	apt-get ${YesAPT:--q} $SIM --show-progress remove $DoPurge --autoremove\
 		-o Dpkg::Progress-Fancy=true -o Dpkg::Progress=true "$@"
 }
+
+FindPKG(){
+	local Found=0
+	for CurPKG in "$@"; {
+		printf "Looking for '%s'\n" "$CurPKG"
+
+		for FoundPKG in "${!Packages[@]}"; {
+			if [[ "$FoundPKG" == $CurPKG ]]; then
+				printf "Found '%s'\n" "$FoundPKG"
+				let Found+=1
+			fi
+		}
+	}
+
+	unset CurPKG FoundPKG
+
+	[ $Found -eq $# ] || return 4
+}
+
+#------------------------------------------------------------------------------
 
 if [ "${LSBCheck:-true}" == 'true' ]; then
 	if [ -f /etc/os-release -a -r /etc/os-release ]; then
@@ -1101,7 +1098,7 @@ if FindPKG xserver-xorg-input-synaptics\*; then
 	}
 fi
 
-if ! [ "$NO_ASK_DE" == 'true' ]; then
+if ! [ "$NoAskDE" == 'true' ]; then
 	Prompt\
 		"[028]: Are you using the KDE desktop environment?"\
 		"If you enter 'Y', you'll be asked KDE-specific questions."\
