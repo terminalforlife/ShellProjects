@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/simplify-ubuntu
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/simplify-ubuntu/completions
+# Started On        - Fri 29 Jan 01:22:20 GMT 2021
+# Last Change       - Fri 29 Jan 01:22:23 GMT 2021
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is the bash completion script for `simplify-ubuntu`.
+#------------------------------------------------------------------------------
+
+_simplifyubuntu(){
+	while read; do
+		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
+			Option=${REPLY%% - *}
+			for Arg in ${Option//,/}; {
+				Args+="${Arg##[^-]*} "
+			}
+		fi
+	done <<< "$(simplify-ubuntu -h)"
+
+	if [[ $2 == -* ]]; then
+		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	fi
+
+	unset Option Arg Args
+}
+
+complete -F _simplifyubuntu simplify-ubuntu
