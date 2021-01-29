@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Fri 29 Jan 01:07:56 GMT 2021
+# Last Change       - Fri 29 Jan 01:14:54 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -135,6 +135,8 @@ EOF
 #------------------------------Generate Associative Array of Installed Packages
 
 if [ -f "$StatusFile" -a -r "$StatusFile" ]; then
+	printf 'Generating list of installed packages...\n'
+
 	declare -A Packages
 	while IFS=':' read Key Value; do
 		case $Key in
