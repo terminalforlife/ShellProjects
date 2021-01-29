@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Fri  8 Jan 14:09:57 GMT 2021
+# Last Change       - Fri 29 Jan 03:36:44 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,6 +27,13 @@
 #
 # Bugs:
 #
+#TODO: Use of the -o flag(s) not working properly if unmet dependencies.
+#
+#      In this case, GLKFU is unable to determine whether the latest version is
+#      newer or not, due to it being a generic Ubuntu kernel. I noticed this
+#      bug in Pop! OS 20.04. Oddly, using `-o latest` and `-o current` work
+#      perfectly fine.
+#
 #TODO: If we exit during `$Make deb-pkg`, SignalHandler() won't work; why?
 #TODO: If prematurely exit before doing anything, existing files still go poof.
 #
@@ -45,7 +52,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-08'
+CurVer='2021-01-29'
 Progrm=${0##*/}
 
 Usage(){
