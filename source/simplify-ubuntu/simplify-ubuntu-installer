@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Sun 31 Jan 22:52:00 GMT 2021
+# Last Change       - Sun 31 Jan 22:55:20 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ trap SigHandler EXIT INT QUIT ABRT TERM
 
 printf 'Fetching files from GitHub:\n'
 ErrCount=0
-for File in 'completions' 'simplify-ubuntu'; do
+for File in 'completions' 'simplify-ubuntu' 'simplify-ubuntu.8.gz'; do
 	printf "* Downloading '%s' ... " "$File"
 	if $DLCMD "$TmpDir/$File" "$URL/$File" 2>> "$LogFile"; then
 		printf '\033[32m[OK]\033[0m\n'
@@ -128,7 +128,11 @@ fi
 
 printf '* Assigning modes ... '
 ErrCount=0
-for File in 'completions:644' 'simplify-ubuntu:755'; do
+for File in\
+	'completions:644'\
+	'simplify-ubuntu.8.gz:644'\
+	'simplify-ubuntu:755'
+do
 	chmod ${File##*:} "$TmpDir/${File%:*}" 2>> "$LogFile" ||
 		ErrCount=$((ErrCount + 1))
 done
@@ -144,6 +148,7 @@ ErrCount=0
 for File in\
 \
 	'completions:/usr/share/bash-completion/completions/simplify-ubuntu'\
+	'simplify-ubuntu.8.gz:/usr/share/man/man8/simplify-ubuntu.8.gz'\
 	'simplify-ubuntu:/usr/bin/simplify-ubuntu'
 do
 	printf "* Installing '%s' ... " "${File%%:*}"
