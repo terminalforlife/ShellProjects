@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Mon  1 Feb 00:39:14 GMT 2021
+# Last Change       - Mon  1 Feb 01:13:21 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -2023,17 +2023,6 @@ if PathLook time; then
 	|| {
 		DoSay "Calling APT to remove the time package."
 		RemPKG time
-	}
-fi
-
-if PathLook fakeroot; then
-	Prompt\
-		"[3212]: Will you need fakeroot? (Enter 'Y' if unsure)"\
-		"If you enter 'N', the fakeroot package will be removed."\
-		"Tool for simulating superuser privileges."\
-	|| {
-		DoSay "Calling APT to remove the fakeroot package."
-		RemPKG fakeroot
 	}
 fi
 
