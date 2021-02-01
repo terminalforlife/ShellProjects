@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  1 Feb 23:41:12 GMT 2021
+# Last Change       - Mon  1 Feb 23:56:00 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -250,15 +250,10 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 
 	if [ -f "$ReadHashFile" ]; then
 		# A string of 32 characters consisting of just 0-9, A-Z, and/or a-z.
-		# This gross mess is thanks to the limitation of glob pattern matching
-		# in Bourne Shell.
-		Match='[0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z]'
-		Match="$Match[0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z]"
-		Match="$Match[0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z]"
-		Match="$Match[0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z]"
-		Match="$Match[0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z]"
-		Match="$Match[0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z][0-9A-Za-z]"
-		Match="$Match[0-9A-Za-z][0-9A-Za-z]"
+		while [ ${Count:-0} -le 31 ]; do
+			Match="$Match[0-9A-Za-z]"
+			Count=$((Count + 1))
+		done
 
 		Bad=0
 		Good=0
@@ -329,7 +324,7 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 		Err 1 "Hash file '$ReadHashFile' missing."
 	fi
 
-	unset MD5URL Hash File GetHash ReadHashFile FoundHash
+	unset MD5URL Hash File GetHash ReadHashFile FoundHash Count
 }
 
 Logger(){ # Usage: Logger TYPE MESSAGE
