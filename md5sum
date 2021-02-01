@@ -99,7 +99,7 @@ d628b9130c9a37df49d0fd9cb0a6b159  source/seewttr
 94e79dc41231301f3e2424d900f6cccc  source/simplify-ubuntu/completions
 b7f6009b21eb999875e110ef6672ea50  source/simplify-ubuntu/dev/qchk.sh
 4b8b6ff697fc25291da62e27f3bf809d  source/simplify-ubuntu/dev/qcount.pl
-816687aaf57466da9472a4b8dc86c09f  source/simplify-ubuntu/dev/qrand.pl
+4ec4cbeb0f17e73fd50d2d0cd0e41308  source/simplify-ubuntu/dev/qrand.pl
 7c843ad4986c2eca5ba71a66c471f39d  source/simplify-ubuntu/simplify-ubuntu
 9799e7df379dc629ae6ab58ec1d41790  source/simplify-ubuntu/simplify-ubuntu.8.gz
 5c5b24c9e7489df4b0c69904afebf3d5  source/simplify-ubuntu/simplify-ubuntu-installer

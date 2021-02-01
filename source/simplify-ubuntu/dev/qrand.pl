@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/qrand.pl
 # Started On        - Mon  1 Feb 00:12:40 GMT 2021
-# Last Change       - Mon  1 Feb 00:45:39 GMT 2021
+# Last Change       - Mon  1 Feb 01:58:14 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ if (length($ARGV[0]) == 0) {
 }
 
 my (@Lines, @Randoms);
-if (open(my $FH, '<', $ARGV[0])) {
+if (open(my $FH, '+<', $ARGV[0])) {
 	while (<$FH>) {
 		if (/.*\"(\[[0-9]+\]: .*)\"/) {
 			my ($NumField, @Junk) = split(' ', $1);
@@ -47,11 +47,9 @@ if (open(my $FH, '<', $ARGV[0])) {
 		}
 	}
 
-	close($FH)
-}
-
-if (open(my $FH, '>', $ARGV[0])) {
-	map(print($FH $_), @Lines)
+	truncate($FH, 0);
+	seek($FH, 0, 0);
+	map(print($FH $_), @Lines);
 
 	close($FH)
 }
