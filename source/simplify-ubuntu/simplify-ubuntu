@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Fri 29 Jan 01:14:54 GMT 2021
+# Last Change       - Sun 31 Jan 22:58:08 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-29'
+CurVer='2021-01-31'
 Progrm=${0##*/}
 
 Usage(){
@@ -83,7 +83,7 @@ while [ -n "$1" ]; do
 done
 
 DepCount=0
-for CurDep in rm clean-locales apt-get; do
+for CurDep in rm apt-get; do
 	if ! type -P "$CurDep" &> /dev/null; then
 		Err 0 "Dependency '$CurDep' not met."
 		let DepCount+=1
@@ -818,15 +818,6 @@ if ! [ "$IsZorin" == 'true' ]; then
 		}
 	fi
 fi
-
-Prompt\
-	"[010]: Will you need locales for languages other than English?"\
-	"If you enter 'N', clean-locales will be executed."\
-	"You'll likely want to adjust your locale settings, as well."\
-|| {
-	DoSay "Using clean-locales to remove non-English locales."
-	/usr/bin/clean-locales
-}
 
 if ! [ "$IgnoreFonts" == 'true' ]; then
 	if FindPKG xfonts-thai\* fonts{-tlwg\*,-thai\*}; then
