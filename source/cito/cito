@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Tue 26 Jan 14:00:07 GMT 2021
+# Last Change       - Mon  1 Feb 23:15:40 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,18 +11,12 @@
 #
 # Features:
 #
+#TODO: Find a way to get the MD5 format check in pure shell.
 #TODO: Add an Insit-style backup feature in-case of a botched install/upgrade.
 #TODO: Somehow catch condition under which a file already exists.
 #TODO: Add uninstallation feature, maybe by referring to the log file?
 #
 # Bugs:
-#
-#TODO: There's no check for the correct format of MD5 sum files.
-#
-#      The format should be a hex value of 32 characters in length, followed by
-#      a space, then another space (' ') for text, an asterisk ('*') for
-#      binary or "where binary is insignificant". Refer to md5sum(1) for more
-#      information as to the standard it uses and Cito should probaly use.
 #
 #TODO: Non-existent remote files don't work. (last does; all prior fail)
 #
@@ -30,9 +24,10 @@
 #
 #   coreutils (>= 8.25-2)
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
+#   grep (>= 3.1-2build1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-26'
+CurVer='2021-02-01'
 Progrm=${0##*/}
 
 Usage(){
@@ -255,6 +250,12 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 	fi
 
 	if [ -f "$ReadHashFile" ]; then
+		# Really don't want to bring in grep(1), but no other choice, unless I
+		# want an absurdly long case statement glob pattern.
+		if ! grep -q '^[0-9A-Za-z]\{32\}\ [ \*]' "$ReadHashFile"; then
+			Err 1 'Invalid MD5 checksum format.'
+		fi
+
 		while read Hash File; do
 			if [ "$File" = "$1" ]; then
 				CutStr(){
