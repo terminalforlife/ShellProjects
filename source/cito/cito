@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  1 Feb 23:56:00 GMT 2021
+# Last Change       - Mon  1 Feb 23:59:21 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,6 +11,7 @@
 #
 # Features:
 #
+#TODO: Optimize by combining the two $ReadHashFile while loops in ChkMD5().
 #TODO: Find a way to get the MD5 format check in pure shell.
 #TODO: Add an Insit-style backup feature in-case of a botched install/upgrade.
 #TODO: Somehow catch condition under which a file already exists.
