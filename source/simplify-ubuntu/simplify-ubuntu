@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Mon  1 Feb 01:13:21 GMT 2021
+# Last Change       - Tue  2 Feb 22:26:39 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-01'
+CurVer='2021-02-02'
 Progrm=${0##*/}
 
 Usage(){
@@ -46,6 +46,8 @@ Err(){
 	[ $1 -eq 1 ] && exit $1
 }
 
+FileOS='/etc/os-release'
+FileLSB='/etc/lsb-release'
 StatusFile='/var/lib/dpkg/status'
 
 while [ -n "$1" ]; do
@@ -184,20 +186,20 @@ FindPKG(){
 #------------------------------------------------------------------------------
 
 if [ "${LSBCheck:-true}" == 'true' ]; then
-	if [ -f /etc/os-release -a -r /etc/os-release ]; then
+	if [ -f "$FileOS" -a -r "$FileOS" ]; then
 		while IFS="=" read -a X; do
 			if [ "${X[0]}" == "ID" ]; then
 				printf -v LSBRelease "%s" "${X[1]}"
 				break
 			fi
-		done < /etc/os-release
-	elif [ -f /etc/lsb-release -a -r /etc/lsb-release ]; then
+		done < "$FileOS"
+	elif [ -f "$FileLSB" -a -r "$FileLSB" ]; then
 		while IFS="=" read -a X; do
 			if [ "${X[0]}" == "DISTRIB_ID" ]; then
 				printf -v LSBRelease "%s" "${X[1],,}"
 				break
 			fi
-		done < /etc/lsb-release
+		done < "$FileLSB"
 	else
 		Err 1 "Unable to determine the distribution ID."
 	fi
