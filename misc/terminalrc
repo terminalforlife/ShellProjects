@@ -1,22 +1,5 @@
-#------------------------------------------------------------------------------
-# Project Name      - Extra/misc/terminalrc
-# Started On        - Fri 20 Oct 00:37:52 BST 2017
-# Last Change       - Wed  9 Dec 16:50:11 GMT 2020
-# Author E-Mail     - terminalforlife@yahoo.com
-# Author GitHub     - https://github.com/terminalforlife
-#------------------------------------------------------------------------------
-# This is just my xfce4-terminal settings file, in-case you wanted to use it.
-# It's a minimalistic, keyboard-focused setup. To use this file, save it as:
-#
-#   ~/.config/xfce4/terminal/terminalrc
-#
-# Install dependencies:
-#
-#   $ sudo apt-get install fonts-3270 xfce4-terminal
-#------------------------------------------------------------------------------
-
 [Configuration]
-FontName=IBM 3270 Semi-Narrow Medium 15
+FontName=mononoki 14
 MiscAlwaysShowTabs=FALSE
 MiscBell=TRUE
 MiscBordersDefault=FALSE
@@ -53,3 +36,6 @@ MiscSlimTabs=FALSE
 ShortcutsNoHelpkey=TRUE
 ShortcutsNoMenukey=TRUE
 ShortcutsNoMnemonics=TRUE
+MiscShowRelaunchDialog=TRUE
+MiscNewTabAdjacent=FALSE
+
