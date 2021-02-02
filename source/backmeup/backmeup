@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Mon  4 Jan 17:56:33 GMT 2021
+# Last Change       - Tue  2 Feb 22:35:39 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   tar (>= 1.28-2.1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-04'
+CurVer='2021-02-02'
 Progrm=${0##*/}
 
 Usage(){
@@ -155,11 +155,7 @@ TarArgs='--posix --xattrs --one-file-system --gzip --preserve-permissions'
 tar $TarArgs $Verbose "$Exclude" -cf "${Store%/}/$Archive" "${@:-$HOME}" 2> /dev/null
 ExitStatus=$?
 
-trap 'printf "\rERROR: Wait, to avoid data loss.\n" 1>&2' INT HUP TERM ABRT QUIT
-
 sync "${Store%/}/$Archive" 1> /dev/null 2>&1
-
-trap - INT HUP TERM ABRT QUIT
 
 [ -n "$UserCMD" ] && sh -c "$UserCMD"
 
