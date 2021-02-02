@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fbdriver
 # Started On        - Thu 10 Dec 14:59:18 GMT 2020
-# Last Change       - Thu 10 Dec 19:44:25 GMT 2020
+# Last Change       - Tue  2 Feb 21:26:49 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ elif type -P lshw &> /dev/null; then
 fi
 
 case $Driver in
-	nvidia|amd|nouveau)
+	nvidia|amd|nouveau|vesa-framebuffer)
 		# I have no idea what all the possible values are, so add as needed.
 		printf '%s\n' "$Driver" ;;
 	'')
