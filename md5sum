@@ -49,7 +49,7 @@ c16848eea566a6d07d6318c2c2eca814  source/getcfc
 a5c9e77143d8739e31e7d9945cd2354f  source/getline
 6527a9de2de554acf39e29dbb5f0dabd  source/github-ssh-setup
 65f1fe7f2ff1433abdd2cb35a91ee39c  source/glkfu/completions
-b9f3ab2c4fec74e5b351b42083f510f6  source/glkfu/glkfu
+b0a50abc4bd0af6566a156948720507e  source/glkfu/glkfu
 9ce72241811b6fd5afcd64010d246084  source/glkfu/glkfu.1.gz
 a241c1075d5bdc256a0a999359e05993  source/glkfu/glkfu-installer
 4f999e49c2dc37662dbec0c1b8bd7770  source/glkfu/glkfu-list

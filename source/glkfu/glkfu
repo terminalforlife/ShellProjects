@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Fri 29 Jan 03:36:44 GMT 2021
+# Last Change       - Tue  2 Feb 00:23:09 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,12 +18,7 @@
 #
 # Features:
 #
-#TODO: Add: scripts/config --disable DEBUG_INFO
-#
-#      On YouTube, I was told this improves compilation performance, but doing
-#      away with unnecessary(?) debugging output/support. Having tried it, -
-#      it worked fine and I think it was faster, but I didnt' time it. This
-#      could be worth adding to GLKFU.
+# N/A
 #
 # Bugs:
 #
@@ -52,7 +47,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-29'
+CurVer='2021-02-02'
 Progrm=${0##*/}
 
 Usage(){
@@ -630,6 +625,37 @@ if Ask 'Strip unneeded modules for the current system?'; then
 	if [ $Exit -gt 1 ]; then
 		Err 0 'Unexpected (non-zero) exit by make(1).'
 		printf 'NOTE: You may need to start again.\n'
+		exit $Exit
+	fi
+fi
+
+#----------------------------------------------------The 'DEBUG_INFO' Parameter
+
+# Thank you, YouTube user Daniel Olsson, for explaining this feature, without
+# whom this feature probably would not have made its way to glkfu(1).
+
+while read; do
+	printf '%s\n' "$REPLY"
+done <<-EOF
+
+	INFO: If you choose 'Y' to the following question, the resulting kernel
+	      image will NOT include debugging info, resulting in a smaller kernel
+	      image and speeding up compile-time.
+
+	      If enabled, debug symbols will be added to the kernel and modules
+	      (gcc -g), and is needed if you intend to use kernel crashdump or
+	      binary object tools like crash, kgdb, LKCD, gdb, etc on the kernel.
+
+	Choose 'N' only if you plan to debug the kernel.
+
+EOF
+
+if Ask "Disable 'DEBUG_INFO' parameter?"; then
+	scripts/config --disable DEBUG_INFO
+	Exit=$?
+
+	if [ $Exit -gt 1 ]; then
+		Err 0 "Failed to disable 'DEBUG_INFO' in 'config'."
 		exit $Exit
 	fi
 fi
