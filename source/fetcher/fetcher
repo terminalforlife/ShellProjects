@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Fri 18 Dec 03:28:42 GMT 2020
+# Last Change       - Tue  2 Feb 14:21:16 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-18'
+CurVer='2021-02-02'
 Progrm=${0##*/}
 
 Usage(){
@@ -97,9 +97,9 @@ while [ "$1" ]; do
 
 			shift ;;
 		'')
-			Err 1 "Command not provided." ;;
+			Err 1 'Chosen ACTION not provided.' ;;
 		*)
-			Err 1 "Command '$1' invalid." ;;
+			Err 1 "Chosen ACTION '$1' invalid." ;;
 	esac
 	shift
 done
@@ -143,7 +143,7 @@ elif ! [ -r "$LinkFile" ]; then
 	Err 1 "File '$P_LinkFile' unreadable."
 fi
 
-#-------------------------------------------------List URLs Stored in Link File
+#-----------------------------------------------------------------------Actions
 
 if [ "$Action" == 'list' ]; then
 	CheckIfEmpty "$Action"
@@ -158,11 +158,7 @@ if [ "$Action" == 'list' ]; then
 		printf "$C_Green%2d$C_Reset:  $C_Red%s$C_Reset\n" $Line "$REPLY"
 	done < "$LinkFile"
 	printf '\n'
-fi
-
-#----------------------------------------------------------Add URL to Link File
-
-if [ "$Action" == 'add' ]; then
+elif [ "$Action" == 'add' ]; then
 	while read; do
 		[[ $REPLY == \#* || $REPLY == '' ]] && continue
 
@@ -174,13 +170,7 @@ if [ "$Action" == 'add' ]; then
 	printf '\n'
 
 	printf '%s\n' "$AddURL" >> "$LinkFile"
-
-	exit 0
-fi
-
-#-----------------------------------------------------Remove URL from Link File
-
-if [ "$Action" == 'remove' ]; then
+elif [ "$Action" == 'remove' ]; then
 	CheckIfEmpty "$Action"
 
 	printf 'URLs currently stored:\n\n'
@@ -217,13 +207,7 @@ if [ "$Action" == 'remove' ]; then
 		*|'')
 			Err 1 'Invalid or missing URL number provided.'
 	esac
-
-	exit 0
-fi
-
-#----------------------------------------------------Fetch (Download) from URLs
-
-if [ "$Action" == 'fetch' ]; then
+elif [ "$Action" == 'fetch' ]; then
 	CheckIfEmpty "$Action"
 
 	while read; do
@@ -231,6 +215,4 @@ if [ "$Action" == 'fetch' ]; then
 
 		wget -qc --show-progress "$REPLY"
 	done < "$LinkFile"
-
-	exit 0
 fi
