@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Tue 12 Jan 03:33:09 GMT 2021
+# Last Change       - Sun  7 Feb 15:20:03 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-12'
+CurVer='2021-02-07'
 Progrm=${0##*/}
 
 Usage(){
@@ -43,6 +43,7 @@ Usage(){
 		  -E, --no-exit            - Omit the exit status on the bottom-right.
 		  -S, --no-spinner         - Omit 'spinner' from the waiting message.
 		  -W, --no-waitmsg         - Omit the waiting message at the end.
+		  -c, --check              - Check for errors before executing.
 		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
 		  -f, --force              - Forces use of that which is unsupported.
 		  -o, --once               - Execute FILE only once; no looping.
@@ -105,6 +106,8 @@ while [ "$1" ]; do
 			Force='True' ;;
 		--time|-t)
 			DoTime='True' ;;
+		--check|-c)
+			Check='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -148,6 +151,12 @@ fi
 if [ "$Once" != 'true' ]; then
 	TRAP(){
 		tput ed; tput rmcup
+
+		# Needs to be here otherwise the above line clears it.
+		if [ "$Force" != 'True' -a "$UnsupportedCheck" == 'True' ]; then
+			Err 0 "Option '--check|-c' not supported on FILE."
+		fi
+
 		exit 0
 	}
 
@@ -196,13 +205,37 @@ while :; do
 		if [ 0${SSEOld//[!0-9]} -lt 0${SSE//[!0-9]} ]; then
 			[ "$Once" == 'true' ] || tput clear
 
-			if [ "$DoTime" == 'True' ]; then
-				time "$Exec" "$ExecFile" "$@"
-			else
-				"$Exec" "$ExecFile" "$@"
+			# If using DASH or BASH, check for errors before executing.
+			if [ "$Check" == 'True' ]; then
+				unset Errors
+				if [ "$Exec" == 'bash' ]; then
+					bash -n "$ExecFile" || Errors='True'
+				elif [ "$Exec" == 'sh' ]; then
+					File=`type -P sh`
+					Link=`readlink -e "$File"`
+					if [ "$Link" == '/bin/dash' ]; then
+						dash -n "$ExecFile" || Errors='True'
+					else
+						UnsupportedCheck='True'
+					fi
+				else
+					UnsupportedCheck='True'
+				fi
+
+				[ "$Force" != 'True' -a "$UnsupportedCheck" == 'True' ] && exit 1
 			fi
 
-			Exit=$?
+			if [ "$Errors" != 'True' ]; then
+				if [ "$DoTime" == 'True' ]; then
+					time "$Exec" "$ExecFile" "$@"
+				else
+					"$Exec" "$ExecFile" "$@"
+				fi
+
+				Exit=$?
+			else
+				Exit=999
+			fi
 		fi
 
 		SSEOld=${SSE//[!0-9]}
@@ -219,9 +252,13 @@ while :; do
 		tput cup $Lines $((Columns - 3))
 
 		if [ "$NoColor" == 'True' ]; then
-			printf '%#3d' "$Exit"
+			printf '%#3d' $Exit
 		else
-			printf '\e[2;37m%#3d\e[0m' "$Exit"
+			if [ $Exit -eq 0 ]; then
+				printf '\e[2;37m%#3d\e[0m' $Exit
+			else
+				printf '\e[1;31m%#3d\e[0m' $Exit
+			fi
 		fi
 	fi
 
