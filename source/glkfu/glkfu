@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Tue  2 Feb 00:23:09 GMT 2021
+# Last Change       - Mon  8 Feb 13:31:13 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -47,7 +47,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-02'
+CurVer='2021-02-08'
 Progrm=${0##*/}
 
 Usage(){
@@ -430,13 +430,14 @@ if [ "$IgnoreDeps" != 'True' ]; then
 			printf '%s\n' "$REPLY"
 		done <<-EOF
 
-			NOTE:      Before you install the Debian packages for at least the 'image'
-			           and 'headers', be sure that you install the 'initramfs-tools'
-			           package in order to have an 'initrd' file generated for you.
+			NOTE:      Before you install the Debian packages for at least the
+			           'image' and 'headers', be sure that you install the
+			           'initramfs-tools' package in order to have an 'initrd'
+			           file generated for you.
 
-			WARNING:   Failure to correctly generate an 'initrd' file for the installed
-			           kernel will typically result in a kernel panic when trying to
-			           boot from it.
+			WARNING:   Failure to correctly generate an 'initrd' file for the
+			           installed kernel will typically result in a kernel panic
+			           when trying to boot from it.
 
 			           Refer to the following command to remedy this:
 

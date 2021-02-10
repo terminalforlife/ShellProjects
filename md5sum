@@ -17,7 +17,6 @@ cc8589b3219874cba926855dab17629e  source/autoexec/completions
 c81696156b155651dd524c2c902e0c86  source/backmeup/backmeup
 1d6a255d86dcba2936c5667a6bb5a4e7  source/backmeup/backmeup.1.gz
 204924e7bd8dd65582d4a02c2239dbba  source/backmeup/completions
-32c2dab983066cc6ad3ba37c85d7939d  source/barred
 dbb2ba488867cb30b84fc8f65fc97813  source/bios-info
 1b88c9f75376949c765f6270ea94e757  source/bl
 203f4d3ec20b19bb7684cb7be093cccc  source/bn-parser.awk
@@ -48,7 +47,7 @@ c16848eea566a6d07d6318c2c2eca814  source/getcfc
 a5c9e77143d8739e31e7d9945cd2354f  source/getline
 6527a9de2de554acf39e29dbb5f0dabd  source/github-ssh-setup
 65f1fe7f2ff1433abdd2cb35a91ee39c  source/glkfu/completions
-b0a50abc4bd0af6566a156948720507e  source/glkfu/glkfu
+62c8c0a319c38297b6b320d431822e5c  source/glkfu/glkfu
 9ce72241811b6fd5afcd64010d246084  source/glkfu/glkfu.1.gz
 a241c1075d5bdc256a0a999359e05993  source/glkfu/glkfu-installer
 4f999e49c2dc37662dbec0c1b8bd7770  source/glkfu/glkfu-list
