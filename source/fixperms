@@ -1,0 +1,210 @@
+#!/bin/sh
+#cito M:755 O:0 G:0 T:/usr/bin/fixperms
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/fixperms
+# Started On        - Sun 14 Feb 13:10:32 GMT 2021
+# Last Change       - Sun 14 Feb 14:45:45 GMT 2021
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Simple interactive tool to help fix ownership, group, and modes of all
+# files within the given user's HOME. This operation cannot be undone.
+#
+# This is UNTESTED, but I've read it over and over; it should work. If it works
+# for you, please let me know. I use Steam, have '~/bin', and have git(1)
+# repositories, so it wouldn't be ideal for me to run.
+#
+# Dependencies:
+#
+#   coreutils (>= 8.28-1)
+#   findutils (>= 4.6.0)
+#------------------------------------------------------------------------------
+
+CurVer='2021-02-14'
+Progrm='fixperms'
+ProgrmFancy='FixPerms'
+
+Usage(){
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
+	done <<-EOF
+		\rUsage: $Progrm [OPTS]
+
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+		\r  -E, --just-echo          - Just output the commands to execute.
+	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -eq 1 ] && exit 1
+}
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--just-echo|-E)
+			JustEcho='True' ;;
+		*)
+			Err 1 'Incorrect option(s) specified.' ;;
+	esac
+	shift
+done
+
+DepCount=0
+for Dep in id find chmod chown; do
+	if ! command -V 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$Dep' not met."
+		DepCount=$((DepCount + 1))
+	fi
+done
+
+[ $DepCount -gt 0 ] && exit 1
+
+if [ `id -u` -ne 0 -a "$JustEcho" != 'True' ]; then
+	Err 1 'Root access is required.'
+fi
+
+while :; do
+	printf 'What is the username of the user in question? '
+	read User
+
+	if [ -z "$User" ]; then
+		Err 0 'A username must be provided.'
+		continue
+	elif [ "$User" = 'root' ]; then
+		Err 0 "$ProgrmFancy is not suitable for use on the 'root' user."
+		continue
+	fi
+
+	while IFS=':' read CurUser _; do
+		if [ "$CurUser" = "$User" ]; then
+			printf "User '$User' found in '/etc/passwd' file.\n"
+			Found='True'
+		fi
+	done < /etc/passwd
+
+	if [ "$Found" != 'True' ]; then
+		Err 0 "User not found in '/etc/passwd' file."
+		continue
+	fi
+
+	break
+done
+
+if [ -d /home/"$User" ]; then
+	printf "Found and using '/home/$User' directory.\n"
+else
+	Err 1 "Directory '/home/$User' not found."
+fi
+
+for Dir in 'Steam' '.steam' 'SteamLibrary'; do
+	if [ -d /home/"$User"/"$Dir" ]; then
+		printf "Directory '/home/%s/%s' discovered.\n" "$User" "$Dir"
+		SteamWarn='True'
+	fi
+done
+
+if [ "$SteamWarn" = 'True' ]; then
+	while read -r Line; do
+		printf '%b\n' "$Line"
+	done <<-EOF
+
+		\rWARNING: One or more Steam directories found within the user's HOME.
+		\r         Steam requires that some files be executable in order for
+		\r         applications to work.
+
+		\r         You will likely run into permission issues in Steam.
+
+	EOF
+fi
+
+if find /home/"$User" -xdev -type d -name '.git' -quit; then
+	while read -r Line; do
+		printf '%b\n' "$Line"
+	done <<-EOF
+		\rFound one or more git(1) repositories.
+
+		\rWARNING: Some of these repositories may contain files which require
+		\r         the executable bit be set.
+
+		\r         You may run into permission issues within your repositories.
+
+	EOF
+fi
+
+while :; do
+	printf 'Use more restrictive modes? [Y/N] '
+	read Reply
+
+	case $Reply in
+		[Yy]|[Yy][Ee][Ss])
+			printf 'Using 700 for directories and 600 for files.\n'
+			FileMode=600
+			DirMode=700
+			break ;;
+		[Nn]|[Nn][Oo])
+			printf 'Using 755 for directories and 644 for files.\n'
+			FileMode=644
+			DirMode=755
+			break ;;
+		*|'')
+			Err 0 'Invalid response -- try again.' ;;
+	esac
+done
+
+if [ -d /home/"$User"/bin ]; then
+	while read -r Line; do
+		printf '%b\n' "$Line"
+	done <<-EOF
+		\rDirectory '/home/$User/$Dir' discovered.
+
+		\rNOTE: You will have to once again make the applicable files
+		\r      executable by using, for example, the chmod(1) command.
+
+	EOF
+fi
+
+while :; do
+	printf 'This operation cannot be undone -- continue? [Y/N] '
+	read Reply
+
+	case $Reply in
+		[Yy]|[Yy][Ee][Ss])
+			break ;;
+		[Nn]|[Nn][Oo])
+			printf 'Nothing to do -- quitting.\n'
+			exit 0 ;;
+		*|'')
+			Err 0 'Invalid response -- try again.' ;;
+	esac
+done
+
+Execute(){
+	if [ "$JustEcho" = 'True' ]; then
+		printf '$ %s\n' "$*"
+	else
+		"$@"
+	fi
+}
+
+printf '[1/5] Correcting mode of HOME...\n'
+Execute chmod $DirMode /home/"$User"
+
+printf '[2/5] Recursively correcting mode of files in HOME...\n'
+Execute chmod -R $FileMode /home/"$User"
+
+printf '[3/5] Recursively correcting mode of directories in HOME...\n'
+Execute chmod -R $DirMode /home/"$User"
+
+printf '[4/5] Correcting owner & group of HOME...\n'
+Execute chown "$User":"$User" /home/"$User"
+
+printf '[5/5] Recursively correcting owner & group of everything in HOME...\n'
+Execute chown -R "$User":"$User" /home/"$User"
+
+printf 'Done!\n'
