@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Mon  8 Feb 13:31:13 GMT 2021
+# Last Change       - Sun 14 Feb 01:39:36 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -47,7 +47,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-08'
+CurVer='2021-02-14'
 Progrm=${0##*/}
 
 Usage(){
@@ -304,10 +304,6 @@ read -a Line < "$VerFile"
 CurVer=${Line[2]}
 
 JustOutput 'current' "$CurVer"
-
-# Testing lines.
-#LatestVer='5.10'
-#CurVer='5.10'
 
 [ -z "$Output" ] && printf 'Current Linux version: %s\n' "$CurVer"
 
@@ -667,7 +663,16 @@ fi
 [ "$KeepFiles" == 'True' ] || trap - EXIT INT
 
 Ask 'Begin compiling kernel, then building Debian packages for it?' || exit 1
-printf 'Attempting to compile kernel & build Debian packages...\n'
+
+while read; do
+	printf '%s\n' "$REPLY"
+done <<-EOF
+	NOTE: This operation may take some time, depending on your system
+	      performance and the options previously selected.
+
+	Attempting to compile kernel & build Debian packages...
+EOF
+
 $Make bindeb-pkg # <-- As of 2020-12-18, no longer building source packages.
 
 DebPKGExit=$?
