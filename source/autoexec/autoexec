@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 15 Feb 16:22:40 GMT 2021
+# Last Change       - Mon 15 Feb 16:40:19 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -68,8 +68,6 @@ Err(){
 }
 
 TIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
-
-CFile='/home/ichy/GitHub/terminalforlife/Offline/CProjects/demo.c'
 
 while [ "$1" ]; do
 	case $1 in
