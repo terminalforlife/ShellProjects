@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 15 Feb 15:10:10 GMT 2021
+# Last Change       - Mon 15 Feb 15:13:35 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -259,6 +259,7 @@ while :; do
 						if gcc -o "$OutFile" "$ExecFile"; then
 							chmod 755 "$OutFile"
 							"$OutFile"
+							Exit=$?
 						else
 							Exit=999
 						fi
