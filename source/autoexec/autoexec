@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sun  7 Feb 15:20:03 GMT 2021
+# Last Change       - Mon 15 Feb 14:38:39 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,6 +13,7 @@
 #
 # Bugs:
 #
+#TODO: When using once-only mode, an initial newline is shown.
 #TODO: Using AutoExec for man pages is buggy, but functional.
 #
 #      More specifically, the prompt shows through and when ^C-ing, the last
@@ -28,7 +29,8 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-07'
+
+CurVer='2021-02-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -63,6 +65,8 @@ Err(){
 }
 
 TIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
+
+CFile='/home/ichy/GitHub/terminalforlife/Offline/CProjects/demo.c'
 
 while [ "$1" ]; do
 	case $1 in
@@ -126,15 +130,19 @@ fi
 
 ExecFile=$1; shift
 
-declare -i DepCount=0
-for Dep in file tput sleep stat; {
-	if ! type -P "$Dep" &> /dev/null; then
-		Err 0 "Dependency '$Dep' not met."
-		DepCount+=1
-	fi
+DepChk(){
+	DepCount=0
+	for Dep in "$@"; {
+		if ! type -P "$Dep" &> /dev/null; then
+			Err 0 "Dependency '$Dep' not met."
+			let DepCount++
+		fi
+	}
+
+	[ $DepCount -gt 0 ] && exit 1
 }
 
-[ $DepCount -gt 0 ] && exit 1
+DepChk file tput sleep stat
 
 if [ "$Force" != 'True' ]; then
 	case $Exec in
@@ -148,22 +156,38 @@ if [ "$Force" != 'True' ]; then
 	esac
 fi
 
-if [ "$Once" != 'true' ]; then
-	TRAP(){
-		tput ed; tput rmcup
-
-		# Needs to be here otherwise the above line clears it.
-		if [ "$Force" != 'True' -a "$UnsupportedCheck" == 'True' ]; then
-			Err 0 "Option '--check|-c' not supported on FILE."
+case `file -b --mime-type "$ExecFile"` in
+	text/x-c)
+		if [ "$DoTime" == 'True' ]; then
+			Err 1 "Option '--time|-t' not supported on FILE."
 		fi
 
-		exit 0
-	}
+		CFound='True' ;;
+esac
 
-	trap 'TRAP' SIGINT EXIT
+TRAP(){
+	if [ "$Once" != 'true' ]; then
+		tput ed
+		tput rmcup
+	fi
 
-	tput smcup
-fi
+	# Needs to be here otherwise the above line clears it.
+	if [ "$Force" != 'True' ]; then
+		if [ "$UnsupportedCheck" == 'True' ]; then
+			Err 1 "Option '--check|-c' not supported on FILE."
+		elif  [ "$TimingErr" == 'True' ]; then
+			Err 1 'Timing of C programs not yet supported.'
+		elif  [ "$CCompileErr" == 'True' ]; then
+			Err 1 'Failed to compile with gcc(1).'
+		fi
+	fi
+
+	exit 0
+}
+
+trap 'TRAP' SIGINT EXIT
+
+[ "$Once" == 'true' ] || tput smcup
 
 Interpreter(){
 	type -P "$1" &> /dev/null ||
@@ -172,20 +196,22 @@ Interpreter(){
 	Exec=$1
 }
 
-WinchHandler(){
-	tput clear
-	Lines=`tput lines`
-	Columns=`tput cols`
-}
+if [ "$Once" != 'true' ]; then
+	WinchHandler(){
+		tput clear
+		Lines=`tput lines`
+		Columns=`tput cols`
+	}
 
-trap 'WinchHandler' WINCH
+	trap 'WinchHandler' WINCH
 
-WinchHandler
+	WinchHandler
+fi
 
 printf '\n'
 while :; do
 	# Determine the interpreter to use.
-	if [ -z "$Exec" ]; then
+	if [ "$CFound" != 'True' ] && [ -z "$Exec" ]; then
 		read SheBang < "$ExecFile"
 		SheBang1=${SheBang#*\!}
 		SheBang2=${SheBang1##*/}
@@ -226,13 +252,31 @@ while :; do
 			fi
 
 			if [ "$Errors" != 'True' ]; then
-				if [ "$DoTime" == 'True' ]; then
-					time "$Exec" "$ExecFile" "$@"
+				if [ "$CFound" == 'True' ]; then
+					if [ "$DoTime" == 'True' ]; then
+						TimingErr='True'
+						exit 1
+					else
+						OutFile='/tmp/ae_cfile_run.tmp'
+						if gcc -o "$OutFile" "$ExecFile"; then
+							chmod 755 "$OutFile"
+							"$OutFile"
+							Exit=$?
+						else
+							CCompileErr='True'
+							exit 1
+						fi
+					fi
 				else
-					"$Exec" "$ExecFile" "$@"
+					if [ "$DoTime" == 'True' ]; then
+						time "$Exec" "$ExecFile" "$@"
+						Exit=$?
+					else
+						"$Exec" "$ExecFile" "$@"
+						Exit=$?
+					fi
 				fi
 
-				Exit=$?
 			else
 				Exit=999
 			fi
@@ -247,42 +291,44 @@ while :; do
 		Err 1 'File not found or inaccessible.'
 	fi
 
-	# Have the exit status on the bottom-right of the terminal.
-	if [ "$NoExitStatus" != 'True' ]; then
-		tput cup $Lines $((Columns - 3))
-
-		if [ "$NoColor" == 'True' ]; then
-			printf '%#3d' $Exit
-		else
-			if [ $Exit -eq 0 ]; then
-				printf '\e[2;37m%#3d\e[0m' $Exit
-			else
-				printf '\e[1;31m%#3d\e[0m' $Exit
-			fi
-		fi
-	fi
-
-	if [ "$NoWaitMSG" != 'True' ]; then
-		if [ "$NoSpinner" == 'True' ]; then
-			tput cud $Lines
+	if [ "$Once" != 'true' ]; then
+		# Have the exit status on the bottom-right of the terminal.
+		if [ "$NoExitStatus" != 'True' ]; then
+			tput cup $Lines $((Columns - 3))
 
 			if [ "$NoColor" == 'True' ]; then
-				printf '\rWaiting for changes... '
+				printf '%#3d' $Exit
 			else
-				printf '\r\e[2;37mWaiting for changes...\e[0m '
+				if [ $Exit -eq 0 ]; then
+					printf '\e[2;37m%#3d\e[0m' $Exit
+				else
+					printf '\e[1;31m%#3d\e[0m' $Exit
+				fi
 			fi
-		else
-			for Char in '|' '/' '-' '\'; {
+		fi
+
+		if [ "$NoWaitMSG" != 'True' ]; then
+			if [ "$NoSpinner" == 'True' ]; then
 				tput cud $Lines
 
 				if [ "$NoColor" == 'True' ]; then
-					printf '\r[%s] Waiting for changes... ' "$Char"
+					printf '\rWaiting for changes... '
 				else
-					printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
+					printf '\r\e[2;37mWaiting for changes...\e[0m '
 				fi
+			else
+				for Char in '|' '/' '-' '\'; {
+					tput cud $Lines
 
-				sleep 0.04
-			}
+					if [ "$NoColor" == 'True' ]; then
+						printf '\r[%s] Waiting for changes... ' "$Char"
+					else
+						printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
+					fi
+
+					sleep 0.04
+				}
+			fi
 		fi
 	fi
 
