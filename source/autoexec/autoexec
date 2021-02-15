@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 15 Feb 14:44:18 GMT 2021
+# Last Change       - Mon 15 Feb 15:10:10 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -19,6 +19,10 @@
 #      line (message line with exit status) still shows. Pretty ugly. I'm not
 #      sure this is something which can be fixed, as it's probably just a
 #      limitation of Shell/terminals.
+#
+# Optional Dependencies:
+#
+#   gcc (>= 4:7.4.0-1)
 #
 # Dependencies:
 #
@@ -148,14 +152,11 @@ if [ "$Force" != 'True' ]; then
 		*/man|man|*/less|less|*/pager|pager|*/more|more)
 			Err 1 "Using pagers with $Progrm is unsupported." ;;
 	esac
-
-	case `file -b --mime-type "$ExecFile"` in
-		application|application/*)
-			Err 1 "Binary files are not supported." ;;
-	esac
 fi
 
 case `file -b --mime-type "$ExecFile"` in
+	application|application/*)
+		[ "$Force" == 'True' ] || Err 1 "Binary files are not supported." ;;
 	text/x-c)
 		if [ "$DoTime" == 'True' ]; then
 			Err 1 "Option '--time|-t' not supported on FILE."
@@ -176,8 +177,6 @@ TRAP(){
 			Err 1 "Option '--check|-c' not supported on FILE."
 		elif  [ "$TimingErr" == 'True' ]; then
 			Err 1 'Timing of C programs not yet supported.'
-		elif  [ "$CCompileErr" == 'True' ]; then
-			Err 1 'Failed to compile with gcc(1).'
 		fi
 	fi
 
@@ -260,10 +259,8 @@ while :; do
 						if gcc -o "$OutFile" "$ExecFile"; then
 							chmod 755 "$OutFile"
 							"$OutFile"
-							Exit=$?
 						else
-							CCompileErr='True'
-							exit 1
+							Exit=999
 						fi
 					fi
 				else
