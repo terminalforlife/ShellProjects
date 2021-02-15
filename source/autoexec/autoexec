@@ -3,18 +3,17 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 15 Feb 14:38:39 GMT 2021
+# Last Change       - Mon 15 Feb 14:44:18 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Features:
 #
-# N/A
+#TODO: Add timing functionality to C FILEs.
 #
 # Bugs:
 #
-#TODO: When using once-only mode, an initial newline is shown.
-#TODO: Using AutoExec for man pages is buggy, but functional.
+#TODO: Using AutoExec for man pages (pagers) is buggy, but functional.
 #
 #      More specifically, the prompt shows through and when ^C-ing, the last
 #      line (message line with exit status) still shows. Pretty ugly. I'm not
@@ -189,13 +188,6 @@ trap 'TRAP' SIGINT EXIT
 
 [ "$Once" == 'true' ] || tput smcup
 
-Interpreter(){
-	type -P "$1" &> /dev/null ||
-		Err 1 "Interpreter '$1' not found."
-
-	Exec=$1
-}
-
 if [ "$Once" != 'true' ]; then
 	WinchHandler(){
 		tput clear
@@ -208,7 +200,14 @@ if [ "$Once" != 'true' ]; then
 	WinchHandler
 fi
 
-printf '\n'
+Interpreter(){
+	type -P "$1" &> /dev/null ||
+		Err 1 "Interpreter '$1' not found."
+
+	Exec=$1
+}
+
+#printf '\n'
 while :; do
 	# Determine the interpreter to use.
 	if [ "$CFound" != 'True' ] && [ -z "$Exec" ]; then
