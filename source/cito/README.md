@@ -1,12 +1,33 @@
 # Installation Instructions
 
-You can use the provided 'cito-installer' script.
+Your best bet is one of two options:
 
-There are also Debian packages over [here](https://github.com/terminalforlife/DEB-Packages) which is a good solution for those on Debian- or Ubuntu-based distributions of Linux.
+  * Install via [Cito's DEB package](https://github.com/terminalforlife/DEB-Packages/tree/master/cito) for Debian- and Ubuntu-based systems.
+  * Install via Cito's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/cito/cito-installer).
 
-# Uninstalling Cito
+For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
 
-This one-liner will effectively uninstall Cito:
+```sh
+(cd /tmp; curl -so cito-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito-installer' && sudo \sh cito-installer; rm cito-installer)
+```
+
+If that fails, you probably don't have curl(1), so try wget(1):
+
+```sh
+(cd /tmp; wget -qO cito-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito-installer' && sudo \sh cito-installer; rm cito-installer)
+```
+
+If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+
+# Removing Cito
+
+If you've used a Debian package to install Cito, refer to your package manager. However, if you've used the installer, then you can run the following to delete the files it creates:
+
+```
+sudo rm /usr/bin/cito /usr/bin/cito-list /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
+```
+
+If you don't have sudo(8), you'll have to acquire root privileges by other means.
 
 ```
 sudo rm /usr/bin/cito /usr/bin/cito-list /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
