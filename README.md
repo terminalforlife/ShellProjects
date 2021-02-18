@@ -35,4 +35,4 @@ You have various options available to you:
     wget -q 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito'; sudo sh cito cito
     ```
 
-  * If you're on a Debian- or Ubuntu-based distribution of Linux, refer to the [https://github.com/terminalforlife/DEB-Packages](DEB-Packages) repository for a list of Debian packages for various versions of TFL programs which you can install.
+  * If you're on a Debian- or Ubuntu-based distribution of Linux, refer to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository for a list of Debian packages for various versions of TFL programs which you can install.
