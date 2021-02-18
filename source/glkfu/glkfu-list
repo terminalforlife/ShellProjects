@@ -3,12 +3,25 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Thu 24 Dec 01:53:40 GMT 2020
+# Last Change       - Thu 18 Feb 22:47:44 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Very basic complimentary tool to GLKFU to simply list out all of the
 # available XZ tarballs stored on kernel.org, whether they're stable or not.
+#
+# Features:
+#
+#TODO: Display just kernel versions, not the tarball filename.
+#
+#      I think it would look tidier if this were the case, also for the
+#      `glkfu-changes` helper, and `glkfu` itself. Perhaps just have `glkfu`
+#      deal with the tarball filename automatically, instead of putting that on
+#      the user.
+#
+# Bugs:
+#
+# N/A
 #
 # Dependencies:
 #
@@ -18,6 +31,10 @@
 #   perl (>= 5.22.1-9)
 #------------------------------------------------------------------------------
 
+require LWP::Simple;
+require Sort::Versions;
+
+use 5.22.1;
 use strict;
 use warnings;
 use autodie;
@@ -26,7 +43,7 @@ use Sort::Versions 'versioncmp';
 
 no warnings 'uninitialized';
 
-my $CurVer = '2020-12-24';
+my $CurVer = '2021-02-18';
 my $Progrm = ($0 =~ m{(?:.*/)?([^/].*)})[0];
 
 sub Usage {
@@ -40,8 +57,10 @@ sub Usage {
 	} =~ tr/\t//dr)
 }
 
-my $DoColor = 'True';
 my $Domain = 'https://www.kernel.org';
+my $Releases = "$Domain/category/releases.html";
+
+my $NoColor;
 
 while (defined($ARGV[0])) {
 	if ($ARGV[0] =~ '^(--help|-h)$') {
@@ -49,7 +68,7 @@ while (defined($ARGV[0])) {
 	} elsif ($ARGV[0] =~ '^(--version|-v)$') {
 		print("$CurVer\n"); exit(0)
 	} elsif ($ARGV[0] =~ '^(--no-color|-C)$') {
-		$DoColor = 'False'
+		$NoColor = 'True'
 	} else {
 		die("Incorrect option(s) specified")
 	}
@@ -57,30 +76,59 @@ while (defined($ARGV[0])) {
 	shift()
 }
 
-my @Data = split("\n", get("$Domain/pub/linux/kernel"));
+# Parse 'releases.html' page for the table of LTS kernels.
+my (@LongTerms, $TableFound);
+foreach (split("\n", get($Releases))) {
+	'<caption>Longterm release kernels</caption>' and $TableFound = 'True';
 
+	if ($TableFound eq 'True') {
+		push(@LongTerms, $1) if /^<tr><td>([[:digit:].]+)<\/td>$/;
+
+		$_ eq '</table>' and last;
+	}
+}
+
+# Gather list of applicable major releases from the directory names.
 my @KernVers;
-foreach (@Data) {
+foreach (split("\n", get("$Domain/pub/linux/kernel"))) {
 	my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
 	push(@KernVers, $File) if $File =~ '^v\d+\.[\dx]+/'
 }
 
+# Gather list of kernel versions, then turn them into valid tarball filenames.
 my (@Tarballs, @Versions);
 foreach my $Version (@KernVers) {
-	@Data = split("\n", get("$Domain/pub/linux/kernel/$Version"));
-
-	foreach (@Data) {
+	foreach (split("\n", get("$Domain/pub/linux/kernel/$Version"))) {
 		my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
+
 		next unless $File =~ '^linux-[\d\.]+.tar.xz$';
+
 		push(@Versions, (m{(?:linux-)([\d\.]+)(?:\.tar\.xz)})[0])
 	}
 }
 
+# Get and handle the current kernel version string.
 chomp(my $CurKernVer = `glkfu -o current`);
+if ($CurKernVer =~ '(^[[:digit:]]+.[[:digit:]]+).0$') {
+	$CurKernVer = $1 # <-- Because *.*.0 shows as *.* on site.
+}
+
+# List the kernels.
 foreach my $Version (sort({versioncmp($a, $b)} @Versions)) {
-	if ($Version eq $CurKernVer and $DoColor eq 'True') {
-		printf("\e[1;32mlinux-%s.tar.xz\e[0m\n", $Version)
+	if ($Version eq $CurKernVer and $NoColor ne 'True') {
+		printf("\e[1;32mlinux-%s.tar.xz\e[0m", $Version)
 	} else {
-		printf("linux-%s.tar.xz\n", $Version)
+		printf("linux-%s.tar.xz", $Version)
+	}
+
+	# Mark LTS releases, with or without color.
+	if (grep({$_ eq $Version} @LongTerms)) {
+		if ($NoColor ne 'True') {
+			print("\e[2;37m  <-- LTS\e[0m\n")
+		} else {
+			print("  <-- LTS\n")
+		}
+	} else {
+		print("\n")
 	}
 }
