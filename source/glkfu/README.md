@@ -1,6 +1,6 @@
 # GLKFU - Get Latest Kernel for Ubuntu
 
-Despite its name, this tool is actually useful on much more than just straight Ubuntu.
+Despite its name, this tool (including its helper tools) is actually useful on much more than just straight Ubuntu.
 
 Simplify the process of compiling and building Debian images and headers for the latest available stable Linux kernel, so downloaded from the official kernel.org website.
 
