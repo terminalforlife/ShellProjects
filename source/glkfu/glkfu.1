@@ -1,0 +1,146 @@
+.TH "GLKFU" "1" "2021-02-18" "GLKFU 2021-02-18" "GLKFU"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ad l
+.nh
+.SH "NAME"
+glkfu \- Easily compile & build Debian packages for Linux kernels
+.SH "DESCRIPTION"
+Simplify the process of compiling and building Debian images and headers for the latest available stable kernel, so downloaded from the official \fBkernel.org\fR website.
+.PP
+While this is still more of an advanced approach to setting up the Linux kernel in Debian- and Ubuntu-based distributions of Linux, \fBGLKFU\fR does make this process much easier, quicker, and more user-friendly.
+.PP
+No actual installation of the resulting Debian packages will be performed; this is intentionally left to the responsibility of the user.
+.PP
+A series of compilation and package building dependencies will be required in order to correctly use \fBGLKFU\fR, but a helpful check is performed before doing anything important, to see if these packages are installed.
+.SH "SYNOPSIS"
+glkfu [OPTS]
+.SH "OPTIONS"
+\fB-h\fR, \fB--help\fR
+.RS 4
+Display some helpful information.
+.RE
+.PP
+\fB-v\fR, \fB--version\fR
+.RS 4
+Output the version datestamp.
+.RE
+.PP
+\fB--changelog\fR
+.RS 4
+Display the Linux changelog using \fIless\fR(1). This file can be several MBs, so this may take a while to download. This feature makes use of \fBglkfu-changes\fR.
+.PP
+Not all Linux versions will support this changelog feature, but the 4, 5, and 6 versions are, as will hopefully future major releases. This limitation may be addressed in future versions of \fBGLKFU\fR.
+.RE
+.PP
+\fB-C\fR, \fB--config [FILE]\fR
+.RS 4
+Use FILE instead of newest available.
+.RE
+.PP
+\fB-D\fR, \fB--build-dir [PATH]\fR
+.RS 4
+Build in PATH instead of CWD.
+.RE
+.PP
+\fB-I\fR, \fB--ignore-deps\fR
+.RS 4
+Ignore compile & build dependencies.
+.RE
+.PP
+\fB-O\fR, \fB--override [FILE]\fR
+.RS 4
+Use FILE instead of the latest.
+.PP
+When specifying an alternative tarball FILE, ensure that you use the same filename format as it normally is. Below is the REGEX for the expected format:
+.RS 2
+.PP
+\fB^linux-[0-9\.]+\.tar\.xz$\fR
+.RE
+.PP
+Otherwise glkfu will error out.
+.RE
+.PP
+\fB-c\fR, \fB--cores [INT]\fR
+.RS 4
+Use INT CPU cores (jobs) for \fImake\fR(1). By default, glkfu will use the maximum available number of cores. Any configuration outside of \fBGLKFU\fR  will be ignored
+.RE
+.PP
+\fB-d\fR, \fB--just-download\fR
+.RS 4
+Just download the Linux Tar archive.
+.RE
+.PP
+\fB-i\fR, \fB--ignore-versions\fR
+.RS 4
+Disregard current & new version strings. This might be useful if, for example, you wish to redownload, recompile, and rebuild packages for the same kernel you're currently running. Another use might be if for some reason versions are not being detected correctly.
+.RE
+.PP
+\fB-j\fR, \fB--just-check\fR
+.RS 4
+Just check \fBkernel.org\fR for a newer version. When just checking for a new kernel version, the following exit statuses will be used by \fBGLKFU\fR:
+.PP
+.RS 2
+3 = Unable to determine if the latest version is newer or not.
+.RE
+.RS 2
+2 = No new version was found.
+.RE
+.RS 2
+0 = A new version was (probably) found.
+.RE
+.RE
+.PP
+\fB-k\fR, \fB--keep-files\fR
+.RS 4
+Keep files if \fBGLKFU\fR unexpectedly exits.
+.PP
+By default, files \- except the resulting Debian packages \- are cleaned up upon exit to avoid clutter. With this flag used, these files will all be left as-is unless overwritten during \fBGLKFU\fR execution.
+.RE
+.PP
+\fB-o\fR, \fB--output [TYPE]\fR
+.RS 4
+Output \fBTYPE\fR, for scripting. See below.
+.PP
+Available \fBTYPE\fRs to output:
+.PP
+.RS 2
+\fBcurrent\fR - Current Linux version.
+.RE
+.RS 2
+\fBcurrent.[maj|min|rev]\fR - Major, minor, or revision of 'current'.
+.RE
+.RS 2
+\fBcurrent.split\fR - Current Linux version, split by spaces.
+.RE
+.RS 2
+\fBlatest\fR - Latest Linux version.
+.RE
+.RS 2
+\fBlatest.[maj|min|rev]\fR - Major, minor, or revision of 'latest'.
+.RE
+.RS 2
+\fBlatest.split\fR - Latest Linux version, split by spaces.
+.RE
+.RS 2
+\fBlatest.tarball\fR - Filename of the latest tarball.
+.SH "AUTHOR"
+.PP
+terminalforlife <\fIterminalforlife@yahoo.com\fR>
+.RE
+(also known as \fBLearn Linux\fR, over at \fBYouTube\fR)
+.PP
+.SH "BUGS"
+For bug reports and other issues with \fBGLKFU\fR, including suggestions, please report to the below \fBGitHub\fR link, through which the project is developed.
+.PP
+.RS 2
+\fIhttps://github.com/terminalforlife/Extra\fR
+.RE
+.PP
+You may also E-Mail the author of this project, but it's rarely checked.
+.RE
+.PP
+As a last resort, however, one might simply leave a comment over at the below \fBYouTube\fR channel, \fBLearn Linux\fR.
+.PP
+.RS 2
+\fIhttps://www.youtube.com/c/LearnLinux\fR

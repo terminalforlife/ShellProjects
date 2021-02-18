@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sun 14 Feb 01:39:36 GMT 2021
+# Last Change       - Thu 18 Feb 16:47:56 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -41,13 +41,14 @@
 #
 #   bash (>= 4.3-14)
 #   coreutils (>= 8.28-1ubuntu1)
+#   glkfu-changes (>= 2021-02-18)
 #   glkfu-list (>= 2020-12-24)
 #   make (>= 4.1-9.1ubuntu1)
 #   tar (>= 1.29b-2)
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-14'
+CurVer='2021-02-18'
 Progrm=${0##*/}
 
 Usage(){
@@ -58,6 +59,7 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  --changelog              - View kernel's changelog using less(1).
 		  -C, --config [FILE]      - Use FILE instead of newest available.
 		  -D, --build-dir [PATH]   - Build in PATH instead of CWD.
 		  -I, --ignore-deps        - Ignore compile & build dependencies.
@@ -181,6 +183,8 @@ while [ "$1" ]; do
 			fi ;;
 		--list-kerns|-l)
 			ListKerns='True' ;;
+		--changelog)
+			ChangeLog='True' ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
 	esac
@@ -194,7 +198,7 @@ elif [ "$IgnoreVers" == 'True' -a "$JustCheck" == 'True' ]; then
 fi
 
 DepCount=0
-for Dep in glkfu-list sync make tar rm cp sha256sum; do
+for Dep in glkfu-{list,changes} sync make tar rm cp sha256sum; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		let DepCount++
@@ -217,14 +221,14 @@ Get(){
 		[ "$1" == '-' ] || Progress='--progress-bar'
 
 		curl ${Progress:-\-s} -o "$1" "$2" ||
-			Err $? 'Downloading with cURL failed.'
+			Err $? 'Downloading with curl(1) failed.'
 	elif type -P wget &> /dev/null; then
 		[ "$1" == '-' ] || Progress='--show-progress'
 
 		wget $Progress -q -O "$1" "$2" ||
-			Err $? 'Downloading with WGet failed.'
+			Err $? 'Downloading with wget(1) failed.'
 	else
-		Err 1 "Neither 'WGet' nor 'cURL' were found."
+		Err 1 "Neither 'wget' nor 'curl' were found."
 	fi
 
 	unset DoStdIn Args
@@ -295,6 +299,13 @@ case $Output in
 
 		[ -z "$Output" ] && printf 'Latest Linux version: %s\n' "$LatestVer" ;;
 esac
+
+#-----------------------------------Viewing the Changelog (via `glkfu-changes`)
+
+if [ "$ChangeLog" == 'True' ]; then
+	glkfu-changes "$LatestVer"
+	exit $?
+fi
 
 #---------------------Determine if the Latest is Newer than the Current Version
 
