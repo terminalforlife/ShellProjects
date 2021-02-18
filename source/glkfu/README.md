@@ -33,7 +33,7 @@ sudo apt-get remove glkfu
 But if you used the installer, run:
 
 ```
-sudo rm -v /usr/share/bash-completion/completions/glkfu /usr/bin/glkfu /usr/share/man/man1/glkfu.1.gz
+sudo rm -v /usr/share/bash-completion/completions/glkfu /usr/bin/glkfu /usr/bin/glkfu-list /usr/bin/glkfu-changes /usr/share/man/man1/glkfu.1.gz
 ```
 
 # Dependencies for Compilation & Package Building
