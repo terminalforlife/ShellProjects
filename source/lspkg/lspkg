@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Fri 29 Jan 00:19:17 GMT 2021
+# Last Change       - Fri 19 Feb 00:43:16 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,8 +13,8 @@
 #   dpkg (>= 1.19.0.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-29'
-Progrm=${0##*/}
+CurVer='2021-02-19'
+Progrm='lspkg'
 
 Usage(){
 	while read; do
@@ -25,7 +25,6 @@ Usage(){
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  --match-with <TYPE>      - Where T is glob or the default, regex.
-		  -D, --debug              - Enables the built-in bash debugging.
 		  -N, --no-describe        - Do not display package descriptions.
 		  -a, --show-arch          - Include package arch-types.
 		  -c, --count              - Display the total number of packages.
@@ -48,8 +47,6 @@ while [ "$1" ]; do
 		--version|-v)
 			printf "%s\n" "$CurVer"
 			exit 0 ;;
-		--debug|-D)
-			DebugMe='true' ;;
 		--no-describe|-N)
 			NoDescribe='true' ;;
 		--ignore-case|-i)
@@ -84,8 +81,6 @@ Package=($@)
 
 type -P dpkg-query 1> /dev/null 2>&1 ||
 	Err 1 "Dependency 'dpkg-query' not met."
-
-[ "$DebugMe" == 'true' ] && set -x
 
 PkgList(){
 	dpkg-query -Wf="\${db:Status-Abbrev} \$${PkgName} - \${binary:Summary}\n" \*\
@@ -146,9 +141,9 @@ while read -a CurLine; do
 				esac
 			}
 		else
-			# If there are no packages specified by the user, just show
-			# all of the packages. Removing the space because of the
-			# above printf command adding a trailing space.
+			# If there are no packages specified by the user, just show all of
+			# the packages. Removing the space because of the above `printf`
+			# builtin adding a trailing space.
 			if ! [ "$NoDescribe" == 'true' ]; then
 				printf '%s\n' "${Buffer% }"
 			else
@@ -172,4 +167,3 @@ fi
 if [ "${Package[*]}" -a ! $SearchResult -gt 0 ]; then
 	exit 4
 fi
-

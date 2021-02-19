@@ -73,7 +73,7 @@ d2a54898c07644b411203ecd7cb14894  source/libtflbp-sh/source/functions/Translate
 5f7c1d051731252eb1383f2fc99eaba8  source/libtflbp-sh/source/functions/YNInput
 c8fb82c93714ef9a5e5dc7cd2eece4bf  source/libtflbp-sh/source/tflbp-installer
 a5532fffa78edb369808bab500a85574  source/lspkg/completions
-bff0a78ea46f652af6b287979ea66800  source/lspkg/lspkg
+6737e674b40c6557a6fe2f69489694db  source/lspkg/lspkg
 3a7240c100d0a47ff44c4b361266d0c9  source/lspkg/lspkg.1.gz
 aa392c51af3a6ad7d57c2774c88db5b9  source/lspkg/lspkg-set
 1b67d731bf2c3c96f4b46a3030afff78  source/lspkg/lspkg-set.1.gz
