@@ -75,6 +75,7 @@ c8fb82c93714ef9a5e5dc7cd2eece4bf  source/libtflbp-sh/source/tflbp-installer
 a5532fffa78edb369808bab500a85574  source/lspkg/completions
 6737e674b40c6557a6fe2f69489694db  source/lspkg/lspkg
 52e28d1cf3d936f20a3e2cf8431ce63c  source/lspkg/lspkg.1.gz
+5c6e2cb245a08aa2ce364bfd95217608  source/lspkg/lspkg-installer
 aa392c51af3a6ad7d57c2774c88db5b9  source/lspkg/lspkg-set
 1b67d731bf2c3c96f4b46a3030afff78  source/lspkg/lspkg-set.1.gz
 703164929424abafd3a3b08003354584  source/mfw
