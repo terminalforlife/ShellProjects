@@ -1,113 +1,113 @@
-#!/bin/bash
+#!/bin/sh
 #cito M:755 O:0 G:0 T:/usr/bin/bl
-#----------------------------------------------------------------------------------
-# Project Name      - Extra/source/bl (blkid lite)
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/bl
 # Started On        - Thu 14 Sep 01:49:40 BST 2017
-# Last Change       - Fri  6 Dec 22:46:24 GMT 2019
+# Last Change       - Tue 23 Feb 16:40:40 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# A [l]ite and portable version of [b]lkid(8) which should ordinarily not need
+# 'root' privileges to run.
+#
+# This is really old script I should probably rewrite, but it works.
+#------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+CurVer='2021-02-23'
+Progrm='bl'
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" >&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read -r Line; do
+		printf '%b\n' "$Line"
 	done <<-EOF
-		            ${_PROJECT_^^} - BLKID Lite ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		\rUsage: $Progrm [OPTS] [DEV_1 [DEV_2] ...]
 
-		            Much simpler, quicker version of blkid.
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+		\r  -L, --label [LABEL]      - Display only devices of LABEL.
+		\r  -U, --uuid [UUID]        - Display only devices of UUID.
 
-		SYNTAX:     $_PROJECT_ [OPTS] <DEV> ...
+		\r  Display only the UUID for the following devices:
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --uuid|-U NAME          - Display only the UUID.
-		            --label|-L NAME         - Display only the LABEL.
+		\r    $Progrm -U=/dev/sda1 -U=/dev/sdb3
 
-		EXAMPLE:    Display only the UUID for the following devices:
+		\r  Display NAME,LABEL,UUID,FSTYPE,PARTUUID for devices:
 
-		              $_PROJECT_ -U=/dev/sda1 -U=/dev/sdb3
+		\r    $Progrm /dev/sdb1 /dev/sdg2 /dev/fd0
 
-		            Display NAME,LABEL,UUID,FSTYPE,PARTUUID for devices:
-
-		              $_PROJECT_ /dev/sdb1 /dev/sdg2 /dev/fd0
-
-		NOTE:       While this small program certainly couldn't replace blkid's entire
-		            suite of functionalities, $_PROJECT_ is perhaps enough for most who just need
-		            a UUID or LABEL.
+		\r  While this small program certainly couldn't replace blkid's entire
+		\r  suite of functionalities, $Progrm is perhaps enough for most who
+		\r  just need a UUID or LABEL.
 	EOF
 }
 
-LSBLK_FORMAT="name,label,uuid,fstype,partuuid"
-declare -i A=0 # The number of short or long arguments.
+
+LSBLK_Format='name,label,uuid,fstype,partuuid'
+ArgNum=0 # The number of short or long arguments.
 
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--debug|-D)
-			DEBUGME='true'
-			A+=1; ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--uuid|-U)
 			shift
 
-			UFLAG_ACTIVE='true'
-			PORNOT="-n"
-			LSBLK_FORMAT="uuid"
-			SHOWDEV="${SHOWDEV:-} $1"
-			A+=1 ;;
+			UFlagActive='true'
+			POrNot="-n"
+			LSBLK_Format="uuid"
+			ShowDev="${ShowDev:-} $1"
+			ArgNum+=1 ;;
 		--label|-L)
 			shift
 
-			LFLAG_ACTIVE='true'
-			PORNOT="-n"
-			LSBLK_FORMAT="label"
-			SHOWDEV="${SHOWDEV:-} $1"
-			A+=1 ;;
+			LFlagActive='true'
+			POrNot="-n"
+			LSBLK_Format="label"
+			ShowDev="${ShowDev:-} $1"
+			ArgNum+=1 ;;
 		/dev/*)
-			[ $A -eq 0 ] && SHOWDEV="${SHOWDEV:-} $1" ;;
+			[ $ArgNum -eq 0 ] && ShowDev="${ShowDev:-} $1" ;;
 		*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in sed lsblk; {
-	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+DepCount=0
+for Dep in sed lsblk; do
+	if ! command -v "$Dep" 1> /dev/null 2>&1; then
+		Err 0 "Dependency '$DEP' not met."
+		DepCount=$((DepCount + 1))
 	fi
-}
+done
 
-[ $DEPCOUNT -eq 0 ] || exit 1
+[ $DepCount -eq 0 ] || exit 1
 
-if [ "${UFLAG_ACTIVE:-}" == 'true' -a "${LFLAG_ACTIVE:-}" == 'true' ]; then
-	Err 1 $LINENO "Unable to mix --uuid|-U and --label|-L flags."
-elif [[ $LSBLK_FORMAT =~ ^(label|uuid)$ ]] && [ -z "$SHOWDEV" ]; then
-	Err 1 $LINENO "Missing a block device name."
+if [ "$UFlagActive" = 'true' -a "$LFlagActive" = 'true' ]; then
+	Err 1 "Unable to mix --uuid|-U and --label|-L flags."
 fi
 
-[ "$DEBUGME" == 'true' ] && set -x
+case $LSBLK_Format in
+	label|uuid)
+		if [ -z "$ShowDev" ]; then
+			Err 1 "Missing a block device name."
+		fi ;;
+esac
 
-MAIN_FUNC(){
+MainFunc(){
 	LSBLK(){
-		lsblk ${PORNOT:--P} -po $LSBLK_FORMAT ${SHOWDEV} 2> /dev/null
+		lsblk ${POrNot:--P} -po $LSBLK_Format ${ShowDev} 2> /dev/null
 	}
 
 	# Format the output appropriately based on how lsblk is called.
-	case $LSBLK_FORMAT in
+	case $LSBLK_Format in
 		uuid)
 			LSBLK | sed 's/^UUID="\(.*\)"/\1/; /\(^$\|^[\t\s]\+$\)/d' ;;
 		name)
@@ -123,12 +123,11 @@ MAIN_FUNC(){
 #TODO: Improve everything below and the use of the function above.
 
 # To avoid recalling the same function.
-MAIN_VAR=`MAIN_FUNC`
+MainVar=`MainFunc`
 
 # Helps for those getting the exit status.
-if [ -z "$MAIN_VAR" ]; then
+if [ -z "$MainVar" ]; then
 	exit 2
 else
-	printf "%s\n" "$MAIN_VAR"
+	printf "%s\n" "$MainVar"
 fi
-
