@@ -1,83 +1,75 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/tlptog
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Fri  6 Dec 22:55:52 GMT 2019
+# Last Change       - Tue 23 Feb 17:00:49 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
-# Quick shell program to toggle TLP to improve power management on portable setups.
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Quick shell program to toggle TLP to improve power management on portable
+# setups.
+#------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
-_PROJECT_=${0##*/}
+CurVer='2021-02-23'
+Progrm='tlptog'
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
-DOM="https://github.com"
-WORK_FILE="/etc/default/tlp"
-
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS]
 
-		            Simple command to quickly toggle the 'TLP_ENABLE' parameter.
-
-		SYNTAX:     $_PROJECT_ [OPTS]
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --update|-U             - Check for updates to $_PROJECT_.
-		            --version|-v            - Output only the version datestamp.
-
-		FILE:       $WORK_FILE
-
-		SITE:       $DOM
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
 	EOF
 }
 
-while [ "$1" ]; do
+WorkFile='/etc/default/tlp'
+
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"
-			exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 	esac
 	shift
 done
 
-type -P sed > /dev/null 2>&1 || Err 1 $LINENO "Dependency '/bin/sed' not met."
+if ! type -P sed &> /dev/null; then
+	Err 1 "Dependency 'sed' not met."
+elif [ $UID -ne 0 ]; then
+	Err 1 'Root access is required.'
+fi
 
-[ $UID -eq 0 ] || Err 1 $LINENO "Root access is required for system-wide configuration."
-
-if [ -f "$WORK_FILE" ]; then
-	while IFS="=" read -a X; do
-	 [[ ${X[0]} =~ ^# ]] && continue
-		if [ "${X[0]}" == "TLP_ENABLE" ]; then
-			if [ ${X[1]} -eq 1 ]; then
-				if ! sed -i 's/\(TLP_ENABLE=\)1/\10/' "$WORK_FILE"; then
-					Err 1 $LINENO "Parameter 'TLP_ENABLE' unsuccessfully set to '1'."
+if [ -f "$WorkFile" ]; then
+	while IFS='=' read -a Line; do
+		if [[ ${Line[0]} == \#* ]]; then
+			continue
+		elif [ "${Line[0]}" == 'TLP_ENABLE' ]; then
+			if [ ${Line[1]} -eq 1 ]; then
+				if ! sed -i 's/\(TLP_ENABLE=\)1/\10/' "$WorkFile"; then
+					Err 1 "Parameter 'TLP_ENABLE' unsuccessfully set to '1'."
 				fi
-			elif [ ${X[1]} -eq 0 ]; then
-				if ! sed -i 's/\(TLP_ENABLE=\)0/\11/' "$WORK_FILE"; then
-					Err 1 $LINENO "Parameter 'TLP_ENABLE' unsuccessfully set to '0'."
+			elif [ ${Line[1]} -eq 0 ]; then
+				if ! sed -i 's/\(TLP_ENABLE=\)0/\11/' "$WorkFile"; then
+					Err 1 "Parameter 'TLP_ENABLE' unsuccessfully set to '0'."
 				fi
 			else
-				Err 1 $LINENO "Invalid 'TLP_ENABLE' parameter assignment."
+				Err 1 "Invalid 'TLP_ENABLE' parameter assignment."
 			fi
 
 			break
 		fi
-	done < "$WORK_FILE"
+	done < "$WorkFile"
 else
-	Err 1 $LINENO "Unable to find the '$WORK_FILE' file."
+	Err 1 "Unable to find the '$WorkFile' file."
 fi
