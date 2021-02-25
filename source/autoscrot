@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoscrot
 # Started On        - Sun 17 Sep 05:06:50 BST 2017
-# Last Change       - Sun 29 Nov 04:23:24 GMT 2020
+# Last Change       - Tue 23 Feb 17:45:13 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,8 +16,8 @@
 #   scrot (>= 0.8-17)
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-29'
-Progrm=${0##*/}
+CurVer='2021-02-23'
+Progrm='autoscrot'
 
 Usage(){
 	while read; do
@@ -85,11 +85,11 @@ while :; do
 	[ -d "$MainDir" ] || mkdir -p "$MainDir"
 	printf -v FILENAME "%s/Screenshot_%(%F_%X)T.jpg" $MainDir -1
 
-	if scrot $@ "$FILENAME"; then
-		Num+=1
+	if scrot "$@" "$FILENAME"; then
+		let Num++
 		printf "\rScreenshots taken:   %'d" "$Num"
 	else
 		Err 0 "Non-zero exit status for screenshot #${Num}."
 	fi
 done
-printf "\n"
+printf '\n'
