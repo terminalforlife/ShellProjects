@@ -9,11 +9,12 @@ f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 39e3ab0a4b5844bfe882a87abb5cd0f1  misc/.keynavrc
 a4f9c03efebffd602a598663879442f5  misc/terminalrc
 e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
+af5c50daf5a3dcee3eb0c92b30b24321  source/alarmed
 219a98b2e85fcdcfe008e4085da50ef7  source/autoexec/autoexec
 5e0f0b49707e773df34bb5bf4553df19  source/autoexec/autoexec.1.gz
 0c51eea26845c49eb762bb8f950a2093  source/autoexec/autoexec-installer
 cc8589b3219874cba926855dab17629e  source/autoexec/completions
-027afc0427081a418fe54611ce871f4b  source/autoscrot
+a7cc245e6ccfe5ba849883bd67a61bd1  source/autoscrot
 c81696156b155651dd524c2c902e0c86  source/backmeup/backmeup
 1d6a255d86dcba2936c5667a6bb5a4e7  source/backmeup/backmeup.1.gz
 204924e7bd8dd65582d4a02c2239dbba  source/backmeup/completions
