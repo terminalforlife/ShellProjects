@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Tue  2 Feb 22:26:39 GMT 2021
+# Last Change       - Sat 27 Feb 00:10:27 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-02'
+CurVer='2021-02-27'
 Progrm=${0##*/}
 
 Usage(){
@@ -141,7 +141,7 @@ PathLook(){ type -P "$@" &> /dev/null || return 1; }
 
 Prompt(){
 	while :; do
-		read -n 1 -e -p "$1 "
+		read -ep "$1 "
 
 		case $REPLY in
 			[Yy])
