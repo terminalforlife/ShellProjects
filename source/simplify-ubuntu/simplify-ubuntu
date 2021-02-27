@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Sat 27 Feb 00:10:27 GMT 2021
+# Last Change       - Sat 27 Feb 00:14:37 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -101,13 +101,14 @@ done <<-EOF
 	      you run into any issues with a question, please feel free to
 	      reference it.
 
-	At any point during a question, the following can be entered:
+	At any point during a question, the following can be entered, in upper- or
+	lower-case, using either the single-character or word:
 
-	  Y        - You're answering "Yes" to the question.
-	  N        - You're answering "No" to the question.
-	  I        - You're asking for additional information, if available.
-	  W        - You're asking for a description of the applicable package(s).
-	  Q        - You're opting to immediately quit the program.
+	  Y|YES     - You're answering "Yes" to the question.
+	  N|NO      - You're answering "No" to the question.
+	  I|INFO    - You're asking for additional information, if available.
+	  W|WHAT    - You're asking for a description of the applicable package(s).
+	  Q|QUIT    - You're opting to immediately quit the program.
 
 	WARNING: Misused, this program could make a mess of your installation.
 
@@ -144,15 +145,15 @@ Prompt(){
 		read -ep "$1 "
 
 		case $REPLY in
-			[Yy])
+			[Yy]|[Yy][Ee][Ss])
 				return 0; break ;;
-			[Nn])
+			[Nn]|[Nn][Oo])
 				return 1; break ;;
-			[Ii])
+			[Ii]|[Ii][Nn][Ff][Oo])
 				DoSay "INFO: ${2:-No additional information is available.}" ;;
-			[Ww])
+			[Ww]|[Ww][Hh][Aa][Tt])
 				DoSay "WHAT: ${3:-Description not available for this question.}" ;;
-			[Qq])
+			[Qq]|[Qq][Uu][Ii][Tt])
 				exit 2 ;;
 			*)
 				Err 0 "Unrecognised response. Enter 'Y' or 'N' to continue." ;;
