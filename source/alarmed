@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/alarmed
 # Started On        - Fri 26 Feb 23:14:17 GMT 2021
-# Last Change       - Fri 26 Feb 23:57:31 GMT 2021
+# Last Change       - Sat 27 Feb 00:01:13 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-26'
+CurVer='2021-02-27'
 Progrm='alarmed'
 
 Usage(){
@@ -66,8 +66,9 @@ if [ $# -gt 1 ]; then
 	Err 1 'Invalid argument(s) detected.'
 elif [[ $1 != $Match ]]; then
 	Err 1 'Invalid or non-existent alarm time.'
-elif [ $CurrentInt -gt $TargetInt ]; then
-	Err 1 'Alarm time is in the past.'
+#TODO: Is there a way to fix this?
+#elif [ $CurrentInt -gt $TargetInt ]; then
+#	Err 1 'Alarm time is in the past.'
 fi
 
 while :; do
