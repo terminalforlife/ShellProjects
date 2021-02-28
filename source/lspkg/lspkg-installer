@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Fri 19 Feb 00:56:04 GMT 2021
+# Last Change       - Sun 28 Feb 15:36:28 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ for File in\
 	'completions:/usr/share/bash-completion/completions/lspkg'\
 	'lspkg-set.1.gz:/usr/share/man/man1/lspkg-set.1.gz'\
 	'lspkg.1.gz:/usr/share/man/man1/lspkg.1.gz'\
-	'lspkg-list:/usr/bin/lspkg-list'\
+	'lspkg-set:/usr/bin/lspkg-set'\
 	'lspkg:/usr/bin/lspkg'
 do
 	printf "* Installing '%s' ... " "${File%%:*}"

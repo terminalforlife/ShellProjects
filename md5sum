@@ -53,7 +53,7 @@ c16848eea566a6d07d6318c2c2eca814  source/getcfc
 a5c9e77143d8739e31e7d9945cd2354f  source/getline
 6527a9de2de554acf39e29dbb5f0dabd  source/github-ssh-setup
 65f1fe7f2ff1433abdd2cb35a91ee39c  source/glkfu/completions
-2781ff7c2c2a747c379bafa67615afe3  source/glkfu/glkfu
+bafd72103cb00b1fda4eed0f075161a8  source/glkfu/glkfu
 f0ed9b5ebc6a0cf8e0c9b20ab0c1b18d  source/glkfu/glkfu.1.gz
 26991e9fe255907f8f06774acd9b9003  source/glkfu/glkfu-changes
 aeb1d14f748ac9996bdddb030fb6ac00  source/glkfu/glkfu-installer
@@ -80,7 +80,7 @@ c8fb82c93714ef9a5e5dc7cd2eece4bf  source/libtflbp-sh/source/tflbp-installer
 a5532fffa78edb369808bab500a85574  source/lspkg/completions
 6737e674b40c6557a6fe2f69489694db  source/lspkg/lspkg
 52e28d1cf3d936f20a3e2cf8431ce63c  source/lspkg/lspkg.1.gz
-5c6e2cb245a08aa2ce364bfd95217608  source/lspkg/lspkg-installer
+5c7a7e87c2d9faec7c77a93028cce067  source/lspkg/lspkg-installer
 aa392c51af3a6ad7d57c2774c88db5b9  source/lspkg/lspkg-set
 a4e1f9b2403620737b771f9ab5af4597  source/lspkg/lspkg-set.1.gz
 703164929424abafd3a3b08003354584  source/mfw

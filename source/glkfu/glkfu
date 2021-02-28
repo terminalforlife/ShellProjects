@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Thu 18 Feb 16:47:56 GMT 2021
+# Last Change       - Sat 27 Feb 00:18:45 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,6 +22,7 @@
 #
 # Bugs:
 #
+#TODO: Pressing ^C when prompted messes up shell's regular prompt.
 #TODO: Use of the -o flag(s) not working properly if unmet dependencies.
 #
 #      In this case, GLKFU is unable to determine whether the latest version is
@@ -48,7 +49,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-18'
+CurVer='2021-02-27'
 Progrm=${0##*/}
 
 Usage(){
