@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/dep-parser.sh
 # Started On        - Tue  2 Mar 15:21:35 GMT 2021
-# Last Change       - Tue  2 Mar 16:03:48 GMT 2021
+# Last Change       - Tue  2 Mar 16:21:28 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,8 +34,12 @@ else
 	exit 1
 fi
 
+#-----------Below is Used in TFL Installers (`for` LIST is changed accordingly)
+
+printf 'Checking for dependencies:\n'
+
 for File in "$@"; do
-	printf "\nFile: '%s'\n\n" "$File"
+	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0
 	if ! [ -f "$File" ]; then
@@ -68,7 +72,7 @@ for File in "$@"; do
 				*)
 					case $Line in
 						'#   '[!\ ]*)
-							printf '%s\n' "${Line#\# }" ;;
+							printf '\033[1;91m%s\e[0m\n' "${Line#\#   }" ;;
 						*|'')
 							DepErr=$((DepErr + 1)) ;;
 					esac ;;
@@ -78,3 +82,5 @@ for File in "$@"; do
 
 	[ $DepErr -eq 0 ] || Err 0 'One or more invalid dependencies detected.'
 done
+
+printf 'Done!\n'
