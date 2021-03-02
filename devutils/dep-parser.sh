@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/dep-parser.sh
 # Started On        - Tue  2 Mar 15:21:35 GMT 2021
-# Last Change       - Tue  2 Mar 16:21:28 GMT 2021
+# Last Change       - Tue  2 Mar 16:27:57 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,6 +28,7 @@ if [ $# -gt 0 ]; then
 		\r      directly from the files themselves.
 
 		\r      These are package names as they exist in Debian and Ubuntu.
+
 	EOF
 else
 	printf 'Usage: %s [FILE_1 [FILE_2] ...]\n' "${0##*/}" 1>&2
@@ -72,7 +73,7 @@ for File in "$@"; do
 				*)
 					case $Line in
 						'#   '[!\ ]*)
-							printf '\033[1;91m%s\e[0m\n' "${Line#\#   }" ;;
+							printf '\033[1;93m%s\e[0m\n' "${Line#\#   }" ;;
 						*|'')
 							DepErr=$((DepErr + 1)) ;;
 					esac ;;
