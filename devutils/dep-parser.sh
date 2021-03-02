@@ -83,5 +83,3 @@ for File in "$@"; do
 
 	[ $DepErr -eq 0 ] || Err 0 'One or more invalid dependencies detected.'
 done
-
-printf 'Done!\n'
