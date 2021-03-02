@@ -1,6 +1,6 @@
 6a37d998c565e51cb3702b35c24838ac  devutils/buildpkg.sh
 c5412504861040f3b79c29f64c7fdf53  devutils/convertvars.sh
-ea3b4a1ae7ccf7d385810c58eb6c493c  devutils/dep-parser.sh
+d43a200a1f5eb67f15eec71e308f69a6  devutils/dep-parser.sh
 f9f008919e1f14b41c0bf043ddfb19c3  devutils/links.sh
 68b5994bf2a361911a65981870d3bee0  devutils/standard.sh
 7fe7e618f05665df719ab73574a47a61  misc/01-vendor-ubuntu
@@ -26,7 +26,7 @@ fda3cbde8955b83ae5a7944d327b10e7  source/ccfiles
 55c6a093ae23ca6ba028a3f3f039d8c9  source/chkrf
 b73a850a249068e1aee3284b2a8a9280  source/cito/cito
 55189e506d03c87c04890c6ad48ba4e7  source/cito/cito.8.gz
-f4f659993d45c00149b2191fdb4d29b1  source/cito/cito-installer
+49732e1783622ded32c26e8cbd94438c  source/cito/cito-installer
 fb8baae300eb879a684524d56f34a8d5  source/cito/cito-list
 9de7596281e72f0fb089949084f20d3b  source/cito/completions
 a8169d7f7fc48a2499e0fd42305e9bdf  source/cron_tasks/notify-upgrade
