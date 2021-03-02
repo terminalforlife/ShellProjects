@@ -13,7 +13,7 @@ e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
 8da8c6f91e78e18d09160c95fd89b42a  source/alarmed
 219a98b2e85fcdcfe008e4085da50ef7  source/autoexec/autoexec
 5e0f0b49707e773df34bb5bf4553df19  source/autoexec/autoexec.1.gz
-096ba57c5f12a990249e7b9c3925b11a  source/autoexec/autoexec-installer
+c6bd26553d0c18f224ecf400441b8272  source/autoexec/autoexec-installer
 cc8589b3219874cba926855dab17629e  source/autoexec/completions
 a7cc245e6ccfe5ba849883bd67a61bd1  source/autoscrot
 c81696156b155651dd524c2c902e0c86  source/backmeup/backmeup
@@ -44,7 +44,7 @@ a1c6000a12de0a898cb8328182a378dd  source/fetcher/completions
 091c669112410efc6d177f5a22b51302  source/fetcher/dev/core.sh
 cb332fa715e75cb2c05ef53cca5ffea9  source/fetcher/fetcher
 5a0becda16f088aa0f0b83c6c3d6d925  source/fetcher/fetcher.1.gz
-c4973098407a04fd6f2f8677d277198a  source/fetcher/fetcher-installer
+7fb9d7e5f86d4229a86a79bfc865dead  source/fetcher/fetcher-installer
 9ce5c46d7b6cce74de243042f6dd0ee4  source/filesitter
 76e20195e9f428e62d432869530d130d  source/fixperms
 51326131e33a6ddc8fa416a842bec6e5  source/forex
@@ -57,7 +57,7 @@ a5c9e77143d8739e31e7d9945cd2354f  source/getline
 bafd72103cb00b1fda4eed0f075161a8  source/glkfu/glkfu
 f0ed9b5ebc6a0cf8e0c9b20ab0c1b18d  source/glkfu/glkfu.1.gz
 26991e9fe255907f8f06774acd9b9003  source/glkfu/glkfu-changes
-f9132f1054e87fdf0a3ddb9fbea3d1ad  source/glkfu/glkfu-installer
+130d3e36005dbfcc5625f846be7a2146  source/glkfu/glkfu-installer
 cc39b9f968dfc3025ad97917c26d3bd2  source/glkfu/glkfu-list
 c9a3243f1e2635480a6d13bc2e7ad2dd  source/iplite
 10b4b149775799362e0a054ccbd0a978  source/isbatlow
@@ -81,7 +81,7 @@ c8fb82c93714ef9a5e5dc7cd2eece4bf  source/libtflbp-sh/source/tflbp-installer
 a5532fffa78edb369808bab500a85574  source/lspkg/completions
 7ee094bc81605926091260a86062c708  source/lspkg/lspkg
 52e28d1cf3d936f20a3e2cf8431ce63c  source/lspkg/lspkg.1.gz
-bb431d3854bc6d53b596dc7c1149e6ee  source/lspkg/lspkg-installer
+71eb0ce187559134781e654feb4b097b  source/lspkg/lspkg-installer
 aa392c51af3a6ad7d57c2774c88db5b9  source/lspkg/lspkg-set
 a4e1f9b2403620737b771f9ab5af4597  source/lspkg/lspkg-set.1.gz
 703164929424abafd3a3b08003354584  source/mfw
@@ -97,7 +97,7 @@ b2aefeb7832a52c2ae96e809ad5eb9fb  source/ripmydvd
 49852a55be41075a5875c94601e4e816  source/rmne/completions
 3db48854d32ab8e99d3e1e11bd41eadc  source/rmne/rmne
 2dd3a8e5efe851e402efbbda653157e9  source/rmne/rmne.8.gz
-6fdced56f9d4f4e7d9b73c70872d5ba3  source/rmne/rmne-installer
+f3633f0d88ae931e191dd594c5db1ec0  source/rmne/rmne-installer
 11383de691edd6468d8ebfbb0f9c40fc  source/roks
 e665371f0bfb242f3ebfbf7f316b4d53  source/rudbgvid
 d628b9130c9a37df49d0fd9cb0a6b159  source/seewttr
@@ -108,7 +108,7 @@ b7f6009b21eb999875e110ef6672ea50  source/simplify-ubuntu/dev/qchk.sh
 4ec4cbeb0f17e73fd50d2d0cd0e41308  source/simplify-ubuntu/dev/qrand.pl
 9b8415b5c485b0bd867019482c1fb429  source/simplify-ubuntu/simplify-ubuntu
 5b88a0ef5e8989ba32b866026c4946f5  source/simplify-ubuntu/simplify-ubuntu.8.gz
-eae2766a755c08d2b8932d757ad63b65  source/simplify-ubuntu/simplify-ubuntu-installer
+0e5b00f4e1f11294a47a7025f1d9bcfb  source/simplify-ubuntu/simplify-ubuntu-installer
 154720cdedabafadbb8c769c4fe6a418  source/simwea
 90254e4f00edd9b7b62edd85aa4cda01  source/snotes
 38e197e277d6dd5764659de709798b17  source/syswatch
