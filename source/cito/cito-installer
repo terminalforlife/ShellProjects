@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Tue  2 Mar 16:24:57 GMT 2021
+# Last Change       - Tue  2 Mar 16:26:15 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ for File in '/usr/bin/cito' '/usr/bin/cito-list'; do
 				*)
 					case $Line in
 						'#   '[!\ ]*)
-							printf '\033[1;91m%s\e[0m\n' "${Line#\#   }" ;;
+							printf '\033[1;93m%s\e[0m\n' "${Line#\#   }" ;;
 						*|'')
 							DepErr=$((DepErr + 1)) ;;
 					esac ;;
