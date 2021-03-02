@@ -13,7 +13,7 @@ e4cfebb1ee5f18933f7f3d560a6a7859  misc/tfl_moc_theme
 8da8c6f91e78e18d09160c95fd89b42a  source/alarmed
 219a98b2e85fcdcfe008e4085da50ef7  source/autoexec/autoexec
 5e0f0b49707e773df34bb5bf4553df19  source/autoexec/autoexec.1.gz
-c6bd26553d0c18f224ecf400441b8272  source/autoexec/autoexec-installer
+f41da279a936aff5d37648f70f50577a  source/autoexec/autoexec-installer
 cc8589b3219874cba926855dab17629e  source/autoexec/completions
 a7cc245e6ccfe5ba849883bd67a61bd1  source/autoscrot
 c81696156b155651dd524c2c902e0c86  source/backmeup/backmeup
@@ -44,7 +44,7 @@ a1c6000a12de0a898cb8328182a378dd  source/fetcher/completions
 091c669112410efc6d177f5a22b51302  source/fetcher/dev/core.sh
 cb332fa715e75cb2c05ef53cca5ffea9  source/fetcher/fetcher
 5a0becda16f088aa0f0b83c6c3d6d925  source/fetcher/fetcher.1.gz
-7fb9d7e5f86d4229a86a79bfc865dead  source/fetcher/fetcher-installer
+defb4adc817c81193ad08fb8dfa00c19  source/fetcher/fetcher-installer
 9ce5c46d7b6cce74de243042f6dd0ee4  source/filesitter
 76e20195e9f428e62d432869530d130d  source/fixperms
 51326131e33a6ddc8fa416a842bec6e5  source/forex
@@ -57,7 +57,7 @@ a5c9e77143d8739e31e7d9945cd2354f  source/getline
 bafd72103cb00b1fda4eed0f075161a8  source/glkfu/glkfu
 f0ed9b5ebc6a0cf8e0c9b20ab0c1b18d  source/glkfu/glkfu.1.gz
 26991e9fe255907f8f06774acd9b9003  source/glkfu/glkfu-changes
-130d3e36005dbfcc5625f846be7a2146  source/glkfu/glkfu-installer
+124bcf68252494c36a1997f52e794b2e  source/glkfu/glkfu-installer
 cc39b9f968dfc3025ad97917c26d3bd2  source/glkfu/glkfu-list
 c9a3243f1e2635480a6d13bc2e7ad2dd  source/iplite
 10b4b149775799362e0a054ccbd0a978  source/isbatlow
@@ -81,7 +81,7 @@ c8fb82c93714ef9a5e5dc7cd2eece4bf  source/libtflbp-sh/source/tflbp-installer
 a5532fffa78edb369808bab500a85574  source/lspkg/completions
 7ee094bc81605926091260a86062c708  source/lspkg/lspkg
 52e28d1cf3d936f20a3e2cf8431ce63c  source/lspkg/lspkg.1.gz
-71eb0ce187559134781e654feb4b097b  source/lspkg/lspkg-installer
+6203977bcb388a8da803d42a47f17184  source/lspkg/lspkg-installer
 aa392c51af3a6ad7d57c2774c88db5b9  source/lspkg/lspkg-set
 a4e1f9b2403620737b771f9ab5af4597  source/lspkg/lspkg-set.1.gz
 703164929424abafd3a3b08003354584  source/mfw
