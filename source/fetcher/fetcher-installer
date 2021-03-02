@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Sun 21 Feb 00:50:04 GMT 2021
+# Last Change       - Tue  2 Mar 16:35:22 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -161,3 +161,50 @@ if fetcher -v > /dev/null 2>&1; then
 else
 	printf '\033[31m[ERR]\033[0m\n'
 fi
+
+printf 'Checking for dependencies:\n'
+
+for File in '/usr/bin/fetcher'; do
+	printf "* Looking in '%s' file...\n" "$File"
+
+	FileErr=0
+	if ! [ -f "$File" ]; then
+		Err 0 "File '$File' missing."
+		FileErr=$((FileErr + 1))
+	elif ! [ -r "$File" ]; then
+		Err 0 "File '$File' unreadable."
+		FileErr=$((FileErr + 1))
+	fi
+
+	if [ $FileErr -ne 0 ]; then
+		Err 0 'Unable to determine dependencies.'
+		continue
+	fi
+
+	DepErr=0
+	Found='False'
+	while read Line; do
+		if [ "$Line" = '#' ]; then
+			continue
+		elif [ "$Line" = '# Dependencies:' ]; then
+			Found='True'
+		elif [ "$Found" = 'True' ]; then
+			# Line to help debug parsing on stubborn files.
+			#printf '\e[2;37m%s\e[0m\n' "$Line"
+
+			case $Line in
+				'#'------*)
+					break ;;
+				*)
+					case $Line in
+						'#   '[!\ ]*)
+							printf '\033[1;93m%s\e[0m\n' "${Line#\#   }" ;;
+						*|'')
+							DepErr=$((DepErr + 1)) ;;
+					esac ;;
+			esac
+		fi
+	done < "$File"
+
+	[ $DepErr -eq 0 ] || Err 0 'One or more invalid dependencies detected.'
+done
