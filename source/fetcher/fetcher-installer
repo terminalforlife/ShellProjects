@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Tue  2 Mar 16:35:22 GMT 2021
+# Last Change       - Tue  2 Mar 17:10:49 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,6 +28,11 @@
 #   coreutils (>= 8.25-2)
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
 
 if command -v curl 1> /dev/null 2>&1; then
 	DLCMD='curl -so'
