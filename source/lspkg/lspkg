@@ -3,17 +3,25 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Fri 19 Feb 00:43:16 GMT 2021
+# Last Change       - Tue  2 Mar 14:47:54 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+#TODO: On Debian (Buster) 10, LSPKG won't show executable descriptions at all.
+#
 # Dependencies:
 #
 #   bash (>= 4.4.18-2)
 #   dpkg (>= 1.19.0.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-19'
+CurVer='2021-03-02'
 Progrm='lspkg'
 
 Usage(){
