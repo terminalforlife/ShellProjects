@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Tue  2 Mar 17:10:57 GMT 2021
+# Last Change       - Wed  3 Mar 15:06:30 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -41,14 +41,10 @@ if command -v curl 1> /dev/null 2>&1; then
 elif command -v wget 1> /dev/null 2>&1; then
 	DLCMD='wget -qO'
 else
-	printf "ERROR: Neither 'wget' nor 'curl' are available.\n" 1>&2
-	exit 1
+	Err 1 "Neither 'wget' nor 'curl' are available."
 fi
 
-if [ `id -u` -ne 0 ]; then
-	printf "ERROR: Root access is required for system-wide changes.\n" 1>&2
-	exit 1
-fi
+[ `id -u` -ne 0 ] && Err 1 'Root access is required for system-wide changes.'
 
 printf 'Install latest version of RMNE? [Y/N] '
 read Answer
@@ -59,8 +55,7 @@ case $Answer in
 		printf 'Abandoning installation.\n'
 		exit 0 ;;
 	*)
-		printf 'ERROR: Invalid response -- quitting.\n' 1>&2
-		exit 2 ;;
+		Err 2 'ERROR: Invalid response -- quitting.' ;;
 esac
 
 LogFile='/tmp/rmne-installer.log'
@@ -117,10 +112,7 @@ for File in 'completions' 'rmne' 'rmne.8.gz'; do
 	fi
 done
 
-if [ $ErrCount -gt 0 ]; then
-	printf 'ERROR: Failed to download one or more files.\n' 1>&2
-	exit 1
-fi
+[ $ErrCount -gt 0 ] && Err 1 'Failed to download one or more files.'
 
 printf 'Setting correct file attributes:\n'
 
