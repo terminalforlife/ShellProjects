@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Thu  4 Mar 23:11:47 GMT 2021
+# Last Change       - Thu  4 Mar 23:21:14 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,7 +18,7 @@
 #
 # Features:
 #
-# N/A
+#TODO: Make `SigHandler()` less aggressive over removing files.
 #
 # Bugs:
 #
@@ -29,7 +29,7 @@
 #      bug in Pop! OS 20.04. Oddly, using `-o latest` and `-o current` work
 #      perfectly fine.
 #
-#TODO: If we exit during `$Make deb-pkg`, SignalHandler() won't work; why?
+#TODO: If we exit during `$Make bindeb-pkg`, SignalHandler() won't work; why?
 #TODO: If prematurely exit before doing anything, existing files still go poof.
 #
 #      This only happens with, for example, an existing file by the same name
@@ -249,8 +249,19 @@ Ask(){
 }
 
 FileChk(){
-	[ -f "$1" ] || Err 1 "File '$1' not found."
-	[ -r "$1" ] || Err 1 "File '$1' unreadable."
+	FileChkErrs=0
+
+	if ! [ -f "$1" ]; then
+		Err 0 "File '$1' not found."
+		let FileChkErrs++
+	fi
+
+	if ! [ -r "$1" ]; then
+		Err 0 "File '$1' unreadable."
+		let FileChkErrs++
+	fi
+
+	[ $FileChkErrs -gt 0 ] && exit 1
 }
 
 JustOutput(){
