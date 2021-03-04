@@ -53,11 +53,11 @@ c16848eea566a6d07d6318c2c2eca814  source/getcfc
 a5c9e77143d8739e31e7d9945cd2354f  source/getline
 6527a9de2de554acf39e29dbb5f0dabd  source/github-ssh-setup
 65f1fe7f2ff1433abdd2cb35a91ee39c  source/glkfu/completions
-968eafcc4cdda9b3a816eacedab8f5f3  source/glkfu/glkfu
+1d9289166b30a2ee440b10149d95c411  source/glkfu/glkfu
 f0ed9b5ebc6a0cf8e0c9b20ab0c1b18d  source/glkfu/glkfu.1.gz
 26991e9fe255907f8f06774acd9b9003  source/glkfu/glkfu-changes
 124bcf68252494c36a1997f52e794b2e  source/glkfu/glkfu-installer
-cc39b9f968dfc3025ad97917c26d3bd2  source/glkfu/glkfu-list
+cf2a57580b7d9566a6482bf121917218  source/glkfu/glkfu-list
 c9a3243f1e2635480a6d13bc2e7ad2dd  source/iplite
 10b4b149775799362e0a054ccbd0a978  source/isbatlow
 0cc91f30ccca7739de8bb763e3dbb2f2  source/libtflbp-sh/source/functions/BaseName

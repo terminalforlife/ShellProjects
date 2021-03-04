@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Thu 18 Feb 22:47:44 GMT 2021
+# Last Change       - Thu  4 Mar 23:13:13 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,6 +11,11 @@
 # available XZ tarballs stored on kernel.org, whether they're stable or not.
 #
 # Features:
+#
+#TODO: By default, show only the current major releases; should be much faster.
+#TODO: Consider some sort of caching system, like wcdl(1).
+#
+#      This could be updated when a new version is detected by glkfu(1).
 #
 #TODO: Display just kernel versions, not the tarball filename.
 #
@@ -43,7 +48,7 @@ use Sort::Versions 'versioncmp';
 
 no warnings 'uninitialized';
 
-my $CurVer = '2021-02-18';
+my $CurVer = '2021-03-04';
 my $Progrm = ($0 =~ m{(?:.*/)?([^/].*)})[0];
 
 sub Usage {
