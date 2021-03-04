@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Thu  4 Mar 23:21:14 GMT 2021
+# Last Change       - Thu  4 Mar 23:40:23 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,7 +18,7 @@
 #
 # Features:
 #
-#TODO: Make `SigHandler()` less aggressive over removing files.
+# N/A
 #
 # Bugs:
 #
@@ -30,12 +30,6 @@
 #      perfectly fine.
 #
 #TODO: If we exit during `$Make bindeb-pkg`, SignalHandler() won't work; why?
-#TODO: If prematurely exit before doing anything, existing files still go poof.
-#
-#      This only happens with, for example, an existing file by the same name
-#      as the target Linux Tar archive. A workaround, if you must keep these
-#      files, which would be overwritten by GLKFU anyway, would be to use one
-#      of the `-k` or `--keep-files` flags.
 #
 # Dependencies:
 #
@@ -68,7 +62,6 @@ Usage(){
 		  -d, --just-download      - Just download the Linux Tar archive.
 		  -i, --ignore-versions    - Disregard current & new version strings.
 		  -j, --just-check         - Just check kernel.org for a newer version.
-		  -k, --keep-files         - Keep files if $Progrm unexpectedly exits.
 		  -l, --list-kerns         - List all available kernel versions.
 		  -o, --output [TYPE]      - Output TYPE, for scripting. See below.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
@@ -148,8 +141,6 @@ while [ "$1" ]; do
 			IgnoreVers='True' ;;
 		--just-check|-j)
 			JustCheck='True' ;;
-		--keep-files|-k)
-			KeepFiles='True' ;;
 		--just-download|-d)
 			JustDownload='True' ;;
 		--output|-o)
@@ -491,46 +482,6 @@ fi
 
 printf 'Using %d/%d available CPU core(s).\n' $Cores $TTLCores
 
-#--------------------------------------------Begin Trapping Signals for Cleanup
-
-# Needs to be here because we need values from above.
-SigHandler(){
-	Sig=$?
-
-	ActionsDetected=0
-
-	# Should solve error when trying to clean up extracted archive contents.
-	[[ "$PWD" == */"$BuildDir" ]] && cd ..
-
-	if [ -f "$BuildDir/$LatestTar" ]; then
-		rm -v "$BuildDir/$LatestTar"
-		let ActionsDetected++
-	fi
-
-	if [ -f "$BuildDir/sha256sums.asc" ]; then
-		rm -v "$BuildDir/sha256sums.asc"
-		let ActionsDetected++
-	fi
-
-	if [ -d "$BuildDir/${LatestTar%.tar.xz}" ]; then
-		# Some files are write-protected, hence the `-f` flag.
-		rm -rfv "$BuildDir/${LatestTar%.tar.xz}"
-		let ActionsDetected++
-	fi
-
-	# Files, like Debian packages, created by make(1) will not be removed
-	# in-case the user stores other files there. This could be handled by just
-	# using the filenames produced, but who knows what the filenames will be.
-	# Does it vary with kernel version? Better leave this to the user.
-	if [ $ActionsDetected -gt 0 ]; then
-		printf '%s finished cleaning up after unexpected exit.\n' "${Progrm^^}"
-	fi
-
-	exit $Sig
-}
-
-[ "$KeepFiles" == 'True' ] || trap SigHandler EXIT INT
-
 #---------------------------------Download Applicable Tarball & Verify the File
 
 while read; do
@@ -569,11 +520,6 @@ else
 fi
 
 rm -v "${BuildDir%/}"/sha256sums.asc
-
-if [ "$JustDownload" == 'True' ]; then
-	trap - EXIT # <-- Ensure we exit as normal.
-	exit 0
-fi
 
 #-----------------------------------------------Extract Contents of the Tarball
 
@@ -681,9 +627,6 @@ if Ask "Disable 'DEBUG_INFO' parameter?"; then
 fi
 
 #---------------------------------------Begin Compiling and Building the Kernel
-
-# Revert signal handling back to the way it was.
-[ "$KeepFiles" == 'True' ] || trap - EXIT INT
 
 Ask 'Begin compiling kernel, then building Debian packages for it?' || exit 1
 
