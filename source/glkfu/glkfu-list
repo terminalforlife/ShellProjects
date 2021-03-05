@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Fri  5 Mar 00:14:28 GMT 2021
+# Last Change       - Fri  5 Mar 00:24:38 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ if ($CurKernVer =~ '(^[[:digit:]]+.[[:digit:]]+).0$') {
 
 # List the kernels.
 foreach my $Version (sort({versioncmp($a, $b)} @Versions)) {
-	if ($Version eq $CurKernVer and not $DoColor) {
+	if ($Version eq $CurKernVer and $DoColor) {
 		printf("\e[1;32mlinux-%s.tar.xz\e[0m", $Version)
 	} else {
 		printf("linux-%s.tar.xz", $Version)
@@ -147,7 +147,7 @@ foreach my $Version (sort({versioncmp($a, $b)} @Versions)) {
 
 	# Mark LTS releases, with or without color.
 	if (grep({$_ eq $Version} @LongTerms)) {
-		unless ($DoColor) {
+		if ($DoColor) {
 			print("\e[2;37m  <-- LTS\e[0m\n")
 		} else {
 			print("  <-- LTS\n")
