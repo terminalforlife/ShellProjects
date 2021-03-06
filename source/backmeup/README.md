@@ -1,6 +1,10 @@
 # Introduction
 
-To be written...
+Utility written in _Bourne Shell_ to allow the user to easily back up their _HOME_ to a pre-defined storage location, using a _GZip_-compressed archive generated with _tar_(1).
+
+Optionally, the user can have _notify-send_(1) send a notification to his or her notifications daemon and/or a shell command executed, when the backup routine is finished.
+
+Per _tar_(1)'s regular functionality, you can also provide an exclusion file, in which the user can list files he or she wishes not to be backed up.
 
 # Installation Instructions
 
