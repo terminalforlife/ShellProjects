@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 15 Feb 23:03:14 GMT 2021
+# Last Change       - Fri  5 Mar 00:59:10 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-15'
+CurVer='2021-03-05'
 Progrm=${0##*/}
 
 Usage(){
@@ -67,6 +67,8 @@ Err(){
 }
 
 TIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
+MainDir="$HOME/.config/$Progrm"
+Config="$MainDir/config"
 
 while [ "$1" ]; do
 	case $1 in
@@ -164,6 +166,68 @@ case $ExecFile in
 
 		CFound='True' ;;
 esac
+
+[ -d "$MainDir" ] || mkdir -p "$MainDir"
+
+#rm "$Config" #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+InvalidKeys=0
+if [ -f "$Config" ]; then
+	[ -r "$Config" ] || Err 1 'Configuration file unreadable.'
+
+	while read; do
+		case $REPLY in
+			'#'*|'') continue ;;
+		esac
+
+		IFS='=' read Key Value <<< "$REPLY"
+
+		case $Key in
+			NoColor)
+				NoColor=$Value ;;
+			NoExit)
+				NoExit=$Value ;;
+			NoSpinner)
+				NoSpinner=$Value ;;
+			NoWaitMSG)
+				NoWaitMSG=$Value ;;
+			Check)
+				Check=$Value ;;
+			Force)
+				Force=$Value ;;
+			Refresh)
+				Refresh=$Value ;;
+			Time)
+				Time=$Value ;;
+			*)
+				Err 0 "Invlaid key '$Key' detected."
+				let InvalidKeys++ ;;
+		esac
+	done < "$Config"
+
+	[ $InvalidKeys -gt 0 ] && exit 1
+else
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF > "$Config"
+		# User configuration for AutoExec (2021-03-05). For information on
+		# these options, please refer to the autoexec(1) manual page or its
+		# usage output.
+
+		NoColor=false
+		NoExit=false
+		NoSpinner=false
+		834u=24osfd
+		NoWaitMSG=false
+		Check=false
+		Force=false
+		Refresh=0.05
+		Time=false
+		asdfasdfas=sdfds
+	EOF
+fi
+
+exit #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 TRAP(){
 	if [ "$Once" != 'true' ]; then
