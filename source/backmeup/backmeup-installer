@@ -1,0 +1,207 @@
+#!/bin/sh
+#cito M:755 O:0 G:0 T:/usr/bin/backmeup-installer
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/backmeup/backmeup-installer
+# Started On        - Sun 31 Jan 22:35:39 GMT 2021
+# Last Change       - Sat  6 Mar 14:47:09 GMT 2021
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Simple, but pretty and mindful Bourne Shell installer for BackMeUp.
+#
+# To use this installer, you can either:
+#
+#   Clone the repository, using git(1) command.
+#
+#     OR
+#
+#   Download the archive of it directly from GitHub, then extract its contents.
+#
+# Since this installer just fetches from GitHub, you needn't actually download
+# the entire Extra repository to install it; only the installer.
+#
+# If you want a HOME-only installation, you'll have to either use Cito, or
+# otherwise install it manually, but you may miss out on a lot of features.
+#
+# Dependencies:
+#
+#   coreutils (>= 8.25-2)
+#   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
+#------------------------------------------------------------------------------
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+if command -v curl 1> /dev/null 2>&1; then
+	DLCMD='curl -so'
+elif command -v wget 1> /dev/null 2>&1; then
+	DLCMD='wget -qO'
+else
+	Err 1 "Neither 'wget' nor 'curl' are available."
+fi
+
+[ `id -u` -ne 0 ] && Err 1 'Root access is required for system-wide changes.'
+
+printf 'Install latest version of BackMeUp? [Y/N] '
+read Answer
+case $Answer in
+	[Yy]|[Yy][Ee][Ss])
+		printf 'Continuing with installation.\n' ;;
+	[Nn]|[Nn][Oo])
+		printf 'Abandoning installation.\n'
+		exit 0 ;;
+	*)
+		Err 2 'Invalid response -- quitting.' ;;
+esac
+
+LogFile='/tmp/backmeup-installer.log'
+[ -f "$LogFile" ] || 1> "$LogFile"
+chmod 644 "$LogFile"
+
+TmpDir=`mktemp -d --suffix '_tfl'`
+
+URL='https://raw.githubusercontent.com/terminalforlife'
+URL="$URL/Extra/master/source/backmeup"
+
+SigHandler(){
+	Sig=$?
+
+	printf 'Cleaning up temporary files:\n'
+	printf '* Removing '%s' ... ' "$TmpDir"
+	ErrCount=0
+	if rm -r "$TmpDir" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+
+	if [ -s "$LogFile" ]; then
+		printf "Done! -- errors logged in: '${LogFile#$HOME}'\n"
+	else
+		printf 'Done!\n'
+	fi
+
+	exit $Sig
+}
+
+trap SigHandler EXIT INT QUIT ABRT TERM
+
+printf 'Fetching files from GitHub:\n'
+ErrCount=0
+for File in 'completions' 'backmeup' 'backmeup.1.gz'; do
+	printf "* Downloading '%s' ... " "$File"
+	if $DLCMD "$TmpDir/$File" "$URL/$File" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+
+		printf '* Verifying file contents ... '
+		Contents=`< "$TmpDir/$File"`
+		if [ "$(head -n 1 "$TmpDir/$File")" = '404: Not Found' ]; then
+			ErrCount=$((ErrCount + 1))
+			printf '\033[31m[ERR]\033[0m\n'
+			rm "$TmpDir/$File" > /dev/null 2>&1
+		else
+			printf '\033[32m[OK]\033[0m\n'
+		fi
+	else
+		ErrCount=$((ErrCount + 1))
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+done
+
+[ $ErrCount -gt 0 ] && Err 1 'Failed to download one or more files.'
+
+printf 'Setting correct file attributes:\n'
+
+printf '* Assigning owner and group ... '
+if chown 0:0 "$TmpDir"/* 2>> "$LogFile"; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf '* Assigning modes ... '
+ErrCount=0
+for File in 'completions:644' 'backmeup.1.gz:644' 'backmeup:755'; do
+	chmod ${File##*:} "$TmpDir/${File%:*}" 2>> "$LogFile" ||
+		ErrCount=$((ErrCount + 1))
+done
+
+if [ $ErrCount -eq 0 ]; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf 'Moving files into place:\n'
+ErrCount=0
+for File in\
+\
+	'completions:/usr/share/bash-completion/completions/backmeup'\
+	'backmeup.1.gz:/usr/share/man/man1/backmeup.1.gz'\
+	'backmeup:/usr/bin/backmeup'
+do
+	printf "* Installing '%s' ... " "${File%%:*}"
+	if mv "$TmpDir/${File%%:*}" "${File#*:}" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+done
+
+printf 'Checking executables work:\n'
+
+printf "* Verifying 'backmeup' ... "
+if backmeup -v > /dev/null 2>&1; then
+	printf '\033[32m[OK]\033[0m\n'
+else
+	printf '\033[31m[ERR]\033[0m\n'
+fi
+
+printf 'Checking for dependencies:\n'
+
+for File in '/usr/bin/backmeup'; do
+	printf "* Looking in '%s' file...\n" "$File"
+
+	FileErr=0
+	if ! [ -f "$File" ]; then
+		Err 0 "File '$File' missing."
+		FileErr=$((FileErr + 1))
+	elif ! [ -r "$File" ]; then
+		Err 0 "File '$File' unreadable."
+		FileErr=$((FileErr + 1))
+	fi
+
+	if [ $FileErr -ne 0 ]; then
+		Err 0 'Unable to determine dependencies.'
+		continue
+	fi
+
+	DepErr=0
+	Found='False'
+	while read Line; do
+		if [ "$Line" = '#' ]; then
+			continue
+		elif [ "$Line" = '# Dependencies:' ]; then
+			Found='True'
+		elif [ "$Found" = 'True' ]; then
+			# Line to help debug parsing on stubborn files.
+			#printf '\e[2;37m%s\e[0m\n' "$Line"
+
+			case $Line in
+				'#'------*)
+					break ;;
+				*)
+					case $Line in
+						'#   '[!\ ]*)
+							printf '\033[1;93m%s\e[0m\n' "${Line#\#   }" ;;
+						*|'')
+							DepErr=$((DepErr + 1)) ;;
+					esac ;;
+			esac
+		fi
+	done < "$File"
+
+	[ $DepErr -eq 0 ] || Err 0 'One or more invalid dependencies detected.'
+done
