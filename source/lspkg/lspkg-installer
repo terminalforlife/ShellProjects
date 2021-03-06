@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Tue  2 Mar 17:25:44 GMT 2021
+# Last Change       - Sat  6 Mar 15:02:53 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -158,6 +158,21 @@ do
 		printf '\033[31m[ERR]\033[0m\n'
 	fi
 done
+
+printf 'Setting up bash(1) completion:\n'
+
+BCDir='/usr/share/bash-completion/completions'
+if ! [ -L "$BCDir/lspkg-set" ]; then
+
+	printf "* Creating symlink for 'lspkg-set' ... "
+	if ln -s "$BCDir/lspkg" "$BCDir/lspkg-set" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+else
+	printf "Symlink for 'lspkg-set' already present\n"
+fi
 
 printf 'Checking executables work:\n'
 
