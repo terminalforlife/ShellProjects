@@ -1,6 +1,6 @@
 # Introduction
 
-To be written...
+Add to or remove from a simple list of remote files which you can then download in bulk, with Fetcher. The actual downloading is handled by wget(1).
 
 # Installation Instructions
 
