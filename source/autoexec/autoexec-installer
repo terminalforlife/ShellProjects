@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Tue  2 Mar 17:18:39 GMT 2021
+# Last Change       - Tue  9 Mar 00:32:18 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -151,6 +151,20 @@ do
 		printf '\033[31m[ERR]\033[0m\n'
 	fi
 done
+
+printf 'Setting up bash(1) completion:\n'
+
+BCDir='/usr/share/bash-completion/completions'
+if ! [ -L "$BCDir/ae" ]; then
+	printf "* Creating symlink for 'ae' ... "
+	if ln -s "$BCDir/autoexec" "$BCDir/ae" 2>> "$LogFile"; then
+		printf '\033[32m[OK]\033[0m\n'
+	else
+		printf '\033[31m[ERR]\033[0m\n'
+	fi
+else
+	printf "Symlink for 'ae' already present\n"
+fi
 
 printf 'Checking executables work:\n'
 
