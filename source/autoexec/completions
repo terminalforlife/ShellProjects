@@ -31,4 +31,4 @@ _autoexec(){
 	unset Option Arg Args
 }
 
-complete -F _autoexec autoexec
+complete -F _autoexec autoexec ae
