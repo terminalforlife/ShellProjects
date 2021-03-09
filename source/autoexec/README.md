@@ -31,7 +31,7 @@ If you don't have sudo(8), just omit it from the command(s) above, and run them 
 If you've used the installer, then you can run the following to delete the files it creates, including the '/usr/bin/ae' symlink created by the installer script:
 
 ```
-sudo rm -v /usr/share/man/man1/autoexec.1.gz /usr/share/bash-completion/completions/autoexec /usr/bin/autoexec; [ -L /usr/bin/ae ] && sudo rm -v /usr/bin/ae
+sudo rm -v /usr/share/man/man1/autoexec.1.gz /usr/share/bash-completion/completions/autoexec /usr/share/bash-completion/completions/autoexec /usr/bin/autoexec; [ -L /usr/bin/ae ] && sudo rm -v /usr/bin/ae; [ -L /usr/share/bash-completion/completions/ae ] && sudo rm -v /usr/share/bash-completion/completions/ae
 ```
 
 If you don't have sudo(8), you'll have to acquire root privileges by other means.
