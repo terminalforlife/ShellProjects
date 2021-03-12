@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Tue  9 Mar 00:52:22 GMT 2021
+# Last Change       - Fri 12 Mar 20:13:12 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -35,7 +35,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-03-09'
+CurVer='2021-03-12'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -73,13 +73,6 @@ Err(){
 TIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
 MainDir="$HOME/.config/autoexec"
 Config="$MainDir/config"
-
-Color='True'
-ExitStatus='True'
-Force='False'
-Spinner='True'
-Time='False'
-WaitMSG='True'
 
 while [ "$1" ]; do
 	case $1 in
@@ -190,18 +183,26 @@ if [ -f "$Config" ]; then
 
 		case $Key in
 			Color)
+				[ -n "$Color" ] && continue
 				Boolean "$Key" "$Value" && Color=$Value ;;
 			ExitStatus)
+				[ -n "$ExitStatus" ] && continue
 				Boolean "$Key" "$Value" && ExitStatus=$Value ;;
 			Spinner)
+				[ -n "$Spinner" ] && continue
 				Boolean "$Key" "$Value" && Spinner=$Value ;;
 			WaitMSG)
+				[ -n "$WaitMSG" ] && continue
 				Boolean "$Key" "$Value" && WaitMSG=$Value ;;
 			Check)
+				[ -n "$Check" ] && continue
 				Boolean "$Key" "$Value" && Check=$Value ;;
 			Force)
+				[ -n "$Force" ] && continue
 				Boolean "$Key" "$Value" && Force=$Value ;;
 			Refresh)
+				[ -n "$Refresh" ] && continue
+
 				REGEX='^([[:digit:]]+|[[:digit:]]+\.[[:digit:]]+)$'
 				if [[ $Value =~ $REGEX ]]; then
 					Refresh=$Value
@@ -209,6 +210,7 @@ if [ -f "$Config" ]; then
 					Err 0 "Key '$Key' given invalid refresh rate."
 				fi ;;
 			Time)
+				[ -n "$Time" ] && continue
 				Boolean "$Key" "$Value" && Time=$Value ;;
 			*)
 				Err 0 "Key '$Key' invalid."
@@ -424,5 +426,5 @@ while :; do
 
 	[ "$Once" == 'true' ] && exit 0
 
-	sleep ${Refresh:-0.05}s
+	sleep $Refresh
 done
