@@ -1,6 +1,4 @@
-# GLKFU - Get Latest Kernel for Ubuntu
-
-Despite its name, this tool (including its helper tools) is actually useful on much more than just straight Ubuntu.
+# Introduction
 
 Simplify the process of compiling and building Debian images and headers for the latest available stable Linux kernel, so downloaded from the official kernel.org website.
 
@@ -8,33 +6,35 @@ While this is still more of an advanced approach to setting up the Linux kernel 
 
 No actual installation of the resulting Debian packages will be performed; this is intentionally left to the responsibility of the user.
 
-A series of compilation and package building dependencies will be required in order to correctly use **GLKFU**, but a helpful check is performed before doing anything important, to see if these packages are installed.
-
 You don't even have to compile & build packages for Linux using **GLKFU**, as you can choose to simply download the tarball, or even simply check if a new version is available. Plenty of options are available.
 
-# Installation
+# Installation Instructions
 
-You can install either with [cito(8)](https://github.com/terminalforlife/Extra/tree/master/source/cito) or use the Bourne Shell installer. Installation can be performed with this one-liner:
+Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via GLKFU's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/glkfu/glkfu-installer).
 
-```
-wget -q 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/glkfu/glkfu-installer' && sudo sh glkfu-installer
-```
+For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
 
-The installer wasn't written for use by BASH, and if you do execute it as such, you'll likely get errors. A shell in Bourne Shell compatibility mode will probably be fine, however.
-
-# Uninstallation
-
-If you installed a Debian package for GLKFU, use your package manager, such as:
-
-```
-sudo apt-get remove glkfu
+```sh
+(cd /tmp; curl -so glkfu-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/glkfu/glkfu-installer' && sudo \sh glkfu-installer; rm glkfu-installer)
 ```
 
-But if you used the installer, run:
+If that fails, you probably don't have curl(1), so try wget(1):
+
+```sh
+(cd /tmp; wget -qO glkfu-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/glkfu/glkfu-installer' && sudo \sh glkfu-installer; rm glkfu-installer)
+```
+
+If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+
+# Removing GLKFU
+
+If you've used the installer, then you can run the following to delete the files it creates, including the '/usr/bin/ae' symlink created by the installer script:
 
 ```
 sudo rm -v /usr/share/bash-completion/completions/glkfu /usr/bin/glkfu /usr/bin/glkfu-list /usr/bin/glkfu-changes /usr/share/man/man1/glkfu.1.gz
 ```
+
+If you don't have sudo(8), you'll have to acquire root privileges by other means.
 
 # Dependencies for Compilation & Package Building
 
