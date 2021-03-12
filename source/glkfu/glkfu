@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Thu 11 Mar 19:14:36 GMT 2021
+# Last Change       - Fri 12 Mar 02:16:51 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -44,7 +44,7 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2021-03-11'
+CurVer='2021-03-12'
 
 Progrm=${0##*/}
 Usage(){
@@ -192,7 +192,7 @@ elif [ "$IgnoreVers" == 'True' -a "$JustCheck" == 'True' ]; then
 fi
 
 DepCount=0
-for Dep in glkfu-{list,changes} sync make tar rm cp gpg; do
+for Dep in glkfu-{list,changes} sync make tar rm cp gpg xz; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		let DepCount++
