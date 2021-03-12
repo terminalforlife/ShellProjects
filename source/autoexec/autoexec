@@ -15,6 +15,7 @@
 #
 # Bugs:
 #
+#TODO: Flags don't work, because configuration file has priority.
 #TODO: Using AutoExec for man pages (pagers) is buggy, but functional.
 #
 #      More specifically, the prompt shows through and when ^C-ing, the last
