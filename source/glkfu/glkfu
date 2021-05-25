@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Fri 12 Mar 02:16:51 GMT 2021
+# Last Change       - Wed 28 Apr 12:21:35 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -30,6 +30,7 @@
 #      perfectly fine.
 #
 #TODO: If we exit during `$Make bindeb-pkg`, SignalHandler() won't work; why?
+#TODO: Note that `-y` flags are only for GLKFU. So, not make(1), for example.
 #
 # Dependencies:
 #
@@ -44,9 +45,9 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2021-03-12'
+CurVer='2021-04-28'
+Progrm='glkfu'
 
-Progrm=${0##*/}
 Usage(){
 	while read; do
 		printf '%s\n' "$REPLY"
@@ -135,16 +136,19 @@ while [ "$1" ]; do
 
 			if [ -z "$1" ]; then
 				Err 1 'Unspecified number of cores for make(1) to use.'
-			elif ! [[ $1 =~ ^[0-9]+$ ]]; then
+			elif ! [[ $1 =~ ^[[:digit:]]+$ ]]; then
 				Err 1 'Invalid number of cores specified.'
 			else
 				Cores=$1
 			fi ;;
 		-i|--ignore-versions)
+			ArgIgnoreVers=$1
 			IgnoreVers='True' ;;
 		--just-check|-j)
+			ArgJustCheck=$1
 			JustCheck='True' ;;
 		--just-download|-d)
+			ArgJustDownload=$1
 			JustDownload='True' ;;
 		--output|-o)
 			shift
@@ -186,9 +190,9 @@ while [ "$1" ]; do
 done
 
 if [ "$JustCheck" == 'True' -a "$JustDownload" == 'True' ]; then
-	Err 1 "OPTs '--just-check|-j' and '--just-download|-d' both used."
+	Err 1 "OPTs '$ArgJustCheck' and '$ArgJustDownload' both used."
 elif [ "$IgnoreVers" == 'True' -a "$JustCheck" == 'True' ]; then
-	Err 1 "OPTs '--just-check|-j' and '--ignore-versions|-i' both used."
+	Err 1 "OPTs '$ArgJustCheck' and '$ArgIgnoreVers' both used."
 fi
 
 DepCount=0
@@ -288,13 +292,13 @@ case $Output in
 		JustOutput 'latest.tarball' "$LatestTar"
 
 		# Just in-case, check the resulting filename is valid.
-		if ! [[ $LatestTar =~ ^linux-[0-9]+\.[0-9\.]+.tar\.xz$ ]]; then
+		if ! [[ $LatestTar =~ ^linux-[[:digit:]]+\.[[:digit:]\.]+.tar\.xz$ ]]; then
 			Err 1 "Tarball filename '$LatestTar' not valid."
 		fi
 
 		# From the tarball filename, store just the version string. Shouldn't
 		# be a need to check the value here, as checking is done above.
-		LatestVerBuffer=${LatestTar//[!0-9.]/}
+		LatestVerBuffer=${LatestTar//[![:digit:].]/}
 		LatestVer=${LatestVerBuffer%..}
 
 		# Get the major number of the latest version.
@@ -325,7 +329,7 @@ JustOutput 'current' "$CurVer"
 
 NewVerAvail='False'
 if [ "$IgnoreVers" != 'True' ]; then
-	if [[ $CurVer =~ ^[0-9\.]+-.* ]]; then
+	if [[ $CurVer =~ ^[[:digit:]\.]+-.* ]]; then
 		printf 'Unable to determine if latest kernel is newer.\n' 1>&2
 
 		if [ "$JustCheck" == 'True' ]; then
@@ -476,7 +480,7 @@ fi
 
 Cores=$TTLCores
 
-if ! [[ $TTLCores =~ ^[0-9]+$ ]]; then
+if ! [[ $TTLCores =~ ^[[:digit:]]+$ ]]; then
 	Err 0 'Unable to determine available number of CPU cores.'
 	Ask 'Continue with just the 1 core/thread?'
 
@@ -516,9 +520,8 @@ Ask 'Verify the GPG signature of the tarball?' && Verify='True'
 
 if [ "$Verify" == 'True' ]; then
 	printf 'Importing GPG public keys...\n'
-	if ! gpg --locate-keys "${GPGPubKeys[@]}"; then
+	gpg --locate-keys "${GPGPubKeys[@]}" ||
 		Err 1 'Failed to import public keys with gpg(1).'
-	fi
 
 	printf 'Downloading GPG signature file...\n'
 	URL="$KernOrgMirrs/pub/linux/kernel/v$LatestVerMaj.x/${LatestTar%.xz}.sign"
@@ -565,10 +568,9 @@ if [ -n "$ConfigOverrideFile" ]; then
 else
 	printf 'Finding a suitable kernel configuration file to use.\n'
 
-	Found=()
 	printf 'Looking for kernel configurations...\n'
 	for File in /boot/config-*; {
-		Found+=("$File=${File//[!0-9]/}")
+		Found+=("$File=${File//[![:digit:]]/}")
 	}
 
 	printf 'Found %d configuration file(s).\n' ${#Found[@]}
@@ -589,10 +591,10 @@ cd "$BuildDir/${LatestTar%.tar.xz}"
 
 if Ask 'Use default values for new CONFIG parameters?'; then
 	while read; do
-		if [[ $REPLY =~ ^.config:[0-9]+:warning:\ unexpected\ data: ]]; then
+		if [[ $REPLY =~ ^.config:[[:digit:]]+:warning:\ unexpected\ data: ]]; then
 			UnexpectedData='True'
 			printf '%s\n' "$REPLY"
-		elif [[ $REPLY =~ ^.config:[0-9]+: ]]; then
+		elif [[ $REPLY =~ ^.config:[[:digit:]]+: ]]; then
 			PossibleErrors='True'
 			printf '%s\n' "$REPLY"
 		fi
