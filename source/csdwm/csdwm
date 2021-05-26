@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Project Name      -
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Wed 26 May 18:19:49 BST 2021
+# Last Change       - Wed 26 May 20:30:05 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ while read Line; do
 			read _ _ Wanted _ <<< "$Arg"
 			Func="${Func}_$Wanted"
 		elif [ "$Func" == 'setlayout' ]; then
-			if [[ "$Arg" == *'&layouts['* ]]; then
+			if [[ $Arg == *'&layouts['* ]]; then
 				read _ _ Wanted _ <<< "$Arg"
 				Wanted=${Wanted//[![:digit:]]}
 				Func="${Func}_$Wanted"
@@ -134,7 +134,7 @@ while read Line; do
 			read _ _ Wanted _ <<< "$Arg"
 			Func="${Func}_${Wanted%\}}"
 		elif [ "$Func" == 'view' ]; then
-			if [[ "$Arg" == *'.ui = '* ]]; then
+			if [[ $Arg == *'.ui = '* ]]; then
 				read _ _ Wanted _ <<< "$Arg"
 				Wanted=${Wanted//[!~[:digit:]]}
 				Func="${Func}_$Wanted"
