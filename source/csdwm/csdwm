@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
+# Project Name      -
+# Started On        - Wed 26 May 15:36:21 BST 2021
+# Last Change       - Wed 26 May 18:19:49 BST 2021
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Features:
+#
+#TODO: Add support for own FILE via flag.
+#TODO: Automate the `if` statement block handling arguments.
+#TODO: Add support for less(1), or more(1) if less(1) isn't present.
+#TODO: Handle additional special keys, such as 'Period' and 'Comma'.
+#TODO: Add flags for user customization of output.
+#TODO: Show what 'Mod' actually is at the top of the output, if possible.
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   bsdmainutils (>= 11.1)
+#   coreutils (>= 8.28)
+#------------------------------------------------------------------------------
+
+CurVer='2021-05-26'
+Progrm=${0##*/}
+
+Usage(){
+	while read; do
+		printf '%s\n' "$Line"
+	done <<-EOF
+		Usage: $Progrm [OPTS]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		*)
+			Err 1 'Incorrect option(s) specified.' ;;
+	esac
+	shift
+done
+
+DepCount=0
+for Dep in sort; do
+	if ! type -P "$Dep" &> /dev/null; then
+		Err 0 "Dependency '$Dep' not met."
+		let DepCount++
+	fi
+done
+
+[ $DepCount -gt 0 ] && exit 1
+
+#-------------------------------------------------------------------Gather Data
+
+File='config.def.h'
+
+ModKeyLenMax=0
+while read Line; do
+	if [[ $Line == 'static Key keys[] = {' ]]; then
+		StartLineFound='True'
+	elif [ "$StartLineFound" == 'True' ]; then
+		if [[ $Line == [[:space:]]'/*'* ]]; then
+			continue
+		elif [ "$Line" == '};' ]; then
+			break
+		fi
+
+		[[ $Line == *MODKEY* ]] || continue
+
+		read _ Mod Key Func Arg <<< "$Line"
+
+		Key=${Key#XK_}
+		Key=${Key%,}
+
+		Mod=${Mod%,}
+		Mod=${Mod/MODKEY/Mod}
+		Mod=${Mod/|/+}
+		Mod=${Mod/|/+}
+
+		Mod=${Mod//ShiftMask/Shift}
+		Mod=${Mod//ControlMask/Ctrl}
+		Mod=${Mod//space/Space}
+		Mod=${Mod//period/Period}
+		Mod=${Mod//comma/Comma}
+		Key=${Key//ShiftMask/Shift}
+		Key=${Key//ControlMask/Ctrl}
+		Key=${Key//space/Space}
+		Key=${Key//period/Period}
+		Key=${Key//comma/Comma}
+
+		[ ${#Key} -eq 1 ] && Key=${Key^^}
+
+		Func=${Func%,}
+
+		if [ "$Func" == 'spawn' ]; then
+			read _ _ Wanted _ <<< "$Arg"
+			Func="${Func}_$Wanted"
+		elif [ "$Func" == 'focusstack' ]; then
+			read _ _ Wanted _ <<< "$Arg"
+			Func="${Func}_$Wanted"
+		elif [ "$Func" == 'incnmaster' ]; then
+			read _ _ Wanted _ <<< "$Arg"
+			Func="${Func}_$Wanted"
+		elif [ "$Func" == 'setlayout' ]; then
+			if [[ "$Arg" == *'&layouts['* ]]; then
+				read _ _ Wanted _ <<< "$Arg"
+				Wanted=${Wanted//[![:digit:]]}
+				Func="${Func}_$Wanted"
+			fi
+		elif [ "$Func" == 'focusmon' ]; then
+			read _ _ Wanted _ <<< "$Arg"
+			Func="${Func}_$Wanted"
+		elif [ "$Func" == 'tagmon' ]; then
+			read _ _ Wanted _ <<< "$Arg"
+			Func="${Func}_$Wanted"
+		elif [ "$Func" == 'setmfact' ]; then
+			read _ _ Wanted _ <<< "$Arg"
+			Func="${Func}_${Wanted%\}}"
+		elif [ "$Func" == 'view' ]; then
+			if [[ "$Arg" == *'.ui = '* ]]; then
+				read _ _ Wanted _ <<< "$Arg"
+				Wanted=${Wanted//[!~[:digit:]]}
+				Func="${Func}_$Wanted"
+			fi
+		fi
+
+		ModKeyLen=$((${#Key} + ${#Mod}))
+		if [ $ModKeyLen -gt $ModKeyLenMax ]; then
+			ModKeyLenMax=$ModKeyLen
+		fi
+
+		declare -A Bindings["$Mod+$Key"]=$Func
+	fi
+done < "$File"
+
+#------------------------------------------------------Begin Displaying Results
+
+for Binding in "${!Bindings[@]}"; {
+	printf ' %*s %s\n' $((ModKeyLenMax + 1)) $Binding "${Bindings["$Binding"]}"
+} | sort -k 2
+
+#printf '\nTotal: %d\n' ${#Bindings[@]}
