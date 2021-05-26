@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Wed 26 May 21:06:21 BST 2021
+# Last Change       - Thu 27 May 00:18:02 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 #   coreutils (>= 8.28)
 #------------------------------------------------------------------------------
 
-CurVer='2021-05-26'
+CurVer='2021-05-27'
 Progrm=${0##*/}
 
 Usage(){
@@ -79,15 +79,9 @@ else
 	File=$1
 fi
 
-DepCount=0
-for Dep in sort; do
-	if ! type -P "$Dep" &> /dev/null; then
-		Err 0 "Dependency '$Dep' not met."
-		let DepCount++
-	fi
-done
-
-[ $DepCount -gt 0 ] && exit 1
+if ! type -P 'sort' &> /dev/null; then
+	Err 1 "Dependency 'sort' not met."
+fi
 
 #-------------------------------------------------------------------Gather Data
 
