@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Wed 26 May 20:58:18 BST 2021
+# Last Change       - Wed 26 May 21:06:21 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,6 @@
 # Dependencies:
 #
 #   bash (>= 4.3-14)
-#   bsdmainutils (>= 11.1)
 #   coreutils (>= 8.28)
 #------------------------------------------------------------------------------
 
