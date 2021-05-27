@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/cssxhkd-concept
+# Started On        - Thu 27 May 00:16:40 BST 2021
+# Last Change       - Thu 27 May 01:06:07 BST 2021
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is really just a proof of concept, to show how it could be possible to
+# parse a mindful 'sxhkdrc' configuration file for the Simple X Hotkey Daemon.
+#
+# How pretty and reliable the output is, depends on how you've configured
+# SXHKD. If you've got a lot of 'code' (IE: `{_,shift + }w`), then your output
+# will look gross, and due to the nature of SXHKD, is unavoidable without
+# significant effort in programmatically unfurling the mess.
+#
+# Long 'action' lines will, as usual in terminals, probably wrap for you, -
+# causing the output to look pretty weird and ugly, so keep that in mind. A
+# better way to handle such lines would be to have those lines within a
+# script, perhaps via functions, then you simply call the script with an
+# argument pointing to a given function.
+#
+# NOTE: A caveat with this method, is that you MUST have one line being the
+#       key binding and the next line being the action to take. The action can
+#       not take up more than one line, nor can the binding. I've essentally
+#       alterated between the lines.
+#
+# Duplicate, empty, and comment lines are ignored, similar to CSDWM.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#------------------------------------------------------------------------------
+
+CurVer='2021-05-27'
+Progrm=${0##*/}
+
+Usage(){
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS] [FILE]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+
+		Where FILE is that from which to read SXHKD's key bindings.
+	EOF
+}
+
+Err(){
+	printf 'ERROR: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
+}
+
+while [ "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+if [ -z "$1" ]; then
+	Err 1 'Configuration FILE required.'
+elif ! [ -f "$1" ]; then
+	Err 1 'Configuration FILE not found.'
+elif ! [ -r "$1" ]; then
+	Err 1 'Configuration FILE unreadable.'
+else
+	File=$1
+fi
+
+#----------------------------------------------------------Acquire Desired Data
+
+Switch=0
+BindingLenMax=0
+while read Line; do
+	case $Line in
+		'#'*|'')
+			continue ;;
+		*)
+			[ "$OldLine" == "$Line" ] && continue ;;
+	esac
+
+	if [ $Switch -eq 0 ]; then
+		Binding=$Line
+		BindingLen=${#Line}
+
+		if [ $BindingLen -gt $BindingLenMax ]; then
+			BindingLenMax=$BindingLen
+		fi
+
+		Switch=1
+	else
+		declare -A Bindings["${Binding:-0}"]=$Line
+		Switch=0
+	fi
+
+	OldLine=$Line
+done < "$File"
+
+#---------------------------------------------------------------Display Results
+
+for Key in "${!Bindings[@]}"; {
+	printf ' %*s  %s\n' $((BindingLenMax + 1)) "$Key" "${Bindings[$Key]}"
+}
