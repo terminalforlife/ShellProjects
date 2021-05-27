@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cssxhkd-concept
 # Started On        - Thu 27 May 00:16:40 BST 2021
-# Last Change       - Thu 27 May 01:06:07 BST 2021
+# Last Change       - Thu 27 May 01:12:00 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,8 +22,8 @@
 #
 # NOTE: A caveat with this method, is that you MUST have one line being the
 #       key binding and the next line being the action to take. The action can
-#       not take up more than one line, nor can the binding. I've essentally
-#       alterated between the lines.
+#       not take up more than one line, nor can the binding. I've essentially
+#       alternated between the lines.
 #
 # Duplicate, empty, and comment lines are ignored, similar to CSDWM.
 #
