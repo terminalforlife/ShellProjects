@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Thu 27 May 00:18:02 BST 2021
+# Last Change       - Thu 27 May 00:22:41 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -71,7 +71,9 @@ while [ "$1" ]; do
 	shift
 done
 
-if ! [ -f "$1" ]; then
+if [ -z "$1" ]; then
+	Err 1 'Configuration FILE required.'
+elif ! [ -f "$1" ]; then
 	Err 1 'Configuration FILE not found.'
 elif ! [ -r "$1" ]; then
 	Err 1 'Configuration FILE unreadable.'
