@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Sat 29 May 01:57:23 BST 2021
+# Last Change       - Sat 29 May 02:03:33 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -156,6 +156,9 @@ while read Line; do
 			read _ _ Wanted _ <<< "$Arg"
 			Func="${Func}_${Wanted%\}}"
 		elif [ "$Func" == 'togglescratch' ]; then
+			read _ _ Wanted _ <<< "$Arg"
+			Func="${Func}_${Wanted%\}}"
+		elif [ "$Func" == 'cyclelayout' ]; then
 			read _ _ Wanted _ <<< "$Arg"
 			Func="${Func}_${Wanted%\}}"
 		fi
