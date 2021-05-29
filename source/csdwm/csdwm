@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Sat 29 May 01:17:30 BST 2021
+# Last Change       - Sat 29 May 01:57:23 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,6 +17,8 @@
 # Bugs:
 #
 #TODO: A user reported the Mod key isn't showing for them at all.
+#
+#      The same user also showed that the first resulting line is misaligned.
 #
 # Dependencies:
 #
@@ -82,6 +84,7 @@ fi
 
 #-------------------------------------------------------------------Gather Data
 
+Count=0
 ModKeyLenMax=0
 while read Line; do
 	if [[ $Line == 'static Key keys[] = {' ]]; then
@@ -162,7 +165,9 @@ while read Line; do
 			ModKeyLenMax=$ModKeyLen
 		fi
 
-		declare -A Bindings["$Mod+$Key"]=$Func
+		let Count++
+
+		declare -A Bindings["${Count}_$Mod+$Key"]=$Func
 	fi
 done < "$File"
 
@@ -171,10 +176,19 @@ Total=$((${#Bindings[@]} + 0))
 #------------------------------------------------------Begin Displaying Results
 
 DisplayMain(){
-	for Binding in "${!Bindings[@]}"; {
-		printf ' %*s %s\n' $((ModKeyLenMax + 1))\
-			$Binding "${Bindings["$Binding"]}"
-	}
+	Count=1
+	until [ $Count -gt ${#Bindings[@]} ]; do
+		for Binding in "${!Bindings[@]}"; {
+			if [ $Count -eq "${Binding%%_*}" ]; then
+				printf ' %*s %s\n' $((ModKeyLenMax + 1))\
+					${Binding#*_} "${Bindings["$Binding"]}"
+
+				let Count++
+
+				break
+			fi
+		}
+	done
 
 	if [ "$ShowTTL" == 'True' -a $Total -ne 0 ]; then
 		printf '\nTotal: %d\n' ${#Bindings[@]}
