@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Sat 29 May 03:09:29 BST 2021
+# Last Change       - Sat 29 May 22:44:55 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,9 +17,10 @@
 #
 # Bugs:
 #
-#TODO: A user reported the Mod key isn't showing for them at all.
+#TODO: A user reported the Mod key is missing, using BASH 5.1.8 in Arch Linux.
 #
-#      The same user also showed that the first resulting line is misaligned.
+#      This issue is #7 and seems to have been resolved, but I'm leaving this
+#      here, because what caused this issue is still as yet unknown.
 #
 # Dependencies:
 #
