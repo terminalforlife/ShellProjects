@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Sat 29 May 02:27:27 BST 2021
+# Last Change       - Sat 29 May 03:09:29 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,7 +11,6 @@
 #
 # Features:
 #
-#TODO: Automate the `if` statement block handling arguments.
 #TODO: Handle additional special keys, such as 'Period' and 'Comma'.
 #TODO: Add flags for user customization of output.
 #TODO: Show what 'Mod' actually is at the top of the output, if possible.
@@ -77,6 +76,18 @@ fi
 
 #-------------------------------------------------------------------Gather Data
 
+# Usage: IfString ARGUMENT FUNCTION STRING
+IfString(){
+	case $1 in
+		$3)
+			read _ _ Wanted _ <<< "$1"
+			Wanted=${Wanted//[![:digit:]]}
+			printf '%s' "${2}_${Wanted%\}}" ;;
+		*)
+			printf '%s' "${2}" ;;
+	esac
+}
+
 Count=0
 ModKeyLenMax=0
 while read Line; do
@@ -105,6 +116,7 @@ while read Line; do
 		Mod=${Mod//space/Space}
 		Mod=${Mod//period/Period}
 		Mod=${Mod//comma/Comma}
+
 		Key=${Key//ShiftMask/Shift}
 		Key=${Key//ControlMask/Ctrl}
 		Key=${Key//space/Space}
@@ -115,46 +127,19 @@ while read Line; do
 
 		Func=${Func%,}
 
-		if [ "$Func" == 'spawn' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_$Wanted"
-		elif [ "$Func" == 'focusstack' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_$Wanted"
-		elif [ "$Func" == 'incnmaster' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_$Wanted"
-		elif [ "$Func" == 'setlayout' ]; then
-			if [[ $Arg == *'&layouts['* ]]; then
+		case $Func in
+			spawn|focusstack|focusmon|tagmon|setmfact|\
+			movestack|togglescratch|cyclelayout)
 				read _ _ Wanted _ <<< "$Arg"
-				Wanted=${Wanted//[![:digit:]]}
-				Func="${Func}_$Wanted"
-			fi
-		elif [ "$Func" == 'focusmon' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_$Wanted"
-		elif [ "$Func" == 'tagmon' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_$Wanted"
-		elif [ "$Func" == 'setmfact' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_${Wanted%\}}"
-		elif [ "$Func" == 'view' ]; then
-			if [[ $Arg == *'.ui = '* ]]; then
-				read _ _ Wanted _ <<< "$Arg"
-				Wanted=${Wanted//[!~[:digit:]]}
-				Func="${Func}_$Wanted"
-			fi
-		elif [ "$Func" == 'movestack' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_${Wanted%\}}"
-		elif [ "$Func" == 'togglescratch' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_${Wanted%\}}"
-		elif [ "$Func" == 'cyclelayout' ]; then
-			read _ _ Wanted _ <<< "$Arg"
-			Func="${Func}_${Wanted%\}}"
-		fi
+				Func="${Func}_${Wanted%\}}" ;;
+			*)
+				case $Func in
+					setlayout)
+						Func=`IfString "$Arg" "$Func" '*&layouts[*'` ;;
+					view)
+						Func=`IfString "$Arg" "$Func" '*.ui = *'` ;;
+				esac ;;
+		esac
 
 		ModKeyLen=$((${#Key} + ${#Mod}))
 		if [ $ModKeyLen -gt $ModKeyLenMax ]; then
