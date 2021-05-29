@@ -3,10 +3,12 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021
-# Last Change       - Sat 29 May 02:03:33 BST 2021
+# Last Change       - Sat 29 May 02:27:27 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# A rough Pure-BASH solution to nicely listing all of your DWM keybindings.
+#
 # Features:
 #
 #TODO: Automate the `if` statement block handling arguments.
@@ -36,7 +38,6 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
-		  -p, --paginate           - Send output to less(1) or more(1).
 		  -t, --total              - Show total discovered key bindings.
 
 		Where FILE is that from which to read DWM's key bindings.
@@ -54,14 +55,6 @@ while [ "$1" ]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
-		--paginate|-p)
-			if type -P less &> /dev/null; then
-				Pager='less'
-			elif type -P more &> /dev/null; then
-				Pager='more'
-			else
-				Err 1 'No suitable pager found in PATH.'
-			fi ;;
 		--total|-t)
 			ShowTTL='True' ;;
 		-*)
@@ -178,7 +171,9 @@ Total=$((${#Bindings[@]} + 0))
 
 #------------------------------------------------------Begin Displaying Results
 
-DisplayMain(){
+if [ $Total -eq 0 ]; then
+	printf 'Uh-oh! No key bindings found.\n' 1>&2
+else
 	Count=1
 	until [ $Count -gt ${#Bindings[@]} ]; do
 		for Binding in "${!Bindings[@]}"; {
@@ -196,14 +191,4 @@ DisplayMain(){
 	if [ "$ShowTTL" == 'True' -a $Total -ne 0 ]; then
 		printf '\nTotal: %d\n' ${#Bindings[@]}
 	fi
-}
-
-if [ $Total -eq 0 ]; then
-	printf 'Uh-oh! No key bindings found.\n' 1>&2
-elif [ "$Pager" == 'less' ]; then
-	DisplayMain | less
-elif [ "$Pager" == 'more' ]; then
-	DisplayMain | more
-else
-	DisplayMain
 fi
