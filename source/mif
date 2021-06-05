@@ -3,12 +3,12 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Mon 23 Nov 20:01:37 GMT 2020
+# Last Change       - Sat  5 Jun 19:52:05 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-23'
+CurVer='2021-06-05'
 Progrm=${0##*/}
 
 Usage(){
@@ -104,7 +104,7 @@ if [[ $MAKE_LIST_OPT =~ (:|:\[+\]) ]]; then
 fi
 
 if ! [ "$Organise" == 'true' ]; then
-	if [[ $1 =~ ^[0-9]+$ ]]; then
+	if [[ $1 =~ ^[[:digit:]]+$ ]]; then
 		Year=$1; shift
 	else
 		if ! [ "$Seen" == "all" ]; then
@@ -119,18 +119,18 @@ if [ "$Organise" == 'true' ]; then
 	for X in *; {
 		Y=${X//*\(}
 
-	 [[ ${Y%\)*} =~ ^[0-9]+$ ]] || continue
+	 [[ ${Y%\)*} =~ ^[[:digit:]]+$ ]] || continue
 
 		if mkdir "${Y%\)*}"; then
-			printf "%s\n" "MAKE: ${Y%\)*}"
+			printf '%s\n' "MAKE: ${Y%\)*}"
 		else
-			printf "%s\n" "Err: ${Y%\)*}"
+			printf '%s\n' "Err: ${Y%\)*}"
 		fi
 
 		if mv "$X" ${Y%\)*}/; then
-			printf "%s\n" "MOVE: ${Y%\)*}/${X//*\/}"
+			printf '%s\n' "MOVE: ${Y%\)*}/${X//*\/}"
 		else
-			printf "%s\n" "Err: ${Y%\)*}/${X//*\/}"
+			printf '%s\n' "Err: ${Y%\)*}/${X//*\/}"
 		fi
 	}
 
@@ -145,16 +145,16 @@ while read -r; do
 
 	if [ "$Seen" == 'false'  ]; then
 		if [[ $REPLY == $Year\[\+\]:\ * ]]; then
-			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+			printf "%s\n" "${REPLY/+([[:digit:]])\[?\]: }"
 			Line+=1
 		fi
 	elif [ "$Seen" == 'true'  ]; then
 		if [[ $REPLY == $Year\[\-\]:\ * ]]; then
-			printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+			printf "%s\n" "${REPLY/+([[:digit:]])\[?\]: }"
 			Line+=1
 		fi
 	elif [ "$Seen" == 'all'  ]; then
-		printf "%s\n" "${REPLY/+([0-9])\[?\]: }"
+		printf "%s\n" "${REPLY/+([[:digit:]])\[?\]: }"
 		Line+=1
 	fi
 done < "$MovieIndex"
