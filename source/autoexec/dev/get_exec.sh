@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/dev/get_exec.sh
 # Started On        - Sun 27 Jun 06:38:27 BST 2021
-# Last Change       - Sun 27 Jun 06:47:50 BST 2021
+# Last Change       - Sun 27 Jun 06:53:34 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,13 +34,17 @@
 
 File="$HOME/Desktop/TestDir/test.sh"
 
+# This function should always be called when executing the desired. The bulk of
+# the processing talked about in the above header should happen here.
 SheBang(){
 	if [ -z "$1" ]; then
+		# What if for some odd reason the shebang is NOT on the first line?
 		read Line < "$File"
 	else
 		Line=$1
 	fi
 
+	# These variables need to be accessible outside of this function.
 	Command=${Line#\#!}
 	ExecPath=${Command%%* }
 	ExecBase=${ExecPath##*/}
@@ -50,4 +54,5 @@ SheBang(){
 	echo "$ExecBase"
 }
 
+# Where `$1` would represent the user's own `Exec`, otherwise read shebang.
 SheBang '/usr/bin/bash -v'
