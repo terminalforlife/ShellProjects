@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat  5 Jun 19:23:17 BST 2021
+# Last Change       - Sun 27 Jun 06:35:28 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,6 +15,15 @@
 #TODO: Use POSIX character classes instead of regular ones.
 #
 # Bugs:
+#
+#TODO: Flags given to the shebang's executable are ignored.
+#
+#      This problem went unnoticed for far too long. This is especially
+#      problematic with AWK scripts, because they need the `-f` argument.
+#
+#      Consider completely switching AutExec Over to letting the kernel handle
+#      the execution, and so requiring the files have the execute bit set? Not
+#      ideal at all, but doable.
 #
 #TODO: Flags don't work, because configuration file has priority.
 #TODO: Using AutoExec for man pages (pagers) is buggy, but functional.
@@ -36,7 +45,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-06-05'
+CurVer='2021-06-27'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
