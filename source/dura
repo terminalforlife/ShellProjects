@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/remains
+#cito M:755 O:0 G:0 T:/usr/bin/dura
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/remains
+# Project Name      - Extra/source/dura
 # Started On        - Thu  1 Jul 12:01:03 BST 2021
-# Last Change       - Thu  1 Jul 13:59:12 BST 2021
+# Last Change       - Fri  2 Jul 03:31:08 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   ffmpeg (>= 7:3.4.8-0)
 #------------------------------------------------------------------------------
 
-CurVer='2021-07-01'
+CurVer='2021-07-02'
 Progrm=${0##*/}
 
 Usage(){
