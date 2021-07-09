@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sat  3 Jul 11:57:12 BST 2021
+# Last Change       - Fri  9 Jul 09:04:39 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,7 +18,17 @@
 #
 # Features:
 #
-# N/A
+#TODO: Improve configuration file handling section.
+#
+#      Perhaps by using the current kernel's configuration by default. The user
+#      could be asked if they're okay with using the current one, but provide a
+#      flag to adjust this, rather than a clunky `read` prompt which won't have
+#      tab completion or any evaluation of things like variables.
+#
+#      If the users says no when asked, maybe GLKFU could tell the user that
+#      such a flag exists, perhaps pointing the user to the usage output.
+#
+#TODO: Prompt user if they'd like to use existing tarball.
 #
 # Bugs:
 #
@@ -29,6 +39,7 @@
 #      bug in Pop! OS 20.04. Oddly, using `-o latest` and `-o current` work
 #      perfectly fine.
 #
+#TODO: If we exit during `$Make bindeb-pkg`, SignalHandler() won't work; why?
 #TODO: Note that `-y` flags are only for GLKFU. So, not make(1), for example.
 #
 # Dependencies:
@@ -44,7 +55,7 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2021-07-03'
+CurVer='2021-07-09'
 Progrm='glkfu'
 
 Usage(){
@@ -505,24 +516,14 @@ if [ "$BuildDir" == '.' ]; then
 	Ask 'No build directory specified -- use CWD?' || exit 0
 fi
 
-if ! Ask "Begin downloading '$LatestTar' tarball?"; then
-	if [ -f "$LatestTar" ]; then
-		if Ask 'Use existing tarball?'; then
-			UseExisting='True'
-		else
-			exit 0
-		fi
-	fi
-fi
+Ask "Begin downloading '$LatestTar' tarball?" || exit 0
 
-if [ "$UseExisting" != 'True' ]; then
-	printf 'Downloading tarball...\n'
-	if [ -w "$BuildDir" ]; then
-		URL="$KernOrgMirrs/pub/linux/kernel/v$LatestVerMaj.x/$LatestTar"
-		Get "$BuildDir/$LatestTar" "$URL"
-	else
-		Err 1 'Build directory unwritable.'
-	fi
+printf 'Downloading tarball...\n'
+if [ -w "$BuildDir" ]; then
+	URL="$KernOrgMirrs/pub/linux/kernel/v$LatestVerMaj.x/$LatestTar"
+	Get "$BuildDir/$LatestTar" "$URL"
+else
+	Err 1 'Build directory unwritable.'
 fi
 
 Ask 'Verify the GPG signature of the tarball?' && Verify='True'
@@ -568,19 +569,6 @@ if Ask 'Delete the kernel tarball?'; then
 	rm -v "$BuildDir/${LatestTar%.xz}"
 fi
 
-#-----------------------------------------Confirm Correct Kernel Was Downloaded
-
-printf 'Confirming correct kernel...\n'
-
-FoundKernel=`make -C "$BuildDir/${LatestTar%.tar.xz}"\
-	--no-print-directory kernelversion`
-
-if [ "$FoundKernel" == "${LatestTar%.tar.xz}" ]; then
-	printf 'Kernel found matches target kernel.\n'
-else
-	Err 1 'Kernel found does not match target kernel.'
-fi
-
 #----------------------------------------------Copy Over Existing Configuration
 
 if [ -n "$ConfigOverrideFile" ]; then
@@ -597,14 +585,31 @@ else
 
 	printf 'Found %d configuration file(s).\n' ${#Found[@]}
 
-	Top=0
-	for KeyVal in "${Found[@]}"; {
-		[ ${KeyVal##*=} -gt ${Top##*=} ] && Top=$KeyVal
-	}
+	#TODO: Consider doing this without uname(1).
+	TargetConfig="/boot/config-$CurVer"
 
-	printf "Using file: '%s'\n" "${Top%=*}"
+	if ! Ask "Use the current kernel's configuration?"; then
+		printf 'Enter absolute path to target configuration file.\n'
+		while :; do
+			read -ep ': ' TargetConfig
+			case $TargetConfig in
+				'')
+					Err 0 'Enter a path, or Ctrl + C to quit.' ;;
+				*)
+					if ! [ -f "$TargetConfig" ]; then
+						Err 0 'File not found.'
+					elif [ -r "$TargetConfig" ]; then
+						Err 0 'File unreadable.'
+					else
+						break
+					fi ;;
+			esac
+		done
+	fi
 
-	cp -v "${Top%=*}" "$BuildDir/${LatestTar%.tar.xz}/.config"
+	printf "Using file: '%s'\n" "$TargetConfig"
+
+	cp -v "$TargetConfig" "$BuildDir/${LatestTar%.tar.xz}/.config"
 fi
 
 #--------------------------------------------------------Process Configurations
