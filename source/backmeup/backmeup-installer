@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Sat  6 Mar 14:47:09 GMT 2021
+# Last Change       - Fri  9 Jul 11:24:35 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,6 +22,8 @@
 #
 # If you want a HOME-only installation, you'll have to either use Cito, or
 # otherwise install it manually, but you may miss out on a lot of features.
+#
+# NOTE: Due to changes in BASH 4.4, running this therein will spit out errors.
 #
 # Dependencies:
 #

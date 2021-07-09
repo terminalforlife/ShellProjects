@@ -3,13 +3,11 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Sat  6 Mar 15:02:53 GMT 2021
+# Last Change       - Fri  9 Jul 11:24:48 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Simple, but pretty and mindful Bourne Shell installer for LSPKG, for those
-# unable or unwilling to use the provided Debian packages available in the
-# DEB-Packages repository.
+# Simple, but pretty and mindful Bourne Shell installer for LSPKG.
 #
 # To use this installer, you can either:
 #
@@ -24,6 +22,8 @@
 #
 # If you want a HOME-only installation, you'll have to either use LSPKG, or
 # otherwise install it manually, but you may miss out on a lot of features.
+#
+# NOTE: Due to changes in BASH 4.4, running this therein will spit out errors.
 #
 # Dependencies:
 #
