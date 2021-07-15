@@ -3,13 +3,13 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-set
 # Started On        - Wed 24 Jan 17:31:41 GMT 2018
-# Last Change       - Thu 12 Nov 04:00:38 GMT 2020
+# Last Change       - Thu 15 Jul 14:41:08 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 
 
-CurVer='2020-11-12'
+CurVer='2021-07-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -54,7 +54,7 @@ case $* in
 		Err 1 'Incorrect argument(s) specified.' ;;
 esac
 
-type -P dpkg-query 1> /dev/null 2>&1 ||
+command -v dpkg-query 1> /dev/null 2>&1 ||
 	Err 1 "Dependency 'dpkg-query' not met."
 
 Format="\${db:Status-Abbrev} \${${Type%:*}} \${Package}\n"
