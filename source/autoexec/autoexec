@@ -3,13 +3,13 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sun 22 Aug 11:49:28 BST 2021
+# Last Change       - Wed 25 Aug 20:15:52 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Features:
 #
-#TODO: Use POSIX character classes instead of regular ones.
+# N/A
 #
 # Bugs:
 #
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-08-22'
+CurVer='2021-08-25'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -229,22 +229,23 @@ while :; do
 		if [ 0${SSEOld//[![:digit:]]} -lt 0${SSE//[![:digit:]]} ]; then
 			[ "$Once" == 'true' ] || tput clear
 
-			# If using DASH or BASH, check for errors before executing.
+			# If using DASH, BASH, or ZSH, check for errors before executing.
 			if [ "$Check" == 'True' ]; then
 				unset Errors
-				if [ "${Exec%% *}" == 'bash' ]; then
-					bash -n "$ExecFile" || Errors='True'
-				elif [ "${Exec%% *}" == 'sh' ]; then
-					File=`type -P sh`
-					Link=`realpath "$File"`
-					if [ "$Link" == '/bin/dash' ]; then
-						dash -n "$ExecFile" || Errors='True'
-					else
-						UnsupportedCheck='True'
-					fi
-				else
-					UnsupportedCheck='True'
-				fi
+				case ${Exec%% *} in
+					bash|zsh)
+						${Exec%% *} -n "$ExecFile" || Errors='True' ;;
+					sh)
+						File=`type -P sh`
+						Link=`realpath "$File"`
+						if [ "$Link" == '/bin/dash' ]; then
+							dash -n "$ExecFile" || Errors='True'
+						else
+							UnsupportedCheck='True'
+						fi ;;
+					*)
+						UnsupportedCheck='True' ;;
+				esac
 
 				[ "$Force" == 'False' -a "$UnsupportedCheck" == 'True' ] && exit 1
 			fi
