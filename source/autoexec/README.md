@@ -1,12 +1,14 @@
 # Introduction
 
-Together with an editor like Vi-IMproved, EMACS, or even Nano, this development tool allows the user the pleasure of programming in an IDE-like environment, surrounded by terminals. Simply touching (writing to) the file will result in the re-execution of it.
+Together with an editor like Vi-IMproved, EMACS, or even Nano, this Linux development tool allows the user the pleasure of programming in an IDE-like environment, surrounded by terminals. Simply touching (writing to) the file will result in the re-execution of it.
 
-Flexibly, the user can make use of AutoExec when working with Perl, Python, Shell, AWK, and Ruby; this is, however, not a complete list, as it's very likely AutoExec can be used in multiple additional ways.
+Flexibly, the user can make use of AutoExec in Linux when working with Perl, Python, Shell, AWK, and Ruby; this is, however, not a complete list, as it's very likely AutoExec can be used in multiple additional ways.
 
 The user can either rely on AutoExec's own interpreter auto-detection, or override with his or her own choice of executable.
 
-Demonstrations of AutoExec can be found all over the YouTube channel of the author of AutoExec, [Learn Linux](https://www.youtube.com/c/learnlinux).
+Demonstrations of AutoExec can be found all over the YouTube channel of the author of AutoExec, [Terminalforlife](https://www.youtube.com/c/terminalforlife) (formerly _Learn Linux_).
+
+As you might've guessed by now, this tool was written for **Linux**, so likely will _not_ work on operating systems like the BSDs, Apple's offerings, and surely Windows (maybe with WSL). If you'd like to help support such a platform, get in touch, so that perhaps we can sort out a patch or some sort of compatibility update.
 
 # Installation Instructions
 
