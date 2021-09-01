@@ -46,17 +46,23 @@ fi
 
 [ `id -u` -ne 0 ] && Err 1 'Root access is required for system-wide changes.'
 
-printf 'Install latest version of Fetcher? [Y/N] '
-read Answer
-case $Answer in
-	[Yy]|[Yy][Ee][Ss])
-		printf 'Continuing with installation.\n' ;;
-	[Nn]|[Nn][Oo])
-		printf 'Abandoning installation.\n'
-		exit 0 ;;
-	*)
-		Err 2 'Invalid response -- quitting.' ;;
-esac
+while :; do
+	printf 'Install latest version of Fetcher? [Y/N] '
+
+	read Input
+	case $Input in
+		[Yy]|[Yy][Ee][Ss])
+			printf 'Continuing with installation.\n'
+			break ;;
+		[Nn]|[Nn][Oo])
+			printf 'Abandoning installation.\n'
+			exit 0 ;;
+		'')
+			Err 0 'Empty response -- try again.' ;;
+		*)
+			Err 0 'Invalid response -- try again.' ;;
+	esac
+done
 
 LogFile='/tmp/fetcher-installer.log'
 [ -f "$LogFile" ] || 1> "$LogFile"
@@ -144,6 +150,29 @@ for File in\
 	'fetcher.1.gz:/usr/share/man/man1/fetcher.1.gz'\
 	'fetcher:/usr/bin/fetcher'
 do
+	Replace='False'
+
+	while :; do
+		printf "File '%s' found.\n" "${File#*:}"
+		printf 'Replace existing file? [Y/N] '
+
+		read Input
+		case $Input in
+			[Yy]|[Yy][Ee][Ss])
+				Replace='True'
+				break ;;
+			[Nn]|[Nn][Oo])
+				Replace='False'
+				break ;;
+			'')
+				Err 0 'Empty response -- try again.' ;;
+			*)
+				Err 0 'Invalid response -- try again.' ;;
+		esac
+	done
+
+	[ "$Replace" = 'True' ] || continue
+
 	printf "* Installing '%s' ... " "${File%%:*}"
 	if mv "$TmpDir/${File%%:*}" "${File#*:}" 2>> "$LogFile"; then
 		printf '\033[32m[OK]\033[0m\n'
@@ -198,7 +227,7 @@ for File in '/usr/bin/fetcher'; do
 					case $Line in
 						'#   '[!\ ]*)
 							printf '\033[1;93m%s\e[0m\n' "${Line#\#   }" ;;
-						*|'')
+						*)
 							DepErr=$((DepErr + 1)) ;;
 					esac ;;
 			esac

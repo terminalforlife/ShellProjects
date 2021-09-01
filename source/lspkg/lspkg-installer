@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Fri  9 Jul 11:24:48 BST 2021
+# Last Change       - Wed  1 Sep 10:26:01 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -46,17 +46,23 @@ fi
 
 [ `id -u` -ne 0 ] && Err 1 'Root access is required for system-wide changes.'
 
-printf 'Install latest version of LSPKG? [Y/N] '
-read Answer
-case $Answer in
-	[Yy]|[Yy][Ee][Ss])
-		printf 'Continuing with installation.\n' ;;
-	[Nn]|[Nn][Oo])
-		printf 'Abandoning installation.\n'
-		exit 0 ;;
-	*)
-		Err 2 'Invalid response -- quitting.' ;;
-esac
+while :; do
+	printf 'Install latest version of LSPKG? [Y/N] '
+
+	read Input
+	case $Input in
+		[Yy]|[Yy][Ee][Ss])
+			printf 'Continuing with installation.\n'
+			break ;;
+		[Nn]|[Nn][Oo])
+			printf 'Abandoning installation.\n'
+			exit 0 ;;
+		'')
+			Err 0 'Empty response -- try again.' ;;
+		*)
+			Err 0 'Invalid response -- try again.' ;;
+	esac
+done
 
 LogFile='/tmp/lspkg-installer.log'
 [ -f "$LogFile" ] || 1> "$LogFile"
@@ -151,6 +157,29 @@ for File in\
 	'lspkg-set:/usr/bin/lspkg-set'\
 	'lspkg:/usr/bin/lspkg'
 do
+	Replace='False'
+
+	while :; do
+		printf "File '%s' found.\n" "${File#*:}"
+		printf 'Replace existing file? [Y/N] '
+
+		read Input
+		case $Input in
+			[Yy]|[Yy][Ee][Ss])
+				Replace='True'
+				break ;;
+			[Nn]|[Nn][Oo])
+				Replace='False'
+				break ;;
+			'')
+				Err 0 'Empty response -- try again.' ;;
+			*)
+				Err 0 'Invalid response -- try again.' ;;
+		esac
+	done
+
+	[ "$Replace" = 'True' ] || continue
+
 	printf "* Installing '%s' ... " "${File%%:*}"
 	if mv "$TmpDir/${File%%:*}" "${File#*:}" 2>> "$LogFile"; then
 		printf '\033[32m[OK]\033[0m\n'
@@ -227,7 +256,7 @@ for File in '/usr/bin/lspkg' '/usr/bin/lspkg-set'; do
 					case $Line in
 						'#   '[!\ ]*)
 							printf '\033[1;93m%s\e[0m\n' "${Line#\#   }" ;;
-						*|'')
+						*)
 							DepErr=$((DepErr + 1)) ;;
 					esac ;;
 			esac
