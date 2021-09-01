@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Fri 27 Aug 18:06:23 BST 2021
+# Last Change       - Fri 27 Aug 18:30:42 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -26,6 +26,7 @@
 #
 # Bugs:
 #
+#TODO: The 'just download' flags aren't working; GLKFU just continues on.
 #TODO: Catch `Makefile:188`, for when build directory has spaces or colons.
 #TODO: Use of the -o flag(s) not working properly if unmet dependencies.
 #
