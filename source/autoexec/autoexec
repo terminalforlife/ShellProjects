@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Wed 25 Aug 20:15:52 BST 2021
+# Last Change       - Wed  1 Sep 19:49:25 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-08-25'
+CurVer='2021-09-01'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -173,6 +173,8 @@ SignalHandler(){
 
 	if [ -n "$InterpreterMissing" ]; then
 		Err 1 "Interpreter '$InterpreterMissing' not found."
+	elif [ "$SheBangInvalid" == 'True' ]; then
+		Err 1 'Invalid shebang detected.'
 	fi
 
 	# Needs to be here otherwise the above line clears it.
@@ -212,6 +214,12 @@ while :; do
 	# Determine the interpreter to use.
 	if [ -z "$Exec" ]; then
 		read SheBang < "$ExecFile"
+
+		if [[ $SheBang != '#!'* ]]; then
+			SheBangInvalid='True'
+			exit 1
+		fi
+
 		SheBangMain=${SheBang#\#\!}
 		SheBangBase=${SheBangMain##*/}
 		case ${SheBangBase%% *} in
