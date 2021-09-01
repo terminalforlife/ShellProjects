@@ -18,21 +18,3 @@ As of 2021-01-26, here are some highlights:
   * [lspkg](source/lspkg) - Search through, test for, and list out installed packages
   * [rmne](source/rmne) - Remove all of the non-essential Debian packages
   * [simplify-ubuntu](source/simplify-ubuntu) - De-bloat Ubuntu by interactively removing unneeded packages.
-
-Continue to the next section to see how you can get them...
-
-# Instructions for Installation
-
-Some of the following commands tell you to use [sudo](https://en.wikipedia.org/wiki/Sudo), but not everybody _has_ that utility; if you're such a person, then you'll likely want to use [su](https://en.wikipedia.org/wiki/Su_\(Unix\)) prior to running the commands otherwise ran with sudo.
-
-You have various options available to you:
-
-  * You can install one of the many Debian packages I've built and stored within the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository. This won't always be the latest version, but it's the easiest method, provided you're on an Ubuntu- or Debian-based installation of Linux.
-
-  * You can install [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito/cito). It's lightweight and portable, installable with the following one-liner, after which many programs or files on GitHub or locally are quick, robust, and painless to install -- not just my own!
-
-    ```bash
-    wget -q 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito'; sudo sh cito cito
-    ```
-
-  * If you're on a Debian- or Ubuntu-based distribution of Linux, refer to the [DEB-Packages](https://github.com/terminalforlife/DEB-Packages) repository for a list of Debian packages for various versions of TFL programs which you can install.
