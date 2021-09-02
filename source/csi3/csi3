@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu  2 Sep 19:04:50 BST 2021
+# Last Change       - Thu  2 Sep 19:11:51 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,7 +14,6 @@
 #TODO: Capitalize single-letter keys.
 #TODO: Make initial '!' stand out more, perhaps by making it bright red.
 #TODO: Capitalize the first letter of words like 'shift' and 'ctrl'.
-#TODO: Add flag to exclude 'exec' bindings.
 #
 # Bugs:
 #
@@ -36,6 +35,7 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  -E, --noexecs            - Omit 'exec' lines from output.
 
 		A key binding's action being prepended with an exclamation mark ('!')
 		indicates it's a shell command, and not a native i3-wm command.
@@ -53,6 +53,8 @@ while [ "$1" ]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
+		--noexecs|-E)
+			NoExecs='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -79,6 +81,12 @@ while read Line; do
 			continue ;;
 		bindsym\ *)
 			read _ Keys Action <<< "$Line"
+
+			if [ "$NoExecs" == 'True' ]; then
+				case $Action in
+					exec\ *|exec_always\ *) continue ;;
+				esac
+			fi
 
 			Action=${Action/exec --no-startup-id /!}
 			Action=${Action/exec_always --no-startup-id /!}
