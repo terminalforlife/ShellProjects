@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu  2 Sep 19:20:34 BST 2021
+# Last Change       - Thu  2 Sep 19:28:58 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 #
 # Features:
 #
-#TODO: Make initial '!' stand out more, perhaps by making it bright red.
+# N/A
 #
 # Bugs:
 #
@@ -119,8 +119,12 @@ Count=1
 until [ $Count -gt ${#Bindings[@]} ]; do
 	for Binding in "${!Bindings[@]}"; {
 		if [ $Count -eq "${Binding%%_*}" ]; then
-			printf '%*s \e[37m%s\e[0m\n' $KeysLenMax\
-				"${Binding#*_}" "${Bindings[$Binding]}"
+			printf '%*s ' $KeysLenMax "${Binding#*_}"
+			if [[ ${Bindings[$Binding]} == \!* ]]; then
+				printf '\e[91m!\e[37m%s\e[0m\n' "${Bindings[$Binding]#!}"
+			else
+				printf '\e[37m%s\e[0m\n' "${Bindings[$Binding]}"
+			fi
 
 			let Count++
 
