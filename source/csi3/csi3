@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu  2 Sep 19:11:51 BST 2021
+# Last Change       - Thu  2 Sep 19:13:35 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
-		  -E, --noexecs            - Omit 'exec' lines from output.
+		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
 
 		A key binding's action being prepended with an exclamation mark ('!')
 		indicates it's a shell command, and not a native i3-wm command.
