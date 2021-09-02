@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu  2 Sep 19:13:35 BST 2021
+# Last Change       - Thu  2 Sep 19:20:34 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,9 +11,7 @@
 #
 # Features:
 #
-#TODO: Capitalize single-letter keys.
 #TODO: Make initial '!' stand out more, perhaps by making it bright red.
-#TODO: Capitalize the first letter of words like 'shift' and 'ctrl'.
 #
 # Bugs:
 #
@@ -76,11 +74,26 @@ fi
 Count=0
 KeysLenMax=0
 while read Line; do
+	CurrentKey=
+
 	case $Line in
 		'#'*|'')
 			continue ;;
 		bindsym\ *)
 			read _ Keys Action <<< "$Line"
+
+			# Process each key in order to capitalize the first character. As
+			# a bonus, this capitalizes each of the single letters.
+			IFS='+' read -a KeyParts <<< "$Keys"
+			for KeyPart in "${KeyParts[@]}"; {
+				if (( ${#KeyPart} == 0 )); then
+					CurrentKey+="${KeyPart^}+"
+				else
+					CurrentKey+="${KeyPart^}+"
+				fi
+			}
+
+			Keys=${CurrentKey%+}
 
 			if [ "$NoExecs" == 'True' ]; then
 				case $Action in
