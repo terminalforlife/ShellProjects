@@ -86,11 +86,7 @@ while read Line; do
 			# a bonus, this capitalizes each of the single letters.
 			IFS='+' read -a KeyParts <<< "$Keys"
 			for KeyPart in "${KeyParts[@]}"; {
-				if (( ${#KeyPart} == 0 )); then
-					CurrentKey+="${KeyPart^}+"
-				else
-					CurrentKey+="${KeyPart^}+"
-				fi
+				CurrentKey+="${KeyPart^}+"
 			}
 
 			Keys=${CurrentKey%+}
