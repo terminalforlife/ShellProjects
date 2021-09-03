@@ -3,14 +3,26 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-set
 # Started On        - Wed 24 Jan 17:31:41 GMT 2018
-# Last Change       - Thu 15 Jul 14:41:08 BST 2021
+# Last Change       - Fri  3 Sep 13:10:39 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
+#   dpkg (>= 1.19.0.5)
+#------------------------------------------------------------------------------
 
-
-CurVer='2021-07-15'
-Progrm=${0##*/}
+CurVer='2021-09-03'
+Progrm='lspkg-set'
 
 Usage(){
 	while read -r CurLine; do
