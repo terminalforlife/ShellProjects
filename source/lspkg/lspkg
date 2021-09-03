@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Tue  2 Mar 14:47:54 GMT 2021
+# Last Change       - Fri  3 Sep 12:50:19 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   dpkg (>= 1.19.0.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-03-02'
+CurVer='2021-09-03'
 Progrm='lspkg'
 
 Usage(){
@@ -62,11 +62,12 @@ while [ "$1" ]; do
 		--match-with)
 			shift
 
-			if [[ $1 =~ ^(glob|regex)$ ]]; then
-				MatchWith=$1
-			else
-				Err 1 'Incorrect match type provided.'
-			fi ;;
+			case $1 in
+				glob|regex)
+					MatchWith=$1 ;;
+				*)
+					Err 1 'Incorrect match type provided.' ;;
+			esac ;;
 		--name-only|-n)
 			NameOnly='true' ;;
 		--show-arch|-a)
@@ -85,7 +86,7 @@ if [ "$IgnoreCase" == 'true' -a "$MatchWith" == 'glob' ]; then
 	Err 1 'Case-insensitive glob matching is not supported.'
 fi
 
-Package=($@)
+Package=("$@")
 
 type -P dpkg-query 1> /dev/null 2>&1 ||
 	Err 1 "Dependency 'dpkg-query' not met."
