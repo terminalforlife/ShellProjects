@@ -3,14 +3,24 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Sun 17 Jan 01:15:39 GMT 2021
+# Last Change       - Fri  3 Sep 13:26:33 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# Features:
+#
 #TODO: Use `/sys/class/power_supply` instead, or perhaps as an alternative.
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.3-14)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-17'
+CurVer='2021-09-03'
 Progrm=${0##*/}
 
 Usage(){
@@ -32,7 +42,7 @@ Usage(){
 
 Err(){
 	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	(( $1 > 0 )) && exit $1
 }
 
 Domain='https://github.com'
@@ -80,7 +90,7 @@ while [ "$1" ]; do
 done
 
 DepCount=0
-for Dep in notify-send on_ac_power sleep; do
+for Dep in notify-send on_ac_power sleep upower; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		let DepCount++
@@ -92,16 +102,14 @@ done
 if ! on_ac_power; then
 	while IFS=':' read -a Line; do
 		if [ "${Line[0]// }" == 'percentage' ]; then
-			if ! [[ ${Line[1]// } =~ ^[0-9]+%$ ]]; then
+			if ! [[ ${Line[1]// } =~ ^[[:digit:]]+%$ ]]; then
 				notify-send --urgency=critical 'Unable to get valid battery value.'
 				Err 0 'Unable to get valid percentile.'
 			else
-				if [ ${Line[1]%\%} -le $Limit ]; then
+				if (( ${Line[1]%\%} <= Limit )); then
 					notify-send --urgency=critical 'Battery is critically low!'
 
-					(
-						"$@"
-					)
+					($*)
 				fi
 			fi
 
