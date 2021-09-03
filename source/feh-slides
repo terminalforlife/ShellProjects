@@ -3,11 +3,11 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Sun 29 Nov 04:02:34 GMT 2020
+# Last Change       - Fri  3 Sep 10:57:11 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Super-simple Bourne POSIX desktop wallpaper slideshow.
+# Simple desktop wallpaper slideshow using feh(1).
 #
 # Dependencies:
 #
@@ -15,8 +15,8 @@
 #   feh (>= 2.23.2)
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-29'
-Progrm=${0##*/}
+CurVer='2021-09-03'
+Progrm='feh-slides'
 
 Usage(){
 	while read -r CurLine; do
@@ -30,7 +30,7 @@ Usage(){
 
 		\r  Where PATH is the directory in which the chosen images are stored.
 
-		\r  If no interval is specified, the default of 5 seconds is chosen.
+		\r  If no interval is specified, the default is 5 seconds.
 	EOF
 }
 
@@ -39,7 +39,7 @@ Err(){
 	[ $1 -gt 0 ] && exit $1
 }
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -55,6 +55,12 @@ while [ "$1" ]; do
 	shift
 done
 
+if [ $# -gt 1 ]; then
+	Err 1 "Only one wallpaper directory may be specified."
+elif [ $# -eq 0 ]; then
+	Err 1 "A wallpaper directory must be specified."
+fi
+
 DepCount=0
 for Dep in sleep feh; do
 	if ! command -V "$Dep" 1> /dev/null 2>&1; then
@@ -65,21 +71,14 @@ done
 
 [ $DepCount -gt 0 ] && exit 1
 
-if [ $# -gt 1 ]; then
-	Err 1 "Only one wallpaper directory may be specified."
-elif [ $# -eq 0 ]; then
-	Err 1 "A wallpaper directory must be specified."
-fi
-
 if [ -d "$1" ]; then
 	while :; do
 		for CurFile in "${1%/}"/*; do
 			[ -f "$CurFile" ] || continue
+			[ -r "$CurFile" ] || continue
 
-			if ! feh --no-fehbg --bg-center "$CurFile"; then
-				Err 1 'Non-zero exit status from feh(1).'
-			elif ! sleep ${Interval:-5}s 1> /dev/null 2>&1; then
-				Err 1 'Invalid interval time specified.'
+			if feh --no-fehbg --bg-center "$CurFile"; then
+				sleep ${Interval:-5}s
 			fi
 		done
 	done
