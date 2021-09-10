@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat 11 Sep 00:28:17 BST 2021
+# Last Change       - Sat 11 Sep 00:37:34 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,6 +34,7 @@ Usage(){
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
+		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
 		  -o, --override           - Override the default FILE locations.
 
 		A key binding's action being prepended with an exclamation mark ('!')
@@ -53,7 +54,11 @@ while [ -n "$1" ]; do
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--noexecs|-E)
+			NoExecsFlag=$1
 			NoExecs='True' ;;
+		--execs|-e)
+			ExecsFlag=$1
+			Execs='True' ;;
 		--override|-o)
 			Override='True' ;;
 		-*)
@@ -63,6 +68,10 @@ while [ -n "$1" ]; do
 	esac
 	shift
 done
+
+if [ "$Execs" == 'True' -a "$NoExecs" == 'True' ]; then
+	Err 1 "OPTs '$NoExecsFlag' & '$ExecsFlag' are incompatible."
+fi
 
 #----------------------------------------Confirm Suitable File Found & Readable
 
@@ -112,7 +121,15 @@ while read Line; do
 
 			if [ "$NoExecs" == 'True' ]; then
 				case $Action in
-					exec\ *|exec_always\ *) continue ;;
+					exec\ *|exec_always\ *)
+						continue ;;
+				esac
+			elif [ "$Execs" == 'True' ]; then
+				case $Action in
+					exec\ *|exec_always\ *)
+						;;
+					*)
+						continue ;;
 				esac
 			fi
 
