@@ -3,11 +3,11 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu  2 Sep 19:28:58 BST 2021
+# Last Change       - Sat 11 Sep 00:28:17 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# A simple pure-BASH solution for listing your key bindings to i3-wm.
+# A simple pure-BASH solution for listing your key bindings to i3-wm/i3-gaps.
 #
 # Features:
 #
@@ -22,8 +22,8 @@
 #   bash (>= 4.4.18-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-02'
-Progrm=${0##*/}
+CurVer='2021-09-11'
+Progrm='csi3'
 
 Usage(){
 	while read; do
@@ -34,6 +34,7 @@ Usage(){
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
+		  -o, --override           - Override the default FILE locations.
 
 		A key binding's action being prepended with an exclamation mark ('!')
 		indicates it's a shell command, and not a native i3-wm command.
@@ -45,7 +46,7 @@ Err(){
 	[ $1 -gt 0 ] && exit $1
 }
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -53,6 +54,8 @@ while [ "$1" ]; do
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--noexecs|-E)
 			NoExecs='True' ;;
+		--override|-o)
+			Override='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -61,13 +64,29 @@ while [ "$1" ]; do
 	shift
 done
 
-File="$HOME/.config/i3/config"
+#----------------------------------------Confirm Suitable File Found & Readable
 
-if ! [ -f "$File" ]; then
-	Err 1 'Configuration FILE not found.'
-elif ! [ -r "$File" ]; then
-	Err 1 'Configuration FILE unreadable.'
+[ -n "$1" ] && File+=("$1")
+
+if [ "$Override" != 'True' ]; then
+	Places=(
+		"$HOME/.config/i3/config"
+		"$HOME/.i3/config"
+	)
 fi
+
+for Place in "${Places[@]}"; {
+	if [ -f "$Place" ]; then
+		if [ -r "$Place" ]; then
+			File=$Place
+			break
+		else
+			Err 1 "File '$Place' unreadable."
+		fi
+	fi
+}
+
+[ -z "$File" ] && Err 1 'Unable to find a suitable configuration file.'
 
 #-------------------------------------------------------------------Gather Data
 
