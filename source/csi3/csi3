@@ -61,7 +61,7 @@ while [ "$1" ]; do
 	shift
 done
 
-[ -z "$1" ] && File="$HOME/.config/i3/config"
+File="$HOME/.config/i3/config"
 
 if ! [ -f "$File" ]; then
 	Err 1 'Configuration FILE not found.'
