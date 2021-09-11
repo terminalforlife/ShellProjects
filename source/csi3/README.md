@@ -4,7 +4,7 @@ Simple, lightweight, and portable command-line `i3-wm` and `i3-gaps` cheat sheet
 
 # Caveat(s)
 
-Unfortunately, CSi3 may not work on everyone's configuration file. If you have standard 'config' syntax, use the `bindsym` command, and don't use variables other than `$mod`, it should work swimmingly. Note that `$mod`, if used, will itself be displayed in the list of bindings (for now). For an example of a configuration file with which CSi3 behaves, check out my _i3Config_ repository here on my GitHub.
+Unfortunately, CSi3 may not work on everyone's configuration file. If you have standard 'config' syntax and use the `bindsym` command, it should work swimmingly, but note that `$mod` and other variables, if used, will themselves be displayed in the list of bindings — for now. For an example of a configuration file with which CSi3 well behaves, check out my _i3Config_ repository here on my GitHub.
 
 # Installation Instructions
 
