@@ -7,7 +7,7 @@ Thank you for your interest. Despite the non-descript name of this repository, i
 
 Some of the programs within this repository were written and are maintained for a Bourne POSIX-compliant shell (with [Yash](https://yash.osdn.jp/) as guidance), and others are written for the Bourne Again Shell.
 
-As of 2021-01-26, here are some highlights:
+As of 2021-09-11, here are some highlights:
 
   * [AutoExec (AE)](source/autoexec) - Development tool for automatic execution of files
   * [BackMeUp](source/backmeup) - Simple and portable solution to HOME backup
