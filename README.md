@@ -9,15 +9,16 @@ Some of the programs within this repository were written and are maintained for 
 
 As of 2021-01-26, here are some highlights:
 
-  * [autoexec](source/autoexec) - Development tool for automatic execution of files
-  * [backmeup](source/backmeup) - Simple and portable solution to HOME backup
-  * [cito](source/cito) - Portable installer for local or GitHub files
-  * [fetcher](source/fetcher) - Simple interactive multi-file downloader for the terminal.
-  * [glkfu](source/glkfu) - Easily compile & build Debian packages for Linux kernels
+  * [AutoExec (AE)](source/autoexec) - Development tool for automatic execution of files
+  * [BackMeUp](source/backmeup) - Simple and portable solution to HOME backup
+  * [CSi3](source/csi3) - command-line cheat sheet for i3-wm/i3-gaps
+  * [Cito](source/cito) - Portable installer for local or GitHub files
+  * [Fetcher](source/fetcher) - Simple interactive multi-file downloader for the terminal.
+  * [GLKFU](source/glkfu) - Easily compile & build Debian packages for Linux kernels
+  * [LSPKG](source/lspkg) - Search through, test for, and list out installed packages
+  * [RMNE](source/rmne) - Remove all of the non-essential Debian packages
+  * [Simplify-Ubuntu](source/simplify-ubuntu) - De-bloat Ubuntu by interactively removing unneeded packages.
   * [libtflbp-sh](source/libtflbp-sh) - Function library for Bourne Shell programs.
-  * [lspkg](source/lspkg) - Search through, test for, and list out installed packages
-  * [rmne](source/rmne) - Remove all of the non-essential Debian packages
-  * [simplify-ubuntu](source/simplify-ubuntu) - De-bloat Ubuntu by interactively removing unneeded packages.
 
 # Bug/Issue Reporting
 
