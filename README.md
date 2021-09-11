@@ -11,7 +11,7 @@ As of 2021-01-26, here are some highlights:
 
   * [AutoExec (AE)](source/autoexec) - Development tool for automatic execution of files
   * [BackMeUp](source/backmeup) - Simple and portable solution to HOME backup
-  * [CSi3](source/csi3) - command-line cheat sheet for i3-wm/i3-gaps
+  * [CSi3](source/csi3) - Command-line cheat sheet for i3-wm/i3-gaps
   * [Cito](source/cito) - Portable installer for local or GitHub files
   * [Fetcher](source/fetcher) - Simple interactive multi-file downloader for the terminal.
   * [GLKFU](source/glkfu) - Easily compile & build Debian packages for Linux kernels
