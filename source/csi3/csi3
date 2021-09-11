@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat 11 Sep 13:03:54 BST 2021
+# Last Change       - Sat 11 Sep 23:45:08 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -116,6 +116,10 @@ while read Line; do
 	case $Line in
 		'#'*|'')
 			continue ;;
+		'set $'[Mm][Oo][Dd]*)
+			ModVar=${Line#set }
+			ModVar=${ModVar% *}
+			ModKey=${Line#set \$* } ;;
 		bindsym\ *)
 			read _ Keys Action <<< "$Line"
 
@@ -123,6 +127,8 @@ while read Line; do
 			# a bonus, this capitalizes each of the single letters.
 			IFS='+' read -a KeyParts <<< "$Keys"
 			for KeyPart in "${KeyParts[@]}"; {
+				[ "$KeyPart" == "$ModVar" ] && KeyPart=$ModKey
+
 				CurrentKey+="${KeyPart^}+"
 			}
 
