@@ -2,6 +2,10 @@
 
 Simple, lightweight, and portable command-line `i3-wm` and `i3-gaps` cheat sheet, supporting the ability to filter output.
 
+# Caveat(s)
+
+Unfortunately, CSi3 may not work on everyone's configuration file. If you have standard 'config' syntax, use the `bindsym` command, and don't use variables other than `$mod`, it should work swimmingly. Note that `$mod`, if used, will itself be displayed in the list of bindings (for now). For an example of a configuration file with which CSi3 behaves, check out my _i3Config_ repository here on my GitHub.
+
 # Installation Instructions
 
 Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via CSi3's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/csi3/csi3-installer).
