@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat 11 Sep 00:37:34 BST 2021
+# Last Change       - Sat 11 Sep 13:03:54 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,6 +33,7 @@ Usage(){
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  -C, --nocolor            - Disable ANSI color escape sequences.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
 		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
 		  -o, --override           - Override the default FILE locations.
@@ -47,12 +48,20 @@ Err(){
 	[ $1 -gt 0 ] && exit $1
 }
 
+Red='\e[91m'
+Grey='\e[37m'
+Reset='\e[0m'
+
 while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
+		--nocolor|-C)
+			Red=
+			Grey=
+			Reset= ;;
 		--noexecs|-E)
 			NoExecsFlag=$1
 			NoExecs='True' ;;
@@ -157,9 +166,9 @@ until [ $Count -gt ${#Bindings[@]} ]; do
 		if [ $Count -eq "${Binding%%_*}" ]; then
 			printf '%*s ' $KeysLenMax "${Binding#*_}"
 			if [[ ${Bindings[$Binding]} == \!* ]]; then
-				printf '\e[91m!\e[37m%s\e[0m\n' "${Bindings[$Binding]#!}"
+				printf "$Red!\e[37m%s$Reset\n" "${Bindings[$Binding]#!}"
 			else
-				printf '\e[37m%s\e[0m\n' "${Bindings[$Binding]}"
+				printf "$Grey%s$Reset\n" "${Bindings[$Binding]}"
 			fi
 
 			let Count++
