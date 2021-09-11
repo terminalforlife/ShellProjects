@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Sat 11 Sep 12:22:29 BST 2021
+# Last Change       - Sat 11 Sep 13:17:37 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/csi3' '/usr/bin/csi3-set'; do
+for File in '/usr/bin/csi3'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0
