@@ -6,6 +6,8 @@ Simple, lightweight, and portable command-line `i3-wm` and `i3-gaps` cheat sheet
 
 Unfortunately, CSi3 may not work on everyone's configuration file. If you have standard 'config' syntax and use the `bindsym` command, it should work swimmingly, but note that `$mod` and other variables, if used, will themselves be displayed in the list of bindings — for now. For an example of a configuration file with which CSi3 well behaves, check out my _i3Config_ repository here on my GitHub.
 
+Modes are not currently (if ever) supported. Although the bindings should be listed, it would be without the context of the mode, unfortunately.
+
 # Installation Instructions
 
 Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via CSi3's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/csi3/csi3-installer).
