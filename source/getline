@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Sun 22 Nov 15:38:12 GMT 2020
+# Last Change       - Mon 13 Sep 10:54:30 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -25,7 +25,7 @@
 #   bash (>= 4.3-14)
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-22'
+CurVer='2021-09-13'
 Progrm=${0##*/}
 
 Usage(){
@@ -290,7 +290,7 @@ for File in $FileList; {
 			gmatch=*)
 				# If the current line contains the match given by
 				# the user and stored in Instruct=*. Uses globbing.
-				if [[ $REPLY == *${Instruct/*=}* ]]; then
+				if [[ $REPLY == ${Instruct/*=} ]]; then
 					LineNumFunc "$LineCount" "$REPLY" "\\n"
 				fi ;;
 			rmatch=*)
