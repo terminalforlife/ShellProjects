@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat 11 Sep 23:45:08 BST 2021
+# Last Change       - Sun 12 Sep 19:18:17 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.4.18-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-11'
+CurVer='2021-09-12'
 Progrm='csi3'
 
 Usage(){
@@ -114,8 +114,6 @@ while read Line; do
 	CurrentKey=
 
 	case $Line in
-		'#'*|'')
-			continue ;;
 		'set $'[Mm][Oo][Dd]*)
 			ModVar=${Line#set }
 			ModVar=${ModVar% *}
