@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/nwchk
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/nwchk/completions
+# Started On        - Wed 12 Feb 18:58:13 GMT 2020
+# Last Change       - Tue 14 Sep 12:11:09 BST 2021
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is the bash completion script for `nwchk`.
+#------------------------------------------------------------------------------
+
+_nwchk(){
+	while read; do
+		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
+			Option=${REPLY%% - *}
+			for Arg in ${Option//,/}; {
+				Args+="${Arg##[^-]*} "
+			}
+		fi
+	done <<< "$(nwchk -h)"
+
+	if [[ $2 == -* ]]; then
+		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	elif [ "$3" == '-L' ] || [ "$3" == '--logfile' ]; then
+		#TODO: Complete this properly... somehow.
+		#COMPREPLY=(`compgen -W "$(compgen -o default)" -- "$2"`)
+		:
+	fi
+
+	unset Option Arg Args
+}
+
+complete -F _nwchk nwchk
