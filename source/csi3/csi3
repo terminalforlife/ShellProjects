@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sun 12 Sep 19:18:17 BST 2021
+# Last Change       - Sun 19 Sep 12:54:02 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.4.18-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-12'
+CurVer='2021-09-19'
 Progrm='csi3'
 
 Usage(){
@@ -40,6 +40,10 @@ Usage(){
 
 		A key binding's action being prepended with an exclamation mark ('!')
 		indicates it's a shell command, and not a native i3-wm command.
+
+		If a \$mod (case-insensitive) variable is set for the primary modifier
+		key, in the i3 configuration file, it should be correctly parsed. Other
+		variables will not be parsed.
 	EOF
 }
 
