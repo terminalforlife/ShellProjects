@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sun 19 Sep 12:54:02 BST 2021
+# Last Change       - Wed 22 Sep 19:28:23 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.4.18-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-19'
+CurVer='2021-09-22'
 Progrm='csi3'
 
 Usage(){
@@ -44,6 +44,8 @@ Usage(){
 		If a \$mod (case-insensitive) variable is set for the primary modifier
 		key, in the i3 configuration file, it should be correctly parsed. Other
 		variables will not be parsed.
+
+		Modes are not handled.
 	EOF
 }
 
