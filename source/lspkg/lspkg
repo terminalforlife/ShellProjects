@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Fri  3 Sep 12:50:19 BST 2021
+# Last Change       - Mon  4 Oct 23:52:28 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   dpkg (>= 1.19.0.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-03'
+CurVer='2021-10-04'
 Progrm='lspkg'
 
 Usage(){
@@ -121,14 +121,14 @@ while read -a CurLine; do
 
 		# No new line character as this is an array. Otherwise every word
 		# would print on a new line. The final new line is added when the
-		# text is displayed on the screen with echo.
+		# text is displayed on the screen with `printf`.
 		printf -v Buffer '%s ' ${CurLine[@]/ii}
 		[ "$Buffer" ] || continue
 
 		# If there are user-specified matches to find, then iterate over
 		# them by checking to see if each current package matches each one
 		# in the list of ones the user specified.
-		if [ "${Package[0]}" ]; then
+		if [ -n "${Package[0]}" ]; then
 			UserSearch='true'
 
 			for CurPkg in ${Package[@]}; {
@@ -140,13 +140,9 @@ while read -a CurLine; do
 
 				case ${MatchWith:-UNSET} in
 					glob)
-						if [[ $Filter == $CurPkg ]]; then
-							Match "${Buffer% }"
-						fi ;;
+						[[ $Filter == $CurPkg ]] && Match "${Buffer% }" ;;
 					regex|*)
-						if [[ $Filter =~ $CurPkg ]]; then
-							Match "${Buffer% }"
-						fi ;;
+						[[ $Filter =~ $CurPkg ]] && Match "${Buffer% }" ;;
 				esac
 			}
 		else
