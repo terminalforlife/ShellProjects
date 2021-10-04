@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Mon  4 Oct 23:37:56 BST 2021
+# Last Change       - Mon  4 Oct 23:45:52 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -115,7 +115,8 @@ for Place in "${Places[@]}"; {
 #-------------------------------------------------------------------Gather Data
 
 # Capitalize the first character of each word. Intended to be used with
-# separate arguments -- ideally a quoted array.
+# separate arguments -- ideally a quoted array. This will create a trailing '+'
+# which should be removed with Parameter Expansion before being used.
 Capitalize() { printf '%s+' "${@^}"; }
 
 Count=0
@@ -161,11 +162,13 @@ while read Line; do
 
 			let Count++
 
+			# Using the `$Count` variable in order to maintain the original
+			# order, otherwise BASH will butcher the order, unfortunately.
 			declare -A Bindings["${Count}_$Keys"]=$Action ;;
 	esac
 done < "$File"
 
-#---------------------------------------------------------------Display Results
+#----------------Display Results, Using `$Count` to Maintain the Original Order
 
 Count=1
 until [ $Count -gt ${#Bindings[@]} ]; do
