@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 22 Sep 19:28:23 BST 2021
+# Last Change       - Mon  4 Oct 23:37:56 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.4.18-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-22'
+CurVer='2021-10-04'
 Progrm='csi3'
 
 Usage(){
@@ -114,6 +114,10 @@ for Place in "${Places[@]}"; {
 
 #-------------------------------------------------------------------Gather Data
 
+# Capitalize the first character of each word. Intended to be used with
+# separate arguments -- ideally a quoted array.
+Capitalize() { printf '%s+' "${@^}"; }
+
 Count=0
 KeysLenMax=0
 while read Line; do
@@ -127,16 +131,9 @@ while read Line; do
 		bindsym\ *)
 			read _ Keys Action <<< "$Line"
 
-			# Process each key in order to capitalize the first character. As
-			# a bonus, this capitalizes each of the single letters.
-			IFS='+' read -a KeyParts <<< "$Keys"
-			for KeyPart in "${KeyParts[@]}"; {
-				[ "$KeyPart" == "$ModVar" ] && KeyPart=$ModKey
-
-				CurrentKey+="${KeyPart^}+"
-			}
-
-			Keys=${CurrentKey%+}
+			# Capitalize the first character of each key.
+			Keys=`Capitalize ${Keys//+/ }`
+			Keys=${Keys%+}
 
 			if [ "$NoExecs" == 'True' ]; then
 				case $Action in
