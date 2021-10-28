@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Wed  1 Sep 19:49:25 BST 2021
+# Last Change       - Mon 27 Sep 11:55:30 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-01'
+CurVer='2021-09-27'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -75,7 +75,7 @@ Spinner='True'
 Time='False'
 WaitMSG='True'
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--)
 			break ;;
