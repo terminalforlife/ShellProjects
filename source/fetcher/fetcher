@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Tue  2 Feb 14:21:16 GMT 2021
+# Last Change       - Thu 28 Oct 17:51:13 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,6 +18,9 @@
 #TODO: Add paging support via less(1) and more(1).
 #TODO: Confirm URLs are valid.
 #TODO: Consider handling long URLs when using 'list' or 'remove'.
+#TODO: Automatically remove entries for links to files already downloaded.
+#
+#      This should be accompanied by a flag to disable this feature, if needed.
 #
 # Bugs:
 #
