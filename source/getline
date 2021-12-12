@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Mon 13 Sep 10:54:30 BST 2021
+# Last Change       - Mon 13 Sep 10:57:04 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,7 +18,6 @@
 # Bugs:
 #
 #TODO: Does 'for CHAR in' line include spaces and/or tabs? Find out.
-#TODO: Why won't 'line' action display >1 line at a time?
 #
 # Dependencies:
 #
