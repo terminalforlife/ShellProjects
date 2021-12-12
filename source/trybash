@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/trybash
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
-# Last Change       - Mon  6 Dec 01:51:55 GMT 2021
+# Last Change       - Mon  6 Dec 01:59:48 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -26,11 +26,11 @@ URL='https://mirror.lyrahosting.com/gnu/bash'
 # tarball or the extracted, configured, and compiled contents.
 NoCleanUp='False'
 
-# Stting this to 'True' will tell the new BASH instance to ignore most of your
+# Setting this to 'True' will tell the new BASH instance to ignore most of your
 # BASH configurations, like '~/.bashrc'. This actually uses the `--norc` flag
 # with BASH, but I cannot guarantee all versions will support this flag or work
 # in the same way.
-NoConfig='True'
+NoConfig='False'
 
 Err(){
 	printf '\e[91mErr\e[0m: %s\n' "$2" 1>&2
