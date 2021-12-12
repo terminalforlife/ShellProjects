@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 27 Sep 11:55:30 BST 2021
+# Last Change       - Sat 11 Dec 08:24:50 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-27'
+CurVer='2021-12-11'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -63,7 +63,7 @@ Err(){
 	(( $1 >= 1 )) && exit $1
 }
 
-kIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
+TIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
 
 Check='False'
 Color='True'
@@ -142,7 +142,7 @@ fi
 ExecFile=$1; shift
 
 DepCount=0
-for Dep in file tput sleep stat realpath; {
+for Dep in file tput stat realpath; {
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		let DepCount++
@@ -190,15 +190,9 @@ trap 'SignalHandler' SIGINT EXIT
 [ "$Once" == 'true' ] || tput smcup
 
 if [ "$Once" != 'true' ]; then
-	WinchHandler(){
-		tput clear
-		Lines=`tput lines`
-		Columns=`tput cols`
-	}
-
-	trap 'WinchHandler' WINCH
-
-	WinchHandler
+	shopt -s checkwinsize
+	tput clear
+	trap 'tput clear' WINCH
 fi
 
 Interpreter(){
@@ -283,7 +277,7 @@ while :; do
 	if [ "$Once" != 'true' ]; then
 		# Have the exit status on the bottom-right of the terminal.
 		if [ "$ExitStatus" == 'True' ]; then
-			tput cup $Lines $((Columns - 3))
+			tput cup $LINES $((COLUMNS - 3))
 
 			if [ "$Color" == 'True' ]; then
 				if (( Exit == 0 )); then
@@ -299,7 +293,7 @@ while :; do
 		if [ "$WaitMSG" == 'True' ]; then
 			if [ "$Spinner" == 'True' ]; then
 				for Char in '|' '/' '-' '\'; {
-					tput cud $Lines
+					tput cud $LINES
 
 					if [ "$Color" == 'True' ]; then
 						printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
@@ -307,10 +301,10 @@ while :; do
 						printf '\r[%s] Waiting for changes... ' "$Char"
 					fi
 
-					sleep 0.04
+					read -n 1 -st 0.04
 				}
 			else
-				tput cud $Lines
+				tput cud $LINES
 
 				if [ "$Color" == 'True' ]; then
 					printf '\r\e[2;37mWaiting for changes...\e[0m '
@@ -323,5 +317,5 @@ while :; do
 
 	[ "$Once" == 'true' ] && exit 0
 
-	sleep $Refresh
+	read -n 1 -st $Refresh
 done
