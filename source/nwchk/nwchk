@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/nwchk
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/nwchk
+# Project Name      - Extra/source/nwchk/nwchk
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Tue 14 Sep 11:31:44 BST 2021
+# Last Change       - Tue 14 Sep 11:39:27 BST 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,7 +11,8 @@
 #
 # This is a daemon-like shell program, written to be executed once, and left
 # running, like a typical daemon, unless otherwise instructed. One example of a
-# place to execute NWChk, would be 'rc.local' in '/etc'.
+# place to execute NWChk, would be 'rc.local' in '/etc'. NWChk makes use of the
+# ip(8) command, so does not support older systems with only ifconfig(8).
 #
 # Features:
 #
