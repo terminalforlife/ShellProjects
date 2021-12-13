@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 11 Dec 08:24:50 GMT 2021
+# Last Change       - Mon 13 Dec 20:53:19 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,6 +12,15 @@
 # N/A
 #
 # Bugs:
+#
+#TODO: AE isn't using the shebang properly.
+#
+#      I noticed this with a shebang of:
+#
+#        #!/home/ichy/bash-5.1/bash
+#
+#      But instead of AE using that, it just uses the standard BASH 4.4.20 on
+#      my system, in PATH. It does work when using the `-e` flag(s), however.
 #
 #TODO: Using AutoExec for man pages (pagers) is buggy, but functional.
 #
@@ -28,7 +37,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-11'
+CurVer='2021-12-13'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
