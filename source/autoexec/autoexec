@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 13 Dec 20:53:19 GMT 2021
+# Last Change       - Mon 13 Dec 21:10:30 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,15 +12,6 @@
 # N/A
 #
 # Bugs:
-#
-#TODO: AE isn't using the shebang properly.
-#
-#      I noticed this with a shebang of:
-#
-#        #!/home/ichy/bash-5.1/bash
-#
-#      But instead of AE using that, it just uses the standard BASH 4.4.20 on
-#      my system, in PATH. It does work when using the `-e` flag(s), however.
 #
 #TODO: Using AutoExec for man pages (pagers) is buggy, but functional.
 #
@@ -204,15 +195,6 @@ if [ "$Once" != 'true' ]; then
 	trap 'tput clear' WINCH
 fi
 
-Interpreter(){
-	if ! type -P "${1%% *}" &> /dev/null; then
-		InterpreterMissing=$1
-		exit 1
-	fi
-
-	Exec=$1
-}
-
 while :; do
 	# Determine the interpreter to use.
 	if [ -z "$Exec" ]; then
@@ -225,13 +207,13 @@ while :; do
 
 		SheBangMain=${SheBang#\#\!}
 		SheBangBase=${SheBangMain##*/}
-		case ${SheBangBase%% *} in
-			env)
-				SheBangBaseEnv=${SheBangBase#env }
-				Interpreter "${SheBangBaseEnv%% *}" ;;
-			*)
-				Interpreter "$SheBangBase" ;;
-		esac
+
+		if ! type -P "${SheBangMain%% *}" &> /dev/null; then
+			InterpreterMissing=$SheBangMain
+			exit 1
+		fi
+
+		Exec=$SheBangMain
 	fi
 
 	if [ -f "$ExecFile" ] && [ -r "$ExecFile" ]; then
