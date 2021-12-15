@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 13 Dec 21:10:30 GMT 2021
+# Last Change       - Mon 13 Dec 21:33:28 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -227,12 +227,12 @@ while :; do
 				unset Errors
 				case ${Exec%% *} in
 					bash|zsh)
-						${Exec%% *} -n "$ExecFile" || Errors='True' ;;
+						$Exec -n "$ExecFile" || Errors='True' ;;
 					sh)
 						File=`type -P sh`
 						Link=`realpath "$File"`
 						if [ "$Link" == '/bin/dash' ]; then
-							dash -n "$ExecFile" || Errors='True'
+							$Exec -n "$ExecFile" || Errors='True'
 						else
 							UnsupportedCheck='True'
 						fi ;;
