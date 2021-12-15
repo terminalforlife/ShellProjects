@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Mon  4 Oct 23:52:28 BST 2021
+# Last Change       - Wed 15 Dec 22:15:09 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   dpkg (>= 1.19.0.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-10-04'
+CurVer='2021-12-15'
 Progrm='lspkg'
 
 Usage(){
@@ -42,13 +42,13 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 PkgName='{Package}'
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -88,7 +88,7 @@ fi
 
 Package=("$@")
 
-type -P dpkg-query 1> /dev/null 2>&1 ||
+type -P dpkg-query &> /dev/null ||
 	Err 1 "Dependency 'dpkg-query' not met."
 
 PkgList(){
@@ -97,7 +97,7 @@ PkgList(){
 }
 
 Match(){
-	SearchResult+=1
+	(( SearchResult++ ))
 
 	if ! [ "$NoDescribe" == 'true' ]; then
 		printf '%s\n' "$1"
@@ -106,8 +106,8 @@ Match(){
 	fi
 }
 
-declare -i Count=0
-declare -i SearchResult=0
+Count=0
+SearchResult=0
 while read -a CurLine; do
 	if ! [ "$ShowArch" == 'true' ]; then
 		# Remove duplicate entries. This works because dpkg-query is outputting in
@@ -117,13 +117,13 @@ while read -a CurLine; do
 
 	if [ "${CurLine[0]}" == 'ii' ]; then
 		unset Buffer
-		Count+=1
+		(( Count++ ))
 
 		# No new line character as this is an array. Otherwise every word
 		# would print on a new line. The final new line is added when the
 		# text is displayed on the screen with `printf`.
 		printf -v Buffer '%s ' ${CurLine[@]/ii}
-		[ "$Buffer" ] || continue
+		[ -n "$Buffer" ] || continue
 
 		# If there are user-specified matches to find, then iterate over
 		# them by checking to see if each current package matches each one
@@ -164,11 +164,11 @@ if [ "$DoCount" == 'true' ]; then
 	if ! [ "$UserSearch" == 'true' ]; then
 		printf "\nTOTAL: %'d\n" "$Count"
 	else
-		[ $SearchResult -eq 0 ] && S= || S="\n"
-		printf "${S}TOTAL: %'d/%'d\n" "$SearchResult" "$Count"
+		(( SearchResult == 0 )) && S= || S="\n"
+		printf "${S}TOTAL: %'d/%'d\n" $SearchResult $Count
 	fi
 fi
 
-if [ "${Package[*]}" -a ! $SearchResult -gt 0 ]; then
+if [ -n "${Package[*]}" ] && ! (( SearchResult > 0 )); then
 	exit 4
 fi
