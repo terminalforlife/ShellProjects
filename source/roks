@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu 16 Dec 00:06:33 GMT 2021
+# Last Change       - Thu 16 Dec 16:27:50 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -54,12 +54,12 @@ Usage(){
 
 Err(){
 	printf 'Err: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	(( $1 > 0 )) && exit $1
 }
 
-declare -i KernKeep=2
+KernKeep=2
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -70,7 +70,7 @@ while [ "$1" ]; do
 			shift
 
 			if [[ $1 =~ ^[0-9]+$ ]]; then
-				if [ $1 -eq 0 ]; then
+				if (( $1 == 0 )); then
 					Err 1 'Invalid number of kernels selected.'
 				else
 					KernKeep=$1
@@ -90,49 +90,42 @@ while [ "$1" ]; do
 	shift
 done
 
-declare -i DepCount=0
+DepCount=0
 for CurDep in uname apt-get linux-version; {
-	if ! type -P "$CurDep" > /dev/null 2>&1; then
+	if ! type -P "$CurDep" &> /dev/null; then
 		Err 0 "Dependency '$CurDep' not met."
-		DepCount+=1
+		(( DepCount++ ))
 	fi
 }
 
-[ $DepCount -eq 0 ] || exit 1
-
-[ "$DebugMe" == 'true' ] && set -x
+(( DepCount > 0 )) && exit 1
 
 if [ -f /proc/version -a -r /proc/version ]; then
 	read -a VerStr < /proc/version
-	CurKern="${VerStr[2]}"
+	CurKern=${VerStr[2]}
 elif ! type -P uname > /dev/null 2>&1; then
 	CurKern=`uname -r`
 else
-	Err 1 "Unable to determine current kernel version."
+	Err 1 'Unable to determine current kernel version.'
 fi
 
-if ! [ $UID -eq 0 ]; then
-	Err 1 "Root access is required for system-wide changes."
-fi
+(( UID == 0 )) || Err 1 'Root access is required for system-wide changes.'
 
-KernKeep+=2
+(( KernKeep++ ))
 KernList=`linux-version list`
-if ! [ "$KernList" ]; then
-	Err 1 "No kernels were found."
-elif ! [ "$KernList" ]; then
-	Err 1 "No kernels were selected for removal."
+if ! [ -n "$KernList" ]; then
+	Err 1 'No kernels were found.'
+elif ! [ -n "$KernList" ]; then
+	Err 1 'No kernels were selected for removal.'
 else
-	declare -a KernRemove=()
 	for CurIter in $KernList; {
 		if ! [ "$CurIter" == "$CurKern" ]; then
-			KernRemove+=" ${CurIter%-*}$KernType "
+			KernRemove+=(" ${CurIter%-*}$KernType ")
 		fi
 	}
 
 	apt-get $AptGetOpts -o Dpkg::Progress=true\
 		-o Dpkg::Progress-Fancy=true remove $DoPurge ${KernRemove[@]}
 
-	if [ $? -ne 0 ]; then
-		Err 1 'Non-zero exit status while removing old kernels.'
-	fi
+	(( $? == 0 )) || Err 1 'Non-zero exit status while removing old kernels.'
 fi
