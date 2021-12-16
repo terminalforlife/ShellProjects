@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Thu 16 Dec 00:06:22 GMT 2021
+# Last Change       - Thu 16 Dec 16:10:43 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -48,9 +48,9 @@ Purge='--purge'
 
 command -V apt-get 1> /dev/null 2>&1 && DoAptGet='true'
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
-		--help|-h|-\?)
+		--help|-h)
 			Usage; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$CurVer"
@@ -81,7 +81,7 @@ fi
 
 if [ "$DoAptGet" = 'true' ]; then
 	while read -r CurLine; do
-		printf "%b\n" "$CurLine"
+		printf '%b\n' "$CurLine"
 	done <<-EOF
 		\rWARNING +---------------------------------------------------+ WARNING
 
@@ -191,5 +191,5 @@ if [ "$DoAptGet" = 'true' ]; then
 	apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
 		remove $Purge --autoremove $List
 else
-	printf "%s\n" $List
+	printf '%s\n' $List
 fi
