@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Wed 15 Dec 22:15:09 GMT 2021
+# Last Change       - Thu 16 Dec 15:53:04 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,10 +21,10 @@
 #   dpkg (>= 1.19.0.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2021-12-16'
 Progrm='lspkg'
 
-Usage(){
+Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
@@ -41,7 +41,7 @@ Usage(){
 	EOF
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
@@ -88,15 +88,32 @@ fi
 
 Package=("$@")
 
-type -P dpkg-query &> /dev/null ||
-	Err 1 "Dependency 'dpkg-query' not met."
-
-PkgList(){
-	dpkg-query -Wf="\${db:Status-Abbrev} \$${PkgName} - \${binary:Summary}\n" \*\
-		|| Err 1 'Non-zero exit status for: dpkg-query'
+PkgList() {
+	if type -P dpkg-query &> /dev/null; then
+		dpkg-query -Wf="\${db:Status-Abbrev} \$${PkgName} - \${binary:Summary}\n" \*
+		(( $? > 0 )) && Err 1 'Non-zero exit status for: dpkg-query'
+	else
+		local StatusFile='/var/lib/dpkg/status' Key Value Package
+		if [ -f "$StatusFile" ] && [ -r "$StatusFile" ]; then
+			while IFS=':' read Key Value; do
+				case $Key in
+					Package)
+						Package=${Value# } ;;
+					Status)
+						Status=${Value# } ;;
+					Description)
+						if [ "$Status" == 'install ok installed' ]; then
+							printf 'ii %s - %s\n' "$Package" "${Value# }"
+						fi ;;
+				esac
+			done < "$StatusFile" | sort
+		else
+			Err 1 'Unable to aquire package list.'
+		fi
+	fi
 }
 
-Match(){
+Match() {
 	(( SearchResult++ ))
 
 	if ! [ "$NoDescribe" == 'true' ]; then
