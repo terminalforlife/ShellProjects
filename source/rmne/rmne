@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Thu 26 Nov 18:46:58 GMT 2020
+# Last Change       - Thu 16 Dec 00:06:22 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2020-11-26'
+CurVer='2021-12-16'
 Progrm=${0##*/}
 
 Usage(){
@@ -37,7 +37,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

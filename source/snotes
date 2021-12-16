@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Fri  3 Sep 00:29:03 BST 2021
+# Last Change       - Thu 16 Dec 00:10:51 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 # will eventually be included into snotes properly.
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-03'
+CurVer='2021-12-16'
 Progrm=${0##*/}
 
 Comment='#'
@@ -53,7 +53,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfs
 # Started On        - Fri  4 Dec 00:12:10 GMT 2020
-# Last Change       - Fri  4 Dec 16:16:02 GMT 2020
+# Last Change       - Thu 16 Dec 00:11:26 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #------------------------------------------------------------------------------
 
 if [ $# -gt 0 ]; then
-	printf 'ERROR: Arguments not required.\n' 1>&2
+	printf 'Err: Arguments not required.\n' 1>&2
 	exit 1
 fi
 

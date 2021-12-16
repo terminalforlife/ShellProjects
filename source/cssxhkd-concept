@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cssxhkd-concept
 # Started On        - Thu 27 May 00:16:40 BST 2021
-# Last Change       - Thu 27 May 01:12:00 BST 2021
+# Last Change       - Wed 15 Dec 23:36:07 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -40,7 +40,7 @@
 #   bash (>= 4.3-14)
 #------------------------------------------------------------------------------
 
-CurVer='2021-05-27'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -57,8 +57,8 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 while [ "$1" ]; do

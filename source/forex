@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Thu  5 Dec 23:13:08 GMT 2019
+# Last Change       - Wed 15 Dec 23:57:50 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-CurVer='2019-12-05'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 Domain='https://www.foreignexchange.org.uk'

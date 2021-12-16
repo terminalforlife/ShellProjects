@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Fri  3 Sep 13:26:33 BST 2021
+# Last Change       - Thu 16 Dec 00:01:06 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 #   bash (>= 4.3-14)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-03'
+CurVer='2021-12-16'
 Progrm=${0##*/}
 
 Usage(){
@@ -41,7 +41,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 

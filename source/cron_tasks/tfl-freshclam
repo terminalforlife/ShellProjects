@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cron_tasks/tfl-freshclam
 # Started On        - Fri 13 Nov 17:09:02 GMT 2020
-# Last Change       - Fri 13 Nov 17:32:36 GMT 2020
+# Last Change       - Wed 15 Dec 23:55:32 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,8 +22,8 @@ URL='https://database.clamav.net/daily.cvd'
 Target='/var/lib/clamav/daily.cvd'
 
 Err(){
-	printf 'ERROR: %s\n' "$1" 1>&2
-	exit 1
+	printf 'Err: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
 {

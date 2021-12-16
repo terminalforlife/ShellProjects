@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/nwchk/nwchk
 # Started On        - Thu 18 Apr 11:19:19 BST 2019
-# Last Change       - Tue 14 Sep 11:39:27 BST 2021
+# Last Change       - Thu 16 Dec 00:04:54 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   bash (>= 4.3-14)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-14'
+CurVer='2021-12-16'
 Progrm='nwchk'
 
 Usage(){
@@ -58,8 +58,8 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 while [ -n "$1" ]; do

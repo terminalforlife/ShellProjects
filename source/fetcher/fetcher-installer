@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Fri  9 Jul 11:24:42 BST 2021
+# Last Change       - Wed 15 Dec 23:56:55 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 #------------------------------------------------------------------------------
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito-list
 # Started On        - Wed 13 Jan 16:41:51 GMT 2021
-# Last Change       - Tue 26 Jan 13:47:31 GMT 2021
+# Last Change       - Wed 15 Dec 23:55:24 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 # system.
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-26'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -38,8 +38,8 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'Err: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
 C_Red='\e[0;31m'

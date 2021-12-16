@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fbdriver
 # Started On        - Thu 10 Dec 14:59:18 GMT 2020
-# Last Change       - Tue  2 Feb 21:26:49 GMT 2021
+# Last Change       - Wed 15 Dec 23:46:14 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -13,8 +13,8 @@
 #------------------------------------------------------------------------------
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 UEventFile='/sys/class/graphics/fb0/device/uevent'

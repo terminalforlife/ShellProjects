@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Wed  1 Sep 10:18:23 BST 2021
+# Last Change       - Wed 15 Dec 23:54:15 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 #------------------------------------------------------------------------------
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

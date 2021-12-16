@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Mon  1 Feb 23:59:21 GMT 2021
+# Last Change       - Wed 15 Dec 23:54:59 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-01'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -52,7 +52,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 
@@ -383,7 +383,7 @@ SigHandler(){
 
 		if ! rm -f "$HashFile" "$TemRemFile" 1> /dev/null 2>&1; then
 			Logger error "File '$HashFile' and/or '$TemRemFile' failed removal"
-			printf 'ERROR: One or more temporary files failed removal.\n' 1>&2
+			printf 'Err: One or more temporary files failed removal.\n' 1>&2
 		else
 			Logger info "Removed '$HashFile' and '$TemRemFile'"
 		fi

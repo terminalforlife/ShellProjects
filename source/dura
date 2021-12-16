@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dura
 # Started On        - Thu  1 Jul 12:01:03 BST 2021
-# Last Change       - Fri  2 Jul 03:31:08 BST 2021
+# Last Change       - Wed 15 Dec 23:40:57 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   ffmpeg (>= 7:3.4.8-0)
 #------------------------------------------------------------------------------
 
-CurVer='2021-07-02'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -44,8 +44,8 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 while [ "$1" ]; do

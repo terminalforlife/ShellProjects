@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/qchk.sh
 # Started On        - Mon  1 Feb 00:47:10 GMT 2021
-# Last Change       - Mon  1 Feb 00:52:57 GMT 2021
+# Last Change       - Thu 16 Dec 00:07:04 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

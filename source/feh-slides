@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Fri  3 Sep 10:57:11 BST 2021
+# Last Change       - Wed 15 Dec 23:56:22 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #   feh (>= 2.23.2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-03'
+CurVer='2021-12-15'
 Progrm='feh-slides'
 
 Usage(){
@@ -35,7 +35,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Mon  4 Oct 23:45:52 BST 2021
+# Last Change       - Wed 15 Dec 23:35:44 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.4.18-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-10-04'
+CurVer='2021-12-15'
 Progrm='csi3'
 
 Usage(){
@@ -50,8 +50,8 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 Red='\e[91m'

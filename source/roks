@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Tue 15 Dec 23:01:25 GMT 2020
+# Last Change       - Thu 16 Dec 00:06:33 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   linux-base (>= 4.5)
 #------------------------------------------------------------------------------
 
-CurVer='2020-12-15'
+CurVer='2021-12-16'
 Progrm=${0##*/}
 
 Usage(){
@@ -53,7 +53,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

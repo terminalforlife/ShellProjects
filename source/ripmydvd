@@ -3,18 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/ripmydvd
 # Started On        - Fri 29 Sep 21:19:47 BST 2017
-# Last Change       - Fri  6 Dec 22:53:43 GMT 2019
+# Last Change       - Thu 16 Dec 00:05:58 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
+_VERSION_="2021-12-16"
 _PROJECT_=${0##*/}
-
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
 
 USAGE(){
 	while read; do
@@ -51,6 +46,11 @@ USAGE(){
 	EOF
 }
 
+Err(){
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
@@ -64,7 +64,7 @@ while [ "$1" ]; do
 		--device|-d)
 			shift
 
-			[ -b "$1" ] || Err 1 $LINENO "Device not found at: $1"
+			[ -b "$1" ] || Err 1 "Device not found at: $1"
 			DEVICE="$1" ;;
 		--combine|-C)
 			COMBINE='true' ;;
@@ -74,7 +74,7 @@ while [ "$1" ]; do
 			if [[ $1 =~ ^([0-9]+|[0-9]+-[0-9]+)$ ]]; then
 				TITLE=$1
 			else
-				Err 1 $LINENO "Invalid title."
+				Err 1 "Invalid title."
 			fi ;;
 		--aid)
 			shift
@@ -112,15 +112,15 @@ TARGET="$*"
 declare -i DEPCOUNT=0
 for DEP in eject mkfifo ffmpeg mplayer; {
 	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
+		Err 0 "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ "$TARGET" ] || Err 1 $LINENO "You need to provide a filename."
-[ "$TITLE" ] || Err 1 $LINENO "Which title do you want to rip?"
+[ "$TARGET" ] || Err 1 "You need to provide a filename."
+[ "$TITLE" ] || Err 1 "Which title do you want to rip?"
 [ "$DEVICE" ] || DEVICE="/dev/sr0"
 
 [ "$BEQUIET" == 'true' ] && exec > /dev/null
@@ -137,7 +137,7 @@ mkfifo "$FIFO"
 
 if [ "$COMBINE" == 'true' ]; then
 	if ! [ "$ALANG" -a "$AID" ]; then
-		Err 1 $LINENO "The --combine argument requires -alang or -aid."
+		Err 1 "The --combine argument requires -alang or -aid."
 	fi
 
 	mplayer $MPARGS1 -dumpaudio -dumpfile "/tmp/audio.dump"\

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tfl-ubuntu-setup
 # Started On        - Thu 14 Jun 23:36:44 BST 2018
-# Last Change       - Sun 17 Jan 01:18:55 GMT 2021
+# Last Change       - Thu 16 Dec 00:11:04 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,13 +28,8 @@
 #   dpkg (>= 1.18.4)
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-17'
+CurVer='2021-12-16'
 Progrm=${0##*/}
-
-Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
-}
 
 Usage(){
 	while read -r CurLine; do
@@ -45,6 +40,11 @@ Usage(){
 		\r  -h, --help               - Display this help information.
 		\r  -v, --version            - Output the version datestamp.
 	EOF
+}
+
+Err(){
+	printf 'Err: %s\n' "$2" 1>&2
+	[ $1 -gt 0 ] && exit $1
 }
 
 while [ "$1" ]; do

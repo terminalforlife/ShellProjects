@@ -3,14 +3,14 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017
-# Last Change       - Sun 24 Jan 14:29:47 GMT 2021
+# Last Change       - Wed 15 Dec 23:58:45 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Download many classic ISO images contained a bundle of PC games.
 #------------------------------------------------------------------------------
 
-CurVer='2021-01-24'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -28,7 +28,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

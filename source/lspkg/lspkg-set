@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-set
 # Started On        - Wed 24 Jan 17:31:41 GMT 2018
-# Last Change       - Fri  3 Sep 13:10:39 BST 2021
+# Last Change       - Thu 16 Dec 00:02:53 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   dpkg (>= 1.19.0.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-03'
+CurVer='2021-12-16'
 Progrm='lspkg-set'
 
 Usage(){
@@ -41,7 +41,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

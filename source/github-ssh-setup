@@ -3,18 +3,13 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/github-ssh-setup
 # Started On        - Thu 14 Sep 18:32:41 BST 2017
-# Last Change       - Wed 27 Nov 15:56:10 GMT 2019
+# Last Change       - Wed 15 Dec 23:59:48 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+_VERSION_="2021-12-15"
 _PROJECT_=${0##*/}
-
-Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
-}
 
 USAGE(){
 	while read; do
@@ -37,6 +32,11 @@ USAGE(){
 	EOF
 }
 
+Err(){
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
 while [ "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
@@ -48,7 +48,7 @@ while [ "$1" ]; do
 		--install-git|-G)
 			INSTALLGIT='true' ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -61,14 +61,14 @@ SSH_KEY_FILE=$2
 declare -i DEPCOUNT=0
 for DEP in find ssh-add ssh-agent ssh-keygen apt-get; {
 	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
+		Err 0 "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
 
 [ $DEPCOUNT -eq 0 ] || exit 1
 
-[ $UID -eq 0 ] || Err 1 $LINENO "Root access is required."
+[ $UID -eq 0 ] || Err 1 "Root access is required."
 
 [ "$DEBUGME" == 'true' ] && set -x
 
@@ -77,10 +77,10 @@ if [ "$INSTALLGIT" == 'true' ]; then
 		printf "INFO: Installing git packages with apt-get.\n"
 		apt-get -q --show-progress -o Dpkg::Progress-Fancy=true install git
 	else
-		Err 0 $LINENO "It seems git is already installed."
+		Err 0 "It seems git is already installed."
 	fi
 elif [ ! "$INSTALLGIT" == 'true' ] && ! type -P git > /dev/null 2>&1; then
-	Err 0 $LINENO "Unable to find 'git'; is it installed?"
+	Err 0 "Unable to find 'git'; is it installed?"
 fi
 
 if [ "$INSTALLSSH" == 'true' ]; then
@@ -88,10 +88,10 @@ if [ "$INSTALLSSH" == 'true' ]; then
 		printf "INFO: Installing ssh packages with apt-get.\n"
 		apt-get -q --show-progress -o Dpkg::Progress-Fancy=true  install ssh
 	else
-		Err 0 $LINENO "SSH seems to already be installed."
+		Err 0 "SSH seems to already be installed."
 	fi
 elif [ ! "$INSTALLSSH" == 'true' -a ! -x /usr/bin/ssh ]; then
-	Err 1 $LINENO "SSH, which is required, is not installed."
+	Err 1 "SSH, which is required, is not installed."
 fi
 
 if ! [ "$EMAIL" ]; then
@@ -100,7 +100,7 @@ if ! [ "$EMAIL" ]; then
 fi
 
 if ! [[ $EMAIL =~ ^[[:alnum:]]+@[[:alnum:]]+\.[[:alnum:]]+$ ]]; then
-	Err 1 $LINENO "Incorrect E-Mail address (format) specified."
+	Err 1 "Incorrect E-Mail address (format) specified."
 fi
 
 if ! [ "$SSH_KEY_FILE" ]; then
@@ -114,7 +114,7 @@ if ! [ "$SSH_KEY_FILE" ]; then
 fi
 
 if ! [ -d "${SSH_KEY_FILE%\/*}" ]; then
-	Err 1 $LINENO "One or more key file parent directories missing."
+	Err 1 "One or more key file parent directories missing."
 fi
 
 printf "INFO: Generating a new SSH (RSA, 4096) key pair.\n"
@@ -124,23 +124,23 @@ if ssh-keygen -t rsa -b 4096 -C "$EMAIL" -f $SSH_KEY_FILE; then
 	chown -v $SUDO_UID:$SUDO_GID $SSH_KEY_FILE
 	chown -v $SUDO_UID:$SUDO_GID ${SSH_KEY_FILE}.pub
 else
-	Err 1 $LINENO "Non-zero exit status: /usr/bin/ssh-keygen."
+	Err 1 "Non-zero exit status: /usr/bin/ssh-keygen."
 fi
 
 printf "INFO: Starting the ssh-agent background process.\n"
 if ! eval `ssh-agent -s`; then
-	Err 1 $LINENO 'Non-zero exit status: eval `/usr/bin/ssh-agent -s`'
+	Err 1 'Non-zero exit status: eval `/usr/bin/ssh-agent -s`'
 fi
 
 printf "INFO: Adding SSH key to the ssh-agent -- storing in keychain.\n"
 if ! ssh-add $SSH_KEY_FILE; then
-	Err 1 $LINENO "Non-zero exit status: /usr/bin/ssh-add"
+	Err 1 "Non-zero exit status: /usr/bin/ssh-add"
 fi
 
 if type -P xclip > /dev/null 2>&1; then
 	printf "INFO: Adding public key to clipboard with /usr/bin/xclip.\n"
 	if ! xclip -sel clip < ${SSH_KEY_FILE}.pub; then
-		Err 1 $LINENO "Non-zero exit status: /usr/bin/xclip"
+		Err 1 "Non-zero exit status: /usr/bin/xclip"
 	fi
 
 	printf "INFO: Now paste the .pub key into GitHub's 'Key' field.\n"

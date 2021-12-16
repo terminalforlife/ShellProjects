@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getline
 # Started On        - Tue 19 Sep 20:57:01 BST 2017
-# Last Change       - Mon 13 Sep 10:57:04 BST 2021
+# Last Change       - Wed 15 Dec 23:59:02 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 #   bash (>= 4.3-14)
 #------------------------------------------------------------------------------
 
-CurVer='2021-09-13'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -58,8 +58,8 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 declare -i AcountCount=0

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fixperms
 # Started On        - Sun 14 Feb 13:10:32 GMT 2021
-# Last Change       - Sun 14 Feb 14:45:45 GMT 2021
+# Last Change       - Wed 15 Dec 23:57:37 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 #   findutils (>= 4.6.0)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-14'
+CurVer='2021-12-15'
 Progrm='fixperms'
 ProgrmFancy='FixPerms'
 
@@ -37,7 +37,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -eq 1 ] && exit 1
 }
 

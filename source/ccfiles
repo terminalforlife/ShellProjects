@@ -3,7 +3,7 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/ccfiles (Cross-Check Files)
 # Started On        - Wed 13 Dec 13:45:22 GMT 2017
-# Last Change       - Wed 27 Nov 15:53:59 GMT 2019
+# Last Change       - Wed 15 Dec 23:33:29 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
@@ -15,12 +15,12 @@
 #       seems to have gone a different direction.
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+_VERSION_="2021-12-15"
 _PROJECT_=${0##*/}
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 DIR="/var/lib/dpkg/info"
@@ -59,13 +59,13 @@ while [ "$1" ]; do
 		--nobell|-B)
 			NOBELL='true' ;;
 		*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 	esac
 	shift
 done
 
 if ! type -P readlink > /dev/null 2>&1; then
-	Err 1 $LINENO "Dependency 'readlink' not met."
+	Err 1 "Dependency 'readlink' not met."
 fi
 
 [ "$BEQUIET" == 'true' ] && exec > /dev/null
@@ -96,6 +96,5 @@ if [ -d $DIR/ ]; then
 		done < "$FILE"
 	}
 else
-	Err 1 $LINENO "Directory '$DIR' not found."
+	Err 1 "Directory '$DIR' not found."
 fi
-

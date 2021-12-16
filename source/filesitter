@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Fri  6 Dec 22:49:34 GMT 2019
+# Last Change       - Wed 15 Dec 23:57:24 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-12-06"
+_VERSION_="2021-12-15"
 _PROJECT_=${0##*/}
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 USAGE(){
@@ -57,12 +57,12 @@ while [ "$1" ]; do
 			if [[ $1 =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
 				INTERVAL=$1
 			else
-				Err 1 $LINENO "Invalid interval specified."
+				Err 1 "Invalid interval specified."
 			fi ;;
 		--shutdown|-S)
 			ACTION="poweroff" ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 "Incorrect argument(s) specified." ;;
 		*)
 			break ;;
 	esac
@@ -70,13 +70,13 @@ while [ "$1" ]; do
 done
 
 if ! [ "$*" ]; then
-	Err 1 $LINENO "No files were given for $_PROJECT_ to monitor."
+	Err 1 "No files were given for $_PROJECT_ to monitor."
 fi
 
 declare -i DEPCOUNT=0
 for DEP in stat systemctl sleep; {
 	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
+		Err 0 "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }
@@ -103,6 +103,6 @@ while [ "$GO" == "yes" ]; do
 done
 
 if ! systemctl $ACTION; then
-	Err 1 $LINENO "System $ACTION failed."
+	Err 1 "System $ACTION failed."
 fi
 

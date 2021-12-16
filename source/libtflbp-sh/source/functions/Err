@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/libtflbp-sh/* (Terminal for Life Bourne POSIX)
 # Started On        - Mon  2 Dec 15:32:30 GMT 2019
-# Last Change       - Sat 28 Nov 18:53:11 GMT 2020
+# Last Change       - Thu 16 Dec 00:01:37 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ Err(){ #: Exit/return status [E|R]$1 (0 by default) with message $2.
 		exit 126
 	fi
 
-	printf "ERROR: %s\n" "$2" 1>&2
+	printf "Err: %s\n" "$2" 1>&2
 
 	case $1 in
 		E*)

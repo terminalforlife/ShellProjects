@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/iplite
 # Started On        - Sat 29 Feb 14:56:05 GMT 2020
-# Last Change       - Sat 29 Feb 15:30:33 GMT 2020
+# Last Change       - Thu 16 Dec 00:00:47 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2020-02-29'
+CurVer='2021-12-16'
 Progrm=${0##*/}
 
 Usage(){
@@ -51,7 +51,7 @@ while [ "$1" ]; do
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		*)
-			printf 'ERROR: Incorrect option(s) specified.\n' 1>&2
+			printf 'Err: Incorrect option(s) specified.\n' 1>&2
 			exit 1 ;;
 	esac
 	shift
@@ -82,10 +82,10 @@ if [ -n "$IP" ]; then
 	if [[ $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 		printf '%s\n' "$IP"
 	else
-		printf 'ERROR: Received invalid IP address.\n' 1>&2
+		printf 'Err: Received invalid IP address.\n' 1>&2
 		exit 1
 	fi
 else
-	printf 'ERROR: Unable to fetch external IP.\n' 1>&2
+	printf 'Err: Unable to fetch external IP.\n' 1>&2
 	exit 1
 fi

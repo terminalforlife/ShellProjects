@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Fri  9 Jul 11:24:57 BST 2021
+# Last Change       - Thu 16 Dec 00:09:18 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 #------------------------------------------------------------------------------
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 
@@ -41,14 +41,10 @@ if command -v curl 1> /dev/null 2>&1; then
 elif command -v wget 1> /dev/null 2>&1; then
 	DLCMD='wget -qO'
 else
-	printf "ERROR: Neither 'wget' nor 'curl' are available.\n" 1>&2
-	exit 1
+	Err 1 "Neither 'wget' nor 'curl' are available."
 fi
 
-if [ `id -u` -ne 0 ]; then
-	printf "ERROR: Root access is required for system-wide changes.\n" 1>&2
-	exit 1
-fi
+[ `id -u` -ne 0 ] && Err 1 'Root access required for system-wide changes.'
 
 while :; do
 	printf 'Install latest version of Simplify Ubuntu? [Y/N] '
@@ -122,10 +118,7 @@ for File in 'completions' 'simplify-ubuntu' 'simplify-ubuntu.8.gz'; do
 	fi
 done
 
-if [ $ErrCount -gt 0 ]; then
-	printf 'ERROR: Failed to download one or more files.\n' 1>&2
-	exit 1
-fi
+[ $ErrCount -gt 0 ] && Err 1 'Failed to download one or more files.'
 
 printf 'Setting correct file attributes:\n'
 

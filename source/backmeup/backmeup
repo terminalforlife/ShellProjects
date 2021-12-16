@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Tue  2 Feb 22:35:39 GMT 2021
+# Last Change       - Wed 15 Dec 23:54:39 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   tar (>= 1.28-2.1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-02'
+CurVer='2021-12-15'
 Progrm=${0##*/}
 
 Usage(){
@@ -43,7 +43,7 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 
@@ -73,7 +73,7 @@ while [ "$1" ]; do
 					[Nn]|[Nn][Oo])
 						return 1 ;;
 					*)
-						printf 'ERROR: Invalid response -- quitting.\n'
+						printf 'Err: Invalid response -- quitting.\n'
 						exit 1 ;;
 				esac
 			}
@@ -144,7 +144,7 @@ Archive="BMU_$TimeStamp.tgz"
 
 SigHandler(){
 	Sig=$?
-	printf '\rERROR: Interrupted -- removing incomplete archive.\n' 1>&2
+	printf '\rErr: Interrupted -- removing incomplete archive.\n' 1>&2
 	rm -f "${Store%/}/$Archive"
 	exit $Sig
 }

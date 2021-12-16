@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/dev/core.sh
 # Started On        - Sun 21 Feb 00:53:31 GMT 2021
-# Last Change       - Sun 21 Feb 01:34:07 GMT 2021
+# Last Change       - Wed 15 Dec 23:56:32 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 #------------------------------------------------------------------------------
 
 Err() {
-	printf 'ERROR: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 

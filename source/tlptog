@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Tue 23 Feb 17:00:49 GMT 2021
+# Last Change       - Thu 16 Dec 00:11:57 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,13 +11,8 @@
 # setups.
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-23'
+CurVer='2021-12-16'
 Progrm='tlptog'
-
-Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
-}
 
 Usage(){
 	while read; do
@@ -28,6 +23,11 @@ Usage(){
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
 	EOF
+}
+
+Err(){
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 WorkFile='/etc/default/tlp'

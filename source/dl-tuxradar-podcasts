@@ -3,17 +3,17 @@
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/dl-tuxradar-podcasts
 # Started On        - Mon  9 Oct 19:08:27 BST 2017
-# Last Change       - Wed 27 Nov 15:54:04 GMT 2019
+# Last Change       - Wed 15 Dec 23:39:08 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #----------------------------------------------------------------------------------
 
-_VERSION_="2019-11-27"
+_VERSION_="2021-12-15"
 _PROJECT_=${0##*/}
 
 Err(){
-	printf "[L%0.4d] ERROR: %s\n" "$2" "$3" 1>&2
-	[ $1 -eq 1 ] && exit 1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 DOM="http://www.tuxradar.com"
@@ -51,7 +51,7 @@ while [ "$1" ]; do
 		--debug)
 			DEBUGME='true' ;;
 		*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 	esac
 	shift
 done
@@ -59,7 +59,7 @@ done
 declare -i DEPCOUNT=0
 for DEP in xargs uniq sort wget grep; {
 	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 $LINENO "Dependency '$DEP' not met."
+		Err 0 "Dependency '$DEP' not met."
 		DEPCOUNT+=1
 	fi
 }

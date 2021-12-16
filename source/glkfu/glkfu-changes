@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-changes
 # Started On        - Thu 18 Feb 15:32:07 GMT 2021
-# Last Change       - Thu 18 Feb 16:47:30 GMT 2021
+# Last Change       - Thu 16 Dec 00:00:12 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -25,7 +25,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-02-18'
+CurVer='2021-12-16'
 Progrm=${0##*/}
 
 Usage(){
@@ -42,8 +42,8 @@ Usage(){
 }
 
 Err(){
-	printf 'ERROR: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
 }
 
 KernOrgMirrs='https://mirrors.edge.kernel.org'
