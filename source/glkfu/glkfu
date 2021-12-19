@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sun 19 Dec 03:39:15 GMT 2021
+# Last Change       - Sun 19 Dec 03:49:20 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -203,11 +203,11 @@ DepCount=0
 for Dep in glkfu-{list,changes} sync make tar rm cp gpg xz; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
-		let DepCount++
+		(( DepCount++ ))
 	fi
 done
 
-[ $DepCount -gt 0 ] && exit 1
+(( DepCount > 0 )) && exit 1
 
 if [ "$ListKerns" == 'True' ]; then
 	glkfu-list
@@ -219,6 +219,8 @@ fi
 #----------------------------------------------------------------Main Functions
 
 Get() {
+	local DoStdIn Args
+
 	if type -P curl &> /dev/null; then
 		[ "$1" == '-' ] || Progress='--progress-bar'
 
@@ -232,8 +234,6 @@ Get() {
 	else
 		Err 1 "Neither 'wget' nor 'curl' were found."
 	fi
-
-	unset DoStdIn Args
 }
 
 Ask() {
@@ -251,16 +251,16 @@ Ask() {
 }
 
 FileChk() {
-	FileChkErrs=0
+	local FileChkErrs=0
 
 	if ! [ -f "$1" ]; then
 		Err 0 "File '$1' not found."
-		let FileChkErrs++
+		(( FileChkErrs++ ))
 	fi
 
 	if ! [ -r "$1" ]; then
 		Err 0 "File '$1' unreadable."
-		let FileChkErrs++
+		(( FileChkErrs++ ))
 	fi
 
 	[ $FileChkErrs -gt 0 ] && exit 1
@@ -408,7 +408,7 @@ if [ "$IgnoreDeps" != 'True' ]; then
 			if [ "$DepPKG" == "$StatusPKG" ]; then
 				#printf 'Dependency met: %s\n' "$StatusPKG"
 				Found='True'
-				let Count++
+				(( Count++ ))
 			fi
 		}
 
@@ -547,7 +547,7 @@ fi
 if [ "$ExistingTarball" != 'Uncompressed' ]; then
 	printf 'Decompressing tarball...\n'
 	xz -d "$BuildDir/$LatestTar"
-	[ $? -gt 1 ] && Err 1 'Non-zero exit status from xz(1).'
+	(( $? > 1 )) && Err 1 'Non-zero exit status from xz(1).'
 fi
 
 if [ "$Verify" == 'True' ]; then
@@ -555,7 +555,7 @@ if [ "$Verify" == 'True' ]; then
 
 	gpg --verify "$BuildDir/${LatestTar%.xz}.sign"
 
-	if [ $? -gt 0 ]; then
+	if (( $? > 0 )); then
 		Err 1 'Non-zero exit status when verifying download.'
 	else
 		printf 'File verified successfully.\n'
@@ -637,7 +637,7 @@ if Ask 'Strip unneeded modules for the current system?'; then
 	$Make localmodconfig
 	Exit=$?
 
-	if [ $Exit -gt 1 ]; then
+	if (( Exit > 1 )); then
 		Err 0 'Unexpected (non-zero) exit by make(1).'
 		printf 'NOTE: You may need to start again.\n'
 		exit $Exit
@@ -669,7 +669,7 @@ if Ask "Disable 'DEBUG_INFO' parameter?"; then
 	scripts/config --disable DEBUG_INFO
 	Exit=$?
 
-	if [ $Exit -gt 1 ]; then
+	if (( Exit > 1 )); then
 		Err 0 "Failed to disable 'DEBUG_INFO' in 'config'."
 		exit $Exit
 	fi
@@ -695,7 +695,7 @@ DebPKGExit=$?
 
 #-----------------------------------------------------------------------Cleanup
 
-if [ $DebPKGExit -eq 0 ]; then
+if (( DebPKGExit == 0 )); then
 	printf 'Kernel compilation and package building finished.\n'
 else
 	Err 0 "Non-zero exit status from make(1) after 'deb-pkg' operation."
