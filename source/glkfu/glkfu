@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sun 19 Dec 04:21:24 GMT 2021
+# Last Change       - Sun 19 Dec 04:22:54 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -19,7 +19,6 @@
 # Features:
 #
 #TODO: Ensure GLKFU supports EFI systems -- can anyone help with that?
-#TODO: Press Enter for the default prompt option, like other prompts do.
 #
 # Bugs:
 #
