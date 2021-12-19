@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sun 19 Dec 03:49:20 GMT 2021
+# Last Change       - Sun 19 Dec 03:54:43 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,7 +33,6 @@
 #      perfectly fine.
 #
 #TODO: If we exit during `$Make bindeb-pkg`, SignalHandler() won't work; why?
-#TODO: Note that `-y` flags are only for GLKFU. So, not make(1), for example.
 #
 # Dependencies:
 #
@@ -50,6 +49,7 @@
 
 CurVer='2021-12-19'
 Progrm='glkfu'
+ProgrmFancy='GLKFU'
 
 Usage() {
 	while read; do
@@ -213,7 +213,7 @@ if [ "$ListKerns" == 'True' ]; then
 	glkfu-list
 	exit $?
 elif [ "$AssumeYes" == 'True' ]; then
-	printf "Assuming 'Y' to everything.\n"
+	printf 'Assuming yes for %s-only prompts.\n' "$ProgrmFancy"
 fi
 
 #----------------------------------------------------------------Main Functions
@@ -339,7 +339,7 @@ if [ "$IgnoreVers" != 'True' ]; then
 		if [ "$JustCheck" == 'True' ]; then
 			NewVerAvail='Error'
 		else
-			Ask "Continue with $Progrm?" || exit 3
+			Ask "Continue with $ProgrmFancy?" || exit 3
 		fi
 	else
 		# Split strings up by major, minor, and revision, then compare them.
