@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/trybash
+
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/trybash
+# Project Name      - Extra/devutils/compile-bash.sh
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
-# Last Change       - Tue 21 Dec 01:14:56 GMT 2021
+# Last Change       - Tue 21 Dec 01:39:58 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,31 +12,30 @@
 #
 # In order to both test my BASH programs in newer versions of BASH, and to just
 # explore new features and to test any old code which might now be broken, I
-# wrote this script.
-#
-# In a nut-shell, this allows you to quickly get up and running in a BASH
-# version (regular) of your choice.
+# wrote this script to automate the process of getting versions of BASH.
 #
 # WARNING: This script does NOT (yet?) verify the signature of the tarball.
 #
 #          N.N.N releases and `rc` releases are not included, yet.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.4.20)
 #------------------------------------------------------------------------------
 
 URL='https://mirror.lyrahosting.com/gnu/bash'
 
-# Setting this to 'True' will tell this script not to remove the downloaded
-# tarball or the extracted, configured, and compiled contents.
-NoCleanUp='True'
-
-# Setting this to 'True' will tell the new BASH instance to ignore most of your
-# BASH configurations, like '~/.bashrc'. This actually uses the `--norc` flag
-# with BASH, but I cannot guarantee all versions will support this flag or work
-# in the same way.
-NoConfig='False'
-
 Err(){
 	printf '\e[91mErr\e[0m: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	(( $1 > 0 )) && exit $1
 }
 
 (( $# > 0 )) && Err 1 'This script takes no arguments.'
@@ -136,33 +135,15 @@ done
 
 unset SortedFiles Happy GetVersion Confirm REPLY
 
-#--------------------------Configure, Compile, then Run the Chosen BASH Version
+#--------------------------------------------------------Configure Then Compile
 
-wget -q --show-progress "$URL/$ChosenFile"
-if tar -xzvf "$ChosenFile"; then
-	[ "$NoCleanUp" == 'True' ] || rm -v "$ChosenFile"
-fi
+if wget -q --show-progress "$URL/$ChosenFile"; then
+	tar -xzvf "$ChosenFile" && rm -v "$ChosenFile"
 
-(
-	set -e
-
-	cd "${ChosenFile%.tar.gz}"
-	./configure
-	make -j $Cores
-
-	# Enter `exit` from the new BASH instance to return to your usual shell, -
-	# but not before removing the newly-installed version.
-	case $NoConfig in
-		'True')
-			./bash --norc ;;
-		'False')
-			./bash ;;
-	esac
-
-	if ! [ "$NoCleanUp" == 'True' ]; then
-		cd ..
-		rm -vrf "${ChosenFile%.tar.gz}"
+	if cd "${ChosenFile%.tar.gz}"; then
+		./configure
+		make -j $Cores
 	fi
-)
 
-printf 'Done!\n'
+	printf 'Done!\n'
+fi
