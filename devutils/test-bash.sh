@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/test-bash.sh
 # Started On        - Mon 20 Dec 15:11:15 GMT 2021
-# Last Change       - Tue 21 Dec 01:40:57 GMT 2021
+# Last Change       - Tue 21 Dec 17:57:22 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,15 @@ if ! [ -f "$1" ]; then
 	Err 1 'File not found.'
 elif ! [ -r "$1" ]; then
 	Err 1 'File unreadable.'
+else
+	# Verify the shebang is actually pointing to BASH. Reduces the chance of
+	# accidentally trying to run the wrong file a bazillion times.
+	read <<< "$(file "$1")"
+	Str='Bourne-Again shell script, ASCII text executable'
+	[[ ${REPLY#*: } == $Str ]] || Err 1 'File not a BASH script.'
 fi
+
+exit
 
 for BASH in "$HOME"/BASH/*; {
 	[ -d "$BASH" ] || continue
