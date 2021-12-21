@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/test-bash.sh
 # Started On        - Mon 20 Dec 15:11:15 GMT 2021
-# Last Change       - Tue 21 Dec 17:57:22 GMT 2021
+# Last Change       - Tue 21 Dec 17:58:51 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -31,8 +31,6 @@ else
 	Str='Bourne-Again shell script, ASCII text executable'
 	[[ ${REPLY#*: } == $Str ]] || Err 1 'File not a BASH script.'
 fi
-
-exit
 
 for BASH in "$HOME"/BASH/*; {
 	[ -d "$BASH" ] || continue
