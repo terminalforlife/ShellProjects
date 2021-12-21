@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/mplay
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Thu 16 Dec 00:03:56 GMT 2021
+# Last Change       - Mon 20 Dec 08:47:15 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,72 +15,60 @@
 # repository on the same GitHub store from which this file originated.
 #------------------------------------------------------------------------------
 
-_VERSION_="2021-12-16"
-_PROJECT_=${0##*/}
+CurVer='2021-12-20'
+Progrm=${0##*/}
+ProgrmFancy='MPlay'
 
-DOM="https://github.com"
-
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
-THEMEDIR="/usr/share/moc/themes"
+Domain="https://github.com"
+ThemeDir="/usr/share/moc/themes"
 
-USAGE(){
-	while read -r; do
+Usage() {
+	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] [PATH]
 
-		            MOC Wrapper for a clean layout with a subtle transparent theme.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -o, --run-once           - Exit the MOC server when closed.
 
-		SYNTAX:     $_PROJECT_ [OPTS] PATH
+		  To exit $ProgrmFancy, send the SIGINT (130) signal using the Ctrl + C
+		  shortcut (^C). Your previous terminal layout will be restored.
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --run-once|-o           - Exit the MOC server when closed.
-
-		NOTE:       Where PATH is the location in which music is found.
-
-		            The following directory is expected by default:
-
-		              $THEMEDIR
-
-		            The default theme used is the tfl_moc_theme, found at the above GitHub
-		            address, in the Extra repository.
-
-		            The latest version of $_PROJECT_ includes this theme, however.
-
-		SITE:       $DOM/terminalforlife/Extra
+		  When forcing, unsupported mimetypes and executables will be allowed.
 	EOF
 }
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
+			printf "%s\n" "$CurVer"; exit 0 ;;
 		--once|-o)
-			ONCE='true' ;;
+			Once='true' ;;
 		-*)
 			Err 1 "Incorrect argument(s) specified." ;;
 	esac
 	shift
 done
 
-[ "$1" -a ! -d "$1" ] && Err 1 "Unable to find the given music directory."
-
-[ -d $THEMEDIR ] || Err 1 "Theme directory not found."
-[ -f "$THEMEDIR/tfl_moc_theme" ] || Err 1 "Theme file not found."
-
-if ! type -P mocp > /dev/null 2>&1; then
-	Err 1 "Dependency 'mocp' not met."
+if [ -z "$1" ]; then
+	Err 1 'Please provide a directory in which to find music.'
+elif ! [ -d "$1" ]; then
+	Err 1 'Unable to find the given music directory.'
 fi
 
-/usr/bin/mocp -n -T "$THEMEDIR/tfl_moc_theme"     \
+[ -d $ThemeDir ] || Err 1 'Theme directory not found.'
+[ -f "$ThemeDir/tfl_moc_theme" ] || Err 1 'Theme file not found.'
+type -P mocp 2> /dev/null 1>&2 || Err 1 "Dependency 'mocp' not met."
+
+mocp -n -T "$ThemeDir/tfl_moc_theme"          \
 	-O ShowFormat=yes                         \
 	-O ShowTime=no                            \
 	-O Shuffle=no                             \
@@ -102,6 +90,7 @@ fi
 	-m "${1:-$HOME/Music}"                    \
 || Err 1 "Unable to start the MOC player."
 
-if [ "$ONCE" == 'true' ]; then
-	wait; mocp -x
+if [ "$Once" == 'true' ]; then
+	wait
+	mocp -x
 fi

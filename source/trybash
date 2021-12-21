@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/trybash
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
-# Last Change       - Mon  6 Dec 01:59:48 GMT 2021
+# Last Change       - Mon 20 Dec 14:51:00 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ URL='https://mirror.lyrahosting.com/gnu/bash'
 
 # Setting this to 'True' will tell this script not to remove the downloaded
 # tarball or the extracted, configured, and compiled contents.
-NoCleanUp='False'
+NoCleanUp='True'
 
 # Setting this to 'True' will tell the new BASH instance to ignore most of your
 # BASH configurations, like '~/.bashrc'. This actually uses the `--norc` flag
