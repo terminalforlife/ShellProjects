@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/trybash
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/trybash
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
-# Last Change       - Mon 20 Dec 14:51:00 GMT 2021
+# Last Change       - Tue 21 Dec 00:45:46 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
