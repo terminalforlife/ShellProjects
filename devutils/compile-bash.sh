@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/compile-bash.sh
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
-# Last Change       - Tue 21 Dec 16:59:50 GMT 2021
+# Last Change       - Tue 21 Dec 17:32:39 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -75,6 +75,13 @@ while read; do
 				*alpha*|*beta*)
 					;;
 				*)
+					# BASH 2.0 failed to compile, so I'm just going to ignore
+					# versions < 3.0, because let's face it, if you're running
+					# those versions, you need much more than this script!
+					case $File in
+						bash-[12].*.tar.gz) continue ;;
+					esac
+
 					Files+=("$File") ;;
 			esac ;;
 	esac
