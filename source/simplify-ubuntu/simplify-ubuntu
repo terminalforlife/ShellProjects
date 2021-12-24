@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Thu 16 Dec 00:07:19 GMT 2021
+# Last Change       - Fri 24 Dec 12:06:53 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,10 +22,10 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+CurVer='2021-12-24'
 Progrm=${0##*/}
 
-Usage(){
+Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
@@ -41,7 +41,7 @@ Usage(){
 	EOF
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
@@ -75,22 +75,21 @@ while [ -n "$1" ]; do
 	shift
 done
 
-DepCount=0
 for CurDep in rm apt-get; do
 	if ! type -P "$CurDep" &> /dev/null; then
 		Err 0 "Dependency '$CurDep' not met."
-		let DepCount+=1
+		(( DepCount++ ))
 	fi
 done
 
-[ $DepCount -eq 0 ] || exit 1
+(( DepCount == 0 )) || exit 1
 
-[ $UID -eq 0 ] || SIM='-s'
+(( UID == 0 )) || SIM='-s'
 
 #---------------------------------------------------------------Welcome Message
 
-while read -r; do
-	printf "%s\n" "$REPLY"
+while read; do
+	printf '%s\n' "$REPLY"
 done <<-EOF
 
 	What will follow is a series of prompts which will ascertain how you would
@@ -136,11 +135,15 @@ fi
 
 #----------------------------------------------------------------Main Functions
 
-DoSay(){ printf '%s\n' "$1"; }
+DoSay() {
+	printf '%s\n' "$1"
+}
 
-PathLook(){ type -P "$@" &> /dev/null || return 1; }
+PathLook() {
+	type -P "$@" &> /dev/null || return 1
+}
 
-Prompt(){
+Prompt() {
 	while :; do
 		read -ep "$1 "
 
@@ -161,12 +164,12 @@ Prompt(){
 	done
 }
 
-RemPKG(){
+RemPKG() {
 	apt-get ${YesAPT:--q} $SIM --show-progress remove $DoPurge --autoremove\
 		-o Dpkg::Progress-Fancy=true -o Dpkg::Progress=true "$@"
 }
 
-FindPKG(){
+FindPKG() {
 	local Found=0
 	for CurPKG in "$@"; {
 		printf "Looking for '%s'\n" "$CurPKG"
@@ -174,30 +177,30 @@ FindPKG(){
 		for FoundPKG in "${!Packages[@]}"; {
 			if [[ "$FoundPKG" == $CurPKG ]]; then
 				printf "Found '%s'\n" "$FoundPKG"
-				let Found+=1
+				(( Found++ ))
 			fi
 		}
 	}
 
 	unset CurPKG FoundPKG
 
-	[ $Found -eq $# ] || return 4
+	(( Found == $# )) || return 4
 }
 
 #------------------------------------------------------------------------------
 
 if [ "${LSBCheck:-true}" == 'true' ]; then
 	if [ -f "$FileOS" -a -r "$FileOS" ]; then
-		while IFS="=" read -a X; do
-			if [ "${X[0]}" == "ID" ]; then
-				printf -v LSBRelease "%s" "${X[1]}"
+		while IFS="=" read -a Line; do
+			if [ "${Line[0]}" == "ID" ]; then
+				printf -v LSBRelease "%s" "${Line[1]}"
 				break
 			fi
 		done < "$FileOS"
 	elif [ -f "$FileLSB" -a -r "$FileLSB" ]; then
-		while IFS="=" read -a X; do
-			if [ "${X[0]}" == "DISTRIB_ID" ]; then
-				printf -v LSBRelease "%s" "${X[1],,}"
+		while IFS="=" read -a Line; do
+			if [ "${Line[0]}" == "DISTRIB_ID" ]; then
+				printf -v LSBRelease "%s" "${Line[1],,}"
 				break
 			fi
 		done < "$FileLSB"
@@ -209,8 +212,8 @@ if [ "${LSBCheck:-true}" == 'true' ]; then
 		linuxmint)
 			IsMint='true'
 
-			while read -r; do
-				printf "%s\n" "$REPLY"
+			while read; do
+				printf '%s\n' "$REPLY"
 			done <<-EOF
 				WARNING: Simplify-ubuntu has detected an installation of Linux Mint. Although your
 				         chosen distribution was not the initial target for $Progrm, there
@@ -394,7 +397,7 @@ if [ "${LSBCheck:-true}" == 'true' ]; then
 
 			;;
 		ubuntu)
-			IS_UBUNTU='true' ;;
+			IsUbuntu='true' ;;
 		zorin)
 			IsZorin='true'
 
@@ -428,11 +431,11 @@ if [ "${LSBCheck:-true}" == 'true' ]; then
 fi
 
 #TODO: This is a sloppy way to detect the distribution, and is only temporary!
-PathLook lite-welcome && ISLINUXLITE='true'
+PathLook lite-welcome && IsLinuxLite='true'
 
-if [ "$ISLINUXLITE" == 'true' ]; then
+if [ "$IsLinuxLite" == 'true' ]; then
 	while read -r; do
-		printf "%s\n" "$REPLY"
+		printf '%s\n' "$REPLY"
 	done <<-EOF
 		WARNING: Simplify-ubuntu has detected an installation of Linux Lite. Although your
 		         chosen distribution was not the initial target for $Progrm, it's
@@ -749,7 +752,7 @@ elif [ "$IsZorin" == 'true' ]; then
 			RemPKG cups
 		}
 	fi
-elif [ "$IS_UBUNTU" == 'true' ]; then
+elif [ "$IsUbuntu" == 'true' ]; then
 	if FindPKG printer-driver-\* cups\* system-config-printer\*\
 		ippusbxd libgutenprint2 foomatic-db-compressed-ppds\
 		python3-cupshelpers openprinting-ppds; then
@@ -886,12 +889,12 @@ fi
 
 for BIN in transmission-{gtk,qt,cli}; {
 	if PathLook "$BIN"; then
-		TRANSMISSION='true'
+		Transmission='true'
 		break
 	fi
 }
 
-if [ "$TRANSMISSION" == 'true' ]; then
+if [ "$Transmission" == 'true' ]; then
 	Prompt\
 		"[5371]: Will you ever be using torrents with Transmission?"\
 		"If you enter 'N', transmission packages will be removed."\
@@ -944,7 +947,7 @@ if FindPKG samba{,-common} cifs-utils\* lupin-\* smbclient casper\*; then
 		DoSay "Calling APT to remove Samba packages."
 		RemPKG samba{,-common} cifs-utils\* lupin-\* smbclient casper\*
 
-		NO_SAMBA='true'
+		NoSamba='true'
 	}
 fi
 
@@ -1069,7 +1072,7 @@ if FindPKG xserver-xorg-input-synaptics\*; then
 		DoSay "Calling APT to remove touchpad-related packages."
 		RemPKG xserver-xorg-input-synaptics\*
 
-		NO_TOUCHPAD='true'
+		NoTouchpad='true'
 	}
 fi
 
@@ -1108,12 +1111,12 @@ if ! [ "$NoAskDE" == 'true' ]; then
 			}
 		fi
 
-		if [ "$NO_SAMBA" == 'true' ]; then
+		if [ "$NoSamba" == 'true' ]; then
 			DoSay "Calling APT to remove smb4k package (Samba-related)."
 			RemPKG smb4k
 		fi
 
-		if [ "$NO_TOUCHPAD" == 'true' ]; then
+		if [ "$NoTouchpad" == 'true' ]; then
 			DoSay "Calling APT to remove KDE packages related to touchpads."
 			RemPKG kde-{config-touchpad,touchpad}
 		fi
@@ -1173,7 +1176,7 @@ if ! [ "$NoAskDE" == 'true' ]; then
 		"[5392]: Are you using the Mate desktop environment?"\
 		"If you enter 'Y', you'll be asked Mate-specific questions."\
 	&& {
-		IS_MATE='true'
+		IsMate='true'
 
 		if PathLook pluma; then
 			Prompt "[6967]: Will you ever use Pluma (text editor)?" || {
@@ -1187,7 +1190,7 @@ if ! [ "$NoAskDE" == 'true' ]; then
 		"[5766]: Are you using the GNOME desktop environment?"\
 		"If you enter 'Y', you'll be asked Gnome-specific questions."\
 	&& {
-		IS_GNOME='true'
+		IsGNOME='true'
 
 		if PathLook clementine; then
 			Prompt "[0595]: Will you ever use Clementine (GUI music player)?" || {
@@ -1317,9 +1320,9 @@ if FindPKG xscreensaver\* gnome-{screensaver,screensaver}; then
 	|| {
 		DoSay "Calling APT to remove packages related to screensavers."
 
-		if [ "$IS_GNOME" == 'true' ]; then
+		if [ "$IsGNOME" == 'true' ]; then
 			RemPKG gnome-screensaver
-		elif [ "$IS_MATE" == 'true' ]; then
+		elif [ "$IsMate" == 'true' ]; then
 			RemPKG mate-screensaver\*
 		fi
 
@@ -1458,7 +1461,7 @@ if ! [ "$IsZorin" == 'true' ]; then
 	fi
 
 	if PathLook vino-preferences; then
-		NO_VINO='true'
+		NoVino='true'
 
 		Prompt\
 			"[1424]: Will you be needing VINO (remote desktop client)?"\
@@ -1603,7 +1606,7 @@ if FindPKG freerdp\* libfreerdp\* dosfstools ntfs-3g libgcab-\*\
 	fi
 fi
 
-if [ "$NO_FREERDP" == 'true' -o "$NO_VINO" == 'true' ]; then
+if [ "$NO_FREERDP" == 'true' -o "$NoVino" == 'true' ]; then
 	DoSay "Calling APT to remove the thin-client-config-agent package."
 	RemPKG thin-client-config-agent
 fi
@@ -1721,9 +1724,9 @@ if FindPKG lvm2 liblvm\*; then
 		"[2600]: Will you be or are you using LVM? (Enter 'Y' if unsure)"\
 		"If you enter 'N', packages related to LVM will be removed."\
 		"This is LVM2, the rewrite of The Linux Logical Volume Manager."\
-	|| NO_LVM='true'
+	|| NoLVM='true'
 
-	if [ "$NO_LVM" == 'true' ]; then
+	if [ "$NoLVM" == 'true' ]; then
 		Prompt\
 			"[7958]: WARNING! May be problematic if you're wrong. Are you sure?"\
 			"If you enter 'Y', LVM-related packages will still be removed."\
@@ -2119,7 +2122,7 @@ Prompt\
 		/var/cache/apt/srcpkgcache.bin
 }
 
-DoSay "Synchronizing cached writes to persistent storage."
+DoSay 'Synchronizing cached writes to persistent storage.'
 sync
 
-printf "\nDONE! -- Please reboot the machine.\n\n"
+printf '\nDONE! -- Please reboot the machine.\n\n'
