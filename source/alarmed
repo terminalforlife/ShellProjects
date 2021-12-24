@@ -3,11 +3,11 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/alarmed
 # Started On        - Fri 26 Feb 23:14:17 GMT 2021
-# Last Change       - Wed 15 Dec 23:30:19 GMT 2021
+# Last Change       - Thu 23 Dec 19:38:56 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Incredibly simple CLI alarm clock using strictly BASH and sleep(1).
+# Incredibly simple CLI alarm clock in pure-BASH.
 #
 # Features:
 #
@@ -20,13 +20,12 @@
 # Dependencies:
 #
 #   bash (>= 4.3-14)
-#   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2021-12-23'
 Progrm='alarmed'
 
-Usage(){
+Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
@@ -37,14 +36,14 @@ Usage(){
 	EOF
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
 Match='[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]'
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -62,21 +61,19 @@ printf -v Current '%(%X)T' -1
 CurrentInt=${Current//:}
 TargetInt=${1//:}
 
-if [ $# -gt 1 ]; then
+if (( $# > 1 )); then
 	Err 1 'Invalid argument(s) detected.'
 elif [[ $1 != $Match ]]; then
 	Err 1 'Invalid or non-existent alarm time.'
-#TODO: Is there a way to fix this?
-#elif [ $CurrentInt -gt $TargetInt ]; then
-#	Err 1 'Alarm time is in the past.'
+elif (( CurrentInt > TargetInt )); then
+	Err 1 'Alarm time in the past.'
+elif (( TargetInt > 235959 )); then
+	Err 1 'Alarm time invalid.'
 fi
 
 while :; do
 	printf -v Current '%(%X)T' -1
-	CurrentInt=${Current//:}
-	TargetInt=${1//:}
-
-	if [ $CurrentInt -eq $TargetInt ]; then
+	if (( ${Current//:} == ${1//:} )); then
 		printf '\r\b\e[91m%s / %s\e[0m ' "$Current" "$1"
 		break
 	else
@@ -84,5 +81,7 @@ while :; do
 	fi
 
 	# For accuracy, the interval is <1s.
-	sleep 0.1s
+	read -n 1 -st 0.001
 done
+
+printf '\n'
