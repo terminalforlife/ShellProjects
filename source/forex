@@ -1,15 +1,29 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/forex
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017
-# Last Change       - Wed 15 Dec 23:57:50 GMT 2021
+# Last Change       - Fri 24 Dec 12:36:11 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Easily convert various currency rates straight from the terminal.
+#------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2021-12-24'
 Progrm=${0##*/}
+
+Usage(){
+	while read; do
+		printf "%s\n" "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS] SOURCE AMOUNT TARGET
+
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -R, --rounded            - Do not display as a floating point.
+	EOF
+}
 
 Err(){
 	printf 'Err: %s\n' "$2" 1>&2
@@ -18,62 +32,31 @@ Err(){
 
 Domain='https://www.foreignexchange.org.uk'
 
-Usage(){
-	while read; do
-		printf "%s\n" "$REPLY"
-	done <<-EOF
-		            ${Progrm^^} ($CurVer)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+(( $# == 0 )) && Err 1 'Arguments required.'
 
-		            Easily convert various currency rates straight from the terminal.
-
-		SYNTAX:     $Progrm [OPTS] SOURCE AMOUNT TARGET
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --rounded|-R            - Do not display as a floating point.
-
-		EXAMPLE:    $ $Progrm USD 5 GBP
-		            0.7254
-
-		SITE:       $Domain
-	EOF
-}
-
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$CurVer"; exit 0 ;;
-		--debug|-D)
-			DebugMe='true' ;;
 		--rounded|-R)
-			ROUNDED='true' ;;
+			Rounded='true' ;;
 		-*)
-			Err 1 $LINENO "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-if ! type -P wget > /dev/null 2>&1; then
-	Err 1 $LINENO "Dependency 'wget' not met."
+if ! type -P wget &> /dev/null; then
+	Err 1 "Dependency 'wget' not met."
 fi
 
-SOURCE=$1
-AMOUNT=$2
-TARGET=$3
-
-read -a WGET_VER_LINE <<< "$(wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
-
-[ "$DebugMe" == 'true' ] && set -x
+Source=$1
+Amount=$2
+Target=$3
 
 # Curent and historical currency abbreviations. Taken from: http://www.xe.com
 declare -a VALID=(
@@ -89,30 +72,29 @@ declare -a VALID=(
 )
 
 for TYPE in ${VALID[@]}; {
-	[ "$TYPE" == "$SOURCE" ] && SOURCE_YES='true'
-	[ "$TYPE" == "$TARGET" ] && TARGET_YES='true'
+	[ "$TYPE" == "$Source" ] && SourceYes='true'
+	[ "$TYPE" == "$Target" ] && TargetYes='true'
 }
 
-if ! [ "$SOURCE_YES" == 'true' ]; then
-	Err 1 $LINENO "Currency SOURCE '${SOURCE:-?}' not recognised."
-elif ! [ "$TARGET_YES" == 'true' ]; then
-	Err 1 $LINENO "Currency TARGET '${TARGET:-?}' not recognised."
+if ! [ "$SourceYes" == 'true' ]; then
+	Err 1 "Currency SOURCE '${Source:-?}' not recognised."
+elif ! [ "$TargetYes" == 'true' ]; then
+	Err 1 "Currency TARGET '${Target:-?}' not recognised."
 fi
 
-SITE="$Domain/fx-rates/conversion/$AMOUNT/$SOURCE/$TARGET"
-while read -a X; do
-	if [[ ${X[*]} =~ name=\"answer\" ]]; then
-		RESULT=${X[3]//[!0-9.]}
+Site="$Domain/fx-rates/conversion/$Amount/$Source/$Target"
+while read -a Line; do
+	if [[ ${Line[*]} =~ name=\"answer\" ]]; then
+		Result=${Line[3]//[!0-9.]}
 	fi
-done <<< "$(wget -q -t 1 $NOWARC "$SITE" -O -)"
+done <<< "$(wget -q -t 1 "$Site" -O -)"
 
-if [[ $RESULT =~ ^[0-9.]+$ ]]; then
-	if [ "$ROUNDED" == 'true' ]; then
-		printf "%s\n" "${RESULT%.*}"
+if [[ $Result =~ ^[0-9.]+$ ]]; then
+	if [ "$Rounded" == 'true' ]; then
+		printf "%s\n" "${Result%.*}"
 	else
-		printf "%.4f\n" "$RESULT"
+		printf "%.4f\n" "$Result"
 	fi
 else
-	Err 1 $LINENO "Unable to determine the correct result."
+	Err 1 'Unable to determine the correct result.'
 fi
-
