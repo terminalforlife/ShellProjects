@@ -18,7 +18,6 @@ As of 2021-09-11, here are some highlights:
   * [LSPKG](source/lspkg) - Search through, test for, and list out installed packages
   * [RMNE](source/rmne) - Remove all of the non-essential Debian packages
   * [Simplify-Ubuntu](source/simplify-ubuntu) - De-bloat Ubuntu by interactively removing unneeded packages.
-  * [libtflbp-sh](source/libtflbp-sh) - Function library for Bourne Shell programs.
 
 # Bug/Issue Reporting
 
