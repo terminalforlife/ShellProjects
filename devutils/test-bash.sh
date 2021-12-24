@@ -3,14 +3,13 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/test-bash.sh
 # Started On        - Mon 20 Dec 15:11:15 GMT 2021
-# Last Change       - Tue 21 Dec 17:58:51 GMT 2021
+# Last Change       - Fri 24 Dec 12:15:40 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Runs various pre-compiled versions of BASH (3.0 - 5.1, and probably later)
-# with whichever script is handed to this file. This is for testing features
-# and to find out what is available in which shell. The annoying part of shell
-# programming!
+# Runs various pre-compiled versions of BASH (>= 3.0) with whichever script is
+# handed to this file. This is for testing features and to find out what is
+# available in which shell. The annoying part of shell programming!
 #
 # This is intended to be used in tandem with 'compile-bash.sh'.
 #------------------------------------------------------------------------------
@@ -35,13 +34,12 @@ fi
 for BASH in "$HOME"/BASH/*; {
 	[ -d "$BASH" ] || continue
 
-	if [[ ${BASH##*/} =~ ^bash-([0-9]+\.[0-9]+)$ ]]; then
-		CurrentVersion=${BASH_REMATCH[1]}
+	printf '\e[1;92m* \e[91m%s:\e[0m\n' "${BASH##*/}"
+	"$BASH"/bash "$1"
 
-		Result=$("$BASH"/bash -n "$1" 2>&1)
-		if (( $? != 0 )); then
-			printf '\e[1;92m* \e[91mBASH %s:\e[0m\n' "$CurrentVersion"
-			printf '%s\n\n' "$Result"
-		fi
-	fi
+	#Result=$("$BASH"/bash -n "$1" 2>&1)
+	#if (( $? != 0 )); then
+	#	printf '\e[1;92m* \e[91m%s:\e[0m\n' "${BASH##*/}"
+	#	printf '%s\n\n' "$Result"
+	#fi
 }
