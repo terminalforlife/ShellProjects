@@ -1,55 +1,47 @@
 #!/bin/bash
 
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/dlspwalls
 # Started On        - Sun 15 Oct 20:48:22 BST 2017
-# Last Change       - Wed 15 Dec 23:38:31 GMT 2021
+# Last Change       - Fri 24 Dec 13:28:08 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Download a collection of steampunk wallpapers.
+#
+# 2021-12-24: As of 2021-12-24, it appears this script is broken, likely due to
+#             the original site's data changing.
+#------------------------------------------------------------------------------
 
-_VERSION_="2021-12-15"
-_PROJECT_=${0##*/}
+CurVer="2021-12-15"
+Progrm=${0##*/}
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
-URL="https://wallpapercave.com/download/steampunk-wallpaper"
-
-USAGE(){
+Usage() {
 	while read -r; do
-		printf "%s\n" "$REPLY"
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS]
 
-		            Download a collection of steampunk wallpapers.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
 
-		SYNTAX:     $_PROJECT_ [OPTS]
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --debug|-D              - Enables the built-in bash debugging.
-
-		NOTE:       Files will be download to the current directory, as JPGs.
-
-		SITE:       ${URL%/download/*}
+		Files will be download to the current directory, as JPGs.
 	EOF
 }
 
-while [ "$1" ]; do
+URL='https://wallpapercave.com/download/steampunk-wallpaper'
+
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--quiet|-q)
-			BEQUIET='true' ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		*)
 			Err 1 'Incorrect argument(s) specified.' ;;
 	esac
@@ -60,39 +52,27 @@ if ! type -P wget > /dev/null 2>&1; then
 	Err 1 "Dependency 'wget' not met."
 fi
 
-read -a WGET_VER_LINE <<< "$(wget --version)"
-WGET_VERSION=0${WGET_VER_LINE[2]//[!0-9]}
-if [ $WGET_VERSION -ge 01192 -a $WGET_VERSION -lt 01194 ]; then
-	NOWARC="--no-warc-compression"
-fi
+HTML=`wget -qO - "${URL%/down*}/steampunk-wallpaper-1920x1080"`
 
-[ "$BEQUIET" == 'true' ] && exec > /dev/null
-[ "$DEBUGME" == 'true' ] && set -x
+while read -a Line; do
+	for Field in ${Line[@]/src=\"\/wp}; {
+		[ "$Field" == "$Old" ] && continue
 
-HTML=`wget -q $NOWARC "${URL%/down*}/steampunk-wallpaper-1920x1080" -O -`
-
-GETID=()
-while read -a Y; do
-	for FIELD in ${Y[@]/src=\"\/wp}; {
-		[ "$FIELD" == "$OLD" ] && continue
-		if [[ $FIELD == /* ]]; then
-			if [[ $FIELD =~ [0-9A-Za-z]+.jpg ]]; then
-				GETID+=("${FIELD%.jpg\"}")
-			fi
+		if [[ $Field == /* ]] && [[ $Field =~ [0-9A-Za-z]+.jpg ]]; then
+			GetID+=("${Field%.jpg\"}")
 		else
 			continue
 		fi
 
-		OLD=$FIELD
+		Old=$Field
 	}
 done <<< "$HTML"
 
-declare -i N=0
-for ID in ${GETID[@]//\/}; {
-	N+=1
+for ID in ${GetID[@]//\/}; {
+	(( Nr++ ))
 
-	printf "%s\n" "DOWNLOADING: steampunk-wallpaper-1920x1080-${ID}.jpg"
-	printf -v FNAME "./steampunk-wallpaper-1920x1080-%0.2d.jpg" "${N}"
-	wget -qc $NOWARC "${URL}-1920x1080-${ID}" -O "$FNAME"
+	printf '%s\n' "DOWNLOADING: steampunk-wallpaper-1920x1080-$ID.jpg"
+	printf -v Filename "./steampunk-wallpaper-1920x1080-%0.2d.jpg" $Nr
+	wget -qcO "$Filename "${URL}-1920x1080-${ID}""
 }
 
