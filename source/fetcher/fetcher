@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Mon 20 Dec 07:15:22 GMT 2021
+# Last Change       - Fri 24 Dec 13:14:27 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-20'
+CurVer='2021-12-24'
 Progrm=${0##*/}
 
 Usage() {
@@ -99,8 +99,6 @@ while [ -n "$1" ]; do
 			fi
 
 			shift ;;
-		'')
-			Err 1 'Chosen ACTION not provided.' ;;
 		*)
 			Err 1 "Chosen ACTION '$1' invalid." ;;
 	esac
