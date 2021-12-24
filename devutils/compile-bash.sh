@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/compile-bash.sh
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
-# Last Change       - Tue 21 Dec 17:32:39 GMT 2021
+# Last Change       - Fri 24 Dec 17:17:02 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ while read; do
 	case $File in
 		bash-[0-9]*.tar.gz)
 			case $File in
-				*alpha*|*beta*)
+				*alpha*|*beta*|*rc*)
 					;;
 				*)
 					# BASH 2.0 failed to compile, so I'm just going to ignore
