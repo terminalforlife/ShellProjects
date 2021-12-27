@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Thu 16 Dec 17:27:59 GMT 2021
+# Last Change       - Mon 27 Dec 08:28:01 GMT 2021
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 # will eventually be included into snotes properly.
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+CurVer='2021-12-27'
 Progrm=${0##*/}
 
 Comment='#'
@@ -62,6 +62,7 @@ ProjConf="$HOME/.config/$Progrm.conf"
 while [ -n "$1" ]; do
 	case $1 in
 		--)
+			shift
 			break ;;
 		--help|-h|-\?)
 			Usage; exit 0 ;;
