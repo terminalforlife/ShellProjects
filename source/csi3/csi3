@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat  1 Jan 10:56:33 GMT 2022
+# Last Change       - Sat  1 Jan 11:56:49 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -36,8 +36,8 @@ Usage() {
 		  -C, --nocolor            - Disable ANSI color escape sequences.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
 		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
+		  -f, --file [FILE]        - Override default locations with FILE.
 		  -k, --key [KEY]          - Display only bindings with KEY.
-		  -o, --override           - Override the default FILE locations.
 
 		A key binding's action being prepended with an exclamation mark ('!')
 		indicates it's a shell command, and not a native i3-wm command.
@@ -88,8 +88,14 @@ while [ -n "$1" ]; do
 				*)
 					Match=$1 ;;
 			esac ;;
-		--override|-o)
-			Override='True' ;;
+		--file|-f)
+			FileArg=$1; shift
+
+			if [ -z "$1" ]; then
+				Err 1 "Option '$FileArg' requires an argument."
+			else
+				Places=("$1")
+			fi ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -104,7 +110,7 @@ fi
 
 #----------------------------------------Confirm Suitable File Found & Readable
 
-if [ "$Override" != 'True' ]; then
+if [ -z "$Places" ]; then
 	Places=(
 		"$HOME/.config/i3/config"
 		"$HOME/.i3/config"
