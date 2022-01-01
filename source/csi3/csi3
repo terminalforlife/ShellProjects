@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat  1 Jan 09:58:26 GMT 2022
+# Last Change       - Sat  1 Jan 10:09:32 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -19,13 +19,13 @@
 #
 # Dependencies:
 #
-#   bash (>= 4.4.18-2)
+#   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
 CurVer='2022-01-01'
 Progrm='csi3'
 
-Usage(){
+Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
@@ -49,7 +49,7 @@ Usage(){
 	EOF
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
