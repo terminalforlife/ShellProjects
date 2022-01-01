@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 15 Dec 23:35:44 GMT 2021
+# Last Change       - Sat  1 Jan 09:58:26 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.4.18-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2022-01-01'
 Progrm='csi3'
 
 Usage(){
@@ -125,12 +125,26 @@ while read Line; do
 	CurrentKey=
 
 	case $Line in
-		'set $'[Mm][Oo][Dd]*)
+		'set $'[Mm][Oo][Dd]\ *)
 			ModVar=${Line#set }
 			ModVar=${ModVar% *}
 			ModKey=${Line#set \$* } ;;
 		bindsym\ *)
 			read _ Keys Action <<< "$Line"
+
+			# Account for something like `$mod` being used. (Issue #16)
+			if [ -n "$ModKey" ]; then
+				NewKeys=
+				for Key in ${Keys//+/ }; {
+					if [ "$Key" == "$ModVar" ]; then
+						NewKeys+="$ModKey+"
+					else
+						NewKeys+="$Key+"
+					fi
+				}
+
+				Keys=$NewKeys
+			fi
 
 			# Capitalize the first character of each key.
 			Keys=`Capitalize ${Keys//+/ }`
@@ -156,11 +170,9 @@ while read Line; do
 			Action=${Action/exec /!}
 
 			KeysLen=${#Keys}
-			if [ $KeysLen -gt $KeysLenMax ]; then
-				KeysLenMax=$KeysLen
-			fi
+			(( KeysLen > KeysLenMax )) && KeysLenMax=$KeysLen
 
-			let Count++
+			(( Count++ ))
 
 			# Using the `$Count` variable in order to maintain the original
 			# order, otherwise BASH will butcher the order, unfortunately.
@@ -171,9 +183,9 @@ done < "$File"
 #----------------Display Results, Using `$Count` to Maintain the Original Order
 
 Count=1
-until [ $Count -gt ${#Bindings[@]} ]; do
+until (( Count > ${#Bindings[@]} )); do
 	for Binding in "${!Bindings[@]}"; {
-		if [ $Count -eq "${Binding%%_*}" ]; then
+		if (( Count == "${Binding%%_*}" )); then
 			printf '%*s ' $KeysLenMax "${Binding#*_}"
 			if [[ ${Bindings[$Binding]} == \!* ]]; then
 				printf "$Red!\e[37m%s$Reset\n" "${Bindings[$Binding]#!}"
@@ -181,7 +193,7 @@ until [ $Count -gt ${#Bindings[@]} ]; do
 				printf "$Grey%s$Reset\n" "${Bindings[$Binding]}"
 			fi
 
-			let Count++
+			(( Count++ ))
 
 			break
 		fi
