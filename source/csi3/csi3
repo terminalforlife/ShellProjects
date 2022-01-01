@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat  1 Jan 10:09:32 GMT 2022
+# Last Change       - Sat  1 Jan 10:56:33 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -29,13 +29,14 @@ Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
-		Usage: $Progrm [OPTS] [FILE]
+		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -C, --nocolor            - Disable ANSI color escape sequences.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
 		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
+		  -k, --key [KEY]          - Display only bindings with KEY.
 		  -o, --override           - Override the default FILE locations.
 
 		A key binding's action being prepended with an exclamation mark ('!')
@@ -74,6 +75,19 @@ while [ -n "$1" ]; do
 		--execs|-e)
 			ExecsFlag=$1
 			Execs='True' ;;
+		--key|-k)
+			KeyArg=$1; shift
+
+			case $1 in
+				+)
+					Err 1 "Invalid key -- did you mean 'Plus'?" ;;
+				*+*)
+					Err 1 "Option '$KeyArg' accepts only a single key." ;;
+				'')
+					Err 1 "Option '$KeyArg' requires an argument." ;;
+				*)
+					Match=$1 ;;
+			esac ;;
 		--override|-o)
 			Override='True' ;;
 		-*)
@@ -89,8 +103,6 @@ if [ "$Execs" == 'True' -a "$NoExecs" == 'True' ]; then
 fi
 
 #----------------------------------------Confirm Suitable File Found & Readable
-
-[ -n "$1" ] && File+=("$1")
 
 if [ "$Override" != 'True' ]; then
 	Places=(
@@ -149,6 +161,22 @@ while read Line; do
 			# Capitalize the first character of each key.
 			Keys=`Capitalize ${Keys//+/ }`
 			Keys=${Keys%+}
+
+			# Allows for filtering by a specific key. This is done here to
+			# properly maintain table size. Keys provided by user should be in
+			# the form of 'Mod4' instead of 'mod4' or 'F2' instead of 'f2'.
+			if [ -n "$Match" ]; then
+				IFS='+' read -a KeyList <<< "$Keys"
+
+				Show=
+				for Key in "${KeyList[@]}"; {
+					if [ "$Key" == "$Match" ]; then
+						Show='True'
+					fi
+				}
+
+				[ "$Show" == 'True' ] || continue
+			fi
 
 			if [ "$NoExecs" == 'True' ]; then
 				case $Action in
