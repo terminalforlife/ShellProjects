@@ -3,13 +3,20 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Thu 16 Dec 15:53:04 GMT 2021
+# Last Change       - Wed  5 Jan 12:34:18 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# LSPKG has a fallback for those without dpkg-query(1) and sort(1), using
+# Pure-BASH, to ensure most people can get something out of it.
+#
 # Features:
 #
-# N/A
+#TODO: The sorting fallback using the Bubble algorithm sorts the entire string.
+#
+#      It would surely sort a LOT faster if it didn't needlessly try to sort
+#      the descriptions, which it currently does. I currently get output in
+#      ~18.4s (realtime), so it's of course very slow.
 #
 # Bugs:
 #
@@ -17,11 +24,12 @@
 #
 # Dependencies:
 #
-#   bash (>= 4.4.18-2)
-#   dpkg (>= 1.19.0.5)
+#   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+set -- firefox
+
+CurVer='2022-01-05'
 Progrm='lspkg'
 
 Usage() {
@@ -95,6 +103,8 @@ PkgList() {
 	else
 		local StatusFile='/var/lib/dpkg/status' Key Value Package
 		if [ -f "$StatusFile" ] && [ -r "$StatusFile" ]; then
+			local Key Value Package Status PkgsToSort
+
 			while IFS=':' read Key Value; do
 				case $Key in
 					Package)
@@ -103,10 +113,28 @@ PkgList() {
 						Status=${Value# } ;;
 					Description)
 						if [ "$Status" == 'install ok installed' ]; then
-							printf 'ii %s - %s\n' "$Package" "${Value# }"
+							PkgsToSort+=("ii $Package - ${Value# }")
 						fi ;;
 				esac
-			done < "$StatusFile" | sort
+			done < "$StatusFile"
+
+			if type -P sort &> /dev/null; then
+				printf '%s\n' "${PkgsToSort[@]}" | sort -k 1
+			else
+				# Fallback alphanumeric sorting using the Bubble algorithm.
+				local Len=${#PkgsToSort[@]} Iter Index
+				for (( Iter = 0; Iter < Len; Iter++ )); {
+					for (( Index = 0; Index < Len - (1 + Iter); Index++ )); {
+						if [[ ${PkgsToSort[Index]} > ${PkgsToSort[Index + 1]} ]]; then
+							local Temporary=${PkgsToSort[Index]}
+							PkgsToSort[Index]=${PkgsToSort[Index + 1]}
+							PkgsToSort[Index + 1]=$Temporary
+						fi
+					}
+				}
+
+				printf '%s\n' "${PkgsToSort[@]}"
+			fi
 		else
 			Err 1 'Unable to aquire package list.'
 		fi
