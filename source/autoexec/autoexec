@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat  8 Jan 19:33:19 GMT 2022
+# Last Change       - Sat  8 Jan 19:53:43 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ DepCount=0
 for Dep in file tput stat realpath; {
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
-		let DepCount++
+		(( DepCount++ ))
 	fi
 }
 
