@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-changes
 # Started On        - Thu 18 Feb 15:32:07 GMT 2021
-# Last Change       - Thu 16 Dec 00:00:12 GMT 2021
+# Last Change       - Sat  8 Jan 19:23:02 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -19,13 +19,13 @@
 #
 # Dependencies:
 #
-#   bash (>= 4.3-14)
+#   bash (>= 3.0)
 #   coreutils (>= 8.28-1ubuntu1)
 #   less (>= 487-0.1)
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+CurVer='2022-01-08'
 Progrm=${0##*/}
 
 Usage(){
@@ -48,7 +48,7 @@ Err(){
 
 KernOrgMirrs='https://mirrors.edge.kernel.org'
 
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -62,13 +62,13 @@ while [ "$1" ]; do
 	shift
 done
 
-if [ $# -eq 1 ]; then
+if (( $# == 1 )); then
 	if [[ $1 =~ ^[[:digit:].]+$ ]]; then
 		Version=$1
 	else
 		Err 1 "Invalid kernel version."
 	fi
-elif [ $# -gt 1 ]; then
+elif (( $# > 1 )); then
 	Err 1 'Trailing arguments.'
 else
 	Err 1 "Missing kernel version."
@@ -78,11 +78,11 @@ DepCount=0
 for Dep in less rm mktemp; {
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
-		let DepCount++
+		(( DepCount++ ))
 	fi
 }
 
-[ $DepCount -gt 0 ] && exit 1
+(( DepCount > 0 )) && exit 1
 
 Get(){
 
@@ -113,7 +113,7 @@ else
 fi
 
 while read; do
-	if [[ "${Data[1]}" == \<title\>404:\ * ]]; then
+	if [[ ${Data[1]} == \<title\>404:\ * ]]; then
 		Err 1 "Changelog for Linux v$Version not found."
 	fi
 done < "$OutFile"
