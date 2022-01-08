@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Fri 24 Dec 12:06:53 GMT 2021
+# Last Change       - Sat  8 Jan 20:21:17 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-24'
+CurVer='2022-01-08'
 Progrm=${0##*/}
 
 Usage() {
@@ -50,7 +50,7 @@ FileOS='/etc/os-release'
 FileLSB='/etc/lsb-release'
 StatusFile='/var/lib/dpkg/status'
 
-while [ -n "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -115,7 +115,7 @@ EOF
 
 #------------------------------Generate Associative Array of Installed Packages
 
-if [ -f "$StatusFile" -a -r "$StatusFile" ]; then
+if [[ -f $StatusFile && -r $StatusFile ]]; then
 	printf 'Generating list of installed packages...\n'
 
 	declare -A Packages
@@ -124,7 +124,7 @@ if [ -f "$StatusFile" -a -r "$StatusFile" ]; then
 			Package)
 				Name=${Value# } ;;
 			Status)
-				if [ "${Value# }" == 'install ok installed' ]; then
+				if [[ ${Value# } == install\ ok\ installed ]]; then
 					Packages["$Name"]='True'
 				fi ;;
 		esac
@@ -175,7 +175,7 @@ FindPKG() {
 		printf "Looking for '%s'\n" "$CurPKG"
 
 		for FoundPKG in "${!Packages[@]}"; {
-			if [[ "$FoundPKG" == $CurPKG ]]; then
+			if [[ $FoundPKG == $CurPKG ]]; then
 				printf "Found '%s'\n" "$FoundPKG"
 				(( Found++ ))
 			fi
@@ -189,17 +189,17 @@ FindPKG() {
 
 #------------------------------------------------------------------------------
 
-if [ "${LSBCheck:-true}" == 'true' ]; then
-	if [ -f "$FileOS" -a -r "$FileOS" ]; then
+if [[ ${LSBCheck:-true} == true ]]; then
+	if [[ -f $FileOS && -r $FileOS ]]; then
 		while IFS="=" read -a Line; do
-			if [ "${Line[0]}" == "ID" ]; then
+			if [[ ${Line[0]} == ID ]]; then
 				printf -v LSBRelease "%s" "${Line[1]}"
 				break
 			fi
 		done < "$FileOS"
-	elif [ -f "$FileLSB" -a -r "$FileLSB" ]; then
+	elif [[ -f $FileLSB && -r $FileLSB ]]; then
 		while IFS="=" read -a Line; do
-			if [ "${Line[0]}" == "DISTRIB_ID" ]; then
+			if [[ ${Line[0]} == DISTRIB_ID ]]; then
 				printf -v LSBRelease "%s" "${Line[1],,}"
 				break
 			fi
@@ -433,16 +433,16 @@ fi
 #TODO: This is a sloppy way to detect the distribution, and is only temporary!
 PathLook lite-welcome && IsLinuxLite='true'
 
-if [ "$IsLinuxLite" == 'true' ]; then
-	while read -r; do
+if [[ $IsLinuxLite == true ]]; then
+	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
-		WARNING: Simplify-ubuntu has detected an installation of Linux Lite. Although your
-		         chosen distribution was not the initial target for $Progrm, it's
-		         still built on Ubuntu.
+		WARNING: Simplify-ubuntu has detected an installation of Linux Lite.
+		         Although your chosen distribution was not the initial target
+		         for $Progrm, it's still built on Ubuntu.
 
-		         However, this should be considered 'experimental', so be sure to take even
-		         greater care with your answers.
+		         However, this should be considered 'experimental', so be sure
+		         to take even greater care with your answers.
 
 	EOF
 
@@ -600,7 +600,7 @@ if FindPKG \*brltty\* \*brlapi\*; then
 	}
 fi
 
-if [ "$IsCinnamon" == 'true' ]; then
+if [[ $IsCinnamon == true ]]; then
 	if PathLook file-roller; then
 		Prompt\
 			"[3065]: Will you need Archive Manager (file-roller)?"\
@@ -612,7 +612,7 @@ if [ "$IsCinnamon" == 'true' ]; then
 		}
 	fi
 else
-	if [ ! "$IsZorin" == 'true' ] && PathLook yelp; then
+	if [[ ! $IsZorin == true ]] && PathLook yelp; then
 		Prompt\
 			"[5678]: Will you need yelp support (Enter 'Y' if unsure)?"\
 			"If you enter 'N', yelp and related packages will be removed."\
@@ -646,7 +646,7 @@ if FindPKG xcursor-themes; then
 	}
 fi
 
-if [ ! "$IsCinnamon" == 'true' ] && PathLook inxi; then
+if [[ ! $IsCinnamon == true ]] && PathLook inxi; then
 	Prompt\
 		"[9947]: Will you be needing inxi (CLI system information tool)?"\
 		"If you enter 'N', the inxi package will be removed."\
@@ -726,7 +726,7 @@ if FindPKG ntp ntp-doc ntpdate ntpstat ; then
 	}
 fi
 
-if [ "$IsMint" == 'true' ]; then
+if [[ $IsMint == true ]]; then
 	if FindPKG cups cups-filters\* cups-server\* cups-core-drivers\
 		printer-driver-\* system-config-printer\* libgutenprint2\
 		foomatic-db-compressed-ppds; then
@@ -741,7 +741,7 @@ if [ "$IsMint" == 'true' ]; then
 				libgutenprint2 foomatic-db-compressed-ppds
 		}
 	fi
-elif [ "$IsZorin" == 'true' ]; then
+elif [[ $IsZorin == true ]]; then
 	if FindPKG cups; then
 		Prompt\
 			"[0919]: Will you be using a printer with this Linux installation?"\
@@ -752,7 +752,7 @@ elif [ "$IsZorin" == 'true' ]; then
 			RemPKG cups
 		}
 	fi
-elif [ "$IsUbuntu" == 'true' ]; then
+elif [[ $IsUbuntu == true ]]; then
 	if FindPKG printer-driver-\* cups\* system-config-printer\*\
 		ippusbxd libgutenprint2 foomatic-db-compressed-ppds\
 		python3-cupshelpers openprinting-ppds; then
@@ -780,7 +780,7 @@ if FindPKG libfakeroot fakeroot; then
 	}
 fi
 
-if [ ! "$IsZorin" == 'true' ] && PathLook hdparm; then
+if [[ ! $IsZorin == true ]] && PathLook hdparm; then
 	Prompt\
 		"[5102]: Will you need hdparm (get/set SATA/IDE device parameters)?"\
 		"If you enter 'N', the hdparm package will be removed."\
@@ -791,7 +791,7 @@ if [ ! "$IsZorin" == 'true' ] && PathLook hdparm; then
 	}
 fi
 
-if ! [ "$IsZorin" == 'true' ]; then
+if ! [[ $IsZorin == true ]]; then
 	if FindPKG simple-scan libsane\* colord\*; then
 		Prompt\
 			"[2722]: Will you be using a scanner with this Linux installation?"\
@@ -804,7 +804,7 @@ if ! [ "$IsZorin" == 'true' ]; then
 	fi
 fi
 
-if ! [ "$IgnoreFonts" == 'true' ]; then
+if ! [[ $IgnoreFonts == true ]]; then
 	if FindPKG xfonts-thai\* fonts{-tlwg\*,-thai\*}; then
 		Prompt\
 			"[5788]: Will you need any Thai fonts?"\
@@ -894,7 +894,7 @@ for BIN in transmission-{gtk,qt,cli}; {
 	fi
 }
 
-if [ "$Transmission" == 'true' ]; then
+if [[ $Transmission == true ]]; then
 	Prompt\
 		"[5371]: Will you ever be using torrents with Transmission?"\
 		"If you enter 'N', transmission packages will be removed."\
@@ -960,7 +960,7 @@ if FindPKG command-not-found; then
 		DoSay "Calling APT to remove the command-not-found package."
 		RemPKG command-not-found
 
-		if FindPKG python3-commandnotfound && ! [ "$IsMint" == 'true' ]; then
+		if FindPKG python3-commandnotfound && ! [[ $IsMint == true ]]; then
 			DoSay "Calling APT to remove the python3-commandnotfound package."
 			RemPKG python3-commandnotfound
 		fi
@@ -978,7 +978,7 @@ if PathLook flatpak; then
 	}
 fi
 
-if [ ! "$IsMint" == 'true' ] && PathLook synaptic; then
+if [[ ! $IsMint == true ]] && PathLook synaptic; then
 	Prompt\
 		"[1768]: Will you only perform APT package changes via terminals?"\
 		"If you enter 'Y', the Synaptic Package Manager will be removed."\
@@ -989,7 +989,7 @@ if [ ! "$IsMint" == 'true' ] && PathLook synaptic; then
 	}
 fi
 
-if ! [ "$IsZorin" == 'true' ]; then
+if ! [[ $IsZorin == true ]]; then
 	if FindPKG broadcom-sta-\* atmel-firmware wireless-crda wmwave linssid\
 		plasma-widget-wifi wavemon wpasupplicant rfkill; then
 		Prompt\
@@ -1001,7 +1001,7 @@ if ! [ "$IsZorin" == 'true' ]; then
 			RemPKG broadcom-sta-\* atmel-firmware wireless-crda wmwave linssid\
 				plasma-widget-wifi wavemon rfkill
 
-			if ! [ "$IsCinnamon" == 'true' ]; then
+			if ! [[ $IsCinnamon == true ]]; then
 				RemPKG wpasupplicant
 			fi
 		}
@@ -1076,7 +1076,7 @@ if FindPKG xserver-xorg-input-synaptics\*; then
 	}
 fi
 
-if ! [ "$NoAskDE" == 'true' ]; then
+if ! [[ $NoAskDE == true ]]; then
 	Prompt\
 		"[0204]: Are you using the KDE desktop environment?"\
 		"If you enter 'Y', you'll be asked KDE-specific questions."\
@@ -1111,12 +1111,12 @@ if ! [ "$NoAskDE" == 'true' ]; then
 			}
 		fi
 
-		if [ "$NoSamba" == 'true' ]; then
+		if [[ $NoSamba == true ]]; then
 			DoSay "Calling APT to remove smb4k package (Samba-related)."
 			RemPKG smb4k
 		fi
 
-		if [ "$NoTouchpad" == 'true' ]; then
+		if [[ $NoTouchpad == true ]]; then
 			DoSay "Calling APT to remove KDE packages related to touchpads."
 			RemPKG kde-{config-touchpad,touchpad}
 		fi
@@ -1255,7 +1255,7 @@ if PathLook sudo; then
 	}
 fi
 
-if ! [ "$IsZorin" == 'true' ]; then
+if ! [[ $IsZorin == true ]]; then
 	if FindPKG ssh-askpass-gnome openssh-server ssh python-paramiko; then
 		Prompt\
 			"[9627]: Is this installation an SSH server (Enter 'Y' if unsure)?"\
@@ -1301,7 +1301,7 @@ if PathLook tomboy; then
 	}
 fi
 
-if [ "$IsMint" == 'true' ]; then
+if [[ $IsMint == true ]]; then
 	if PathLook timeshift; then
 		Prompt\
 			"[6069]: Will you be needing timeshift (backup utility)?"\
@@ -1320,9 +1320,9 @@ if FindPKG xscreensaver\* gnome-{screensaver,screensaver}; then
 	|| {
 		DoSay "Calling APT to remove packages related to screensavers."
 
-		if [ "$IsGNOME" == 'true' ]; then
+		if [[ $IsGNOME == true ]]; then
 			RemPKG gnome-screensaver
-		elif [ "$IsMate" == 'true' ]; then
+		elif [[ $IsMate == true ]]; then
 			RemPKG mate-screensaver\*
 		fi
 
@@ -1370,14 +1370,14 @@ if FindPKG mobile-broadband-provider-info; then
 	}
 fi
 
-if ! [ "$IsZorin" == 'true' ]; then
+if ! [[ $IsZorin == true ]]; then
 	if FindPKG \*bluetooth\* \*bluez\* ubertooth libubertooth\*; then
 		Prompt\
 			"[5628]: Do you need bluetooth support?"\
 			"If you enter 'N', various bluetooth packages will be removed."\
 			"Either via external or internal bluetooth receivers."\
 		|| {
-			if [ "$IsMint" == 'true' ]; then
+			if [[ $IsMint == true ]]; then
 				Prompt\
 					"[6689]: Are you using the Cinnamon desktop environment?"\
 					"If you enter 'Y', fewer bluetooth packages will be removed."\
@@ -1490,7 +1490,7 @@ if ! [ "$IsZorin" == 'true' ]; then
 			RemPKG wodim libdvd\* libcdr\* cd-discid
 		}
 
-		if [ "$NoGVFS" == 'true' ]; then
+		if [[ $NoGVFS == true ]]; then
 			RemPKG libcdio\*
 		fi
 
@@ -1509,7 +1509,7 @@ if ! [ "$IsZorin" == 'true' ]; then
 		fi
 	fi
 
-	if [ ! "$NoDVDRWTools" == 'true' ] && PathLook genisoimage; then
+	if [[ ! $NoDVDRWTools == true ]] && PathLook genisoimage; then
 		Prompt\
 			"[0323]: Will you be needing genisoimage (ISO file creator)?"\
 			"If you enter 'N', the genisoimage package will be removed."\
@@ -1524,7 +1524,7 @@ if ! [ "$IsZorin" == 'true' ]; then
 		RemPKG brasero
 	fi
 
-	if ! [ "$IsCinnamon" == 'true' ]; then
+	if ! [[ $IsCinnamon == true ]]; then
 		if PathLook gksu gksudo; then
 			Prompt\
 				"[1001]: Will you need gksu and/or gksudo (Enter 'Y' if unsure)?"\
@@ -1545,7 +1545,7 @@ if PathLook baobab; then
 		DoSay "Calling APT to remove the baobab package."
 		RemPKG caribou
 
-		if ! [ "$IsCinnamon" == 'true' ]; then
+		if ! [[ $IsCinnamon == true ]]; then
 			RemPKG baobab
 		fi
 	}
@@ -1568,7 +1568,7 @@ if FindPKG freerdp\* libfreerdp\* dosfstools ntfs-3g libgcab-\*\
 		"If you enter 'N', additional related questions will be asked."\
 	|| NO_MS_TOOLS='true'
 
-	if [ "$NO_MS_TOOLS" == 'true' ]; then
+	if [[ $NO_MS_TOOLS == true ]]; then
 		DoSay "Calling APT to remove the mtools package."
 		RemPKG mtools
 
@@ -1606,7 +1606,7 @@ if FindPKG freerdp\* libfreerdp\* dosfstools ntfs-3g libgcab-\*\
 	fi
 fi
 
-if [ "$NO_FREERDP" == 'true' -o "$NoVino" == 'true' ]; then
+if [[ $NO_FREERDP == true && $NoVino == true ]]; then
 	DoSay "Calling APT to remove the thin-client-config-agent package."
 	RemPKG thin-client-config-agent
 fi
@@ -1726,7 +1726,7 @@ if FindPKG lvm2 liblvm\*; then
 		"This is LVM2, the rewrite of The Linux Logical Volume Manager."\
 	|| NoLVM='true'
 
-	if [ "$NoLVM" == 'true' ]; then
+	if [[ $NoLVM == true ]]; then
 		Prompt\
 			"[7958]: WARNING! May be problematic if you're wrong. Are you sure?"\
 			"If you enter 'Y', LVM-related packages will still be removed."\
@@ -1882,7 +1882,7 @@ if FindPKG caribou; then
 		DoSay "Calling APT to remove the caribou package(s)."
 		RemPKG caribou
 
-		if ! [ "$IsCinnamon" == 'true' ]; then
+		if ! [[ $IsCinnamon == true ]]; then
 			RemPKG \*caribou\*
 		fi
 	}
@@ -1921,7 +1921,7 @@ if FindPKG ftp; then
 	}
 fi
 
-if ! [ "$IsCinnamon" == 'true' ]; then
+if ! [[ $IsCinnamon == true ]]; then
 	if FindPKG dpkg-dev; then
 		Prompt\
 			"[7031]: Will you need tools to build DEB packages from source?"\
