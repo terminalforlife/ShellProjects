@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/completions
 # Started On        - Wed 12 Feb 18:58:13 GMT 2020
-# Last Change       - Wed 25 Aug 20:33:23 BST 2021
+# Last Change       - Sat  8 Jan 19:25:24 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ _autoexec(){
 
 	if [[ $2 == -* ]]; then
 		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
-	elif [ "$3" == '-e' ] || [ "$3" == '--exec' ]; then
+	elif [[ $3 == -e || $3 == --exec ]]; then
 		COMPREPLY=(`compgen -A command -- "$2"`)
 	fi
 

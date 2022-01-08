@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/nwchk/completions
 # Started On        - Wed 12 Feb 18:58:13 GMT 2020
-# Last Change       - Tue 14 Sep 12:11:09 BST 2021
+# Last Change       - Sat  8 Jan 19:26:25 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,10 +22,9 @@ _nwchk(){
 
 	if [[ $2 == -* ]]; then
 		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
-	elif [ "$3" == '-L' ] || [ "$3" == '--logfile' ]; then
+	#elif [[ $3 == -L || $3 == --logfile ]]; then
 		#TODO: Complete this properly... somehow.
 		#COMPREPLY=(`compgen -W "$(compgen -o default)" -- "$2"`)
-		:
 	fi
 
 	unset Option Arg Args
