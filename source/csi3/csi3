@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat  1 Jan 11:56:49 GMT 2022
+# Last Change       - Sat  8 Jan 19:06:20 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-01'
+CurVer='2022-01-08'
 Progrm='csi3'
 
 Usage() {
@@ -59,7 +59,7 @@ Red='\e[91m'
 Grey='\e[37m'
 Reset='\e[0m'
 
-while [ -n "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -91,7 +91,7 @@ while [ -n "$1" ]; do
 		--file|-f)
 			FileArg=$1; shift
 
-			if [ -z "$1" ]; then
+			if [[ -z $1 ]]; then
 				Err 1 "Option '$FileArg' requires an argument."
 			else
 				Places=("$1")
@@ -104,13 +104,13 @@ while [ -n "$1" ]; do
 	shift
 done
 
-if [ "$Execs" == 'True' -a "$NoExecs" == 'True' ]; then
+if [[ $Execs == True && $NoExecs == True ]]; then
 	Err 1 "OPTs '$NoExecsFlag' & '$ExecsFlag' are incompatible."
 fi
 
 #----------------------------------------Confirm Suitable File Found & Readable
 
-if [ -z "$Places" ]; then
+if [[ -z $Places ]]; then
 	Places=(
 		"$HOME/.config/i3/config"
 		"$HOME/.i3/config"
@@ -118,8 +118,8 @@ if [ -z "$Places" ]; then
 fi
 
 for Place in "${Places[@]}"; {
-	if [ -f "$Place" ]; then
-		if [ -r "$Place" ]; then
+	if [[ -f $Place ]]; then
+		if [[ -r $Place ]]; then
 			File=$Place
 			break
 		else
@@ -128,7 +128,7 @@ for Place in "${Places[@]}"; {
 	fi
 }
 
-[ -z "$File" ] && Err 1 'Unable to find a suitable configuration file.'
+[[ -z $File ]] && Err 1 'Unable to find a suitable configuration file.'
 
 #-------------------------------------------------------------------Gather Data
 
@@ -151,10 +151,10 @@ while read Line; do
 			read _ Keys Action <<< "$Line"
 
 			# Account for something like `$mod` being used. (Issue #16)
-			if [ -n "$ModKey" ]; then
+			if [[ -n $ModKey ]]; then
 				NewKeys=
 				for Key in ${Keys//+/ }; {
-					if [ "$Key" == "$ModVar" ]; then
+					if [[ $Key == $ModVar ]]; then
 						NewKeys+="$ModKey+"
 					else
 						NewKeys+="$Key+"
@@ -171,25 +171,25 @@ while read Line; do
 			# Allows for filtering by a specific key. This is done here to
 			# properly maintain table size. Keys provided by user should be in
 			# the form of 'Mod4' instead of 'mod4' or 'F2' instead of 'f2'.
-			if [ -n "$Match" ]; then
+			if [[ -n $Match ]]; then
 				IFS='+' read -a KeyList <<< "$Keys"
 
 				Show=
 				for Key in "${KeyList[@]}"; {
-					if [ "$Key" == "$Match" ]; then
+					if [[ $Key == $Match ]]; then
 						Show='True'
 					fi
 				}
 
-				[ "$Show" == 'True' ] || continue
+				[[ $Show == True ]] || continue
 			fi
 
-			if [ "$NoExecs" == 'True' ]; then
+			if [[ $NoExecs == True ]]; then
 				case $Action in
 					exec\ *|exec_always\ *)
 						continue ;;
 				esac
-			elif [ "$Execs" == 'True' ]; then
+			elif [[ $Execs == True ]]; then
 				case $Action in
 					exec\ *|exec_always\ *)
 						;;
