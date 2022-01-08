@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Wed 15 Dec 23:26:50 GMT 2021
+# Last Change       - Sat  8 Jan 19:33:19 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2022-01-08'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -75,7 +75,7 @@ Spinner='True'
 Time='False'
 WaitMSG='True'
 
-while [ -n "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--)
 			break ;;
@@ -86,7 +86,7 @@ while [ -n "$1" ]; do
 		--exec|-e)
 			shift
 
-			if [ -z "$1" ]; then
+			if [[ -z $1 ]]; then
 				Err 1 'Name of command not provided.'
 			#elif ! type -P "$1" > /dev/null 2>&1; then
 			#	Err 1 'Provided command not found in PATH.'
@@ -97,7 +97,7 @@ while [ -n "$1" ]; do
 			RefreshArg=$1
 			shift
 
-			if [ -z "$1" ]; then
+			if [[ -z $1 ]]; then
 				Err 1 'Unspecified refresh rate.'
 			elif ! [[ $1 =~ ^([[:digit:]]+|[[:digit:]]+\.[[:digit:]]+)$ ]]; then
 				Err 1 'Invalid refresh rate.'
@@ -131,13 +131,13 @@ while [ -n "$1" ]; do
 	shift
 done
 
-if [ "$Once" == 'true' -a "$RefreshCustom" == 'True' ]; then
+if [[ $Once == true && $RefreshCustom == True ]]; then
 	Err 1 "OPTs '$OnceArg' and '$RefreshArg' aren't compatible."
 fi
 
-[ -z "$1" ] && Err 1 'Missing argument -- file name required.'
-[ -f "$1" ] || Err 1 'Provided file is not a file.'
-[ -r "$1" ] || Err 1 'Provided file is unreadable.'
+[[ -z $1 ]] && Err 1 'Missing argument -- file name required.'
+[[ -f $1 ]] || Err 1 'Provided file is not a file.'
+[[ -r $1 ]] || Err 1 'Provided file is unreadable.'
 
 ExecFile=$1; shift
 
@@ -153,7 +153,7 @@ for Dep in file tput stat realpath; {
 
 #----------------------------------------------Prepare for an Execute Main Loop
 
-if [ "$Force" == 'False' ]; then
+if [[ $Force == False ]]; then
 	case $Exec in
 		*/man|man|*/less|less|*/pager|pager|*/more|more)
 			Err 1 "Using pagers with $ProgrmFancy is unsupported." ;;
@@ -166,19 +166,19 @@ if [ "$Force" == 'False' ]; then
 fi
 
 SignalHandler(){
-	if [ "$Once" != 'true' ]; then
+	if [[ $Once != true ]]; then
 		tput ed
 		tput rmcup
 	fi
 
-	if [ -n "$InterpreterMissing" ]; then
+	if [[ -n $InterpreterMissing ]]; then
 		Err 1 "Interpreter '$InterpreterMissing' not found."
-	elif [ "$SheBangInvalid" == 'True' ]; then
+	elif [[ $SheBangInvalid == True ]]; then
 		Err 1 'Invalid shebang detected.'
 	fi
 
 	# Needs to be here otherwise the above line clears it.
-	if [ "$Force" == 'False' ] && [ "$UnsupportedCheck" == 'True' ]; then
+	if [[ $Force == False && $UnsupportedCheck == True ]]; then
 		Err 1 "OPT '$CheckArg' not supported on FILE."
 	fi
 
@@ -187,9 +187,9 @@ SignalHandler(){
 
 trap 'SignalHandler' SIGINT EXIT
 
-[ "$Once" == 'true' ] || tput smcup
+[[ $Once == true ]] || tput smcup
 
-if [ "$Once" != 'true' ]; then
+if [[ $Once != true ]]; then
 	shopt -s checkwinsize
 	tput clear
 	trap 'tput clear' WINCH
@@ -197,7 +197,7 @@ fi
 
 while :; do
 	# Determine the interpreter to use.
-	if [ -z "$Exec" ]; then
+	if [[ -z $Exec ]]; then
 		read SheBang < "$ExecFile"
 
 		if [[ $SheBang != '#!'* ]]; then
@@ -216,14 +216,14 @@ while :; do
 		Exec=$SheBangMain
 	fi
 
-	if [ -f "$ExecFile" ] && [ -r "$ExecFile" ]; then
+	if [[ -f $ExecFile && -r $ExecFile ]]; then
 		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
 
-		if [ 0${SSEOld//[![:digit:]]} -lt 0${SSE//[![:digit:]]} ]; then
-			[ "$Once" == 'true' ] || tput clear
+		if [[ ${SSEOld//[![:digit:]]} -lt ${SSE//[![:digit:]]} ]]; then
+			[[ $Once == true ]] || tput clear
 
 			# If using DASH, BASH, or ZSH, check for errors before executing.
-			if [ "$Check" == 'True' ]; then
+			if [[ $Check == True ]]; then
 				unset Errors
 				case ${Exec%% *} in
 					bash|zsh)
@@ -231,7 +231,7 @@ while :; do
 					sh)
 						File=`type -P sh`
 						Link=`realpath "$File"`
-						if [ "$Link" == '/bin/dash' ]; then
+						if [[ $Link == /bin/dash ]]; then
 							$Exec -n "$ExecFile" || Errors='True'
 						else
 							UnsupportedCheck='True'
@@ -240,11 +240,11 @@ while :; do
 						UnsupportedCheck='True' ;;
 				esac
 
-				[ "$Force" == 'False' -a "$UnsupportedCheck" == 'True' ] && exit 1
+				[[ $Force == False && $UnsupportedCheck == True ]] && exit 1
 			fi
 
-			if [ "$Errors" != 'True' ]; then
-				if [ "$Time" == 'True' ]; then
+			if [[ $Errors != True ]]; then
+				if [[ $Time == True ]]; then
 					time $Exec "$ExecFile" "$@"
 					Exit=$?
 				else
@@ -258,19 +258,19 @@ while :; do
 
 		SSEOld=${SSE//[![:digit:]]}
 	else
-		if [ "$Once" != 'true' ]; then
+		if [[ $Once != true ]]; then
 			tput ed; tput rmcup
 		fi
 
 		Err 1 'File not found or inaccessible.'
 	fi
 
-	if [ "$Once" != 'true' ]; then
+	if [[ $Once != true ]]; then
 		# Have the exit status on the bottom-right of the terminal.
-		if [ "$ExitStatus" == 'True' ]; then
+		if [[ $ExitStatus == True ]]; then
 			tput cup $LINES $((COLUMNS - 3))
 
-			if [ "$Color" == 'True' ]; then
+			if [[ $Color == True ]]; then
 				if (( Exit == 0 )); then
 					printf '\e[2;37m%#3d\e[0m' $Exit
 				else
@@ -281,12 +281,12 @@ while :; do
 			fi
 		fi
 
-		if [ "$WaitMSG" == 'True' ]; then
-			if [ "$Spinner" == 'True' ]; then
+		if [[ $WaitMSG == True ]]; then
+			if [[ $Spinner == True ]]; then
 				for Char in '|' '/' '-' '\'; {
 					tput cud $LINES
 
-					if [ "$Color" == 'True' ]; then
+					if [[ $Color == True ]]; then
 						printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
 					else
 						printf '\r[%s] Waiting for changes... ' "$Char"
@@ -297,7 +297,7 @@ while :; do
 			else
 				tput cud $LINES
 
-				if [ "$Color" == 'True' ]; then
+				if [[ $Color == True ]]; then
 					printf '\r\e[2;37mWaiting for changes...\e[0m '
 				else
 					printf '\rWaiting for changes... '
@@ -306,7 +306,7 @@ while :; do
 		fi
 	fi
 
-	[ "$Once" == 'true' ] && exit 0
+	[[ $Once == true ]] && exit 0
 
 	read -n 1 -st $Refresh
 done
