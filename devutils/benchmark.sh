@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/benchmark.sh
 # Started On        - Fri  7 Jan 21:16:56 GMT 2022
-# Last Change       - Fri  7 Jan 21:23:51 GMT 2022
+# Last Change       - Fri  7 Jan 21:34:14 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,6 +16,9 @@
 #   1 = General script error.
 #   2 = AWK detected invalid lines in temporary file.
 #   4 = Incorrect number of arguments given to script.
+#
+# If you given an invalid command, you may not know, so choose carefully. If
+# you always see 0.000 for the average, then it could indicate this issue.
 #
 # Usage: benchmark.sh INT COMMAND
 #------------------------------------------------------------------------------
