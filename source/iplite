@@ -3,15 +3,15 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/iplite
 # Started On        - Sat 29 Feb 14:56:05 GMT 2020
-# Last Change       - Thu 16 Dec 00:00:47 GMT 2021
+# Last Change       - Sun  9 Jan 15:47:42 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Uses only the Bourne Again Shell to download and parse a webpage in order to
 # fetch the user's external (online) IP address, via HTTP.
 #
-# Huge thanks to 'z i z z u' for their help over on the Learn Linux channel.
-# This small utility is a revision of and was heavily inspired by:
+# Huge thanks to 'z i z z u' for their help over on the Terminalforlife (LL)
+# channel. This small utility is a revision of and was heavily inspired by:
 #
 #   https://github.com/zizzu0/scripts/blob/master/myip.sh
 #
@@ -21,30 +21,32 @@
 #
 # Bugs:
 #
-# N/A
+#TODO: No longer works. Noticed this at 2022-01-09, unfortunately.
+#
+#      iplite: line 71: read: read error: 3: Connection reset by peer
 #
 # Dependencies:
 #
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+CurVer='2022-01-09'
 Progrm=${0##*/}
 
-Usage(){
-	while read -r CurLine; do
-		printf '%b\n' "$CurLine"
+Usage() {
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		\rUsage: $Progrm [OPTS]
+		Usage: $Progrm [OPTS]
 
-		\r  -h, --help               - Display this help information.
-		\r  -v, --version            - Output the version datestamp.
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
 	EOF
 }
 
 Domain='ifconfig.co'
 
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -59,7 +61,7 @@ done
 
 exec 3<>/dev/tcp/"$Domain"/80
 
-while read -r; do
+while read; do
 	printf '%s\r\n' "$REPLY"
 done <<-EOF >&3
 	GET / HTTP/1.1
@@ -78,7 +80,7 @@ done
 
 exec 3>&-
 
-if [ -n "$IP" ]; then
+if [[ -n $IP ]]; then
 	if [[ $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 		printf '%s\n' "$IP"
 	else
