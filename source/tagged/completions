@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/tagged
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/tagged/completions
+# Started On        - Mon 29 Jan 18:47:58 GMT 2018
+# Last Change       - Sun  9 Jan 17:46:23 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is the bash completion script for `tagged`.
+#------------------------------------------------------------------------------
+
+_tagged(){
+	local Option Args Arg
+
+	while read; do
+		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
+			Option=${REPLY%% - *}
+			for Arg in ${Option//,/}; {
+				Args+="${Arg##[^-]*} "
+			}
+		fi
+	done <<< "$($1 -h)"
+
+	case $2 in
+		-*) COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
+	esac ;;
+}
+
+complete -F _tagged tagged

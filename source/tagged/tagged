@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/tagged
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/tagged/tagged
+# Started On        - Sun  9 Jan 16:57:12 GMT 2022
+# Last Change       - Sun  9 Jan 17:44:34 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Features:
+#
+#TODO: Add flag to show only the total.
+#TODO: Add flag to show only basenames.
+#TODO: Colorize the basename of paths to make it stand out.
+#TODO: Add ability to perform recursively, if it's not too slow.
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 3.1)
+#   git (>= 2.17.1)
+#------------------------------------------------------------------------------
+
+CurVer='2022-01-09'
+Progrm=${0##*/}
+
+Usage() {
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS] [FILE_1 [FILE_2] ...]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  -C, --no-color           - Disable ANSI color escape sequences.
+		  -r, --reverse            - Show least number of commits first.
+		  -t, --total              - Display the total number of commits
+		  -z, --zero               - Include files not part of any commits.
+	EOF
+}
+
+Err() {
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
+Sorted='<'
+
+while [[ -n $1 ]]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--no-color|-C)
+			NoColor='True' ;;
+		--reverse|-r)
+			Sorted='>' ;;
+		--total|-t)
+			Total='True' ;;
+		--zero|-z)
+			Zero='True' ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+if ! type -P git &> /dev/null; then
+	Err 0 "Dependency 'git' not met."
+fi
+
+if [[ $NoColor != True ]]; then
+	Grey='\e[37m'
+	Reset='\e[0m'
+fi
+
+#-------------------------Use git(1) to Get the Number of Commits for Each File
+
+for File in "$@"; {
+	[[ -f $File ]] || continue
+
+	Commits=0
+	Failed='False'
+	while read; do
+		if [[ $REPLY =~ ^[[:alnum:]]{40}$ ]]; then
+			(( Commits++ ))
+		else
+			Failed='True'
+			break
+		fi
+	done <<< "$(git rev-list HEAD -- "$File")"
+	[[ $Failed == True ]] && continue
+
+	(( TotalCommits += Commits ))
+	if [[ $Zero == True ]] || (( Commits > 0 )); then
+		printf -v CommaCommits "%'d" $Commits
+		Files+=("$CommaCommits:$File")
+	fi
+
+	Len=${#CommaCommits}
+	if (( Len > LenMax )); then
+		LenMax=$Len
+	fi
+}
+
+#------------------Sort Files By the Number of Commits -- Filenames Are Ignored
+
+ArrLen=${#Files[*]}
+for (( Iter = 0; Iter < ArrLen; Iter++ )); {
+	for (( Index = 0; Index < ArrLen - (1 + Iter); Index++ )); {
+		This=${Files[Index]%%:*}
+		This=${This//,/}
+
+		Next=${Files[Index + 1]%%:*}
+		Next=${Next//,/}
+
+		if (( This $Sorted Next )); then
+			Temporary=${Files[Index]}
+			Files[Index]=${Files[Index + 1]}
+			Files[Index + 1]=$Temporary
+		fi
+	}
+}
+
+#--------------------------------------------------Display Gathered Information
+
+for File in "${Files[@]}"; {
+	Filename=${File#*:}
+	Commits=${File%%:*}
+	printf "%*s $Grey%-s$Reset\n" $LenMax $Commits "$Filename"
+}
+
+if [[ $Total == True ]]; then
+	printf "\nTotal: %'d\n" $TotalCommits
+fi
