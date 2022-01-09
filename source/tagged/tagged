@@ -3,14 +3,12 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged
 # Started On        - Sun  9 Jan 16:57:12 GMT 2022
-# Last Change       - Sun  9 Jan 18:55:46 GMT 2022
+# Last Change       - Sun  9 Jan 22:45:50 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Features:
 #
-#TODO: Add flag to show only the total.
-#TODO: Add flag to show only basenames.
 #TODO: Colorize the basename of paths to make it stand out.
 #
 # Bugs:
@@ -35,6 +33,8 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -C, --no-color           - Disable ANSI color escape sequences.
+		  -b, --basenames          - Show only the basename for each path.
+		  -o, --only-total         - Display only the total number of commits.
 		  -r, --reverse            - Show least number of commits first.
 		  -t, --total              - Display the total number of commits.
 		  -z, --zero               - Include files not part of any commits.
@@ -56,6 +56,11 @@ while [[ -n $1 ]]; do
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--no-color|-C)
 			NoColor='True' ;;
+		--basenames|-b)
+			Basenames='True' ;;
+		--only-total|-o)
+			ArgOnlyTotal=$1
+			OnlyTotal='True' ;;
 		--reverse|-r)
 			Sorted='>' ;;
 		--total|-t)
@@ -69,6 +74,10 @@ while [[ -n $1 ]]; do
 	esac
 	shift
 done
+
+if [[ $OnlyTotal == True && $Total != True ]]; then
+	Err 1 "Option '$ArgOnlyTotal' missing its pair."
+fi
 
 if ! type -P git &> /dev/null; then
 	Err 0 "Dependency 'git' not met."
@@ -94,47 +103,57 @@ for File in "$@"; {
 			break
 		fi
 	done <<< "$(git rev-list HEAD -- "$File")"
+	(( TotalCommits += Commits ))
+
 	[[ $Failed == True ]] && continue
 
-	(( TotalCommits += Commits ))
-	if [[ $Zero == True ]] || (( Commits > 0 )); then
-		printf -v CommaCommits "%'d" $Commits
-		Files+=("$CommaCommits:$File")
-	fi
-
-	Len=${#CommaCommits}
-	if (( Len > LenMax )); then
-		LenMax=$Len
-	fi
-}
-
-#------------------Sort Files By the Number of Commits -- Filenames Are Ignored
-
-ArrLen=${#Files[*]}
-for (( Iter = 0; Iter < ArrLen; Iter++ )); {
-	for (( Index = 0; Index < ArrLen - (1 + Iter); Index++ )); {
-		This=${Files[Index]%%:*}
-		This=${This//,/}
-
-		Next=${Files[Index + 1]%%:*}
-		Next=${Next//,/}
-
-		if (( This $Sorted Next )); then
-			Temporary=${Files[Index]}
-			Files[Index]=${Files[Index + 1]}
-			Files[Index + 1]=$Temporary
+	if [[ $OnlyTotal != True ]]; then
+		if [[ $Zero == True ]] || (( Commits > 0 )); then
+			printf -v CommaCommits "%'d" $Commits
+			Files+=("$CommaCommits:$File")
 		fi
+
+		Len=${#CommaCommits}
+		if (( Len > LenMax )); then
+			LenMax=$Len
+		fi
+	fi
+}
+
+#--------------------------------------------------Array Sorting & Data Display
+
+if [[ $OnlyTotal == True ]]; then
+	printf "%'d\n" $TotalCommits
+else
+	# Sort the array of files.
+	ArrLen=${#Files[*]}
+	for (( Iter = 0; Iter < ArrLen; Iter++ )); {
+		for (( Index = 0; Index < ArrLen - (1 + Iter); Index++ )); {
+			This=${Files[Index]%%:*}
+			This=${This//,/}
+
+			Next=${Files[Index + 1]%%:*}
+			Next=${Next//,/}
+
+			if (( This $Sorted Next )); then
+				Temporary=${Files[Index]}
+				Files[Index]=${Files[Index + 1]}
+				Files[Index + 1]=$Temporary
+			fi
+		}
 	}
-}
 
-#--------------------------------------------------Display Gathered Information
+	# List out the files with their number of commits.
+	for File in "${Files[@]}"; {
+		Filename=${File#*:}
+		Commits=${File%%:*}
 
-for File in "${Files[@]}"; {
-	Filename=${File#*:}
-	Commits=${File%%:*}
-	printf "%*s $Grey%-s$Reset\n" $LenMax $Commits "$Filename"
-}
+		[[ $Basenames == True ]] && Filename=${Filename##*/}
 
-if [[ $Total == True ]]; then
-	printf "\nTotal: %'d\n" $TotalCommits
+		printf "%*s $Grey%-s$Reset\n" $LenMax $Commits "$Filename"
+	}
+
+	if [[ $Total == True ]]; then
+		printf "\nTotal: %'d\n" $TotalCommits
+	fi
 fi
