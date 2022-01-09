@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged
 # Started On        - Sun  9 Jan 16:57:12 GMT 2022
-# Last Change       - Sun  9 Jan 18:21:22 GMT 2022
+# Last Change       - Sun  9 Jan 18:55:46 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,7 +12,6 @@
 #TODO: Add flag to show only the total.
 #TODO: Add flag to show only basenames.
 #TODO: Colorize the basename of paths to make it stand out.
-#TODO: Add ability to perform recursively, if it's not too slow.
 #
 # Bugs:
 #
