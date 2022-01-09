@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fixperms
 # Started On        - Sun 14 Feb 13:10:32 GMT 2021
-# Last Change       - Wed 15 Dec 23:57:37 GMT 2021
+# Last Change       - Sun  9 Jan 22:10:48 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 #   findutils (>= 4.6.0)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2022-01-09'
 Progrm='fixperms'
 ProgrmFancy='FixPerms'
 
@@ -41,7 +41,7 @@ Err(){
 	[ $1 -eq 1 ] && exit 1
 }
 
-while [ "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
