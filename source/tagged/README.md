@@ -25,7 +25,7 @@ If you don't have sudo(8), just omit it from the command(s) above, and run them 
 If you've used the installer, then you can run the following to delete the files it creates:
 
 ```
-sudo rm -v /usr/share/bash-completion/completions/tagged /usr/bin/tagged
+sudo rm -v /usr/share/man/man1/tagged.1.gz /usr/share/bash-completion/completions/tagged /usr/bin/tagged
 ```
 
 If you don't have sudo(8), you'll have to acquire root privileges by other means.
