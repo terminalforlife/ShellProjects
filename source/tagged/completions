@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/completions
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
-# Last Change       - Sun  9 Jan 17:46:23 GMT 2022
+# Last Change       - Sun  9 Jan 18:12:52 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,11 +20,11 @@ _tagged(){
 				Args+="${Arg##[^-]*} "
 			}
 		fi
-	done <<< "$($1 -h)"
+	done <<< "$(tagged -h)"
 
 	case $2 in
 		-*) COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
-	esac ;;
+	esac
 }
 
 complete -F _tagged tagged
