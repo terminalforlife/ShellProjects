@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Sun  9 Jan 18:22:13 GMT 2022
+# Last Change       - Sun  9 Jan 18:26:48 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ trap SigHandler EXIT INT QUIT ABRT TERM
 printf 'Fetching files from GitHub:\n'
 ErrCount=0
 for File in\
-	'completions' 'tagged'  # 'tagged.1.gz'
+	'completions' 'tagged' 'tagged.1.gz'
 do
 	printf "* Downloading '%s' ... " "$File"
 	if $DLCMD "$TmpDir/$File" "$URL/$File" 2>> "$LogFile"; then
