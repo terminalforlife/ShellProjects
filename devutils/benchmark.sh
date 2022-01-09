@@ -3,10 +3,12 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/benchmark.sh
 # Started On        - Fri  7 Jan 21:16:56 GMT 2022
-# Last Change       - Fri  7 Jan 21:34:14 GMT 2022
+# Last Change       - Sat  8 Jan 21:17:48 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+#TODO: Have `trap` for premature exit, because of temporary file.
+#
 # Benchmark a non-interactive command. Any commands requiring interaction via
 # the likes of a prompt won't work with this script. You'll have the average
 # runtime (realtime, based on the `time` keyword in BASH).
