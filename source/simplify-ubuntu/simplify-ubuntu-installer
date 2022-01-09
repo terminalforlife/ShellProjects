@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Sun  9 Jan 18:00:53 GMT 2022
+# Last Change       - Sun  9 Jan 18:05:43 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ for File in\
 	'simplify-ubuntu.8.gz:/usr/share/man/man8/simplify-ubuntu.8.gz'\
 	'simplify-ubuntu:/usr/bin/simplify-ubuntu'
 do
-	if [ -f "$File" ]; then
+	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
 		while :; do

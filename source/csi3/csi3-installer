@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Sun  9 Jan 18:00:16 GMT 2022
+# Last Change       - Sun  9 Jan 18:05:22 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ for File in\
 	'csi3.1.gz:/usr/share/man/man1/csi3.1.gz'\
 	'csi3:/usr/bin/csi3'
 do
-	if [ -f "$File" ]; then
+	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
 		while :; do

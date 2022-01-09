@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Sun  9 Jan 18:00:33 GMT 2022
+# Last Change       - Sun  9 Jan 18:05:32 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ for File in\
 	'glkfu-list:/usr/bin/glkfu-list'\
 	'glkfu:/usr/bin/glkfu'
 do
-	if [ -f "$File" ]; then
+	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
 		while :; do

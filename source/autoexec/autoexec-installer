@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Sun  9 Jan 17:59:47 GMT 2022
+# Last Change       - Sun  9 Jan 18:05:10 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ for File in\
 	'autoexec.1.gz:/usr/share/man/man1/autoexec.1.gz'\
 	'autoexec:/usr/bin/autoexec'
 do
-	if [ -f "$File" ]; then
+	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
 		while :; do

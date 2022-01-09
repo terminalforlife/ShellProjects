@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Sun  9 Jan 17:59:54 GMT 2022
+# Last Change       - Sun  9 Jan 18:05:15 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ for File in\
 	'backmeup.1.gz:/usr/share/man/man1/backmeup.1.gz'\
 	'backmeup:/usr/bin/backmeup'
 do
-	if [ -f "$File" ]; then
+	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
 		while :; do

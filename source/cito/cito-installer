@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Sun  9 Jan 18:00:02 GMT 2022
+# Last Change       - Sun  9 Jan 18:05:18 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ for File in\
 	'cito-list:/usr/bin/cito-list'\
 	'cito:/usr/bin/cito'
 do
-	if [ -f "$File" ]; then
+	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
 		while :; do

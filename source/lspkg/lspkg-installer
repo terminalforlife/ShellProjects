@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Sun  9 Jan 17:58:44 GMT 2022
+# Last Change       - Sun  9 Jan 18:05:36 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ for File in\
 	'lspkg-set:/usr/bin/lspkg-set'\
 	'lspkg:/usr/bin/lspkg'
 do
-	if [ -f "$File" ]; then
+	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
 		while :; do
