@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dura
 # Started On        - Thu  1 Jul 12:01:03 BST 2021
-# Last Change       - Sun  9 Jan 23:05:36 GMT 2022
+# Last Change       - Sun  9 Jan 23:35:20 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -69,15 +69,17 @@ elif ! type -P ffprobe &> /dev/null; then
 fi
 
 for File in "$@"; {
+	ShowFile="~/${File#$HOME/}"
+
 	if ! [[ -f $File ]]; then
-		Err 0 "File missing: $File"
+		Err 0 "File '$ShowFile' not found."
 	elif ! [[ -r $File ]]; then
-		Err 0 "File unreadable: $File"
+		Err 0 "File '$ShowFile' unreadable"
 	fi
 
 	while read -a Line; do
 		if [[ ${Line[0]} == Duration: ]]; then
-			declare -A Lens[${Line[1]%.[[:digit:]][[:digit:]],}]=$File
+			declare -A Lens[${Line[1]%.[[:digit:]][[:digit:]],}]=$ShowFile
 			break
 		fi
 	done <<< "$(ffprobe "$File" 2>&1)"
@@ -94,10 +96,15 @@ for Stamp in "${!Lens[@]}"; {
 for Time in "${!Lens[@]}"; {
 	IFS=':' read HH MM SS <<< "$Time"
 
+	# Needed to avoid syntax errors; `#10` doesn't seem to work.
+	HH=${HH##0}
+	MM=${MM##0}
+	SS=${SS##0}
+
 	# Using `#10` to use integer as a base-10(?) octal.
-	(( SecondTTL += (HH#10 * 3600) ))
-	(( SecondTTL += (MM#10 * 60) ))
-	(( SecondTTL += SS#10 ))
+	(( SecondTTL += (HH * 3600) ))
+	(( SecondTTL += (MM * 60) ))
+	(( SecondTTL += SS ))
 }
 
 # Display hours, minutes, and the remaining seconds determined from the above
