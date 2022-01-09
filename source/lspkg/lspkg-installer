@@ -1,9 +1,9 @@
 #!/bin/sh
-#lspkg M:755 O:0 G:0 T:/usr/bin/lspkg-installer
+#cito M:755 O:0 G:0 T:/usr/bin/lspkg-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Thu 16 Dec 00:02:45 GMT 2021
+# Last Change       - Sun  9 Jan 17:47:31 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
