@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Mon 27 Dec 08:28:01 GMT 2021
+# Last Change       - Sun  9 Jan 23:43:19 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 # will eventually be included into snotes properly.
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-27'
+CurVer='2022-01-09'
 Progrm=${0##*/}
 
 Comment='#'
@@ -59,7 +59,7 @@ Err() {
 
 ProjConf="$HOME/.config/$Progrm.conf"
 
-while [ -n "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--)
 			shift
@@ -83,20 +83,20 @@ done
 (( $# > 1 )) && Err 1 'Multiple matches are not supported.'
 
 FileChk() {
-	if ! [ -f "$NotesFile" ]; then
+	if ! [[ -f $NotesFile ]]; then
 		Err 1 'File not found.'
-	elif ! [ -r "$NotesFile" ]; then
+	elif ! [[ -r $NotesFile ]]; then
 		Err 1 'File unreadable.'
 	fi
 }
 
-if [ -f "$ProjConf" ]; then
-	if [ -n "$NotesFile" ]; then
+if [[ -f $ProjConf ]]; then
+	if [[ -n $NotesFile ]]; then
 		FileChk
 		read -n 1 -ep 'Notes file already set -- replace? [Y/N] '
 		case $REPLY in
 			[Yy]|[Yy][Ee][Ss])
-				if ! [ -d "$HOME/.config" ]; then
+				if ! [[ -d $HOME/.config ]]; then
 					if type -P mkdir &> /dev/null; then
 						mkdir "$HOME/.config"
 					else
@@ -122,7 +122,7 @@ LineCountLenMax=0
 while read -r CurLine; do
 	(( LineCount++ ))
 
-	[ "$CurLine" == "${Comment}END" ] && break
+	[[ $CurLine == ${Comment}END ]] && break
 	if [[ $CurLine =~ ^($|$Comment) ]]; then
 		continue
 	elif [[ $CurLine =~ $1 ]]; then
