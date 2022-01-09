@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Wed 15 Dec 23:54:50 GMT 2021
+# Last Change       - Sun  9 Jan 17:59:54 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -150,28 +150,30 @@ for File in\
 	'backmeup.1.gz:/usr/share/man/man1/backmeup.1.gz'\
 	'backmeup:/usr/bin/backmeup'
 do
-	Replace='False'
+	if [ -f "$File" ]; then
+		Replace='False'
 
-	while :; do
-		printf "File '%s' found.\n" "${File#*:}"
-		printf 'Replace existing file? [Y/N] '
+		while :; do
+			printf "File '%s' found.\n" "${File#*:}"
+			printf 'Replace existing file? [Y/N] '
 
-		read Input
-		case $Input in
-			[Yy]|[Yy][Ee][Ss])
-				Replace='True'
-				break ;;
-			[Nn]|[Nn][Oo])
-				Replace='False'
-				break ;;
-			'')
-				Err 0 'Empty response -- try again.' ;;
-			*)
-				Err 0 'Invalid response -- try again.' ;;
-		esac
-	done
+			read Input
+			case $Input in
+				[Yy]|[Yy][Ee][Ss])
+					Replace='True'
+					break ;;
+				[Nn]|[Nn][Oo])
+					Replace='False'
+					break ;;
+				'')
+					Err 0 'Empty response -- try again.' ;;
+				*)
+					Err 0 'Invalid response -- try again.' ;;
+			esac
+		done
 
-	[ "$Replace" = 'True' ] || continue
+		[ "$Replace" = 'True' ] || continue
+	fi
 
 	printf "* Installing '%s' ... " "${File%%:*}"
 	if mv "$TmpDir/${File%%:*}" "${File#*:}" 2>> "$LogFile"; then

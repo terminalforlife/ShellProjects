@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Sun  9 Jan 17:52:44 GMT 2022
+# Last Change       - Sun  9 Jan 18:01:01 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -154,28 +154,30 @@ for File in\
 	'tagged:/usr/bin/tagged'
 	# 'tagged.1.gz:/usr/share/man/man1/tagged.1.gz'\
 do
-	Replace='False'
+	if [ -f "$File" ]; then
+		Replace='False'
 
-	while :; do
-		printf "File '%s' found.\n" "${File#*:}"
-		printf 'Replace existing file? [Y/N] '
+		while :; do
+			printf "File '%s' found.\n" "${File#*:}"
+			printf 'Replace existing file? [Y/N] '
 
-		read Input
-		case $Input in
-			[Yy]|[Yy][Ee][Ss])
-				Replace='True'
-				break ;;
-			[Nn]|[Nn][Oo])
-				Replace='False'
-				break ;;
-			'')
-				Err 0 'Empty response -- try again.' ;;
-			*)
-				Err 0 'Invalid response -- try again.' ;;
-		esac
-	done
+			read Input
+			case $Input in
+				[Yy]|[Yy][Ee][Ss])
+					Replace='True'
+					break ;;
+				[Nn]|[Nn][Oo])
+					Replace='False'
+					break ;;
+				'')
+					Err 0 'Empty response -- try again.' ;;
+				*)
+					Err 0 'Invalid response -- try again.' ;;
+			esac
+		done
 
-	[ "$Replace" = 'True' ] || continue
+		[ "$Replace" = 'True' ] || continue
+	fi
 
 	printf "* Installing '%s' ... " "${File%%:*}"
 	if mv "$TmpDir/${File%%:*}" "${File#*:}" 2>> "$LogFile"; then
