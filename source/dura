@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dura
 # Started On        - Thu  1 Jul 12:01:03 BST 2021
-# Last Change       - Wed 15 Dec 23:40:57 GMT 2021
+# Last Change       - Sun  9 Jan 23:05:36 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,10 +27,10 @@
 #   ffmpeg (>= 7:3.4.8-0)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2022-01-09'
 Progrm=${0##*/}
 
-Usage(){
+Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
@@ -43,12 +43,12 @@ Usage(){
 	EOF
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -64,21 +64,19 @@ done
 
 if (( $# == 0 )); then
 	Err 1 'One or more file paths required.'
-fi
-
-if ! type -P ffprobe &> /dev/null; then
+elif ! type -P ffprobe &> /dev/null; then
 	Err 1 "Dependency 'ffprobe' not met."
 fi
 
 for File in "$@"; {
-	if ! [ -f "$File" ]; then
+	if ! [[ -f $File ]]; then
 		Err 0 "File missing: $File"
-	elif ! [ -r "$File" ]; then
+	elif ! [[ -r $File ]]; then
 		Err 0 "File unreadable: $File"
 	fi
 
 	while read -a Line; do
-		if [ "${Line[0]}" == 'Duration:' ]; then
+		if [[ ${Line[0]} == Duration: ]]; then
 			declare -A Lens[${Line[1]%.[[:digit:]][[:digit:]],}]=$File
 			break
 		fi
@@ -87,7 +85,7 @@ for File in "$@"; {
 
 # List files and their durations.
 for Stamp in "${!Lens[@]}"; {
-	printf '%-#8s <- \e[37m%s\e[0m\n' "$Stamp" "${Lens[$Stamp]}"
+	printf '%-#8s \e[37m%s\e[0m\n' "$Stamp" "${Lens[$Stamp]}"
 }
 
 (( $# == 1 )) && exit 0
@@ -96,20 +94,18 @@ for Stamp in "${!Lens[@]}"; {
 for Time in "${!Lens[@]}"; {
 	IFS=':' read HH MM SS <<< "$Time"
 
-	# Needed to avoid `let` freaking out thinking it's looking at octals.
-	HH=${HH##0}; MM=${MM##0}; SS=${SS##0}
-
-	let SecondTTL+=$(( HH * 3600 ))
-	let SecondTTL+=$(( MM * 60 ))
-	let SecondTTL+=SS
+	# Using `#10` to use integer as a base-10(?) octal.
+	(( SecondTTL += (HH#10 * 3600) ))
+	(( SecondTTL += (MM#10 * 60) ))
+	(( SecondTTL += SS#10 ))
 }
 
 # Display hours, minutes, and the remaining seconds determined from the above
 # block, deducting from the SecondsTTL each step of the way, until just the
 # seconds are left to display. Format them accordingly.
-HH=$(( SecondTTL / 3600 ))
-SecondTTL=$(( SecondTTL - (HH * 3600) ))
-MM=$(( SecondTTL / 60 ))
-SecondTTL=$(( SecondTTL - (MM * 60) ))
+(( HH = (SecondTTL / 3600) ))
+(( SecondTTL -= (HH * 3600) ))
+(( MM = (SecondTTL / 60) ))
+(( SecondTTL -= (MM * 60) ))
 
 printf '\e[92m%02d:%02d:%02d\e[0m\n' $HH $MM $SecondTTL
