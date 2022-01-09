@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/compile-bash.sh
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
-# Last Change       - Fri 24 Dec 17:17:02 GMT 2021
+# Last Change       - Sun  9 Jan 13:33:02 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -40,25 +40,20 @@ Err(){
 
 #-----------------------------------------------Determining Number of CPU Cores
 
-ProcInfoFile='/proc/cpuinfo'
-if [ -f "$ProcInfoFile" -a -r "$ProcInfoFile" ]; then
-	while read -a Line; do
-		if [ "${Line[0]}${Line[1]}" == 'cpucores' ]; then
-			TTLCores=${Line[3]}
-			break
-		fi
-	done < "$ProcInfoFile"
-else
+ProcFile='/proc/cpuinfo'
+if [[ -f $ProcFile && -r $ProcFile ]]; then
+	while IFS=':' read Key Value; do
+		Key=${Key##[[:space:]]}
+		case ${Key%%[[:space:]]} in
+			processor) TTLCores=${Value# } ;;
+		esac
+	done < "$ProcFile"
+	(( Proc++ ))
+elif type -P nproc &> /dev/null; then
 	TTLCores=`nproc`
 fi
 
-unset ProcInfoFile
-
-Cores=$TTLCores
-
-[[ $TTLCores =~ ^[[:digit:]]+$ ]] || Cores=1
-
-printf 'Using %d/%d available CPU core(s).\n' $Cores $TTLCores
+[[ $TTLCores =~ ^[[:digit:]]+$ ]] || TTLCores=1
 
 #------------------------------------------Generate List of Valid BASH Tarballs
 
@@ -90,7 +85,7 @@ done <<< "$(wget -qO - "$URL")"
 #--------------------------------------------------------Configure Then Compile
 
 for BASH in "${Files[@]}"; {
-	[ -d "${BASH%.tar.gz}" ] && continue
+	[[ -d ${BASH%.tar.gz} ]] && continue
 
 	if wget -q --show-progress "$URL/$BASH"; then
 		tar -xzvf "$BASH" && rm -v "$BASH"
@@ -98,7 +93,7 @@ for BASH in "${Files[@]}"; {
 		(
 			if cd "${BASH%.tar.gz}"; then
 				./configure
-				make -j $Cores
+				make -j $TTLCores
 			fi
 		)
 	fi
