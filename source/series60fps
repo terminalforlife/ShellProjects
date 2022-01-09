@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/series60fps
 # Started On        - Sat  2 Oct 05:09:10 BST 2021
-# Last Change       - Sat  2 Oct 05:36:47 BST 2021
+# Last Change       - Sun  9 Jan 23:39:40 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #
 # Dependencies:
 #
-#   bash (>= 4.3-14)
+#   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
 Domain='https://www.windowscentral.com'
@@ -37,12 +37,10 @@ else
 	exit 1
 fi
 
-GameNameLenMax=0
-declare -A Games
 while read; do
 	if [[ $REPLY == '<th>Game</th>' ]]; then
 		Found='True'
-	elif [ "$Found" == 'True' ]; then
+	elif [[ $Found == True ]]; then
 		REPLY=${REPLY#<td>}
 		REPLY=${REPLY%</td>}
 
@@ -57,8 +55,8 @@ while read; do
 			fi
 
 			GameTitleFound='True'
-		elif [ "$GameTitleFound" == 'True' ]; then
-			Games["$GameName"]=$REPLY
+		elif [[ $GameTitleFound == True ]]; then
+			declare -A Games["$GameName"]=$REPLY
 			GameTitleFound='False'
 		fi
 
