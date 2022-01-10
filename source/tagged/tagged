@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged
 # Started On        - Sun  9 Jan 16:57:12 GMT 2022
-# Last Change       - Sun  9 Jan 22:45:50 GMT 2022
+# Last Change       - Mon 10 Jan 11:47:29 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   git (>= 2.17.1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-09'
+CurVer='2022-01-10'
 Progrm=${0##*/}
 
 Usage() {
@@ -77,6 +77,8 @@ done
 
 if [[ $OnlyTotal == True && $Total != True ]]; then
 	Err 1 "Option '$ArgOnlyTotal' missing its pair."
+elif (( $# == 0 )); then
+	Err 1 "No files given -- see: $Progrm --help"
 fi
 
 if ! type -P git &> /dev/null; then
@@ -106,17 +108,16 @@ for File in "$@"; {
 	(( TotalCommits += Commits ))
 
 	[[ $Failed == True ]] && continue
+	[[ $OnlyTotal == True ]] && continue
 
-	if [[ $OnlyTotal != True ]]; then
-		if [[ $Zero == True ]] || (( Commits > 0 )); then
-			printf -v CommaCommits "%'d" $Commits
-			Files+=("$CommaCommits:$File")
-		fi
+	if [[ $Zero == True ]] || (( Commits > 0 )); then
+		printf -v CommaCommits "%'d" $Commits
+		Files+=("$CommaCommits:$File")
+	fi
 
-		Len=${#CommaCommits}
-		if (( Len > LenMax )); then
-			LenMax=$Len
-		fi
+	Len=${#CommaCommits}
+	if (( Len > LenMax )); then
+		LenMax=$Len
 	fi
 }
 
@@ -128,6 +129,7 @@ else
 	# Sort the array of files.
 	ArrLen=${#Files[*]}
 	for (( Iter = 0; Iter < ArrLen; Iter++ )); {
+		Switched='False'
 		for (( Index = 0; Index < ArrLen - (1 + Iter); Index++ )); {
 			This=${Files[Index]%%:*}
 			This=${This//,/}
@@ -139,8 +141,12 @@ else
 				Temporary=${Files[Index]}
 				Files[Index]=${Files[Index + 1]}
 				Files[Index + 1]=$Temporary
+
+				Switched='True'
 			fi
 		}
+
+		[[ $Switched == False ]] && break
 	}
 
 	# List out the files with their number of commits.
