@@ -1,6 +1,6 @@
 # Introduction
 
-To be written...
+List commits per file in the CWD of a git(1) repository.
 
 # Installation Instructions
 
