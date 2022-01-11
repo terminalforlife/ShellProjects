@@ -1,6 +1,6 @@
 # AutoExec (AE) Patches
 
-###'patches/simplified.patch'
+### 'patches/simplified.patch'
 
 This patch's primarily goal is to remove manual shebang parsing.
 
