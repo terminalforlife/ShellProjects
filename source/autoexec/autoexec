@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat  8 Jan 19:53:43 GMT 2022
+# Last Change       - Tue 11 Jan 10:00:25 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-08'
+CurVer='2022-01-11'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -196,29 +196,28 @@ if [[ $Once != true ]]; then
 fi
 
 while :; do
-	# Determine the interpreter to use.
-	if [[ -z $Exec ]]; then
-		read SheBang < "$ExecFile"
-
-		if [[ $SheBang != '#!'* ]]; then
-			SheBangInvalid='True'
-			exit 1
-		fi
-
-		SheBangMain=${SheBang#\#\!}
-		SheBangBase=${SheBangMain##*/}
-
-		if ! type -P "${SheBangMain%% *}" &> /dev/null; then
-			InterpreterMissing=$SheBangMain
-			exit 1
-		fi
-
-		Exec=$SheBangMain
-	fi
-
 	if [[ -f $ExecFile && -r $ExecFile ]]; then
-		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
+		# Determine the interpreter to use.
+		if [[ -z $Exec ]]; then
+			read SheBang < "$ExecFile"
 
+			if [[ $SheBang != '#!'* ]]; then
+				SheBangInvalid='True'
+				exit 1
+			fi
+
+			SheBangMain=${SheBang#\#\!}
+			SheBangBase=${SheBangMain##*/}
+
+			if ! type -P "${SheBangMain%% *}" &> /dev/null; then
+				InterpreterMissing=$SheBangMain
+				exit 1
+			fi
+
+			Exec=$SheBangMain
+		fi
+
+		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
 		if [[ ${SSEOld//[![:digit:]]} -lt ${SSE//[![:digit:]]} ]]; then
 			[[ $Once == true ]] || tput clear
 
