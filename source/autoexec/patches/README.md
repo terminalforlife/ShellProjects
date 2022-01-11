@@ -27,6 +27,7 @@ Pros:
 
 Cons:
 
+* Files in the CWD must be prefixed with `./`, as is normal on the command-line, but an inconvenience with AE.
 * You lose functionality, such as...
     - The checking options, although this can still be manually set by changing the shebang.
     - Improved error-checking, such as for an unsupported shebang/executable.
