@@ -1,5 +1,19 @@
 # AutoExec (AE) Patches
 
+To use a patch, the patch(1) program is usually used:
+
+```
+patch ORIGINAL_FILE PATCH_FILE
+```
+
+For example: if you downloaded the patch to the CWD, you could patch your current installation of AE with:
+
+```
+sudo patch /usr/bin/autoexec simplified.patch
+```
+
+These patches will _only_ affect the AE executable itself, so those changes won't be reflected in the autoexec(1) man page.
+
 ### 'patches/simplified.patch'
 
 This patch's primarily goal is to remove manual shebang parsing.
