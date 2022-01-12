@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 12 Jan 00:21:06 GMT 2022
+# Last Change       - Wed 12 Jan 00:32:28 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -105,6 +105,8 @@ while [[ -n $1 ]]; do
 	esac
 	shift
 done
+
+[[ -z $StartPoint ]] && StartPoint=1
 
 DepCount=0
 for Dep in wget mkdir; do
