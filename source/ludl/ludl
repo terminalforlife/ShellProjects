@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 12 Jan 00:35:45 GMT 2022
+# Last Change       - Wed 12 Jan 02:11:25 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,6 +16,12 @@
 #
 # Features:
 #
+#TODO: Pad podcast numbers by 0, for more practical sorting.
+#
+#      This, and people's files, will need updating if they make one > 999.
+#      Not entirely sure if this would be worth it.
+#
+#TODO: Be more verbose. Damn-near impossible to know what's happening!
 #TODO: Consider a database system, in which is stored all podcast information.
 #
 #      This could be awesome. The database could have the number, run time, -
