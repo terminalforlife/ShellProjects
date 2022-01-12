@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 12 Jan 00:32:28 GMT 2022
+# Last Change       - Wed 12 Jan 00:35:45 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -32,7 +32,11 @@
 #
 # Bugs:
 #
-# N/A
+#TODO: Because of the associate array, podcasts are in random order.
+#
+#      This can be easily fixed, as I've done in CSi3. For now, use `-s` and
+#      `-e` to specify single podcasts, or download at random until they're all
+#      acquired.
 #
 # Dependencies:
 #
