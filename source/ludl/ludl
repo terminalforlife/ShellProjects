@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 12 Jan 12:57:54 GMT 2022
+# Last Change       - Wed 12 Jan 13:15:46 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -37,11 +37,7 @@
 #
 # Bugs:
 #
-#TODO: Because of the associate array, podcasts are in random order.
-#
-#      This can be easily fixed, as I've done in CSi3. For now, use `-s` and
-#      `-e` to specify single podcasts, or download at random until they're all
-#      acquired.
+# N/A
 #
 # Dependencies:
 #
@@ -146,38 +142,42 @@ fi
 
 [[ $Latest == True ]] && StartPoint=$EndPoint
 for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
+	LinkAcquired='False'
 	if [[ -f $CacheDir/$Pod ]]; then
 		printf "Episode #$Pod: reading from cache ...\n"
 		if Data=$(< "$CacheDir/$Pod"); then
-			printf "Episode #$Pod: read \e[92msuccessful\e[0m.\n"
+			printf 'Episode #%d: read \e[92msuccessful\e[0m.\n' $Pod
 		else
-			printf "Episode #$Pod: read \e[91munsuccessful\e[0m.\n"
+			printf 'Episode #%d: read \e[91munsuccessful\e[0m.\n' $Pod
 		fi
 	else
 		printf "Episode #$Pod: read from web page ...\n"
 		if Data=$(wget -U 'Mozilla/5.0' -qO - "$URL_Homepage/$Pod"); then
-			printf "Episode #$Pod: reading \e[92msuccessful\e[0m.\n"
+			printf 'Episode #%d: reading \e[92msuccessful\e[0m.\n' $Pod
 		else
-			printf "Episode #$Pod: reading \e[91munsuccessful\e[0m.\n"
+			printf 'Episode #%d: reading \e[91munsuccessful\e[0m.\n' $Pod
 		fi
 
 		printf "Episode #$Pod: caching ...\n"
 		if printf '%s\n' "$Data" > "$CacheDir/$Pod"; then
-			printf "Episode #$Pod: caching \e[92msuccessful\e[0m.\n"
+			printf 'Episode #%d: caching \e[92msuccessful\e[0m.\n' $Pod
 		else
-			printf "Episode #$Pod: caching \e[91munsuccessful\e[0m.\n"
+			printf 'Episode #%d: caching \e[91munsuccessful\e[0m.\n' $Pod
 		fi
 	fi
 
 	while IFS='"' read -a Line; do
 		if [[ ${Line[3]} == $URL_Download*.mp3 ]]; then
-			declare -A Pods[$Pod]=${Line[3]}
+			#declare -A Pods[$Pod]=${Line[3]}
+			Pods+=("$Pod:${Line[3]}")
+			LinkAcquired='True'
+
 			break
 		fi
 	done <<< "$Data"
 
-	if [[ -n ${Pods[$Pod]} ]]; then
-		printf "Episode #$Pod: fetch \e[92msuccessful\e[0m.\n"
+	if [[ $LinkAcquired == True ]]; then
+		printf 'Episode #%d: fetch \e[92msuccessful\e[0m.\n' $Pod
 	else
 		Err 1 "Failed to fetch episode #$Pod details -- quitting."
 	fi
@@ -185,17 +185,20 @@ for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
 
 #----------------------------------------------------Start Downloading Podcasts
 
-for Pod in "${!Pods[@]}"; {
+for Pod in "${Pods[@]}"; {
+	PodNr=${Pod%%:*}
+	PodURL=${Pod#*:}
+
 	if [[ $LinksOnly == True ]]; then
-		printf 'LU%d=%s\n' $Pod "${Pods[$Pod]}"
+		printf 'LU%d=%s\n' $PodNr "$PodURL"
 		continue
 	fi
 
-	printf "Episode #$Pod: downloading ...\n"
-	if wget -qcU 'Mozilla/5.0' --show-progress -O "lu$Pod.mp3" "${Pods[$Pod]}"; then
-		printf "Episode #$Pod: download \e[92msuccessful\e[0m.\n"
+	printf "Episode #%d: downloading ...\n" $PodNr
+	if wget -qcU 'Mozilla/5.0' --show-progress -O "lu$PodNr.mp3" "$PodURL"; then
+		printf 'Episode #%d: download \e[92msuccessful\e[0m.\n' $PodNr
 	else
-		printf "Episode #$Pod: download \e[91munsuccessful\e[0m.\n"
+		printf 'Episode #%d: download \e[91munsuccessful\e[0m.\n' $PodNr
 	fi
 
 	if [[ $BeKind == True ]]; then
