@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 12 Jan 13:15:46 GMT 2022
+# Last Change       - Wed 12 Jan 13:48:22 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -57,6 +57,7 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -O, --links-only         - Output only the download links.
+		  -V, --verbose            - Provide operational information.
 		  -e, --start [INT]        - Target from INT podcast.
 		  -k, --kind               - Random wait time between each download.
 		  -l, --latest             - Target only the latest podcast.
@@ -74,6 +75,7 @@ Err() {
 URL_Homepage='https://linuxunplugged.com'
 MainDir="$HOME/.config/ludl"
 CacheDir="$MainDir/cache"
+Verbose='False'
 
 while [[ -n $1 ]]; do
 	case $1 in
@@ -83,6 +85,8 @@ while [[ -n $1 ]]; do
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--links-only|-O)
 			LinksOnly='True' ;;
+		--verbose|-V)
+			Verbose='True' ;;
 		--start|-s)
 			if [[ -z $2 ]]; then
 				Err 1 "Option '$1' requires an argument."
@@ -125,6 +129,16 @@ done
 
 [[ -d $CacheDir ]] || mkdir -p "$CacheDir"
 
+Info() {
+	[[ $Verbose == False ]] && return 0
+
+	if (( $3 == 0 )); then
+		printf 'Episode #%d: %s \e[92msuccessful\e[0m\n' $1 "$2"
+	else
+		printf 'Episode #%d: %s \e[91munsuccessful\e[0m\n' $1 "$2"
+	fi
+}
+
 #----------------------------------------------Determine Current Podcast Number
 
 if [[ -z $EndPoint || $Latest == True ]]; then
@@ -144,26 +158,18 @@ fi
 for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
 	LinkAcquired='False'
 	if [[ -f $CacheDir/$Pod ]]; then
-		printf "Episode #$Pod: reading from cache ...\n"
-		if Data=$(< "$CacheDir/$Pod"); then
-			printf 'Episode #%d: read \e[92msuccessful\e[0m.\n' $Pod
-		else
-			printf 'Episode #%d: read \e[91munsuccessful\e[0m.\n' $Pod
-		fi
-	else
-		printf "Episode #$Pod: read from web page ...\n"
-		if Data=$(wget -U 'Mozilla/5.0' -qO - "$URL_Homepage/$Pod"); then
-			printf 'Episode #%d: reading \e[92msuccessful\e[0m.\n' $Pod
-		else
-			printf 'Episode #%d: reading \e[91munsuccessful\e[0m.\n' $Pod
-		fi
+		[[ $Verbose == True ]] && printf "Episode #$Pod: reading from cache ...\n"
+		Data=$(< "$CacheDir/$Pod")
+		Info $Pod 'read' $?
 
-		printf "Episode #$Pod: caching ...\n"
-		if printf '%s\n' "$Data" > "$CacheDir/$Pod"; then
-			printf 'Episode #%d: caching \e[92msuccessful\e[0m.\n' $Pod
-		else
-			printf 'Episode #%d: caching \e[91munsuccessful\e[0m.\n' $Pod
-		fi
+	else
+		[[ $Verbose == True ]] && printf "Episode #%d: read from web page ...\n" $Pod
+		Data=$(wget -U 'Mozilla/5.0' -qO - "$URL_Homepage/$Pod")
+		Info $Pod 'read' $?
+
+		[[ $Verbose == True ]] && printf "Episode #%d: caching ...\n" $Pod
+		printf '%s\n' "$Data" > "$CacheDir/$Pod"
+		Info $Pod 'cache' $?
 	fi
 
 	while IFS='"' read -a Line; do
@@ -177,7 +183,9 @@ for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
 	done <<< "$Data"
 
 	if [[ $LinkAcquired == True ]]; then
-		printf 'Episode #%d: fetch \e[92msuccessful\e[0m.\n' $Pod
+		if [[ $Verbose == True ]]; then
+			printf 'Episode #%d: information \e[92macquired\e[0m.\n' $Pod
+		fi
 	else
 		Err 1 "Failed to fetch episode #$Pod details -- quitting."
 	fi
@@ -194,16 +202,13 @@ for Pod in "${Pods[@]}"; {
 		continue
 	fi
 
-	printf "Episode #%d: downloading ...\n" $PodNr
-	if wget -qcU 'Mozilla/5.0' --show-progress -O "lu$PodNr.mp3" "$PodURL"; then
-		printf 'Episode #%d: download \e[92msuccessful\e[0m.\n' $PodNr
-	else
-		printf 'Episode #%d: download \e[91munsuccessful\e[0m.\n' $PodNr
-	fi
+	[[ $Verbose == True ]] && printf "Episode #%d: downloading ...\n" $PodNr
+	wget -qcU 'Mozilla/5.0' --show-progress -O "lu$PodNr.mp3" "$PodURL"
+	Info $PodNr 'download' $?
 
 	if [[ $BeKind == True ]]; then
 		Wait=$(( RANDOM % 10 ))
-		printf 'Waiting for %d seconds ...\n' $Wait
+		[[ $Verbose == True ]] && printf 'Waiting for %d seconds ...\n' $Wait
 		read -n 1 -st $Wait
 	fi
 }
