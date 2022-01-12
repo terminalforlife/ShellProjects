@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 12 Jan 02:11:25 GMT 2022
+# Last Change       - Wed 12 Jan 12:57:54 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,6 @@
 #      This, and people's files, will need updating if they make one > 999.
 #      Not entirely sure if this would be worth it.
 #
-#TODO: Be more verbose. Damn-near impossible to know what's happening!
 #TODO: Consider a database system, in which is stored all podcast information.
 #
 #      This could be awesome. The database could have the number, run time, -
@@ -148,10 +147,26 @@ fi
 [[ $Latest == True ]] && StartPoint=$EndPoint
 for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
 	if [[ -f $CacheDir/$Pod ]]; then
-		Data=$(< "$CacheDir/$Pod")
+		printf "Episode #$Pod: reading from cache ...\n"
+		if Data=$(< "$CacheDir/$Pod"); then
+			printf "Episode #$Pod: read \e[92msuccessful\e[0m.\n"
+		else
+			printf "Episode #$Pod: read \e[91munsuccessful\e[0m.\n"
+		fi
 	else
-		Data=$(wget -U 'Mozilla/5.0' -qO - "$URL_Homepage/$Pod")
-		printf '%s\n' "$Data" > "$CacheDir/$Pod"
+		printf "Episode #$Pod: read from web page ...\n"
+		if Data=$(wget -U 'Mozilla/5.0' -qO - "$URL_Homepage/$Pod"); then
+			printf "Episode #$Pod: reading \e[92msuccessful\e[0m.\n"
+		else
+			printf "Episode #$Pod: reading \e[91munsuccessful\e[0m.\n"
+		fi
+
+		printf "Episode #$Pod: caching ...\n"
+		if printf '%s\n' "$Data" > "$CacheDir/$Pod"; then
+			printf "Episode #$Pod: caching \e[92msuccessful\e[0m.\n"
+		else
+			printf "Episode #$Pod: caching \e[91munsuccessful\e[0m.\n"
+		fi
 	fi
 
 	while IFS='"' read -a Line; do
@@ -161,8 +176,10 @@ for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
 		fi
 	done <<< "$Data"
 
-	if [[ -z ${Pods[$Pod]} ]]; then
-		Err 1 "Failed to fetch #$Pod podcast-- quitting."
+	if [[ -n ${Pods[$Pod]} ]]; then
+		printf "Episode #$Pod: fetch \e[92msuccessful\e[0m.\n"
+	else
+		Err 1 "Failed to fetch episode #$Pod details -- quitting."
 	fi
 }
 
@@ -174,9 +191,16 @@ for Pod in "${!Pods[@]}"; {
 		continue
 	fi
 
-	wget -qcU 'Mozilla/5.0' --show-progress -O "lu$Pod.mp3" "${Pods[$Pod]}"
+	printf "Episode #$Pod: downloading ...\n"
+	if wget -qcU 'Mozilla/5.0' --show-progress -O "lu$Pod.mp3" "${Pods[$Pod]}"; then
+		printf "Episode #$Pod: download \e[92msuccessful\e[0m.\n"
+	else
+		printf "Episode #$Pod: download \e[91munsuccessful\e[0m.\n"
+	fi
 
 	if [[ $BeKind == True ]]; then
-		read -n 1 -st $(( RANDOM % 10))
+		Wait=$(( RANDOM % 10 ))
+		printf 'Waiting for %d seconds ...\n' $Wait
+		read -n 1 -st $Wait
 	fi
 }
