@@ -1,46 +1,46 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/getcfc
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017
-# Last Change       - Wed 15 Dec 23:58:45 GMT 2021
+# Last Change       - Thu 13 Jan 17:31:58 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Download many classic ISO images contained a bundle of PC games.
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
-Progrm=${0##*/}
+CurVer='2022-01-13'
+Progrm='getcfc'
 
-Usage(){
-	while read -r Line; do
-		printf '%b\n' "$Line"
+Usage() {
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		\rUsage: $Progrm [OPTS]
+		Usage: $Progrm [OPTS] [INT_1 [INT_2] ...]
 
-		\r  -h, --help               - Displays this help information.
-		\r  -v, --version            - Output only the version datestamp.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
 
-		\r  Where DISC_NUMBER is a zero-padded number between 01 and 60. Sadly, -
-		\r  discs 17 and 47 are missing.
+		  Where INT is a zero-padded disc number between 01 and 60.
+		  Unfortunately, discs 17 and 47 are missing.
 	EOF
 }
 
 Err(){
 	printf 'Err: %s\n' "$2" 1>&2
-	[ $1 -gt 0 ] && exit $1
+	(( $1 > 0 )) && exit $1
 }
 
 Domain='https://archive.org'
 URL='download/cdrom-classic-fond'
 
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"; exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		-*)
 			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
@@ -49,11 +49,11 @@ while [ "$1" ]; do
 	shift
 done
 
-if ! command -v wget 1> /dev/null 2>&1; then
-	Err 1 "Dependency '/usr/bin/wget' not met."
-fi
+(( $# == 0 )) && Err 1 'Specifiy at least one CD to download.'
 
-[ "$*" ] || Err 1 'Specifiy at least one CD to download.'
+if ! type -P wget &> /dev/null; then
+	Err 1 "Dependency 'wget' not met."
+fi
 
 for CD in "$@"; do
 	case $CD in
