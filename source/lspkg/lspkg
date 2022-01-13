@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Sat  8 Jan 19:03:14 GMT 2022
+# Last Change       - Thu 13 Jan 20:12:12 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-08'
+CurVer='2022-01-13'
 Progrm='lspkg'
 
 Usage() {
@@ -38,7 +38,7 @@ Usage() {
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
-		  --match-with <TYPE>      - Where T is glob or the default, regex.
+		  --match-with TYPE        - Where T is glob or the default, regex.
 		  -N, --no-describe        - Do not display package descriptions.
 		  -a, --show-arch          - Include package arch-types.
 		  -c, --count              - Display the total number of packages.
