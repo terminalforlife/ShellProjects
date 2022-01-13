@@ -58,10 +58,10 @@ Usage() {
 		  -v, --version            - Output the version datestamp.
 		  -O, --links-only         - Output only the download links.
 		  -V, --verbose            - Provide operational information.
-		  -e, --start [INT]        - Target from INT podcast.
+		  -e, --start INT          - Target from INT podcast.
 		  -k, --kind               - Random wait time between each download.
 		  -l, --latest             - Target only the latest podcast.
-		  -s, --end [INT]          - Target up to INT podcast.
+		  -s, --end INT            - Target up to INT podcast.
 
 		  Downloaded podcasts are sent to the CWD.
 	EOF
