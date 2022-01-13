@@ -38,12 +38,12 @@ Usage(){
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  -L, --logfile [PATH]     - File to use instead of the default.
+		  -L, --logfile PATH       - File to use instead of the default.
 		  -l, --log                - Save a log of detected events.
 		  -I, --internet           - Check also for Internet connectivity.
 		  -o, --once-only          - Don't check periodically, only once.
-		  -i, --interval [S]       - Override the default of 10 seconds.
-		  -p, --ping-addr [IP]     - Address to ping for connectivity checks.
+		  -i, --interval S         - Override the default of 10 seconds.
+		  -p, --ping-addr IP       - Address to ping for connectivity checks.
 		  -b, --bell               - Sound off the X11 bell on alert.
 		  -N, --no-notify          - Do not send any notifications.
 
