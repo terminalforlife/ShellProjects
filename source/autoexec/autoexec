@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Tue 11 Jan 10:00:25 GMT 2022
+# Last Change       - Thu 13 Jan 19:42:17 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-11'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -45,10 +45,10 @@ Usage(){
 		  -S, --no-spinner         - Omit 'spinner' from the waiting message.
 		  -W, --no-waitmsg         - Omit the waiting message at the end.
 		  -c, --check              - Check for errors before executing.
-		  -e, --exec <NAME>        - Use NAME as the interpreter or program.
+		  -e, --exec NAME          - Use NAME as the interpreter or program.
 		  -f, --force              - Forces use of that which is unsupported.
 		  -o, --once               - Execute FILE only once; no looping.
-		  -r, --refresh <INT>      - Adjust to fit your performance needs.
+		  -r, --refresh INT        - Adjust to fit your performance needs.
 		  -t, --time               - Time the execution of FILE.
 
 		  To exit $ProgrmFancy, send the SIGINT (130) signal using the Ctrl + C
