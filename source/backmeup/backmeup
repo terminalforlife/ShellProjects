@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017
-# Last Change       - Thu 16 Dec 16:17:13 GMT 2021
+# Last Change       - Thu 13 Jan 19:47:44 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   tar (>= 1.28-2.1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage(){
@@ -34,11 +34,11 @@ Usage(){
 
 		\r  -h, --help               - Display this help information.
 		\r  -v, --version            - Output the version datestamp.
-		\r  -C, --command <CMD>      - Run CMD when $Progrm has finished.
-		\r  -E, --exclude <PATH>     - Override default exclusions file.
+		\r  -C, --command CMD        - Run CMD when $Progrm has finished.
+		\r  -E, --exclude FILE       - Override default exclusions file.
 		\r  -N, --notify             - Notify user of completion.
 		\r  -V, --verbose            - Be more verbose while archiving.
-		\r  -s, --set-store <PATH>   - Set and save the archive store.
+		\r  -s, --set-store FILE     - Set and save the archive store.
 	EOF
 }
 
