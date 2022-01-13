@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Thu 13 Jan 15:29:51 GMT 2022
+# Last Change       - Thu 13 Jan 20:27:04 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -30,8 +30,8 @@ Usage() {
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  -C, --comment [STR]      - Use STR as the single comment character.
-		  -f, --file [PATH]        - Specify & remember the notes file to use.
+		  -C, --comment STR        - Use STR as the single comment character.
+		  -f, --file PATH          - Specify & remember the notes file to use.
 
 		  The location of the file read by ${Progrm^} is saved here:
 

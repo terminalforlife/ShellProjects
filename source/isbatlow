@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/isbatlow
 # Started On        - Sun  8 Apr 20:47:08 BST 2018
-# Last Change       - Sun  9 Jan 15:34:06 GMT 2022
+# Last Change       - Thu 13 Jan 20:25:42 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 #   bash (>= 4.3-14)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-09'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage() {
@@ -31,9 +31,9 @@ Usage() {
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
-		  -B, --battery [NAME]     - Specify which battery to watch.
-		  -i, --interval [INT]     - Set seconds of interval to INT.
-		  -l, --limit [INT]        - Set battery limit to INT percent.
+		  -B, --battery NAME       - Specify which battery to watch.
+		  -i, --interval INT       - Set seconds of interval to INT.
+		  -l, --limit INT          - Set battery limit to INT percent.
 
 		  Where CMD is one or more commands to run upon the battery limit being
 		  detected, which is by default '15' (percent remaining).

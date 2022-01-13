@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks (inspired by purge-old-kernels)
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu 16 Dec 16:27:50 GMT 2021
+# Last Change       - Thu 13 Jan 20:26:38 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   linux-base (>= 4.5)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage(){
@@ -35,8 +35,8 @@ Usage(){
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -p, --purge              - Don't just remove, but purge the kernels.
-		  -t, --type [TYPE]        - Work with TYPE kernels. Any by default.
-		  -k, --keep [INT]         - Keep INT number of kernels, instead of 1.
+		  -t, --type TYPE          - Work with TYPE kernels. Any by default.
+		  -k, --keep INT           - Keep INT number of kernels, instead of 1.
 
 		  Written as an improvement over the now-deprecated script called
 		  'purge-old-kernels' found in the byobu package. This small program

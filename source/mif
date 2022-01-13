@@ -3,12 +3,12 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017
-# Last Change       - Thu 16 Dec 00:03:32 GMT 2021
+# Last Change       - Thu 13 Jan 20:26:20 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-16'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage(){
@@ -19,10 +19,10 @@ Usage(){
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  --mklist[:+/-]           - Output a $Progrm-usable list from CWD.
+		  --mklist[:{+|-}]         - Output a $Progrm-usable list from CWD.
 		  -O, --organize           - Attempt to organise files in CWD by year.
 		  -a, --all                - Display films; disregard filters.
-		  -f, --file [FILE]        - Override saved path with FILE.
+		  -f, --file FILE          - Override saved path with FILE.
 		  -s, --seen               - Filter by movies marked as seen.
 		  -t, --total              - Output total number of matches.
 		  -u, --unseen             - Default. Works opposite to above.

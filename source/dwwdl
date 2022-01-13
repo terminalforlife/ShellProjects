@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dwwdl
 # Started On        - Sat 16 Sep 22:41:54 BST 2017
-# Last Change       - Wed 15 Dec 23:45:59 GMT 2021
+# Last Change       - Thu 13 Jan 20:25:13 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage(){
@@ -30,9 +30,9 @@ Usage(){
 		  --quiet-sleep            - Omit the sleep messages, if being kind.
 		  --server-kind            - Use a random interval between downloads.
 		  --show-progress          - Display the WGet download progress bar.
-		  -d, --date [YYYYMMDD]    - Specify the podcast to download, by date.
-		  -i, --interval [N]       - Use a specific interval between downloads.
-		  -t, --type [OGG|MP3]     - Use file type of either 'OGG' or 'MP3'.
+		  -d, --date YYYYMMDD      - Specify the podcast to download, by date.
+		  -i, --interval N         - Use a specific interval between downloads.
+		  -t, --type {OGG|MP3}     - Use file type of either 'OGG' or 'MP3'.
 
 		  All podcasts will be downloaded to the current working directory and
 		  are from newest to oldest, unless a date is specified.

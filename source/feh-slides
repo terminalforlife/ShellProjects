@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Wed 15 Dec 23:56:22 GMT 2021
+# Last Change       - Thu 13 Jan 20:25:20 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #   feh (>= 2.23.2)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2022-01-13'
 Progrm='feh-slides'
 
 Usage(){
@@ -26,7 +26,7 @@ Usage(){
 
 		\r  -h, --help               - Displays this help information.
 		\r  -v, --version            - Output only the version datestamp.
-		\r  -i, --interval [INT]     - Change wallpaper every INT seconds.
+		\r  -i, --interval INT       - Change wallpaper every INT seconds.
 
 		\r  Where PATH is the directory in which the chosen images are stored.
 
