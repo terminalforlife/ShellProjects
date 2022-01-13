@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Wed 15 Dec 23:54:59 GMT 2021
+# Last Change       - Thu 13 Jan 19:52:04 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-15'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage(){
@@ -38,16 +38,16 @@ Usage(){
 
 		\r  -h, --help               - Display this help information.
 		\r  -v, --version            - Output the version datestamp.
-		\r  -G, --group <GID>        - Where GROUP is, IE: '0'.
-		\r  -H, --hash <FILE>        - Use FILE to cross-check hashes.
-		\r  -L, --log-view <TYPE>    - Show TYPE log entries for Cito.
-		\r  -M, --mode <MODE>        - Where MODE is, IE: '755'.
-		\r  -O, --owner <UID>        - Where OWNER is, IE: '0'.
+		\r  -G, --group GID          - Where GROUP is, IE: '0'.
+		\r  -H, --hash FILE          - Use FILE to cross-check hashes.
+		\r  -L, --log-view TYPE      - Show TYPE log entries for Cito.
+		\r  -M, --mode MODE          - Where MODE is, IE: '755'.
+		\r  -O, --owner UID          - Where OWNER is, IE: '0'.
 		\r  -R, --remove-log         - Delete existing Cito log file.
-		\r  -T, --target <PATH>      - Where PATH is, IE: '/usr/bin/1337'.
+		\r  -T, --target PATH        - Where PATH is, IE: '/usr/bin/1337'.
 		\r  -f, --list-files         - List logged files handled by Cito.
 		\r  -l, --nolog              - Disable the logging functionality.
-		\r  -r, --remote <INFO>      - Specify a remote file; see REMOTE.
+		\r  -r, --remote INFO        - Specify a remote file; see REMOTE.
 	EOF
 }
 
