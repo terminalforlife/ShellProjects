@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Sat  8 Jan 19:57:55 GMT 2022
+# Last Change       - Thu 13 Jan 20:03:13 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,14 +34,14 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-08'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
-		Usage: $Progrm [OPTS] [ACTION]
+		Usage: $Progrm [OPTS] ACTION
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
@@ -49,7 +49,7 @@ Usage() {
 
 		  Below are a list of ACTIONs:
 
-		  add [URL]                - Add a URL to the list.
+		  add URL                  - Add a URL to the list.
 		  fetch                    - Download all of the stored URLs.
 		  list                     - List all of the stored URLs.
 		  remove                   - Remove a stored URL.
