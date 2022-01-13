@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged
 # Started On        - Sun  9 Jan 16:57:12 GMT 2022
-# Last Change       - Thu 13 Jan 19:15:11 GMT 2022
+# Last Change       - Thu 13 Jan 20:20:50 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -C, --no-color           - Disable ANSI color escape sequences.
-		  -T, --top [INT]          - Display only the top INT number of files.
+		  -T, --top INT            - Display only the top INT number of files.
 		  -b, --basenames          - Show only the basename for each path.
 		  -o, --only-total         - Display only the total number of commits.
 		  -r, --reverse            - Show least number of commits first.
