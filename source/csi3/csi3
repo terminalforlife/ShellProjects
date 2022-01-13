@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat  8 Jan 19:06:20 GMT 2022
+# Last Change       - Thu 13 Jan 20:00:33 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-08'
+CurVer='2022-01-13'
 Progrm='csi3'
 
 Usage() {
@@ -36,8 +36,8 @@ Usage() {
 		  -C, --nocolor            - Disable ANSI color escape sequences.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
 		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
-		  -f, --file [FILE]        - Override default locations with FILE.
-		  -k, --key [KEY]          - Display only bindings with KEY.
+		  -f, --file FILE          - Override default locations with FILE.
+		  -k, --key KEY            - Display only bindings with KEY.
 
 		A key binding's action being prepended with an exclamation mark ('!')
 		indicates it's a shell command, and not a native i3-wm command.
