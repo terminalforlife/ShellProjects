@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged
 # Started On        - Sun  9 Jan 16:57:12 GMT 2022
-# Last Change       - Mon 10 Jan 13:07:53 GMT 2022
+# Last Change       - Thu 13 Jan 19:15:11 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   git (>= 2.17.1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-10'
+CurVer='2022-01-13'
 Progrm=${0##*/}
 
 Usage() {
@@ -34,6 +34,7 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  -C, --no-color           - Disable ANSI color escape sequences.
+		  -T, --top [INT]          - Display only the top INT number of files.
 		  -b, --basenames          - Show only the basename for each path.
 		  -o, --only-total         - Display only the total number of commits.
 		  -r, --reverse            - Show least number of commits first.
@@ -57,6 +58,15 @@ while [[ -n $1 ]]; do
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--no-color|-C)
 			NoColor='True' ;;
+		--top|-T)
+			if [[ -z $2 ]]; then
+				Err 1 "Option '$1' requires an argument."
+			elif ! [[ $2 != 0 ]] && [[ $2 =~ ^[[:digit:]]+$ ]]; then
+				Err 1 "Option '$1' requires a positive integer."
+			else
+				Top=$2
+				shift
+			fi ;;
 		--basenames|-b)
 			Basenames='True' ;;
 		--only-total|-o)
@@ -154,6 +164,11 @@ else
 	for File in "${Files[@]}"; {
 		Filename=${File#*:}
 		Commits=${File%%:*}
+
+		# Show top INT number of files.
+		if [[ -n $Top ]]; then
+			(( ++Count > Top )) && break
+		fi
 
 		[[ $Basenames == True ]] && Filename=${Filename##*/}
 
