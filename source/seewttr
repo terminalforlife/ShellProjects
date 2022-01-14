@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Fri 14 Jan 20:35:17 GMT 2022
+# Last Change       - Fri 14 Jan 20:37:53 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -59,6 +59,7 @@ while read -r; do
 		if (( LineNr <= 6 )); then
 			(( LineNr++ ))
 		else
+			printf '\n'
 			break
 		fi
 	fi
