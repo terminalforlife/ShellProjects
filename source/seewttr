@@ -1,52 +1,45 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/seewttr
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Sun 19 Jan 18:52:02 GMT 2020
+# Last Change       - Fri 14 Jan 20:35:17 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Fetch weather information, using the 'wttr.in' website.
+#------------------------------------------------------------------------------
 
-set -e
-. /usr/lib/tflbp-sh/Err
-. /usr/lib/tflbp-sh/ChkDep
-set +e
+CurVer='2022-01-14'
+Progrm='seewttr'
 
-CurVer='2020-01-19'
-Progrm=${0##*/}
-
-Domain='http://wttr.in'
-
-Usage(){
-	while read -r CurLine; do
-		printf '%b\n' "$CurLine"
+Usage() {
+	while read; do
+		printf '%s\n' "$REPLY"
 	done <<-EOF
-		\r            SEEWTTR ($CurVer)
-		\r            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] TOWN,COUNTRY
 
-		\r            Bourne POSIX shell script to fetch weather information.
-
-		\rSYNTAX:     $Progrm [OPTS] [LOC]
-
-		\rOPTS:       --help|-h|-?            - Displays this help information.
-		\r            --version|-v            - Output only the version datestamp.
-		\r            --current|-c            - Show only the current weather.
-
-		\rNOTE:       Format for LOC is, for example: town,country
-
-		\rSITE:       $Domain
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -c, --current            - Show only the current weather.
 	EOF
 }
 
-while [ "$1" ]; do
+Err(){
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
+Domain='http://wttr.in'
+
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--current|-c)
-			Current='true' ;;
+			Current='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -55,22 +48,25 @@ while [ "$1" ]; do
 	shift
 done
 
-ChkDep wget
+(( $# == 0 )) && Err 1 "No location provided -- see: $Progrm --help"
 
-[ -z "$*" ] && Err 1 "No 'LOC' provided."
+if ! type -P wget &> /dev/null; then
+	Err 1 "Dependency 'wget' not met."
+fi
 
-LineCount=0
-wget -q -O - "http://wttr.in/$*" | while IFS="" read -r CurLine; do
-	if [ "$Current" = 'true' ]; then
-		if [ $LineCount -le 6 ]; then
-			LineCount=$((LineCount + 1))
+while read -r; do
+	if [[ $Current == True ]]; then
+		if (( LineNr <= 6 )); then
+			(( LineNr++ ))
 		else
 			break
 		fi
 	fi
 
-	case $CurLine in
-		Weather*|New*|Follow*) ;;
-		*) printf "%s\n" "$CurLine" ;;
+	case $REPLY in
+		Weather*|New*|Follow*|Location:*)
+			;;
+		*)
+			printf '%b\n' "$REPLY" ;;
 	esac
-done
+done <<< "$(wget -qO - http://wttr.in/"$1")"
