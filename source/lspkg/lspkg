@@ -12,11 +12,7 @@
 #
 # Features:
 #
-#TODO: The sorting fallback using the Bubble algorithm sorts the entire string.
-#
-#      It would surely sort a LOT faster if it didn't needlessly try to sort
-#      the descriptions, which it currently does. I currently get output in
-#      ~18.4s (realtime), so it's of course very slow.
+# N/A
 #
 # Bugs:
 #
