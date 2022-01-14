@@ -1,17 +1,18 @@
-27d26
-< #   file (>= 1:5.32-2)
-47,49d45
+47,49d46
 < 		  -c, --check              - Check for errors before executing.
 < 		  -e, --exec NAME          - Use NAME as the interpreter or program.
 < 		  -f, --force              - Forces use of that which is unsupported.
-68d63
+56,57d52
+< 
+< 		  When forcing, unsupported mimetypes and executables will be allowed.
+68d62
 < Check='False'
-71d65
+71d64
 < Force='False'
-86,95d79
+86,95d78
 < 		--exec|-e)
 < 			shift
-<
+< 
 < 			if [[ -z $1 ]]; then
 < 				Err 1 'Name of command not provided.'
 < 			#elif ! type -P "$1" > /dev/null 2>&1; then
@@ -19,63 +20,67 @@
 < 			else
 < 				Exec=$1
 < 			fi ;;
-119,120d102
+119,120d101
 < 		--force|-f)
 < 			Force='True' ;;
-123,125d104
+123,125d103
 < 		--check|-c)
 < 			CheckArg=$1
 < 			Check='True' ;;
-145c124
+145c123
 < for Dep in file tput stat realpath; {
 ---
 > for Dep in tput stat; {
-156,167d134
+156,167d133
 < if [[ $Force == False ]]; then
 < 	case $Exec in
 < 		*/man|man|*/less|less|*/pager|pager|*/more|more)
 < 			Err 1 "Using pagers with $ProgrmFancy is unsupported." ;;
 < 	esac
-<
+< 
 < 	case `file -b --mime-type "$ExecFile"` in
 < 		application|application/*)
 < 			Err 1 'Binary files are not supported.' ;;
 < 	esac
 < fi
-<
-176,182d142
+< 
+174,184d139
+< 	if [[ -n $InterpreterMissing ]]; then
+< 		Err 1 "Interpreter '$InterpreterMissing' not found."
 < 	elif [[ $SheBangInvalid == True ]]; then
 < 		Err 1 'Invalid shebang detected.'
 < 	fi
-<
+< 
 < 	# Needs to be here otherwise the above line clears it.
 < 	if [[ $Force == False && $UnsupportedCheck == True ]]; then
 < 		Err 1 "OPT '$CheckArg' not supported on FILE."
-199,219c159
+< 	fi
+< 
+199,219c154
 < 	if [[ -f $ExecFile && -r $ExecFile ]]; then
 < 		# Determine the interpreter to use.
 < 		if [[ -z $Exec ]]; then
 < 			read SheBang < "$ExecFile"
-<
+< 
 < 			if [[ $SheBang != '#!'* ]]; then
 < 				SheBangInvalid='True'
 < 				exit 1
 < 			fi
-<
+< 
 < 			SheBangMain=${SheBang#\#\!}
 < 			SheBangBase=${SheBangMain##*/}
-<
+< 
 < 			if ! type -P "${SheBangMain%% *}" &> /dev/null; then
 < 				InterpreterMissing=$SheBangMain
 < 				exit 1
 < 			fi
-<
+< 
 < 			Exec=$SheBangMain
 < 		fi
-<
+< 
 ---
 > 	if [[ -f $ExecFile && -x $ExecFile ]]; then
-224,252c164,166
+224,252c159,161
 < 			# If using DASH, BASH, or ZSH, check for errors before executing.
 < 			if [[ $Check == True ]]; then
 < 				unset Errors
@@ -93,10 +98,10 @@
 < 					*)
 < 						UnsupportedCheck='True' ;;
 < 				esac
-<
+< 
 < 				[[ $Force == False && $UnsupportedCheck == True ]] && exit 1
 < 			fi
-<
+< 
 < 			if [[ $Errors != True ]]; then
 < 				if [[ $Time == True ]]; then
 < 					time $Exec "$ExecFile" "$@"
@@ -109,12 +114,8 @@
 > 			if [[ $Time == True ]]; then
 > 				time "$ExecFile" "$@"
 > 				Exit=$?
-254c168,169
+254c163,164
 < 				Exit=999
 ---
 > 				"$ExecFile" "$@"
 > 				Exit=$?
-264c179
-< 		Err 1 'File not found or inaccessible.'
----
-> 		Err 1 'File not found or not executable.'
