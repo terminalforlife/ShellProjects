@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Fri 14 Jan 20:06:33 GMT 2022
+# Last Change       - Sun 16 Jan 13:56:46 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -44,7 +44,7 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-14'
+CurVer='2022-01-16'
 Progrm='glkfu'
 
 Usage() {
@@ -65,8 +65,10 @@ Usage() {
 		  -i, --ignore-versions    - Disregard current & new version strings.
 		  -j, --just-check         - Just check kernel.org for a newer version.
 		  -l, --list-kerns         - List all available kernel versions.
-		  -o, --output TYPE        - Output TYPE, for scripting. See below.
+		  -o, --output TYPE        - Output one of TYPE, for use in scripts.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
+
+		  Refer to the glkfu(1) man page for information on valid TYPEs.
 	EOF
 }
 
@@ -326,15 +328,12 @@ fi
 
 FileChk "$VerFile"
 
-# Trimming '.0' from the end of `CurVer` to keep the current and latest
-# versions alike, otherwise it'll be inconsistent and look a bit odd. It's
-# possible that this will break the output eventually, but it should be fine.
 read -a Line < "$VerFile"
-CurVer=${Line[2]%.0}
+CurVer=${Line[2]}
 
-JustOutput 'current' "$CurVer"
+JustOutput 'current' "${CurVer%.0}"
 
-[[ -z $Output ]] && printf 'Current Linux version: %s\n' "$CurVer"
+[[ -z $Output ]] && printf 'Current Linux version: %s\n' "${CurVer%.*}"
 
 NewVerAvail='False'
 if [[ $IgnoreVers != True ]]; then
