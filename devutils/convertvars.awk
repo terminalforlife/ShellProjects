@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/convertvars.awk
 # Started On        - Wed 27 Nov 16:51:42 GMT 2019
-# Last Change       - Fri 24 Sep 22:17:40 BST 2021
+# Last Change       - Wed 19 Jan 14:16:11 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,8 +17,8 @@
 #------------------------------------------------------------------------------
 
 {
-	for (F=0; F<NF; F++) {
-		if ($F~/^\$[A-Z_]+$/) {
+	for (F = 0; F < NF; F++) {
+		if ($F ~ /^\$[A-Z_]+$/) {
 			A[$F]++
 		}
 	}

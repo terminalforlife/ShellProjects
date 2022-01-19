@@ -3,16 +3,16 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/dep-parser.sh
 # Started On        - Tue  2 Mar 15:21:35 GMT 2021
-# Last Change       - Tue  2 Mar 16:27:57 GMT 2021
+# Last Change       - Wed 19 Jan 14:17:06 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Determine dependencies as found in header of each provided file. The code
-# here is indended to be reused within TFL installer scripts, but this script
+# here is intended to be reused within TFL installer scripts, but this script
 # specifically is independent therefrom.
 #------------------------------------------------------------------------------
 
-Err(){
+Err() {
 	printf 'ERROR: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
