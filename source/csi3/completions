@@ -3,14 +3,16 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/completions
 # Started On        - Wed 12 Feb 18:58:13 GMT 2020
-# Last Change       - Sat 11 Sep 12:27:28 BST 2021
+# Last Change       - Fri 21 Jan 23:51:39 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# This is the bash completion script for `csi3`.
+# This is the bash completion script for CSi3.
 #------------------------------------------------------------------------------
 
-_csi3(){
+_csi3() {
+	local Option Arg Args
+
 	while read; do
 		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
 			Option=${REPLY%% - *}
@@ -23,8 +25,6 @@ _csi3(){
 	if [[ $2 == -* ]]; then
 		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
 	fi
-
-	unset Option Arg Args
 }
 
 complete -F _csi3 -o default csi3

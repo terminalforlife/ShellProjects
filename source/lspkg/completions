@@ -3,15 +3,17 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/completions
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
-# Last Change       - Sat 15 Feb 17:06:13 GMT 2020
+# Last Change       - Fri 21 Jan 23:53:07 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# This is the bash completion script for `lspkg` and `lspkg-set`.
+# This is the bash completion script for LSPKG, including lspkg-set(1).
 #------------------------------------------------------------------------------
 
-_lspkg(){
-	_pkgs(){
+_lspkg() {
+	local Option Arg Args
+
+	_pkgs() {
 		if . /usr/share/bash-completion/completions/dpkg; then
 			_xfunc /usr/bin/dpkg _comp_dpkg_installed_packages "$1"
 		fi
@@ -37,8 +39,6 @@ _lspkg(){
 		lspkg-set)
 			COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
 	esac
-
-	unset Option Arg Args
 }
 
 complete -F _lspkg lspkg lspkg-set

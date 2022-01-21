@@ -3,14 +3,14 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/completions
 # Started On        - Mon 29 Jan 18:47:58 GMT 2018
-# Last Change       - Sun  9 Jan 18:39:24 GMT 2022
+# Last Change       - Fri 21 Jan 23:56:43 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# This is the bash completion script for `tagged`.
+# This is the bash completion script for Tagged.
 #------------------------------------------------------------------------------
 
-_tagged(){
+_tagged() {
 	local Option Args Arg
 
 	while read; do
@@ -22,9 +22,9 @@ _tagged(){
 		fi
 	done <<< "$(tagged -h)"
 
-	case $2 in
-		-*) COMPREPLY=(`compgen -W "$Args" -- "$2"`) ;;
-	esac
+	if [[ $2 == -* ]]; then
+		COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+	fi
 }
 
 complete -F _tagged -o default tagged
