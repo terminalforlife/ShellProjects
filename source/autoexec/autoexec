@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu 13 Jan 19:42:17 GMT 2022
+# Last Change       - Fri 21 Jan 22:55:52 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
+CurVer='2022-01-21'
 Progrm=${0##*/}
 ProgrmFancy='AutoExec'
 
@@ -175,6 +175,8 @@ SignalHandler(){
 		Err 1 "Interpreter '$InterpreterMissing' not found."
 	elif [[ $SheBangInvalid == True ]]; then
 		Err 1 'Invalid shebang detected.'
+	elif [[ $FileNotFoundErr == True ]]; then
+		Err 1 'File not found or inaccessible.'
 	fi
 
 	# Needs to be here otherwise the above line clears it.
@@ -261,7 +263,8 @@ while :; do
 			tput ed; tput rmcup
 		fi
 
-		Err 1 'File not found or inaccessible.'
+		FileNotFoundErr='True'
+		exit 1
 	fi
 
 	if [[ $Once != true ]]; then
