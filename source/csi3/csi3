@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu 13 Jan 20:00:33 GMT 2022
+# Last Change       - Sat 22 Jan 23:48:14 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
+CurVer='2022-01-22'
 Progrm='csi3'
 
 Usage() {
@@ -222,7 +222,7 @@ until (( Count > ${#Bindings[@]} )); do
 		if (( Count == "${Binding%%_*}" )); then
 			printf '%*s ' $KeysLenMax "${Binding#*_}"
 			if [[ ${Bindings[$Binding]} == \!* ]]; then
-				printf "$Red!\e[37m%s$Reset\n" "${Bindings[$Binding]#!}"
+				printf "$Red!$Grey%s$Reset\n" "${Bindings[$Binding]#!}"
 			else
 				printf "$Grey%s$Reset\n" "${Bindings[$Binding]}"
 			fi
