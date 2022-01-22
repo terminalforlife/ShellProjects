@@ -1,66 +1,65 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/filesitter
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Wed 15 Dec 23:57:24 GMT 2021
+# Last Change       - Sat 22 Jan 00:51:12 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Wait around until a file has been touched within a given interval.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.4.20)
+#------------------------------------------------------------------------------
 
-_VERSION_="2021-12-15"
-_PROJECT_=${0##*/}
+CurVer='2022-01-22'
+Progrm='filesitter'
 
-Err(){
+Usage() {
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS] FILE
+
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -i, --interval N         - Use a check interval of N seconds.
+
+		  By default, the checking interval is 300 seconds.
+	EOF
+}
+
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
-	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+Action='suspend'
 
-		            Watch for and act upon the completion of file size changes.
-
-		SYNTAX:     $_PROJECT_ [OPTS] FILE1 FILE2 FILE3 . . .
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --interval|-I N         - Where N is the check interval in seconds.
-		                                      Default is to check every 300 seconds.
-		            --shutdown|-S           - Power system off instead of suspending.
-
-		NOTE:       Multiple files can be monitored at a time.
-
-		            Suspending the machine is the default action upon no detected file size
-		            change. The amount of minimum detected space change is 1 byte.
-	EOF
-}
-
-ACTION="suspend"
-
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
-		--help|-h|-\?)
-			USAGE; exit 0 ;;
+		--help|-h)
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--debug|-D)
-			DEBUGME='true' ;;
-		--interval|-I)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--interval|-i)
 			shift
 
 			if [[ $1 =~ ^([0-9]+|[0-9]+.[0-9]+)$ ]]; then
-				INTERVAL=$1
+				Interval=$1
 			else
 				Err 1 "Invalid interval specified."
 			fi ;;
-		--shutdown|-S)
-			ACTION="poweroff" ;;
 		-*)
 			Err 1 "Incorrect argument(s) specified." ;;
 		*)
@@ -69,40 +68,25 @@ while [ "$1" ]; do
 	shift
 done
 
-if ! [ "$*" ]; then
-	Err 1 "No files were given for $_PROJECT_ to monitor."
-fi
+(( $# == 0 )) && Err 1 'No file given to monitor.'
 
-declare -i DEPCOUNT=0
-for DEP in stat systemctl sleep; {
-	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 "Dependency '$DEP' not met."
-		DEPCOUNT+=1
-	fi
-}
-
-[ $DEPCOUNT -eq 0 ] || exit 1
-
-[ "$DEBUGME" == 'true' ] && set -x
-
-GO="yes"
-while [ "$GO" == "yes" ]; do
-	declare -i NEW=0
-
-	for FILE in $@; {
-		[ -f "$FILE" ] || continue
-		NEW+=`stat --printf="%s" "$FILE" 2> /dev/null`
-	}
-
-	if [ ${OLD:-0} -eq $NEW ]; then
-		GO="no"
-	else
-		OLD=$NEW
-		sleep ${INTERVAL:-300}s
+for Dep in stat systemctl sleep; do
+	if ! type -P "$Dep" &> /dev/null; then
+		Err 0 "Dependency '$Dep' not met."
+		(( DepCount++ ))
 	fi
 done
 
-if ! systemctl $ACTION; then
-	Err 1 "System $ACTION failed."
-fi
+(( DepCount > 0 )) && exit 1
 
+while :; do
+	[[ -f $1 ]] || continue
+
+	New=`stat -c '%Y' "$1" 2> /dev/null`
+	if (( Old == New )); then
+		break
+	else
+		Old=$New
+		sleep ${Interval:-300}s
+	fi
+done
