@@ -1,0 +1,130 @@
+#!/bin/sh
+#cito M:755 O:0 G:0 T:/usr/bin/wo
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/wo/wo
+# Started On        - Sun 23 Jan 23:54:16 GMT 2022
+# Last Change       - Mon 24 Jan 02:02:39 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is an minor improvement over the which(1) command. Frankly, the
+# original's '/bin/sh' code is rough, while `wo` (German for 'where') is a much
+# cleaner alternative, yet remaining portable, efficient, and POSIX-compliant.
+#
+# The ability to omit the output of found paths makes `wo` easier to handle, -
+# and saves the need for typing out redirection to '/dev/null'. The one
+# exception should be if an incorrect flag is provided.
+#
+# The exit statuses used are the very same as with which(1):
+#
+#   0 - If all files are found and executable.
+#   1 - If one or more files are missing or not executable.
+#   2 - If an invalid flag is provided.
+#
+# The `-a` flag from which(1) is also available here, with the ability to use
+# the long version `--all` instead, per modern GNU standards.
+#
+# Unless `wo` is somehow widely adopted in Linux, I expect this to be used more
+# for personal use, if at all. I wrote `wo` primarily out of boredom.
+# Frankly, I recommend you simply use the `command` or `type` builtins, for
+# '/bin/sh' and BASH, respectively. IE:
+#
+#   $ command -v FILE 1> /dev/null 2>&1
+#   $ type -P FILE &> /dev/null
+#
+# However, `wo` is not so unwieldy:
+#
+#   $ wo -q FILE
+#
+# Most, if not all of this text will eventually be moved to a wo(1) man page.
+#
+# I could not find the original license for which(1), but if you take issue
+# with this file's presence here, under the GPL-3.0 license, then let me
+# know via GitHub, so that the necessary changes can be made. While I haven't
+# forked the shell script which(1), from the 'debianutils' package, I do
+# acknowledge the similarities between the two.
+#
+# Features:
+#
+#TODO: Handle leading or trailing colon(s) in PATH.
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   N/A
+#------------------------------------------------------------------------------
+
+CurVer='2022-01-24'
+Progrm='wo'
+
+Usage() {
+	while read -r CurLine; do
+		printf '%b\n' "$CurLine"
+	done <<-EOF
+		\rUsage: $Progrm [OPTS] FILE [FILE ...]
+
+		\r  -h, --help               - Display this help information.
+		\r  -v, --version            - Output the version datestamp.
+		\r  -a, --all                - Display all paths found per FILE.
+		\r  -q, --quiet              - Don't output discovered paths.
+	EOF
+}
+
+ShowAll='False'
+OldIFS=$IFS
+
+[ $# -eq 0 ] && exit 1
+while [ -n "$1" ]; do
+	case $1 in
+		--help|-h|-\?)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--all|-a)
+			ShowAll='True' ;;
+		--quiet|-q)
+			Quiet='True' ;;
+		-*)
+			printf 'Err: Incorrect option(s) specified.\n' 1>&2
+			exit 2 ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+#--------------------------------------Search Through PATH for Executable Files
+
+for Target in "$@"; do
+	Found='False'
+
+	IFS=':'
+	for Dir in $PATH; do
+		for File in "$Dir"/*; do
+			[ -f "$File" ] || continue
+
+			if ! [ -x "$File" ]; then
+				FoundNotExec='True'
+			else
+				if [ "$File" = "$Dir/$Target" ]; then
+					if [ "$Quiet" != 'True' ]; then
+						printf '%s\n' "$File"
+					fi
+
+					Found='True'
+					FoundNr=$(( FoundNr + 1 ))
+				fi
+			fi
+		done
+	done
+done
+
+IFS=$OldIFS
+if [ "$FoundNotExec" = 'True' -o ${FoundNr:-0} -lt $# ]; then
+	exit 1
+elif [ ${FoundNr:-0} -eq $# ]; then
+	exit 0
+fi
