@@ -1,80 +1,68 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #cito M:755 O:0 G:0 T:/usr/bin/ripmydvd
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/ripmydvd
 # Started On        - Fri 29 Sep 21:19:47 BST 2017
-# Last Change       - Thu 16 Dec 00:05:58 GMT 2021
+# Last Change       - Sun 30 Jan 16:24:33 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Shell program using FFMPEG and MPlayer to rip your DVD.
+#------------------------------------------------------------------------------
 
-_VERSION_="2021-12-16"
-_PROJECT_=${0##*/}
+CurVer='2022-01-30'
+Progrm='ripmydvd'
 
-USAGE(){
+Usage() {
 	while read; do
 		printf "%s\n" "$REPLY"
 	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+		Usage: $Progrm [OPTS] {-t|--title N[-N]} TARGET
 
-		            Shell program using ffmpeg and mplayer to rip your DVD.
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  --aid X                  - Where X is the audio channel.
+		  --alang X                - Where X is the audio language; en or eng?
+		  --asid X                 - Where X is the audio substream ID.
+		  --endcmd CMD             - Execute CMD command when ripping is done.
+		  --startcmd CMD           - Execute CMD command before ripping begins.
+		  -C, --combine            - Wrong language? This option should work.
+		  -d, --device X           - Use device X instead of '/dev/sr0'.
+		  -e, --eject              - Eject the device's tray upon completion.
+		  -t, --title N[-N]        - Where N is the title number on the DVD.
 
-		SYNTAX:     $_PROJECT_ [OPTS] TARGET
+		  You may wish to use lsdvd to help you, especially with audio.
 
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --quiet|-q              - Runs in quiet mode. Errors still output.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --title|-t N[-N]        - Where N is the title number on the DVD. The
-		                                      title choice can be specified by a range.
-		            --eject|-e              - Eject the device's tray upon completion.
-		            --nosummary             - Don't display a summary before exiting.
-		            --device|-d X           - Where X is the device from which to rip. By
-		                                      default, this will be /dev/sr0.
-		            --startcmd CMD          - Execute CMD command before ripping begins.
-		            --endcmd CMD            - Execute CMD command when ripping is done.
-		            --aid X                 - Where X is the audio channel.
-		            --asid X                - Where X is the audio substream ID.
-		            --alang X               - Where X is the audio language; en or eng?
-		            --combine|-C            - Wrong language? This option should work.
-
-		NOTE:       You may wish to use lsdvd to help you, especially with audio.
-
-		            The --combine|-C option requires --aid or --alang. This will rip the
-		            audio and video separately, then they will be combined into TARGET.
+		  The '-C' option requires '--aid' or '--alang'. This will rip the
+		  audio and video separately, then they will be combined into TARGET.
 	EOF
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
-			USAGE; exit 0 ;;
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--quiet|-q)
-			BEQUIET='true' ;;
-		--debug|-D)
-			DEBUGME='true' ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--device|-d)
 			shift
 
-			[ -b "$1" ] || Err 1 "Device not found at: $1"
-			DEVICE="$1" ;;
+			[[ -b $1 ]] || Err 1 "Device not found at: $1"
+			Device=$1 ;;
 		--combine|-C)
-			COMBINE='true' ;;
+			Combine='True' ;;
 		--title|-t)
 			shift
 
 			if [[ $1 =~ ^([0-9]+|[0-9]+-[0-9]+)$ ]]; then
-				TITLE=$1
+				Title=$1
 			else
-				Err 1 "Invalid title."
+				Err 1 'Invalid title.'
 			fi ;;
 		--aid)
 			shift
@@ -87,19 +75,17 @@ while [ "$1" ]; do
 		--alang)
 			shift
 
-			ALANG="-alang $1" ;;
+			ALang="-alang $1" ;;
 		--eject|-e)
-			EJECT='true' ;;
-		--nosummary)
-			SUMMARY='false' ;;
+			Eject='True' ;;
 		--startcmd)
 			shift
 
-			START_COMMAND="$1" ;;
+			StartCmd=$1 ;;
 		--endcmd)
 			shift
 
-			END_COMMAND="$1" ;;
+			EndCmd=$1 ;;
 		*)
 			break ;;
 	esac
@@ -107,58 +93,50 @@ while [ "$1" ]; do
 	shift
 done
 
-TARGET="$*"
+Target="$*"
 
-declare -i DEPCOUNT=0
-for DEP in eject mkfifo ffmpeg mplayer; {
-	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+for CurDep in eject mkfifo ffmpeg mplayer; {
+	if ! type -P "$CurDep" &> /dev/null; then
+		Err 0 "Dependency '$CurDep' not met."
+		(( DepCount++ ))
 	fi
 }
 
-[ $DEPCOUNT -eq 0 ] || exit 1
+(( DepCount == 0 )) || exit 1
 
-[ "$TARGET" ] || Err 1 "You need to provide a filename."
-[ "$TITLE" ] || Err 1 "Which title do you want to rip?"
-[ "$DEVICE" ] || DEVICE="/dev/sr0"
-
-[ "$BEQUIET" == 'true' ] && exec > /dev/null
-[ "$DEBUGME" == 'true' ] && set -x
+[[ -n $Target ]] || Err 1 'You need to provide a filename.'
+[[ -n $Title ]] || Err 1 'Missing TARGET title to rip.'
+[[ -n $Device ]] || Device='/dev/sr0'
 
 FIFO="/tmp/stream_${$}.dump"
-MPARGS1="$AID $ASID $ALANG -nosub -really-quiet -nolirc -nocache -vo x11 -zoom"
-MPARGS2="-dumpstream -dumpfile "$FIFO" dvd://$TITLE/$DEVICE"
-declare -i SECONDS=0
+MPlayerArgs1="$AID $ASID $ALang -nosub -really-quiet -nolirc -nocache -vo x11"
+MPlayerArgs2="-zoom -dumpstream -dumpfile "$FIFO" dvd://$Title/$Device"
 
-[ "$START_COMMAND" ] && ($START_COMMAND)
+[[ -n $StartCmd ]] && ($StartCmd)
 
-mkfifo "$FIFO"
+if mkfifo "$FIFO"; then
+	if [[ $Combine == True ]]; then
+		if [[ -z $ALang && -z $AID ]]; then
+			Err 1 "Option '--combine' requires '--alang' or '--aid'."
+		fi
 
-if [ "$COMBINE" == 'true' ]; then
-	if ! [ "$ALANG" -a "$AID" ]; then
-		Err 1 "The --combine argument requires -alang or -aid."
+		mplayer $MPlayerArgs1 -dumpaudio -dumpfile "/tmp/audio.dump"\
+			dvd://$Title/$Device &> /dev/null
+
+		mplayer $MPlayerArgs1 -dumpvideo -dumpfile "$FIFO"\
+			dvd://$Title/$Device &> /dev/null & disown
+
+		ffmpeg -loglevel fatal -stats -i /tmp/audio.dump -i "$FIFO" "$Target"
+	else
+		mplayer $MPlayerArgs1 $MPlayerArgs2 &> /dev/null & disown
+		ffmpeg -loglevel fatal -stats -i "$FIFO" "$Target"
 	fi
 
-	mplayer $MPARGS1 -dumpaudio -dumpfile "/tmp/audio.dump"\
-		dvd://$TITLE/$DEVICE > /dev/null 2>&1
+	[[ -n $EndCmd ]] && ($EndCmd)
 
-	mplayer $MPARGS1 -dumpvideo -dumpfile "$FIFO"\
-		dvd://$TITLE/$DEVICE > /dev/null 2>&1 & disown
-
-	ffmpeg -loglevel fatal -stats -i /tmp/audio.dump -i "$FIFO" "$TARGET"
+	if [[ $Eject == True ]]; then
+		eject $Device
+	fi
 else
-	mplayer $MPARGS1 $MPARGS2 > /dev/null 2>&1 & disown
-	ffmpeg -loglevel fatal -stats -i "$FIFO" "$TARGET"
+	Err 'Failed to create FIFO.'
 fi
-
-if [ "$SUMMARY" == 'false' ]; then
-	printf "\aJob on %s ran for %d seconds.\n" "$DEVICE" "$SECONDS"
-fi
-
-[ "$END_COMMAND" ] && ($END_COMMAND)
-
-if [ "$EJECT" == 'true' ]; then
-	eject $DEVICE
-fi
-
