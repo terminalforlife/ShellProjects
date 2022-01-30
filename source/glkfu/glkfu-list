@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Fri  5 Mar 00:24:38 GMT 2021
+# Last Change       - Sun 30 Jan 15:41:35 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,6 +12,7 @@
 #
 # Features:
 #
+#TODO: Sort without the need for a separate module.
 #TODO: Consider some sort of caching system, like wcdl(1).
 #
 #      This could be updated when a new version is detected by glkfu(1).
@@ -47,8 +48,8 @@ use Sort::Versions 'versioncmp';
 
 no warnings 'uninitialized';
 
-my $CurVer = '2021-03-05';
-my $Progrm = ($0 =~ m{(?:.*/)?([^/].*)})[0];
+my $CurVer = '2022-01-30';
+my $Progrm = 'glkfu-list';
 
 sub Usage {
 	print(qq{Usage: $Progrm [OPTS]
@@ -74,7 +75,7 @@ while (defined($ARGV[0])) {
 	if ($ARGV[0] =~ '^(--help|-h)$') {
 		Usage(); exit(0)
 	} elsif ($ARGV[0] =~ '^(--version|-v)$') {
-		print("$CurVer\n"); exit(0)
+		say($CurVer); exit(0)
 	} elsif ($ARGV[0] =~ '^(--no-color|-C)$') {
 		$DoColor = 0
 	} elsif ($ARGV[0] =~ '^(--all|-a)$') {
@@ -87,14 +88,14 @@ while (defined($ARGV[0])) {
 }
 
 # Parse 'releases.html' page for the table of LTS kernels.
-my (@LongTerms, $TableFound);
+my (@LongTerms);
 foreach (split("\n", get($Releases))) {
-	'<caption>Longterm release kernels</caption>' and $TableFound = 'True';
+	our $TableFound = 'True' if '<caption>Longterm release kernels</caption>';
 
 	if ($TableFound eq 'True') {
 		push(@LongTerms, $1) if /^<tr><td>([[:digit:].]+)<\/td>$/;
 
-		$_ eq '</table>' and last;
+		last() if '</table>'
 	}
 }
 
@@ -103,16 +104,14 @@ my @KernVers;
 my $LatestMajor = `glkfu -o latest.maj`;
 foreach (split("\n", get("$Domain/pub/linux/kernel"))) {
 	my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
-	next unless $File =~ '^v\d+\.[\dx]+/';
+	next() unless $File =~ '^v\d+\.[\dx]+/';
 
 	if ($AllKerns) {
 		push(@KernVers, $File)
 	} else {
 		if ($LatestMajor =~ '^[[:digit:]]+$') {
 			my $ListedMajor = $File =~ s/^v(\d+)\.[\dx]+\//$1/r;
-			if ($ListedMajor == $LatestMajor) {
-				push(@KernVers, $File)
-			}
+			push(@KernVers, $File) if $ListedMajor == $LatestMajor
 		} else {
 			die('Cannot determine valid major release')
 		}
@@ -125,34 +124,33 @@ foreach my $Version (@KernVers) {
 	foreach (split("\n", get("$Domain/pub/linux/kernel/$Version"))) {
 		my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
 
-		next unless $File =~ '^linux-[\d\.]+.tar.xz$';
+		next() unless $File =~ '^linux-[\d\.]+.tar.xz$';
 
-		push(@Versions, (m{(?:linux-)([\d\.]+)(?:\.tar\.xz)})[0])
+		my $Version = (m{(?:linux-)([\d\.]+)(?:\.tar\.xz)})[0];
+		push(@Versions, $Version)
 	}
 }
 
-# Get and handle the current kernel version string.
+# Get and handle current version string. Because *.*.0 shows as *.* on site.
 chomp(my $CurKernVer = `glkfu -o current`);
-if ($CurKernVer =~ '(^[[:digit:]]+.[[:digit:]]+).0$') {
-	$CurKernVer = $1 # <-- Because *.*.0 shows as *.* on site.
-}
+$CurKernVer = $1 if $CurKernVer =~ '(^[[:digit:]]+.[[:digit:]]+).0$';
 
 # List the kernels.
 foreach my $Version (sort({versioncmp($a, $b)} @Versions)) {
 	if ($Version eq $CurKernVer and $DoColor) {
-		printf("\e[1;32mlinux-%s.tar.xz\e[0m", $Version)
+		print("\e[1;32mlinux-$Version.tar.xz\e[0m")
 	} else {
-		printf("linux-%s.tar.xz", $Version)
+		print("linux-$Version.tar.xz")
 	}
 
 	# Mark LTS releases, with or without color.
 	if (grep({$_ eq $Version} @LongTerms)) {
 		if ($DoColor) {
-			print("\e[2;37m  <-- LTS\e[0m\n")
+			say("\e[2;37m  <-- LTS\e[0m")
 		} else {
-			print("  <-- LTS\n")
+			say("  <-- LTS")
 		}
 	} else {
-		print("\n")
+		say('')
 	}
 }
