@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Sun 30 Jan 15:41:35 GMT 2022
+# Last Change       - Sun 30 Jan 17:30:12 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,7 +12,6 @@
 #
 # Features:
 #
-#TODO: Sort without the need for a separate module.
 #TODO: Consider some sort of caching system, like wcdl(1).
 #
 #      This could be updated when a new version is detected by glkfu(1).
@@ -31,20 +30,17 @@
 # Dependencies:
 #
 #   glkfu (>= 2020-12-20)
-#   libsort-versions-perl (>= 1.62-1)
 #   libwww-perl (>= 6.31-1)
 #   perl (>= 5.22.1-9)
 #------------------------------------------------------------------------------
 
 require LWP::Simple;
-require Sort::Versions;
 
 use 5.22.1;
 use strict;
 use warnings;
 use autodie;
 use LWP::Simple;
-use Sort::Versions 'versioncmp';
 
 no warnings 'uninitialized';
 
@@ -135,8 +131,31 @@ foreach my $Version (@KernVers) {
 chomp(my $CurKernVer = `glkfu -o current`);
 $CurKernVer = $1 if $CurKernVer =~ '(^[[:digit:]]+.[[:digit:]]+).0$';
 
+# Simplified version of version sorting algorithm found in `Sort::Versions`
+# (the 'libsort-versions-perl' package). This only sorts strings with
+# '.'-delimited parts of only numbers.
+sub Compare($;$) {
+	my @A_Parts = ($_[0] =~ /(\.|\d+)/g);
+	my @B_Parts = ($_[1] =~ /(\.|\d+)/g);
+	while (@A_Parts and @B_Parts) {
+		our $A = shift(@A_Parts);
+		our $B = shift(@B_Parts);
+		if ($A eq '.' and $B eq '.') {
+			next()
+		} elsif ($A eq '.') {
+			return(-1)
+		} elsif ($B eq '.') {
+			return(1)
+		} else {
+			return($A <=> $B) if $A <=> $B
+		}
+	}
+
+	@A_Parts <=> @B_Parts
+}
+
 # List the kernels.
-foreach my $Version (sort({versioncmp($a, $b)} @Versions)) {
+foreach my $Version (sort({Compare($a, $b)} @Versions)) {
 	if ($Version eq $CurKernVer and $DoColor) {
 		print("\e[1;32mlinux-$Version.tar.xz\e[0m")
 	} else {
