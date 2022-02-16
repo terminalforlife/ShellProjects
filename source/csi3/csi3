@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat 22 Jan 23:48:14 GMT 2022
+# Last Change       - Wed 16 Feb 02:45:02 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,13 +22,11 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-22'
+CurVer='2022-02-16'
 Progrm='csi3'
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Display this help information.
@@ -48,6 +46,8 @@ Usage() {
 
 		Modes are not handled.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
