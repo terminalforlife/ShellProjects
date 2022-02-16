@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018
-# Last Change       - Sat  8 Jan 20:21:17 GMT 2022
+# Last Change       - Wed 16 Feb 03:04:15 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,13 +22,11 @@
 #   coreutils (>= 8.25-2)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-08'
+CurVer='2022-02-16'
 Progrm=${0##*/}
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Displays this help information.
@@ -39,6 +37,8 @@ Usage() {
 		  -Y, --yes-apt            - Equivalent of the -qq flag for apt-get(8).
 		  -p, --purge              - Also purge the chosen packages.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
@@ -88,9 +88,7 @@ done
 
 #---------------------------------------------------------------Welcome Message
 
-while read; do
-	printf '%s\n' "$REPLY"
-done <<-EOF
+read -d '' <<-EOF
 
 	What will follow is a series of prompts which will ascertain how you would
 	like to tweak (lighten) your Ubuntu installation of Linux, based on your
@@ -112,6 +110,8 @@ done <<-EOF
 	WARNING: Misused, this program could make a mess of your installation.
 
 EOF
+
+printf '%s' "$REPLY"
 
 #------------------------------Generate Associative Array of Installed Packages
 
@@ -212,9 +212,7 @@ if [[ ${LSBCheck:-true} == true ]]; then
 		linuxmint)
 			IsMint='true'
 
-			while read; do
-				printf '%s\n' "$REPLY"
-			done <<-EOF
+			read -d '' <<-EOF
 				WARNING: Simplify-ubuntu has detected an installation of Linux Mint. Although your
 				         chosen distribution was not the initial target for $Progrm, there
 				         is ample support given.
@@ -225,6 +223,8 @@ if [[ ${LSBCheck:-true} == true ]]; then
 				CAUTION: The --no-ask-de|-N flags may be ignored if Mint is detected.
 
 			EOF
+
+			printf '%s' "$REPLY"
 
 			if PathLook mintwelcome; then
 				Prompt\
@@ -401,9 +401,7 @@ if [[ ${LSBCheck:-true} == true ]]; then
 		zorin)
 			IsZorin='true'
 
-			while read -r; do
-				printf "%s\n" "$REPLY"
-			done <<-EOF
+			read -d '' <<-EOF
 				WARNING: Simplify-ubuntu has detected an installation of Zorin OS. Although your
 				         chosen distribution was not the initial target for $Progrm, it's
 				         still built on Ubuntu.
@@ -412,6 +410,8 @@ if [[ ${LSBCheck:-true} == true ]]; then
 				         greater care with your answers.
 
 			EOF
+
+			printf '%s' "$REPLY"
 
 			if PathLook playonlinux; then
 				Prompt\
@@ -434,9 +434,7 @@ fi
 PathLook lite-welcome && IsLinuxLite='true'
 
 if [[ $IsLinuxLite == true ]]; then
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		WARNING: Simplify-ubuntu has detected an installation of Linux Lite.
 		         Although your chosen distribution was not the initial target
 		         for $Progrm, it's still built on Ubuntu.
@@ -445,6 +443,8 @@ if [[ $IsLinuxLite == true ]]; then
 		         to take even greater care with your answers.
 
 	EOF
+
+	printf '%s' "$REPLY"
 
 	if PathLook lite-welcome; then
 		Prompt\
