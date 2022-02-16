@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lspkg/lspkg
 # Started On	    - Sun 17 Sep 04:13:30 BST 2017
-# Last Change       - Thu 13 Jan 20:12:12 GMT 2022
+# Last Change       - Wed 16 Feb 02:55:37 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,13 +23,11 @@
 #   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
+CurVer='2022-02-16'
 Progrm='lspkg'
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS] [SEARCH_1 [SEARCH_2] ...]
 
 		  -h, --help               - Display this help information.
@@ -41,6 +39,8 @@ Usage() {
 		  -i, --ignore-case        - Match both upper- and lower-case.
 		  -n, --name-only          - Match only the package names.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
