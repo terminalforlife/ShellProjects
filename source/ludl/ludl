@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 12 Jan 13:48:22 GMT 2022
+# Last Change       - Wed 16 Feb 02:56:41 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -45,13 +45,11 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-12'
+CurVer='2022-02-16'
 Progrm=${0##*/}
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Display this help information.
@@ -65,6 +63,8 @@ Usage() {
 
 		  Downloaded podcasts are sent to the CWD.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
