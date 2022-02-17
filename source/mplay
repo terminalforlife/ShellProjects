@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/mplay
 # Started On        - Sat 16 Sep 19:42:57 BST 2017
-# Last Change       - Thu 13 Jan 16:28:02 GMT 2022
+# Last Change       - Thu 17 Feb 15:51:36 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,14 +11,12 @@
 # the same GitHub store from which this file originated.
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
+CurVer='2022-02-17'
 Progrm='mplay'
 ProgrmFancy='MPlay'
 
 Usage() {
-	while read; do
-		printf "%s\n" "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS] [PATH]
 
 		  -h, --help               - Displays this help information.
@@ -32,6 +30,8 @@ Usage() {
 
 		  The use of '--' to ignore proceeding flags is supported.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
@@ -39,13 +39,13 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
-Domain="https://github.com"
-ThemeDir="/usr/share/moc/themes"
+Domain='https://github.com'
+ThemeDir='/usr/share/moc/themes'
 
 while [[ -n $1 ]]; do
 	case $1 in
 		--)
-			shift;
+			shift
 			break ;;
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -54,7 +54,7 @@ while [[ -n $1 ]]; do
 		--once|-o)
 			Once='True' ;;
 		-*)
-			Err 1 "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
@@ -69,7 +69,7 @@ fi
 
 [[ -d $ThemeDir ]] || Err 1 'Theme directory not found.'
 [[ -f $ThemeDir/tfl_moc_theme ]] || Err 1 'Theme file not found.'
-type -P mocp 2> /dev/null 1>&2 || Err 1 "Dependency 'mocp' not met."
+type -P mocp &> /dev/null || Err 1 "Dependency 'mocp' not met."
 
 mocp -n -T "$ThemeDir/tfl_moc_theme"          \
 	-O ShowFormat=yes                         \
