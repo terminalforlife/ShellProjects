@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dwwdl
 # Started On        - Sat 16 Sep 22:41:54 BST 2017
-# Last Change       - Thu 13 Jan 20:25:13 GMT 2022
+# Last Change       - Thu 17 Feb 15:43:17 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,13 +16,11 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
-Progrm=${0##*/}
+CurVer='2022-02-17'
+Progrm='dwwdl'
 
-Usage(){
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+Usage() {
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Displays this help information.
@@ -39,54 +37,56 @@ Usage(){
 
 		  Entries older than 20050822 were before DWW podcasts were available.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
-ServerKind='false'
+ServerKind='False'
 Interval=10
-Extension='ogg'
+Ext='ogg'
 
-DownloadURL="http://distrowatch.com/podcast/dww"
+DownloadURL='http://distrowatch.com/podcast/dww'
 
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
-		--help|-h|-\?)
+		--help|-h)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"; exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--server-kind)
-			ServerKind='true' ;;
+			ServerKind='True' ;;
 		--interval|-i)
 			shift
 
 			if [[ $1 =~ ^[0-9]+$ ]]; then
 				Interval=$1
 			else
-				Err 1 "Incorrect interval."
+				Err 1 'Incorrect interval.'
 			fi ;;
 		--quiet-sleep)
-			QuietSleep='true' ;;
+			QuietSleep='True' ;;
 		--show-progress)
-			ProgressBar="--show-progress" ;;
+			ProgressBar='--show-progress' ;;
 		--type|-t)
 			shift
 
-			if [ "$1" == 'MP3' ] || [ "$1" == 'OGG' ]; then
-				Extension=${1,,}
+			if [[ $1 == MP3 || $1 == OGG ]]; then
+				Ext=${1,,}
 			else
-				Err 1 "Incorrect file type selected."
+				Err 1 'Incorrect file type selected.'
 			fi ;;
 		--date|-d)
 			shift
 
 			if [[ $1 =~ ^[0-9]{8} ]]; then
-				Podcasts+=" $1"
+				Podcasts+=("$1")
 			else
-				Err 1 "Incorrect podcast date provided."
+				Err 1 'Incorrect podcast date provided.'
 			fi ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
@@ -94,60 +94,51 @@ while [ "$1" ]; do
 	shift
 done
 
-DepCount=0
-for DEP in wget sync sleep; {
-	if ! type -P "$DEP" &> /dev/null; then
-		Err 0 "Dependency '$DEP' not met."
-		let DepCount+=1
+for CurDep in wget sync sleep; {
+	if ! type -P "$CurDep" &> /dev/null; then
+		Err 0 "Dependency '$CurDep' not met."
+		(( DepCount++ ))
 	fi
 }
 
-[ $DepCount -gt 0 ] && exit 1
+(( DepCount > 0 )) && exit 1
 
-if ! [ "$ServerKind" == 'true' ]; then
-	if [ "$QuietSleep" == 'true' -o ! "$Interval" -eq 10 ]; then
+if ! [[ $ServerKind == True ]]; then
+	if [[ $QuietSleep == True ]] || (( Interval != 10 )); then
 		Err 1 "Expecting '--server-kind' argument."
 	fi
 fi
 
-declare -i TimeCount=0
+TimeCount=0
 
-if [ -z "$Podcasts" ]; then
+if [[ -z $Podcasts ]]; then
 	#TODO: See about adding $OLDTONEW functionality here with pure shell.
-	Podcasts=$(
-		LINK="http://distrowatch.com/weekly.php?issue=1"
-
-		while read -ra Line; do
-			for A in ${Line[@]}; {
-				if [[ $A == *\?issue\=* ]]; then
-					printf "%s\n" ${A//[!0-9]/}
-				fi
-			}
-		done <<< `wget -q "$LINK" -O -`
-	)
+	Link='http://distrowatch.com/weekly.php?issue=1'
+	while read -ra Line; do
+		for A in ${Line[@]}; {
+			[[ $A == *\?issue\=* ]] && Podcasts+=("${A//[!0-9]/}")
+		}
+	done <<< "$(wget -qO - "$Link")"
 fi
 
-DownloadURL='http://distrowatch.com/podcast/dww'
+for Date in "${Podcasts[@]}"; {
+	(( Date < 20050822 )) && continue
 
-for Date in $Podcasts; {
-	[ $Date -lt 20050822 ] && continue
+	[[ -z $ProgressBar ]] && printf 'PODCAST: %s\n' "$Date"
+	if [[ $ServerKind == True && ! -f ${DL_LINK//*\/} ]]; then
+		(( TimeCount++ ))
 
-	[ "$ProgressBar" ] || printf "PODCAST: %s\n" "$Date"
-
-	if [ "$ServerKind" == 'true' -a ! -f "${DL_LINK//*\/}" ]; then
-		TimeCount+=1; printf -v RandomNumber "%0.5d" "$RANDOM"
-		if ! [ "$QuietSleep" == 'true' ]; then
-			printf "Sleeping for %d second(s)...\n" "${RandomNumber/????}"
+		printf -v RandomNumber '%0.5d' $RANDOM
+		if ! [[ $QuietSleep == True ]]; then
+			printf 'Sleeping for %d second(s)...\n' "${RandomNumber/????}"
 		fi
 
 		sleep ${RandomNumber/????}s
 
-		if [ $Interval -eq 0 -a $TimeCount -eq $Interval ]; then
-			printf -v RandomNumber "%0.5d" "$RANDOM"
-
-			if ! [ "$QuietSleep" == 'true' ]; then
-				printf "Sleeping for %d minute(s)...\n"\
-					"${RandomNumber/????}"
+		if (( Interval == 0 && TimeCount == Interval )); then
+			printf -v RandomNumber '%0.5d' $RANDOM
+			if ! [[ $QuietSleep == True ]]; then
+				printf 'Sleeping for %d minute(s)...\n' "${RandomNumber/????}"
 			fi
 
 			sleep ${RandomNumber/????}m
@@ -155,7 +146,7 @@ for Date in $Podcasts; {
 		fi
 	fi
 
-	if ! wget -cq --no-cookies $ProgressBar $DownloadURL$Date.$Extension; then
+	if ! wget -cq --no-cookies $ProgressBar "$DownloadURL$Date.$Ext"; then
 		Err 0 "Podcast '$Date' failed."
 	fi
 }
