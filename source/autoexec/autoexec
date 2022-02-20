@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Wed 16 Feb 02:36:56 GMT 2022
+# Last Change       - Sun 20 Feb 17:26:59 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-16'
+CurVer='2022-02-20'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -107,7 +107,7 @@ while [[ -n $1 ]]; do
 			fi ;;
 		--once|-o)
 			OnceArg=$1
-			Once='true' ;;
+			Once='True' ;;
 		--no-waitmsg|-W)
 			WaitMSG='False' ;;
 		--no-spinner|-S)
@@ -131,7 +131,7 @@ while [[ -n $1 ]]; do
 	shift
 done
 
-if [[ $Once == true && $RefreshCustom == True ]]; then
+if [[ $Once == True && $RefreshCustom == True ]]; then
 	Err 1 "OPTs '$OnceArg' and '$RefreshArg' aren't compatible."
 fi
 
@@ -166,7 +166,7 @@ if [[ $Force == False ]]; then
 fi
 
 SignalHandler() {
-	if [[ $Once != true ]]; then
+	if [[ $Once != True ]]; then
 		tput ed
 		tput rmcup
 	fi
@@ -184,14 +184,18 @@ SignalHandler() {
 		Err 1 "OPT '$CheckArg' not supported on FILE."
 	fi
 
-	exit 0
+	if [[ -n $Exit ]]; then
+		exit $Exit
+	else
+		exit 0
+	fi
 }
 
 trap 'SignalHandler' SIGINT EXIT
 
-[[ $Once == true ]] || tput smcup
+[[ $Once == True ]] || tput smcup
 
-if [[ $Once != true ]]; then
+if [[ $Once != True ]]; then
 	shopt -s checkwinsize
 	tput clear
 	trap 'tput clear' WINCH
@@ -221,7 +225,7 @@ while :; do
 
 		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
 		if [[ ${SSEOld//[![:digit:]]} -lt ${SSE//[![:digit:]]} ]]; then
-			[[ $Once == true ]] || tput clear
+			[[ $Once == True ]] || tput clear
 
 			# If using DASH, BASH, or ZSH, check for errors before executing.
 			if [[ $Check == True ]]; then
@@ -259,7 +263,7 @@ while :; do
 
 		SSEOld=${SSE//[![:digit:]]}
 	else
-		if [[ $Once != true ]]; then
+		if [[ $Once != True ]]; then
 			tput ed; tput rmcup
 		fi
 
@@ -267,7 +271,7 @@ while :; do
 		exit 1
 	fi
 
-	if [[ $Once != true ]]; then
+	if [[ $Once != True ]]; then
 		# Have the exit status on the bottom-right of the terminal.
 		if [[ $ExitStatus == True ]]; then
 			tput cup $LINES $((COLUMNS - 3))
@@ -308,7 +312,9 @@ while :; do
 		fi
 	fi
 
-	[[ $Once == true ]] && exit 0
+	# The exit status here is irrelevant. Exiting with the correct status when
+	# running just once is handled by the `SignalHandler()` function.
+	[[ $Once == True ]] && exit
 
 	read -n 1 -st $Refresh
 done
