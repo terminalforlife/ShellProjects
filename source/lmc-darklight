@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Wed 23 Feb 22:23:06 GMT 2022
+# Last Change       - Wed 23 Feb 22:23:50 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 # This is for Linux Mint Cinnamon ONLY, but you could surely repurpose it for
 # your own desktop environment or distribution.
 #
-# Run this as a regular user. You'll probaly want to store this in '~/bin', -
+# Run this as a regular user. You'll probably want to store this in '~/bin', -
 # make it executable (IE: `chmod u+x FILE`), then set it to be executed every
 # time you log in, with the 'Startup Applications' GUI in Cinnamon.
 #
