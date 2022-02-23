@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Wed 23 Feb 22:23:50 GMT 2022
+# Last Change       - Wed 23 Feb 23:02:36 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -63,6 +63,13 @@ Set() {
 	gsettings set org.gnome.desktop.wm.preferences theme "$5"
 	gsettings set org.cinnamon.desktop.background picture-uri "file://$6"
 }
+
+(( $# > 0 )) && Err 'No arguments required.'
+(( UID == 0 )) && Err "Do not run this script as the 'root' user."
+
+if ! type -P gsettings &> /dev/null; then
+	Err "Dependency 'gsettings' not met."
+fi
 
 if [[ -z $LightTime || -z $DarkTime ]]; then
 	Err "Variable 'LightTime' and/or 'DarkTime' not set."
