@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/lmc-darklight
+# Started On        - Wed 23 Feb 21:40:31 GMT 2022
+# Last Change       - Wed 23 Feb 22:23:06 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This seems to be an oft-requested feature in Linux Mint, so I thought I'd
+# have a bash (pun intended) at writing something quick which will effectively
+# work as a daemon to auto-set values based on the time of day (by the hour).
+#
+# This is for Linux Mint Cinnamon ONLY, but you could surely repurpose it for
+# your own desktop environment or distribution.
+#
+# Run this as a regular user. You'll probaly want to store this in '~/bin', -
+# make it executable (IE: `chmod u+x FILE`), then set it to be executed every
+# time you log in, with the 'Startup Applications' GUI in Cinnamon.
+#
+# Set what you need using the variables below.
+#------------------------------------------------------------------------------
+
+# How often it'll check the time and adjust themes.
+Interval=60
+
+# Like 600 (6am) or 2000 (8pm), in 24hr. The colon is optional.
+LightTime=600
+DarkTime=2000
+
+# Names relative to the 'Themes' GUI in Cinnamon.
+LightDesktop='Mint-Y'
+DarkDesktop='Mint-Y-Dark-Red'
+LightControls='Mint-Y'
+DarkControls='Mint-Y-Dark-Red'
+LightIcons='Mint-Y-Blue'
+DarkIcons='Mint-Y-Dark-Red'
+LightCursor='DMZ-White'
+DarkCursor='DMZ-Black'
+LightBorders='Mint-Y'
+DarkBorders='Mint-Y'
+
+# Absolute paths to the light and dark backgrounds.
+LightBG='/usr/share/backgrounds/linuxmint/sele_ring_green.jpg'
+DarkBG='/usr/share/backgrounds/linuxmint/default_background.jpg'
+
+#-----------------------------------------Work Like A Daemon to Auto-Set Themes
+
+Err() {
+	printf 'Err: %s\n' "$1" 1>&2
+	(( Err++ ))
+}
+
+Set() {
+	gsettings set org.cinnamon.theme name "$1"
+	gsettings set org.gnome.desktop.interface gtk-theme "$1"
+	gsettings set org.cinnamon.desktop.interface gtk-theme "$2"
+	gsettings set org.gnome.desktop.interface icon-theme "$3"
+	gsettings set org.cinnamon.desktop.interface icon-theme "$3"
+	gsettings set org.cinnamon.desktop.interface cursor-theme "$4"
+	gsettings set org.gnome.desktop.interface cursor-theme "$4"
+	gsettings set org.cinnamon.desktop.wm.preferences theme "$5"
+	gsettings set org.gnome.desktop.wm.preferences theme "$5"
+	gsettings set org.cinnamon.desktop.background picture-uri "file://$6"
+}
+
+if [[ -z $LightTime || -z $DarkTime ]]; then
+	Err "Variable 'LightTime' and/or 'DarkTime' not set."
+elif ! [[ $LightTime =~ ^[[:digit:]]+$ && $DarkTime =~ ^[[:digit:]]+$ ]]; then
+	Err "Variable 'LightTime' and/or 'DarkTime' invalid."
+fi
+
+for Value in {Light,Dark}{Desktop,Controls,Icons,Cursor,Borders}; {
+	[[ -z ${!Value} ]] && Err "Value '$Value' not set."
+}
+
+if [[ -z $LightBG || -z $DarkBG ]]; then
+	Err "Variable 'LightBG' and/or 'DarkBG' not set."
+elif ! [[ -f $LightBG && -f $DarkBG ]]; then
+	Err "File for variable 'LightBG' and/or 'DarkBG' not found."
+elif ! [[ -r $LightBG && -r $DarkBG ]]; then
+	Err "File for variable 'LightBG' and/or 'DarkBG' unreadable."
+fi
+
+(( Err > 0 )) && exit 1
+
+while :; do
+	printf -v Time '%(%k%M)T' -1
+	if (( Time >= LightTime & Time < DarkTime )); then
+		Set "$LightDesktop" "$LightControls" "$LightIcons"\
+			"$LightCursor" "$LightBorders" "$LightBG"
+	elif (( Time >= DarkTime || Time < LightTime )); then
+		Set "$DarkDesktop" "$DarkControls" "$DarkIcons"\
+			"$DarkCursor" "$DarkBorders" "$DarkBG"
+	fi
+
+	sleep ${Interval}s
+done
