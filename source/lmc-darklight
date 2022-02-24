@@ -3,13 +3,14 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Thu 24 Feb 18:03:28 GMT 2022
+# Last Change       - Thu 24 Feb 19:25:46 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # This seems to be an oft-requested feature in Linux Mint, so I thought I'd
 # have a bash (pun intended) at writing something quick which will effectively
-# work as a daemon to auto-set values based on the time of day (by the hour).
+# work as a daemon to auto-set values based on the time of day, down to the
+# minute.
 #
 # This is for Linux Mint Cinnamon ONLY, but you could surely repurpose it for
 # your own desktop environment or distribution.
