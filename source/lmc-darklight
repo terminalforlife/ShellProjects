@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Wed 23 Feb 23:07:37 GMT 2022
+# Last Change       - Thu 24 Feb 18:03:28 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ fi
 
 while :; do
 	printf -v Time '%(%k%M)T' -1
-	if (( Time >= LightTime & Time < DarkTime )); then
+	if (( Time >= LightTime && Time < DarkTime )); then
 		Set "$LightDesktop" "$LightControls" "$LightIcons"\
 			"$LightCursor" "$LightBorders" "$LightBG"
 	elif (( Time >= DarkTime || Time < LightTime )); then
