@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 17:43:46 GMT 2022
+# Last Change       - Fri 25 Feb 18:09:04 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,6 +15,7 @@
 #
 # Features:
 #
+#TODO: Get and output user's existing theme names.
 #TODO: If configuration key is equal to null, ignore it.
 #TODO: Use verbose output if things are successful or not.
 #TODO: Don't exit out of main loop of errors.
