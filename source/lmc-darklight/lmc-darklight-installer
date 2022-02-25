@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight/lmc-darklight-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Fri 25 Feb 16:07:55 GMT 2022
+# Last Change       - Fri 25 Feb 17:36:55 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -90,26 +90,6 @@ SigHandler(){
 	else
 		printf 'Done!\n'
 	fi
-
-	while read -r Line; do
-		printf '%b\n' "$Line"
-	done <<-EOF
-
-		\rHave LMC-DarkLight executed at login by adding an entry to the
-		\rStartup Applications GUI, which you can immediately open with:
-
-		\r    $ cinnamon-settings startup
-
-		\rAny problems? Create an Issue report over on GitHub.
-
-		\rValues:
-
-		\r       Name: LMC-DarkLight
-		\r    Command: lmc-darklight
-		\r    Comment: Automatically adjust dark/light theme
-
-		\rThe above can be easily copy-pasted into the new entry.
-	EOF
 
 	exit $Sig
 }
