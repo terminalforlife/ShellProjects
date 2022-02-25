@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 21:27:49 GMT 2022
+# Last Change       - Fri 25 Feb 22:22:28 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,7 +15,6 @@
 #
 # Features:
 #
-#TODO: Get and output user's existing theme names.
 #TODO: If configuration key is equal to null, ignore it.
 #TODO: Don't exit out of main loop of errors.
 #TODO: Incorporate notify-send(1).
@@ -55,6 +54,7 @@ Err() {
 
 MainDir="$HOME/.config/$Progrm"
 Config="$MainDir/config"
+OldValues="$MainDir/old_values"
 
 ValidKeys=(
 		LightCursor LightDesktop DarkBorders DarkIcons DarkControls\
@@ -125,6 +125,28 @@ if [[ $NewConfig == True ]]; then
 	printf '%s' "$REPLY" > "$Config"
 	exit 0
 fi
+
+#-------------------------------------------------Fetch the Current Theme Names
+
+Get() {
+	read <<< "$(gsettings get "$2" "$3")"
+	if [[ $3 == picture-uri ]]; then
+		REPLY="'${REPLY#\'file:\/\/}"
+	fi
+
+	printf '%s=%s\n' "$1" "$REPLY"
+	if ! [[ -f $OldValues ]]; then
+		printf '%s=%s\n' "$1" "$REPLY" >> "$OldValues"
+	fi
+}
+
+printf 'Current values...\n'
+Get Borders org.cinnamon.desktop.wm.preferences theme
+Get Icons org.cinnamon.desktop.interface icon-theme
+Get Controls org.cinnamon.desktop.interface gtk-theme
+Get Cursor org.cinnamon.desktop.interface cursor-theme
+Get Desktop org.cinnamon.theme name
+Get BG org.cinnamon.desktop.background picture-uri
 
 #------------------------Process the Configuration File and Begin the Main Loop
 
