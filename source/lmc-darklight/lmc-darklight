@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 02:34:56 GMT 2022
+# Last Change       - Fri 25 Feb 02:39:50 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -159,7 +159,11 @@ Set() {
 
 while :; do
 	# Read and verify the configuration file.
-	if [[ -f $Config ]]; then
+	if ! [[ -f $Config ]]; then
+		Err 1 "File '$Config' not found."
+	elif ! [[ -r $Config ]]; then
+		Err 1 "File '$Config' unreadable."
+	else
 		VErr() {
 			Err 0 "$1"
 			(( VErrs++ ))
@@ -210,10 +214,6 @@ while :; do
 		fi
 
 		(( VErrs > 0 )) && exit 1
-	elif ! [[ -r $Config ]]; then
-		Err 1 "File '$Config' unreadable."
-	else
-		Err 1 "File '$Config' not found."
 	fi
 
 	# Begin the main loop.
