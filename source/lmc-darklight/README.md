@@ -4,6 +4,8 @@ This seems to be an oft-requested feature in Linux Mint, so I thought I'd have a
 
 This program is strictly for Linux Mint Cinnamon.
 
+Originally, this was a basic script, but is now a nice little tool for Linux Mint Cinnamon users. A video on this program can be found (https://www.youtube.com/watch?v=tjzuHOiwfIA)[here], on YouTube.
+
 # Installation Instructions
 
 Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via LMC-DarkLight's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/lmc-darklight/lmc-darklight-installer).
