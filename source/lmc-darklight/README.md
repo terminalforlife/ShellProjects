@@ -1,6 +1,8 @@
 # Introduction
 
-To be written...
+This seems to be an oft-requested feature in Linux Mint, so I thought I'd have a bash (pun intended) at writing something which will effectively work as a daemon to auto-set values based on the time of day.
+
+This program is strictly for Linux Mint Cinnamon.
 
 # Installation Instructions
 
@@ -25,7 +27,7 @@ If you don't have sudo(8), just omit it from the command(s) above, and run them 
 If you've used the installer, then you can run the following to delete the files it creates:
 
 ```
-sudo rm -v /usr/bin/lmc-darklight
+sudo rm -v /usr/share/bash-completion/completions/lmc-darklight /usr/bin/lmc-darklight
 ```
 
 If you don't have sudo(8), you'll have to acquire root privileges by other means.
