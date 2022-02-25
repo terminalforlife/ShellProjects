@@ -4,7 +4,7 @@ This seems to be an oft-requested feature in Linux Mint, so I thought I'd have a
 
 This program is strictly for Linux Mint Cinnamon.
 
-Originally, this was a basic script, but is now a nice little tool for Linux Mint Cinnamon users. A video on this program can be found (https://www.youtube.com/watch?v=tjzuHOiwfIA)[here], on YouTube.
+Originally, this was a basic script, but is now a nice little tool for Linux Mint Cinnamon users. A video on this program can be found [here](https://www.youtube.com/watch?v=tjzuHOiwfIA), on YouTube.
 
 # Installation Instructions
 
