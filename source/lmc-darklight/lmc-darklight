@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 02:49:26 GMT 2022
+# Last Change       - Fri 25 Feb 02:53:45 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -191,15 +191,10 @@ while :; do
 
 		(( InvalidKeys > 0 )) && exit 1
 
-		if ! [[ $LightTime =~ ^[[:digit:]]+$ && $DarkTime =~ ^[[:digit:]]+$ ]]; then
-			VErr "Key 'LightTime' and/or 'DarkTime' invalid."
-		fi
+		[[ $LightTime =~ ^[[:digit:]]+$ ]] || VErr "Key 'LightTime' invalid."
+		[[ $DarkTime =~ ^[[:digit:]]+$ ]] || VErr "Key 'DarkTime' invalid."
 
-		for Value in\
-		\
-			{Light,Dark}{Desktop,Controls,Icons,Cursor,Borders}\
-			{Light,Dark}{LightTime,DarkTime,LightBG,DarkBG};
-		{
+		for Value in {Light,Dark}{Desktop,Controls,Icons,Cursor,Borders,Time,BG}; {
 			[[ -z ${!Value} ]] && VErr "Value '$Value' not set."
 		}
 
