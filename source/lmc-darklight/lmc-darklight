@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 02:39:50 GMT 2022
+# Last Change       - Fri 25 Feb 02:49:26 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -191,26 +191,28 @@ while :; do
 
 		(( InvalidKeys > 0 )) && exit 1
 
-		if [[ -z $LightTime || -z $DarkTime ]]; then
-			VErr "Key 'LightTime' and/or 'DarkTime' not set."
-		elif ! [[ $LightTime =~ ^[[:digit:]]+$ && $DarkTime =~ ^[[:digit:]]+$ ]]; then
+		if ! [[ $LightTime =~ ^[[:digit:]]+$ && $DarkTime =~ ^[[:digit:]]+$ ]]; then
 			VErr "Key 'LightTime' and/or 'DarkTime' invalid."
 		fi
 
-		for Value in {Light,Dark}{Desktop,Controls,Icons,Cursor,Borders}; {
+		for Value in\
+		\
+			{Light,Dark}{Desktop,Controls,Icons,Cursor,Borders}\
+			{Light,Dark}{LightTime,DarkTime,LightBG,DarkBG};
+		{
 			[[ -z ${!Value} ]] && VErr "Value '$Value' not set."
 		}
 
-		if [[ -z $LightBG || -z $DarkBG ]]; then
-			VErr "Key 'LightBG' and/or 'DarkBG' not set."
+		if ! [[ -f $LightBG ]]; then
+			VErr "File for key 'LightBG' not found."
+		elif ! [[ -r $LightBG ]]; then
+			VErr "File for key 'LightBG' unreadable."
 		fi
 
-		if ! [[ -f $LightBG && -r $LightBG ]]; then
-			VErr "File for key 'LightBG' not found or unreadable."
-		fi
-
-		if ! [[ -f $DarkBG && -r $DarkBG ]]; then
-			VErr "File for key 'DarkBG' not found or unreadable."
+		if ! [[ -f $DarkBG ]]; then
+			VErr "File for key 'DarkBG' not found."
+		elif ! [[ -r $DarkBG ]]; then
+			VErr "File for key 'DarkBG' unreadable."
 		fi
 
 		(( VErrs > 0 )) && exit 1
