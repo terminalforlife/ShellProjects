@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 18:09:04 GMT 2022
+# Last Change       - Fri 25 Feb 21:27:49 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,7 +17,6 @@
 #
 #TODO: Get and output user's existing theme names.
 #TODO: If configuration key is equal to null, ignore it.
-#TODO: Use verbose output if things are successful or not.
 #TODO: Don't exit out of main loop of errors.
 #TODO: Incorporate notify-send(1).
 #
@@ -43,6 +42,7 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  --genconfig              - Generate new configuration file.
+		  -o, --once               - Only run $ProgrmFancy once.
 	EOF
 
 	printf '%s' "$REPLY"
@@ -70,6 +70,8 @@ while [[ -n $1 ]]; do
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--genconfig)
 			NewConfig='True' ;;
+		--once|-o)
+			Once='True' ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
 	esac
@@ -127,42 +129,51 @@ fi
 #------------------------Process the Configuration File and Begin the Main Loop
 
 Info() {
-	printf "INFO: %s='%s'\n" "$1" "$2"
+	printf "Setting %b ... " "$1"
+
+	IFS="'" read _ Value _ <<< "$(gsettings get ${1/\// })"
+	if [[ $2 == $Value ]]; then
+		printf '[\e[92mOK\e[0m]\n'
+	else
+		printf '[\e[91mERR\e[0m]\n'
+	fi
 }
 
 Set() {
-	Info 'org.cinnamon.theme/name' "$1"
 	gsettings set org.cinnamon.theme name "$1"
+	Info 'org.cinnamon.theme/name' "$1"
 
-	Info 'org.gnome.desktop.interface/gtk-theme' "$1"
 	gsettings set org.gnome.desktop.interface gtk-theme "$1"
+	Info 'org.gnome.desktop.interface/gtk-theme' "$1"
 
-	Info 'org.cinnamon.desktop.interface/gtk-theme' "$2"
 	gsettings set org.cinnamon.desktop.interface gtk-theme "$2"
+	Info 'org.cinnamon.desktop.interface/gtk-theme' "$2"
 
-	Info 'org.gnome.desktop.interface/icon-theme' "$3"
 	gsettings set org.gnome.desktop.interface icon-theme "$3"
+	Info 'org.gnome.desktop.interface/icon-theme' "$3"
 
-	Info 'org.cinnamon.desktop.interface/icon-theme' "$3"
 	gsettings set org.cinnamon.desktop.interface icon-theme "$3"
+	Info 'org.cinnamon.desktop.interface/icon-theme' "$3"
 
-	Info 'org.cinnamon.desktop.interface/cursor-theme' "$4"
 	gsettings set org.cinnamon.desktop.interface cursor-theme "$4"
+	Info 'org.cinnamon.desktop.interface/cursor-theme' "$4"
 
-	Info 'org.gnome.desktop.interface/cursor-theme' "$4"
 	gsettings set org.gnome.desktop.interface cursor-theme "$4"
+	Info 'org.gnome.desktop.interface/cursor-theme' "$4"
 
-	Info 'org.cinnamon.desktop.wm.preferences/theme' "$5"
 	gsettings set org.cinnamon.desktop.wm.preferences theme "$5"
+	Info 'org.cinnamon.desktop.wm.preferences/theme' "$5"
 
-	Info 'org.gnome.desktop.wm.preferences/theme' "$5"
 	gsettings set org.gnome.desktop.wm.preferences theme "$5"
+	Info 'org.gnome.desktop.wm.preferences/theme' "$5"
 
-	Info 'org.cinnamon.desktop.background/picture-uri' "file://$6"
 	gsettings set org.cinnamon.desktop.background picture-uri "file://$6"
+	Info 'org.cinnamon.desktop.background/picture-uri' "file://$6"
 }
 
 while :; do
+	printf 'Loop #%d ...\n' $(( ++Iter ))
+
 	# Read and verify the configuration file.
 	if ! [[ -f $Config ]]; then
 		Err 1 "File '$Config' not found."
@@ -187,8 +198,10 @@ while :; do
 			}
 
 			if [[ $Found == True ]]; then
+				printf "\e[92mFound\e[0m: %s='%s'\n" "$Key" "$Value"
 				declare $Key="$Value"
 			else
+				printf '\e[91mMissing\e[0m: %s\n' "$Key"
 				Err 0 "Key '$Key' invalid."
 				(( InvalidKeys++ ))
 			fi
@@ -227,6 +240,8 @@ while :; do
 		Set "$DarkDesktop" "$DarkControls" "$DarkIcons"\
 			"$DarkCursor" "$DarkBorders" "$DarkBG"
 	fi
+
+	[[ $Once == True ]] && exit 0
 
 	sleep ${Interval}s
 done
