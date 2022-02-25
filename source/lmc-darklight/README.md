@@ -29,7 +29,7 @@ If you don't have sudo(8), just omit it from the command(s) above, and run them 
 If you've used the installer, then you can run the following to delete the files it creates:
 
 ```
-sudo rm -v /usr/share/bash-completion/completions/lmc-darklight /usr/bin/lmc-darklight
+sudo rm -v /usr/share/bash-completion/completions/lmc-darklight /usr/share/man/man1/lmc-darklight.1.gz /usr/bin/lmc-darklight
 ```
 
 If you don't have sudo(8), you'll have to acquire root privileges by other means.
