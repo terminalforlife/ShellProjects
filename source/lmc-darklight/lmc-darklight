@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 22:22:28 GMT 2022
+# Last Change       - Fri 25 Feb 22:44:23 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,6 +15,7 @@
 #
 # Features:
 #
+#TODO: Add original values to a file. Currently, it's output only.
 #TODO: If configuration key is equal to null, ignore it.
 #TODO: Don't exit out of main loop of errors.
 #TODO: Incorporate notify-send(1).
@@ -48,7 +49,7 @@ Usage() {
 }
 
 Err() {
-	printf 'Err: %s\n' "$2" 1>&2
+	printf '\e[91mErr\e[0m: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
@@ -135,9 +136,6 @@ Get() {
 	fi
 
 	printf '%s=%s\n' "$1" "$REPLY"
-	if ! [[ -f $OldValues ]]; then
-		printf '%s=%s\n' "$1" "$REPLY" >> "$OldValues"
-	fi
 }
 
 printf 'Current values...\n'
@@ -220,10 +218,9 @@ while :; do
 			}
 
 			if [[ $Found == True ]]; then
-				printf "\e[92mFound\e[0m: %s='%s'\n" "$Key" "$Value"
+				printf "Found key: %s\n" "$Key"
 				declare $Key="$Value"
 			else
-				printf '\e[91mMissing\e[0m: %s\n' "$Key"
 				Err 0 "Key '$Key' invalid."
 				(( InvalidKeys++ ))
 			fi
