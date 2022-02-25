@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-
+#cito M:755 O:0 G:0 T:/usr/bin/lmc-darklight
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 02:30:07 GMT 2022
+# Last Change       - Fri 25 Feb 02:34:56 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
