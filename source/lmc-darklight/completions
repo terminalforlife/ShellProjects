@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#cito M:644 O:0 G:0 T:/usr/share/bash-completion/completions/lmc-darklight
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/lmc-darklight/completions
+# Started On        - Wed 12 Feb 18:58:13 GMT 2020
+# Last Change       - Fri 25 Feb 03:21:13 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# This is the bash completion script for LMC-DarkLight.
+#------------------------------------------------------------------------------
+
+_lmc_darklight() {
+	local Option Arg Args
+
+	while read; do
+		if [[ $REPLY =~ ^[[:space:]]{2} ]]; then
+			Option=${REPLY%% - *}
+			for Arg in ${Option//,/}; {
+				Args+="${Arg##[^-]*} "
+			}
+		fi
+	done <<< "$(lmc-darklight -h)"
+
+	COMPREPLY=(`compgen -W "$Args" -- "$2"`)
+}
+
+complete -F _lmc_darklight lmc-darklight
