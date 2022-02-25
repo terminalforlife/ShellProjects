@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight/lmc-darklight-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Fri 25 Feb 03:17:12 GMT 2022
+# Last Change       - Fri 25 Feb 03:22:34 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -152,8 +152,8 @@ fi
 
 printf '* Assigning modes ... '
 ErrCount=0
-#for File in 'completions:644' 'lmc-darklight.1.gz:644' 'lmc-darklight:755'; do
-for File in 'lmc-darklight:755'; do
+#for File in 'lmc-darklight.1.gz:644'; do
+for File in 'completions:644' 'lmc-darklight:755'; do
 	chmod ${File##*:} "$TmpDir/${File%:*}" 2>> "$LogFile" ||
 		ErrCount=$((ErrCount + 1))
 done
@@ -164,11 +164,14 @@ else
 	printf '\033[31m[ERR]\033[0m\n'
 fi
 
-#'completions:/usr/share/bash-completion/completions/lmc-darklight'\
 #'lmc-darklight.1.gz:/usr/share/man/man1/lmc-darklight.1.gz'\
 printf 'Moving files into place:\n'
 ErrCount=0
-for File in 'lmc-darklight:/usr/bin/lmc-darklight'; do
+for File in\
+\
+	'lmc-darklight:/usr/bin/lmc-darklight'\
+	'completions:/usr/share/bash-completion/completions/lmc-darklight'
+do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
 
