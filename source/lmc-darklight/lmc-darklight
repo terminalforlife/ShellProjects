@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sat 26 Feb 03:38:32 GMT 2022
+# Last Change       - Sat 26 Feb 03:41:56 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,7 +17,6 @@
 #
 #TODO: Add original values to a file. Currently, it's output only.
 #TODO: If configuration key is equal to null, ignore it.
-#TODO: Don't exit out of main loop of errors.
 #TODO: Incorporate notify-send(1).
 #
 # Bugs:
