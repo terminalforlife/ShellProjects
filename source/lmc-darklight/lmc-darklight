@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sat 26 Feb 03:19:51 GMT 2022
+# Last Change       - Sat 26 Feb 03:38:32 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -265,6 +265,10 @@ while :; do
 				(( InvalidKeys++ ))
 			fi
 		done < "$Config"
+
+		if [[ ! $Interval =~ ^[[:digit:]]+$ || $Interval == 0 ]]; then
+			VErr "Value for 'Interval' invalid."
+		fi
 
 		ChkTime "$LightTime" || VErr "Value for 'LightTime' invalid."
 		ChkTime "$DarkTime" || VErr "Value for 'DarkTime' invalid."
