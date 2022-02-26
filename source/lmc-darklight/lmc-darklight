@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sat 26 Feb 02:46:01 GMT 2022
+# Last Change       - Sat 26 Feb 03:05:58 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -228,13 +228,12 @@ while :; do
 	printf 'Loop #%d ...\n' $(( ++Iter ))
 
 	# Read and verify the configuration file.
-	Success='False'
+	VErrs=0
+	InvalidKeys=0
 	if ! [[ -f $Config ]]; then
 		Err 0 "File '$Config' not found."
-		Success='False'
 	elif ! [[ -r $Config ]]; then
 		Err 0 "File '$Config' unreadable."
-		Success='False'
 	else
 		VErr() {
 			Err 0 "$1"
@@ -262,13 +261,11 @@ while :; do
 			fi
 		done < "$Config"
 
-		(( InvalidKeys > 0 )) && Success='False'
-
-		[[ $LightTime =~ ^[[:digit:]]+$ ]] || VErr "Key 'LightTime' invalid."
-		[[ $DarkTime =~ ^[[:digit:]]+$ ]] || VErr "Key 'DarkTime' invalid."
+		[[ $LightTime =~ ^[[:digit:]]+$ ]] || VErr "Value for 'LightTime' invalid."
+		[[ $DarkTime =~ ^[[:digit:]]+$ ]] || VErr "Value for 'DarkTime' invalid."
 
 		for Value in {Light,Dark}{Desktop,Controls,Icons,Cursor,Borders,Time,BG}; {
-			[[ -z ${!Value} ]] && VErr "Value '$Value' not set."
+			[[ -z ${!Value} ]] && VErr "Value for '$Value' not set."
 		}
 
 		if ! [[ -f $LightBG ]]; then
@@ -282,12 +279,10 @@ while :; do
 		elif ! [[ -r $DarkBG ]]; then
 			VErr "File for key 'DarkBG' unreadable."
 		fi
-
-		(( VErrs > 0 )) && Success='False'
 	fi
 
 	# Begin the main loop.
-	if [[ $Success == True ]]; then
+	if (( VErrs == 0 && InvalidKeys == 0 )); then
 		printf -v Time '%(%k%M)T' -1
 		if (( Time >= LightTime && Time < DarkTime )); then
 			Set "$LightDesktop" "$LightControls" "$LightIcons"\
