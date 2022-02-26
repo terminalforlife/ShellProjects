@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sat 26 Feb 03:05:58 GMT 2022
+# Last Change       - Sat 26 Feb 03:19:51 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -192,6 +192,11 @@ Info() {
 	fi
 }
 
+ChkTime() {
+	[[ $1 == 0* ]] && return 1
+	[[ $1 =~ ^[[:digit:]]{3,4}$ ]] || return 1
+}
+
 Set() {
 	gsettings set org.cinnamon.theme name "$1"
 	Info 'org.cinnamon.theme/name' "$1"
@@ -261,8 +266,8 @@ while :; do
 			fi
 		done < "$Config"
 
-		[[ $LightTime =~ ^[[:digit:]]+$ ]] || VErr "Value for 'LightTime' invalid."
-		[[ $DarkTime =~ ^[[:digit:]]+$ ]] || VErr "Value for 'DarkTime' invalid."
+		ChkTime "$LightTime" || VErr "Value for 'LightTime' invalid."
+		ChkTime "$DarkTime" || VErr "Value for 'DarkTime' invalid."
 
 		for Value in {Light,Dark}{Desktop,Controls,Icons,Cursor,Borders,Time,BG}; {
 			[[ -z ${!Value} ]] && VErr "Value for '$Value' not set."
