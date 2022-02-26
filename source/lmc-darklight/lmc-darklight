@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sat 26 Feb 15:57:28 GMT 2022
+# Last Change       - Sat 26 Feb 16:29:29 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -57,6 +57,7 @@ Err() {
 MainDir="$HOME/.config/$Progrm"
 Config="$MainDir/config"
 OldValues="$MainDir/old_values"
+Current="$MainDir/current"
 
 ValidKeys=(
 		LightCursor LightDesktop DarkBorders DarkIcons DarkControls\
@@ -95,11 +96,18 @@ done
 
 [[ -d $MainDir ]] || mkdir -p "$MainDir"
 
-#-------------------------------------------------Kill All But Current Instance
+#----------------------------------------------------Kill Old Instance if Found
 
-for PID in `pidof -x $Progrm`; {
-	(( PID == $$ )) || kill -HUP $PID
-}
+if [[ -f $Current ]]; then
+	[[ -r $Current ]] || Err 1 "File '$Current' unreadable."
+	[[ -w $Current ]] || Err 1 "File '$Current' unwritable."
+
+	PID=`< "$Current"`
+	kill -HUP $PID || Err 1 "Unable to kill old $PID instance."
+fi
+
+printf 'PID: %d\n' $$
+printf '%d\n' $$ > "$Current"
 
 #-------------------------------------------------Check for Linux Mint Cinnamon
 
