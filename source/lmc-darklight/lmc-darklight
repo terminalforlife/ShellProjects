@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 25 Feb 22:44:23 GMT 2022
+# Last Change       - Sat 26 Feb 02:46:01 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 #   libglib2.0-bin (>= 2.56.4)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-25'
+CurVer='2022-02-26'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -42,6 +42,7 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  --genconfig              - Generate new configuration file.
+		  -f, --force              - Bypass LSB and DE detection.
 		  -o, --once               - Only run $ProgrmFancy once.
 	EOF
 
@@ -49,7 +50,7 @@ Usage() {
 }
 
 Err() {
-	printf '\e[91mErr\e[0m: %s\n' "$2" 1>&2
+	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
@@ -69,6 +70,8 @@ while [[ -n $1 ]]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
+		--force|-f)
+			Force='True' ;;
 		--genconfig)
 			NewConfig='True' ;;
 		--once|-o)
@@ -91,6 +94,36 @@ done
 (( DepCount > 0 )) && exit 1
 
 [[ -d $MainDir ]] || mkdir -p "$MainDir"
+
+#-------------------------------------------------Check for Linux Mint Cinnamon
+
+if [[ $Force != True ]]; then
+	OSRelease='/etc/os-release'
+	if [[ -f $OSRelease && -r $OSRelease ]]; then
+		while IFS='=' read Key Value; do
+			if [[ $Key == NAME ]]; then
+				if [[ $Value == '"Linux Mint"' ]]; then
+					MintFound='True'
+					break
+				fi
+			fi
+		done < "$OSRelease"
+
+		if [[ $MintFound != True ]]; then
+			Err 0 'Unable to detect a running Linux Mint system.'
+			(( SysErr++ ))
+		fi
+
+		if ! type -P cinnamon &> /dev/null; then
+			Err 0 'Unable to detect the Cinnamon desktop environment.'
+			(( SysErr++ ))
+		fi
+	else
+		Err 1 'Unable to determine distribution.'
+	fi
+
+	(( SysErr > 0 )) && exit 1
+fi
 
 #-----------------------------------------------Generate New Configuration File
 
@@ -195,10 +228,13 @@ while :; do
 	printf 'Loop #%d ...\n' $(( ++Iter ))
 
 	# Read and verify the configuration file.
+	Success='False'
 	if ! [[ -f $Config ]]; then
-		Err 1 "File '$Config' not found."
+		Err 0 "File '$Config' not found."
+		Success='False'
 	elif ! [[ -r $Config ]]; then
-		Err 1 "File '$Config' unreadable."
+		Err 0 "File '$Config' unreadable."
+		Success='False'
 	else
 		VErr() {
 			Err 0 "$1"
@@ -226,7 +262,7 @@ while :; do
 			fi
 		done < "$Config"
 
-		(( InvalidKeys > 0 )) && exit 1
+		(( InvalidKeys > 0 )) && Success='False'
 
 		[[ $LightTime =~ ^[[:digit:]]+$ ]] || VErr "Key 'LightTime' invalid."
 		[[ $DarkTime =~ ^[[:digit:]]+$ ]] || VErr "Key 'DarkTime' invalid."
@@ -247,17 +283,19 @@ while :; do
 			VErr "File for key 'DarkBG' unreadable."
 		fi
 
-		(( VErrs > 0 )) && exit 1
+		(( VErrs > 0 )) && Success='False'
 	fi
 
 	# Begin the main loop.
-	printf -v Time '%(%k%M)T' -1
-	if (( Time >= LightTime && Time < DarkTime )); then
-		Set "$LightDesktop" "$LightControls" "$LightIcons"\
-			"$LightCursor" "$LightBorders" "$LightBG"
-	elif (( Time >= DarkTime || Time < LightTime )); then
-		Set "$DarkDesktop" "$DarkControls" "$DarkIcons"\
-			"$DarkCursor" "$DarkBorders" "$DarkBG"
+	if [[ $Success == True ]]; then
+		printf -v Time '%(%k%M)T' -1
+		if (( Time >= LightTime && Time < DarkTime )); then
+			Set "$LightDesktop" "$LightControls" "$LightIcons"\
+				"$LightCursor" "$LightBorders" "$LightBG"
+		elif (( Time >= DarkTime || Time < LightTime )); then
+			Set "$DarkDesktop" "$DarkControls" "$DarkIcons"\
+				"$DarkCursor" "$DarkBorders" "$DarkBG"
+		fi
 	fi
 
 	[[ $Once == True ]] && exit 0
