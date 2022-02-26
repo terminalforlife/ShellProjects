@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sat 26 Feb 03:41:56 GMT 2022
+# Last Change       - Sat 26 Feb 15:57:28 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -26,8 +26,9 @@
 # Dependencies:
 #
 #   bash (>= 4.4.20)
-#   coreutils (>= 8.28)
-#   libglib2.0-bin (>= 2.56.4)
+#   coreutils (>= 8.28-1ubuntu1)
+#   libglib2.0-bin (>= 2.56.4-0ubuntu0.18.04.9)
+#   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
 CurVer='2022-02-26'
@@ -93,6 +94,12 @@ done
 (( DepCount > 0 )) && exit 1
 
 [[ -d $MainDir ]] || mkdir -p "$MainDir"
+
+#-------------------------------------------------Kill All But Current Instance
+
+for PID in `pidof -x $Progrm`; {
+	(( PID == $$ )) || kill -HUP $PID
+}
 
 #-------------------------------------------------Check for Linux Mint Cinnamon
 
