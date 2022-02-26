@@ -2,7 +2,7 @@
 
 This seems to be an oft-requested feature in Linux Mint, so I thought I'd have a bash (pun intended) at writing something which will effectively work as a daemon to auto-set values based on the time of day.
 
-This program is strictly for Linux Mint Cinnamon.
+This program is strictly for Linux Mint Cinnamon. Currently, LMDE is _not_ supported.
 
 Originally, this was a basic script, but is now a nice little tool for Linux Mint Cinnamon users. A video on the original script can be found [here](https://www.youtube.com/watch?v=tjzuHOiwfIA), on YouTube.
 
