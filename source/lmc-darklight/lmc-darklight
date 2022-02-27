@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sun 27 Feb 18:34:52 GMT 2022
+# Last Change       - Mon 28 Feb 00:01:17 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 #   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-27'
+CurVer='2022-02-28'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -243,15 +243,13 @@ Set() {
 }
 
 while :; do
-	printf 'Loop #%d ...\n' $(( ++Iter ))
-
 	# Read and verify the configuration file.
 	VErrs=0
 	InvalidKeys=0
 	if ! [[ -f $Config ]]; then
-		Err 0 "File '$Config' not found."
+		Err 1 "File '~${Config#$HOME}' not found."
 	elif ! [[ -r $Config ]]; then
-		Err 0 "File '$Config' unreadable."
+		Err 1 "File '~${Config#$HOME}' unreadable."
 	else
 		VErr() {
 			Err 0 "$1"
@@ -305,6 +303,8 @@ while :; do
 
 	# Begin the main loop.
 	if (( VErrs == 0 && InvalidKeys == 0 )); then
+		printf 'Loop #%d ...\n' $(( ++Iter ))
+
 		printf -v Time '%(%k%M)T' -1
 		if (( Time >= LightTime && Time < DarkTime )); then
 			Set "$LightDesktop" "$LightControls" "$LightIcons"\
@@ -317,5 +317,5 @@ while :; do
 
 	[[ $Once == True ]] && exit 0
 
-	sleep ${Interval}s
+	sleep ${Interval:-3}s
 done
