@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sat 26 Feb 16:29:29 GMT 2022
+# Last Change       - Sun 27 Feb 17:43:05 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 #   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-26'
+CurVer='2022-02-27'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -96,49 +96,6 @@ done
 
 [[ -d $MainDir ]] || mkdir -p "$MainDir"
 
-#----------------------------------------------------Kill Old Instance if Found
-
-if [[ -f $Current ]]; then
-	[[ -r $Current ]] || Err 1 "File '$Current' unreadable."
-	[[ -w $Current ]] || Err 1 "File '$Current' unwritable."
-
-	PID=`< "$Current"`
-	kill -HUP $PID || Err 1 "Unable to kill old $PID instance."
-fi
-
-printf 'PID: %d\n' $$
-printf '%d\n' $$ > "$Current"
-
-#-------------------------------------------------Check for Linux Mint Cinnamon
-
-if [[ $Force != True ]]; then
-	OSRelease='/etc/os-release'
-	if [[ -f $OSRelease && -r $OSRelease ]]; then
-		while IFS='=' read Key Value; do
-			if [[ $Key == NAME ]]; then
-				if [[ $Value == '"Linux Mint"' ]]; then
-					MintFound='True'
-					break
-				fi
-			fi
-		done < "$OSRelease"
-
-		if [[ $MintFound != True ]]; then
-			Err 0 'Unable to detect a running Linux Mint system.'
-			(( SysErr++ ))
-		fi
-
-		if ! type -P cinnamon &> /dev/null; then
-			Err 0 'Unable to detect the Cinnamon desktop environment.'
-			(( SysErr++ ))
-		fi
-	else
-		Err 1 'Unable to determine distribution.'
-	fi
-
-	(( SysErr > 0 )) && exit 1
-fi
-
 #-----------------------------------------------Generate New Configuration File
 
 if [[ $NewConfig == True ]]; then
@@ -173,6 +130,49 @@ if [[ $NewConfig == True ]]; then
 	printf '%s' "$REPLY" > "$Config"
 	exit 0
 fi
+
+#-------------------------------------------------Check for Linux Mint Cinnamon
+
+if [[ $Force != True ]]; then
+	OSRelease='/etc/os-release'
+	if [[ -f $OSRelease && -r $OSRelease ]]; then
+		while IFS='=' read Key Value; do
+			if [[ $Key == NAME ]]; then
+				if [[ $Value == '"Linux Mint"' ]]; then
+					MintFound='True'
+					break
+				fi
+			fi
+		done < "$OSRelease"
+
+		if [[ $MintFound != True ]]; then
+			Err 0 'Unable to detect a running valid Linux Mint system.'
+			(( SysErr++ ))
+		fi
+
+		if ! type -P cinnamon &> /dev/null; then
+			Err 0 'Unable to detect the Cinnamon desktop environment.'
+			(( SysErr++ ))
+		fi
+	else
+		Err 1 'Unable to determine distribution.'
+	fi
+
+	(( SysErr > 0 )) && exit 1
+fi
+
+#----------------------------------------------------Kill Old Instance if Found
+
+if [[ -f $Current ]]; then
+	[[ -r $Current ]] || Err 1 "File '$Current' unreadable."
+	[[ -w $Current ]] || Err 1 "File '$Current' unwritable."
+
+	PID=`< "$Current"`
+	kill -HUP $PID || Err 1 "Unable to kill old $PID instance."
+fi
+
+printf 'PID: %d\n' $$
+printf '%d\n' $$ > "$Current"
 
 #-------------------------------------------------Fetch the Current Theme Names
 
