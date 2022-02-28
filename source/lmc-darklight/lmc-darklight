@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Mon 28 Feb 00:51:13 GMT 2022
+# Last Change       - Mon 28 Feb 01:01:03 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -42,6 +42,7 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  --genconfig              - Generate new configuration file.
+		  -c, --config FILE        - Use configuration FILE instead.
 		  -f, --force              - Bypass LSB and DE detection.
 		  -o, --once               - Only run $ProgrmFancy once.
 	EOF
@@ -71,10 +72,17 @@ while [[ -n $1 ]]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
-		--force|-f)
-			Force='True' ;;
 		--genconfig)
 			NewConfig='True' ;;
+		--config|-c)
+			if [[ -z $2 ]]; then
+				Err 1 "Option '$1' requires an argument."
+			else
+				Config='True'
+				shift
+			fi ;;
+		--force|-f)
+			Force='True' ;;
 		--once|-o)
 			Once='True' ;;
 		*)
