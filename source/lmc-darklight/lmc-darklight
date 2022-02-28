@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Mon 28 Feb 00:01:17 GMT 2022
+# Last Change       - Mon 28 Feb 00:39:47 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -99,6 +99,22 @@ done
 #-----------------------------------------------Generate New Configuration File
 
 if [[ $NewConfig == True ]]; then
+	if [[ -f $Config ]]; then
+		while :; do
+			read -p 'File exists -- overwrite? [Y/N] '
+			case ${REPLY,,} in
+				y|yes)
+					break ;;
+				n|no)
+					exit 0 ;;
+				'')
+					Err 0 'Response required -- try again.' ;;
+				*)
+					Err 0 'Invalid response -- try again.' ;;
+			esac
+		done
+	fi
+
 	read -d '' <<-EOF
 		# $ProgrmFancy configurations for Linux Mint Cinnamon.
 
@@ -127,6 +143,7 @@ if [[ $NewConfig == True ]]; then
 		DarkBG='/usr/share/backgrounds/linuxmint/default_background.jpg'
 	EOF
 
+	printf "File '~${Config#$HOME}' generated.\n"
 	printf '%s' "$REPLY" > "$Config"
 	exit 0
 fi
