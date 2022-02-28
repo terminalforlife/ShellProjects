@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Mon 28 Feb 00:39:47 GMT 2022
+# Last Change       - Mon 28 Feb 00:42:43 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -104,7 +104,11 @@ if [[ $NewConfig == True ]]; then
 			read -p 'File exists -- overwrite? [Y/N] '
 			case ${REPLY,,} in
 				y|yes)
-					break ;;
+					if [[ -w $Config ]]; then
+						break
+					else
+						Err 1 "File '~${Config#$HOME}' unwritable."
+					fi ;;
 				n|no)
 					exit 0 ;;
 				'')
