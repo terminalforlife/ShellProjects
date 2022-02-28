@@ -91,6 +91,11 @@ SigHandler(){
 		printf 'Done!\n'
 	fi
 
+	printf 'Generate configuration file:\n\n'
+	printf '  $ lmc-darklight --genconfig\n\n'
+	printf 'Then check NOTES in the man page:\n\n'
+	printf '  $ man lmc-darklight\n\n'
+
 	exit $Sig
 }
 
