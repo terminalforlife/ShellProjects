@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Tue  1 Mar 00:57:51 GMT 2022
+# Last Change       - Tue  1 Mar 17:33:30 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,7 +15,6 @@
 #
 # Features:
 #
-#TODO: Add flag to disable wallpaper changes.
 #TODO: Incorporate Redshift, with flag/key only.
 #TODO: Possibly incorproate Firefox theme changing.
 #TODO: Add original values to a file. Currently, it's output only.
@@ -45,6 +44,7 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  --genconfig              - Generate new configuration file.
+		  -B, --nobg               - Ignore desktop backgrounds.
 		  -c, --config FILE        - Use configuration FILE instead.
 		  -f, --force              - Bypass LSB and DE detection.
 		  -o, --once               - Only run $ProgrmFancy once.
@@ -77,6 +77,8 @@ while [[ -n $1 ]]; do
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--genconfig)
 			NewConfig='True' ;;
+		--nobg|-B)
+			NoBG='True' ;;
 		--config|-c)
 			if [[ -z $2 ]]; then
 				Err 1 "Option '$1' requires an argument."
@@ -273,8 +275,10 @@ Set() {
 	gsettings set org.gnome.desktop.wm.preferences theme "$5"
 	Info 'org.gnome.desktop.wm.preferences/theme' "$5"
 
-	gsettings set org.cinnamon.desktop.background picture-uri "file://$6"
-	Info 'org.cinnamon.desktop.background/picture-uri' "file://$6"
+	if [[ $NoBG != True ]]; then
+		gsettings set org.cinnamon.desktop.background picture-uri "file://$6"
+		Info 'org.cinnamon.desktop.background/picture-uri' "file://$6"
+	fi
 }
 
 #---------------------------Read Configuration File, Check Time, and Set Values
