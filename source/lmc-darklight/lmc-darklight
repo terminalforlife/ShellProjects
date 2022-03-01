@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Tue  1 Mar 00:57:04 GMT 2022
+# Last Change       - Tue  1 Mar 00:57:51 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ if [[ -f $Current ]]; then
 	[[ -r $Current ]] || Err 1 "File '$Current' unreadable."
 
 	PID=`< "$Current"`
-	kill -HUP ${PID//[[!:digit:]]/} 2>&-
+	kill -HUP ${PID//[![:digit:]]/} 2>&-
 fi
 
 printf 'PID: %d\n' $$
