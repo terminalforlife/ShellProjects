@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Tue  1 Mar 00:14:06 GMT 2022
+# Last Change       - Tue  1 Mar 00:57:04 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 #   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-28'
+CurVer='2022-03-01'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -158,7 +158,7 @@ if [[ $NewConfig == True ]]; then
 		DarkBG='/usr/share/backgrounds/linuxmint/default_background.jpg'
 	EOF
 
-	printf "File '~${Config#$HOME}' generated.\n"
+	printf "File '~%s' generated.\n" "${Config#$HOME}"
 	printf '%s' "$REPLY" > "$Config"
 	exit 0
 fi
