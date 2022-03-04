@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rudbgvid
 # Started On        - Thu 12 Nov 19:52:44 GMT 2020
-# Last Change       - Thu 13 Jan 20:26:51 GMT 2022
+# Last Change       - Fri  4 Mar 00:47:48 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,13 +20,11 @@
 #   imagemagick (>= 8:6.9.7.4+dfsg-16)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
-Progrm=${0##*/}
+CurVer='2022-03-04'
+Progrm='rudbgvid'
 
-Usage(){
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+Usage() {
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Display this help information.
@@ -53,9 +51,11 @@ Usage(){
 		    older or slower machines. If your machine is struggling, try
 		    setting a lesser interval.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
@@ -63,7 +63,7 @@ Err(){
 CacheDir="$HOME/.cache/rudbgvid"
 Interval=01
 
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
 			Usage; exit 0 ;;
@@ -72,11 +72,11 @@ while [ "$1" ]; do
 		--set|-s)
 			shift
 
-			if [ -z "$1" ]; then
+			if [[ -z $1 ]]; then
 				Err 1 "No video FILE provided."
-			elif ! [ -f "$1" ]; then
+			elif ! [[ -f $1 ]]; then
 				Err 1 "Provided video FILE not found."
-			elif ! [ -r "$1" ]; then
+			elif ! [[ -r $1 ]]; then
 				Err 1 "Provided video FILE unreadable."
 			fi
 
@@ -102,7 +102,7 @@ while [ "$1" ]; do
 		--convert)
 			shift
 
-			if [ -n "$1" ]; then
+			if [[ -n $1 ]]; then
 				ConvertArgs=$1
 			else
 				Err 1 "Missing output options to hand to convert(1)."
@@ -110,9 +110,9 @@ while [ "$1" ]; do
 		--frames-dir|-f)
 			shift
 
-			if ! [ -n "$1" ]; then
+			if ! [[ -n $1 ]]; then
 				Err 1 "Missing directory to store video frames."
-			elif ! [ -d "$1" ]; then
+			elif ! [[ -d $1 ]]; then
 				Err 1 "Location provided missing or not a directory."
 			else
 				CacheDir=$1
@@ -125,31 +125,30 @@ while [ "$1" ]; do
 	shift
 done
 
-if [ -z "$DoSet" ] && [ -n "$ConvertArgs" ]; then
+if [[ -z $DoSet && -n $ConvertArgs ]]; then
 	Err 1 "Told to post-process frames, but no video provided."
 fi
 
-DepCount=0
 for Dep in convert feh ffmpeg sleep rm mkdir sort; {
-	if ! type -P "$Dep" 1> /dev/null 2>&1; then
+	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
-		$DepCount++
+		(( DepCount++ ))
 	fi
 }
 
-[ $DepCount -gt 0 ] && exit 1
+(( DepCount > 0 )) && exit 1
 
-[ -d "$CacheDir" ] || mkdir -p "$CacheDir" 1> /dev/null 2>&1
+[[ -d $CacheDir ]] || mkdir -p "$CacheDir" &> /dev/null
 
-if [ -n "$DoSet" ]; then
-	rm "$CacheDir"/* 1> /dev/null 2>&1
+if [[ -n $DoSet ]]; then
+	rm "$CacheDir"/* &> /dev/null
 
-	if ffmpeg -i "$DoSet" "$CacheDir/image_%06d.jpg" 1> /dev/null 2>&1; then
+	if ffmpeg -i "$DoSet" "$CacheDir/image_%06d.jpg" &> /dev/null; then
 		for File in "$CacheDir"/*.jpg; {
-			[ -f "$File" ] || continue
+			[[ -f $File ]] || continue
 
-			if [ -n "$ConvertArgs" ]; then
-				convert "$File" $ConvertArgs "$File" 1> /dev/null 2>&1
+			if [[ -n $ConvertArgs ]]; then
+				convert "$File" $ConvertArgs "$File" &> /dev/null
 			fi
 		}
 
@@ -164,15 +163,15 @@ Files=(`printf '%s\n' "$CacheDir"/image_*.jpg | sort $Reverse -nt '_'`)
 
 while :; do
 	# Test here, in-case frames vanish during operation.
-	[ -f "$CacheDir"/image_000001.jpg ] ||
+	[[ -f $CacheDir/image_000001.jpg ]] ||
 		Err 1 "No frames have been generated with $Progrm."
 
 	for File in "${Files[@]}"; {
 		# Encased in a statement to avoid overwhelming system.
-		if feh --bg-fill "$File" 1> /dev/null 2>&1 || exit 1; then
+		if feh --bg-fill "$File" &> /dev/null || exit 1; then
 			sleep 0.${Interval}s
 		fi
 	}
 
-	[ -n $Delay ] && sleep ${Delay:-0}
+	sleep ${Delay:-0}
 done
