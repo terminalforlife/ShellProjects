@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fbdriver
 # Started On        - Thu 10 Dec 14:59:18 GMT 2020
-# Last Change       - Wed 15 Dec 23:46:14 GMT 2021
+# Last Change       - Fri  4 Mar 00:22:43 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,19 +18,19 @@ Err(){
 }
 
 UEventFile='/sys/class/graphics/fb0/device/uevent'
-if [ -f "$UEventFile" -a -r "$UEventFile" ]; then
+if [[ -f $UEventFile && -r $UEventFile ]]; then
 	while IFS='=' read -a Line; do
-		if [ "${Line[0]}" == 'DRIVER' ]; then
+		if [[ ${Line[0]} == DRIVER ]]; then
 			Driver=${Line[1]}
 			break
 		fi
 	done < "$UEventFile"
 elif type -P lshw &> /dev/null; then
 	while IFS=':' read -a Line; do
-		if [ "${Line[0]// /}" == 'configuration' ]; then
+		if [[ ${Line[0]// /} == configuration ]]; then
 			for Field in ${Line[1]}; {
 				IFS='=' read -a KeyVal <<< "$Field"
-				if [ "${KeyVal[0]}" == 'driver' ]; then
+				if [[ ${KeyVal[0]} == driver ]]; then
 					Driver=${KeyVal[1]}
 					break
 				fi
