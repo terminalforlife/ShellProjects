@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Fri 24 Dec 18:47:27 GMT 2021
+# Last Change       - Fri  4 Mar 00:18:27 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,18 +11,18 @@
 # setups.
 #------------------------------------------------------------------------------
 
-CurVer='2021-12-24'
+CurVer='2022-03-04'
 Progrm='tlptog'
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
@@ -32,9 +32,9 @@ Err() {
 
 WorkFile='/etc/default/tlp'
 
-while [ -n "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
-		--help|-h|-\?)
+		--help|-h)
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
@@ -50,12 +50,12 @@ elif (( UID != 0 )); then
 	Err 1 'Root access is required.'
 fi
 
-[ -f "$WorkFile" ] || Err 1 "Unable to find the '$WorkFile' file."
+[[ -f $WorkFile ]] || Err 1 "Unable to find the '$WorkFile' file."
 
 while IFS='=' read -a Line; do
 	if [[ ${Line[0]} == \#* ]]; then
 		continue
-	elif [ "${Line[0]}" == 'TLP_ENABLE' ]; then
+	elif [[ ${Line[0]} == TLP_ENABLE ]]; then
 		if (( ${Line[1]} == 1 )); then
 			if ! sed -i 's/\(TLP_ENABLE=\)1/\10/' "$WorkFile"; then
 				Err 1 "Parameter 'TLP_ENABLE' unsuccessfully set to '1'."
