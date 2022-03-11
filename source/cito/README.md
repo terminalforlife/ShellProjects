@@ -24,13 +24,13 @@ If you don't have sudo(8), just omit it from the command(s) above, and run them 
 If you've used a Debian package to install Cito, refer to your package manager. However, if you've used the installer, then you can run the following to delete the files it creates:
 
 ```
-sudo rm /usr/bin/cito /usr/bin/cito-list /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
+sudo rm /usr/bin/cito /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
 ```
 
 If you don't have sudo(8), you'll have to acquire root privileges by other means.
 
 ```
-sudo rm /usr/bin/cito /usr/bin/cito-list /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
+sudo rm /usr/bin/cito /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
 ```
 
 Provided you have access to sudo(8), of course.
