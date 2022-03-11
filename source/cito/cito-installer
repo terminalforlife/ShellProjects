@@ -98,7 +98,7 @@ trap SigHandler EXIT INT QUIT ABRT TERM
 
 printf 'Fetching files from GitHub:\n'
 ErrCount=0
-for File in 'completions' 'cito' 'cito-list' 'cito.8.gz'; do
+for File in 'completions' 'cito' 'cito.8.gz'; do
 	printf "* Downloading '%s' ... " "$File"
 	if $DLCMD "$TmpDir/$File" "$URL/$File" 2>> "$LogFile"; then
 		printf '\033[32m[OK]\033[0m\n'
@@ -131,7 +131,7 @@ fi
 
 printf '* Assigning modes ... '
 ErrCount=0
-for File in 'cito:755' 'cito-list:755' 'completions:644' 'cito.8.gz:644'; do
+for File in 'cito:755' 'completions:644' 'cito.8.gz:644'; do
 	chmod ${File##*:} "$TmpDir/${File%:*}" 2>> "$LogFile" ||
 		ErrCount=$((ErrCount + 1))
 done
@@ -148,7 +148,6 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/cito'\
 	'cito.8.gz:/usr/share/man/man8/cito.8.gz'\
-	'cito-list:/usr/bin/cito-list'\
 	'cito:/usr/bin/cito'
 do
 	if [ -f "${File#*:}" ]; then
@@ -193,16 +192,9 @@ else
 	printf '\033[31m[ERR]\033[0m\n'
 fi
 
-printf "* Verifying 'cito-list' ... "
-if cito-list -v > /dev/null 2>&1; then
-	printf '\033[32m[OK]\033[0m\n'
-else
-	printf '\033[31m[ERR]\033[0m\n'
-fi
-
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/cito' '/usr/bin/cito-list'; do
+for File in '/usr/bin/cito'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0
