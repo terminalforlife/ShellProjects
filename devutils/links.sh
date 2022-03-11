@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Fri 24 Sep 22:20:14 BST 2021
+# Last Change       - Fri 11 Mar 18:06:54 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,6 +14,11 @@ exec 2> /dev/null
 
 if cd "$HOME/GitHub/terminalforlife/Personal/Extra"; then
 	mkdir -pv "$HOME/.config"
+
+	if command -v alacritty 1> /dev/null; then
+		mkdir -pv "$HOME/.config/alacritty"
+		ln -fv misc/alacritty.yml $HOME/.config/
+	fi
 
 	if command -v compton 1> /dev/null; then
 		ln -fv misc/compton.conf $HOME/.config/
