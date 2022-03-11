@@ -1,0 +1,162 @@
+#------------------------------------------------------------------------------
+# Project Name      - Extra/misc/alacritty.yml
+# Started On        - Fri 11 Mar 18:01:22 GMT 2022
+# Last Change       - Fri 11 Mar 18:01:51 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+
+window:
+  padding:
+    x: 6
+    y: 6
+
+  # full | none
+  decorations: none
+
+  # <= 1.0
+  opacity: 0.8
+
+  # Windowed | Maximized | Fullscreen
+  startup_mode: Windowed
+
+  title: Alacritty
+  dynamic_title: true
+
+  class:
+    instance: Alacritty
+    general: Alacritty
+
+  # dark | light | None
+  gtk_theme_variant: None
+
+scrolling:
+  history: 8000
+
+# Font configuration
+font:
+  normal:
+    family: Mononoki
+    style: Regular
+
+  bold:
+    family: Mononoki
+    style: Bold
+
+  italic:
+    family: Mononoki
+    style: Italic
+
+  bold_italic:
+    family: Mononoki
+    style: Bold Italic
+
+  size: 14
+
+  offset:
+    x: 0
+    y: 0
+
+  builtin_box_drawing: true
+  draw_bold_text_with_bright_colors: false
+
+colors:
+  primary:
+    background: '#000000'
+    foreground: '#ffffff'
+
+    dim_foreground: '#bbbbbb'
+    bright_foreground: '#ffffff'
+
+  # CellForeground | CellBackground
+  cursor:
+    text: CellBackground
+    cursor: CellForeground
+
+  normal:
+    black:   '#000000'
+    red:     '#aa0000'
+    green:   '#00aa00'
+    yellow:  '#aa5500'
+    blue:    '#0000aa'
+    magenta: '#aa00aa'
+    cyan:    '#00aaaa'
+    white:   '#aaaaaa'
+
+  bright:
+    black:   '#555555'
+    red:     '#ff5555'
+    green:   '#55ff55'
+    yellow:  '#ffff55'
+    blue:    '#5555ff'
+    magenta: '#ff55ff'
+    cyan:    '#55ffff'
+    white:   '#ffffff'
+
+bell:
+  # Ease | EaseOut EaseOutSine | EaseOutQuad | EaseOutCubic | EaseOutQuart
+  # EaseOutQuint | EaseOutExpo | EaseOutCirc | Linear
+  animation: Linear
+
+  #command:
+  #  program: notify-send
+  #  args: ['hi']
+
+selection:
+  save_to_clipboard: false
+
+cursor:
+  style:
+    # Block | Underline | Beam
+    shape: Block
+
+    # Never | Off | On | Always
+    blinking: Off
+
+  blink_interval: 750
+  unfocused_hollow: true
+  thickness: 0.1
+
+live_config_reload: true
+
+mouse:
+  hide_when_typing: true
+
+# Actions: CopySelection | PasteSelection | SearchFocusNext | SearchConfirm
+#          SearchFocusPrevious | SearchCancel | SearchClear | SearchDeleteWord
+#          SearchHistoryPrevious | SearchHistoryNext | ToggleViMode
+#          SearchForward | SearchBackward | Copy | Paste | IncreaseFontSize
+#          DecreaseFontSize | ResetFontSize | ScrollPageUp | ScrollPageDown
+#          ScrollHalfPageUp | ScrollHalfPageDown | ScrollLineUp
+#          ScrollLineDown | ScrollToTop | ScrollToBottom | ClearHistory | Hide
+#          Minimize | Quit | ToggleFullscreen | SpawnNewInstance
+#          CreateNewWindow | ClearLogNotice | ClearSelection | ReceiveChar
+#          None | command: { program: "...", args: ['...'] }
+#
+# Modes: AppCursor | AppKeypad | Search | Alt | Vi
+#
+# Mods: Command | Control | Option | Super | Shift | Alt
+key_bindings:
+  - {key: L, mods: Control, action: ClearLogNotice}
+  - {key: L, mods: Control, chars: "\x0c"}
+
+  - {key: PageUp, mods: Shift, mode: ~Alt, action: ScrollPageUp}
+  - {key: PageDown, mods: Shift, mode: ~Alt, action: ScrollPageDown}
+  - {key: Home, mods: Shift, mode: ~Alt, action: ScrollToTop}
+  - {key: End, mods: Shift, mode: ~Alt, action: ScrollToBottom}
+
+  - {key: Up, mods: Shift, action: ScrollLineUp}
+  - {key: Down, mods: Shift, action: ScrollLineDown}
+
+  - {key: V, mods: Control|Shift, action: Paste}
+  - {key: C, mods: Control|Shift, action: Copy}
+
+  - {key: F, mods: Control|Shift, mode: ~Search, action: SearchForward}
+  - {key: B, mods: Control|Shift, mode: ~Search, action: SearchBackward}
+
+  - {key: Key0, mods: Control, action: None}
+  - {key: Equals, mods: Control, action: None}
+  - {key: Plus, mods: Control, action: None}
+  - {key: NumpadAdd, mods: Control, action: None}
+  - {key: Minus, mods: Control, action: None}
+  - {key: NumpadSubtract, mods: Control, action: None}

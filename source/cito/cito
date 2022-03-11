@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Thu 13 Jan 19:52:04 GMT 2022
+# Last Change       - Thu 10 Mar 18:42:49 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 #TODO: Find a way to get the MD5 format check in pure shell.
 #TODO: Add an Insit-style backup feature in-case of a botched install/upgrade.
 #TODO: Somehow catch condition under which a file already exists.
-#TODO: Add uninstallation feature, maybe by referring to the log file?
+#TODO: Add uninstallation feature.
 #
 # Bugs:
 #
@@ -27,10 +27,10 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
+CurVer='2022-03-10'
 Progrm=${0##*/}
 
-Usage(){
+Usage() {
 	while read -r CurLine; do
 		printf '%b\n' "$CurLine"
 	done <<-EOF
@@ -40,31 +40,25 @@ Usage(){
 		\r  -v, --version            - Output the version datestamp.
 		\r  -G, --group GID          - Where GROUP is, IE: '0'.
 		\r  -H, --hash FILE          - Use FILE to cross-check hashes.
-		\r  -L, --log-view TYPE      - Show TYPE log entries for Cito.
 		\r  -M, --mode MODE          - Where MODE is, IE: '755'.
 		\r  -O, --owner UID          - Where OWNER is, IE: '0'.
-		\r  -R, --remove-log         - Delete existing Cito log file.
 		\r  -T, --target PATH        - Where PATH is, IE: '/usr/bin/1337'.
-		\r  -f, --list-files         - List logged files handled by Cito.
-		\r  -l, --nolog              - Disable the logging functionality.
 		\r  -r, --remote INFO        - Specify a remote file; see REMOTE.
 	EOF
 }
 
-Err(){
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	[ $1 -gt 0 ] && exit $1
 }
 
 [ $# -eq 0 ] && Err 1 "Argument(s) required -- see: $Progrm -h"
 
-NullArg(){ # Usage: NullArg [VARIABLE] [OPTION]
+NullArg() { # Usage: NullArg [VARIABLE] [OPTION]
 	[ -z "$1" ] && Err 1 "Option '$2' requires an argument -- see: $Progrm -h"
 }
 
-EventLog="/var/log/${Progrm}-events.log"
 RawDomain='https://raw.githubusercontent.com'
-LogTypes='all info warning error'
 
 while [ -n "$1" ]; do
 	case $1 in
@@ -74,16 +68,6 @@ while [ -n "$1" ]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$CurVer"; exit 0 ;;
-		--log-view|-L)
-			LogView=$2
-
-			if [ -z "$LogView" ]; then
-				Err 1 "Option '$1' requires one of TYPE."
-			fi
-
-			shift ;;
-		--no-log|-l)
-			SkipLog='true' ;;
 		--remote|-r)
 			DoRemote='true'
 
@@ -149,8 +133,6 @@ while [ -n "$1" ]; do
 			shift ;;
 		--list-files|-f)
 			ListFiles='True' ;;
-		--remove-log|-R)
-			RemoveLog='True' ;;
 		-*)
 			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
@@ -166,38 +148,14 @@ fi
 unset -f NullArg
 
 DepCount=0
-for Dep in mv id chmod chown md5sum mkdir date rm mktemp; do
+for Dep in install mv id chmod chown md5sum mkdir date rm mktemp; do
 	if ! command -v "$Dep" 1> /dev/null 2>&1; then
 		Err 0 "Dependency '$Dep' not met."
-		DepCount=$((DepCount + 1))
+		DepCount=$(( DepCount + 1 ))
 	fi
 done
 
 [ $DepCount -gt 0 ] && exit 1
-
-if [ "$RemoveLog" = 'True' ]; then
-	if ! [ -f "$EventLog" ]; then
-		Err 1 "Log file not found."
-	elif ! [ -w "$EventLog" ]; then
-		Err 1 "Log file unwritable -- do we have root access?"
-	else
-		if rm "$EventLog"; then
-			printf 'Log file deleted -- nothing else to do.\n'
-			exit 0
-		else
-			Err 1 "Failed to delete '$EventLog' file."
-		fi
-	fi
-fi
-
-if [ "$ListFiles" = 'True' ]; then
-	if command -v cito-list 1> /dev/null 2>&1; then
-		cito-list -C
-		exit 0
-	else
-		Err 1 "Dependency 'cito-list' not met."
-	fi
-fi
 
 if command -v curl 1> /dev/null 2>&1; then
 	DLCMD='curl -so'
@@ -207,26 +165,36 @@ else
 	Err 1 "Neither 'wget' nor 'curl' are available."
 fi
 
-if [ "$SkipLog" != 'true' -a -z "$LogView" ]; then
-	if [ `id -u` -ne 0 ]; then
-		Err 1 'Root permissions required in order to log activity.'
-	fi
-elif [ "$SkipLog" = 'true' ]; then
-	printf "CAUTION: Option '--no-log|-l' temporarily disables logging.\n" 1>&2
-fi
+TemRemFile=`mktemp`
+HashFile=`mktemp`
 
-if [ -z "$LogView" ]; then
-	TemRemFile=`mktemp`
-	HashFile=`mktemp`
-fi
+#--------------------------------------------------Primary Functions & Trapping
 
-ChkMD5(){ # Usage: ChkMD5 [FILE]
+CutStr() {
+	IFS=$1; shift
+	Fields=$1; shift
+
+	set -- $1
+
+	for CutField in $Fields; do
+		Count=0
+		for CurField in "$@"; do
+			Count=$((Count + 1))
+			if [ $Count -eq $CutField ]; then
+				printf "%s" "$CurField"
+				break 1
+			fi
+		done
+	done
+}
+
+ChkMD5() { # Usage: ChkMD5 [FILE]
 	# Skip, but stay zero to continue with the file.
 	[ -z "$MD5File" ] && return 0
 
 	if [ "$DoRemote" = 'true' ]; then
 		MD5URL="$RawDomain/$GHUser/$Repo/$Branch/$MD5File"
-		$DLCMD "$HashFile" "$MD5URL" 1> /dev/null 2>&1
+		$DLCMD "$HashFile" "$MD5URL" 1> /dev/null
 
 		# Use the temporary file taken remotely.
 		ReadHashFile=$HashFile
@@ -235,19 +203,13 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 		# This is required, to avoid the issue of the sum file using relative
 		# paths not matching up to where the user currently is, despite the
 		# file existing.
-		if ! cd "${MD5File%/*}"; then
-			Logger error "Failed to 'cd' into '${MD5File%/*}'"
-			Err 1 'Failed to change to hash directory.'
-		fi
+		cd "${MD5File%/*}" || Err 1 'Failed to change to hash directory.'
 
 		# Assume the user provided a local hash file.
 		ReadHashFile=${MD5File##*/}
 	fi
 
-	if ! [ -f "$1" ]; then
-		Logger error "File '$1' not found or has no read access"
-		Err 1 "File '$1' missing or unreadable."
-	fi
+	[ -f "$1" ] || Err 1 "File '$1' missing or unreadable."
 
 	if [ -f "$ReadHashFile" ]; then
 		# A string of 32 characters consisting of just 0-9, A-Z, and/or a-z.
@@ -268,10 +230,8 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 		done < "$ReadHashFile"
 
 		if [ $Good -gt 0 ]; then
-			Logger info "Found $Good valid file(s) in '$ReadHashFile'"
 			printf 'Found %d valid file(s) in checksum file.\n' $Good
 		else
-			Logger info "Found no valid file(s) in '$ReadHashFile'"
 			Err 1 'No valid files listed in checksum file.'
 		fi
 
@@ -279,34 +239,12 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 
 		while read Hash File; do
 			if [ "$File" = "$1" ]; then
-				CutStr(){
-					IFS=$1; shift
-					Fields=$1; shift
-
-					set -- $1
-
-					for CutField in $Fields; do
-						Count=0
-						for CurField in "$@"; do
-							Count=$((Count + 1))
-							if [ $Count -eq $CutField ]; then
-								printf "%s" "$CurField"
-								break 1
-							fi
-						done
-					done
-				}
-
 				GetHash=`CutStr ' ' 1 "$(md5sum "$1" 2> /dev/null)"`
 
 				# Gets around weird trailing space.
 				GetHash=${GetHash% }
 
-				Logger info "New MD5 for '$1' is '$GetHash'"
-				Logger info "Old MD5 for '$1' is '$Hash'"
-
 				if ! [ "$Hash" = "$GetHash" ]; then
-					Logger error "MD5 mis-match for file '$1'"
 					Err 0 "MD5 for '$1' mis-match!"
 					return 1
 				fi
@@ -317,119 +255,30 @@ ChkMD5(){ # Usage: ChkMD5 [FILE]
 		done < "$ReadHashFile"
 
 		if ! [ "$FoundHash" = 'true' ]; then
-			Logger error "Old MD5 hash missing for '$1'"
 			Err 1 "File '$1' missing from provided hash file."
 		fi
 	else
-		Logger error "Hash file '$ReadHashFile' not found"
 		Err 1 "Hash file '$ReadHashFile' missing."
 	fi
 
 	unset MD5URL Hash File GetHash ReadHashFile FoundHash Count
 }
 
-Logger(){ # Usage: Logger TYPE MESSAGE
-	[ "$SkipLog" = 'true' ] && return 2
-
-	LogTypeChk "$1" $LogTypes
-
-	[ -d "${EventLog%/*}" ] && mkdir -p "${EventLog%/*}" 1> /dev/null 2>&1
-	[ -f "$EventLog" ] || 1> "$EventLog"
-
-	# Ensure it's still set safely.
-	chown 0:0 "$EventLog" 1> /dev/null 2>&1
-	chmod 644 "$EventLog" 1> /dev/null 2>&1
-
-	Secs=`date '+%s'` # <-- Seconds since Epoch.
-	[ -z "$Secs" ] && Err 1 "Logging failure via 'Logger()' detected."
-	printf "%d:%s:%s\n" $Secs "$1" "$2" >> "$EventLog"
-
-	unset TypeCount CurType Secs
-}
-
-LogErrInf(){ # Usage: LogErrInf [$KEY] [KEY] [FILE]
-	if [ -z "$1" ]; then
-		Logger error "$2 is null for '$3'"
-		Err 1 "Value for '$2' not set."
-	else
-		Logger info "$2 is '$1' for '$3'"
-	fi
-}
-
-LogTypeChk(){ # Usage: LogTypeChk [TYPE] [VALID_TYPES]
-	CheckType=$1; shift
-
-	TypeCount=0
-	for CurType in "$@"; do
-		if [ "$CheckType" = "$CurType" ]; then
-			TypeCount=$((TypeCount + 1))
-		fi
-	done
-
-	[ $TypeCount -eq 0 ] && Err 1 "Invalid 'Logger()' type."
-
-	unset CheckType TypeCount CurType
-}
-
-SigHandler(){
+SigHandler() {
 	Signal=$?
 
-	if [ -z "$LogView" ]; then
-		if [ $Signal -eq 0 ]; then
-			Logger info "Signal '$Signal' detected by 'SigHandler()'"
-		else
-			Logger warning "Signal '$Signal'  detected by 'SigHandler()'"
-		fi
-
-		if ! rm -f "$HashFile" "$TemRemFile" 1> /dev/null 2>&1; then
-			Logger error "File '$HashFile' and/or '$TemRemFile' failed removal"
-			printf 'Err: One or more temporary files failed removal.\n' 1>&2
-		else
-			Logger info "Removed '$HashFile' and '$TemRemFile'"
-		fi
-	fi
+	rm -f "$HashFile" "$TemRemFile"
 
 	exit $Signal
 }
 
 trap SigHandler INT EXIT QUIT ABRT TERM
 
-if [ -n "$LogView" ]; then
-	#Logger info 'Attempting to view Cito log file'
-	#LogTypeChk "$LogView" $LogTypes
-
-	if [ -f "$EventLog" ]; then
-		#Logger info 'Viewing Cito log file'
-		while IFS=':' read Epoch Type MSG; do
-			ShowLog(){
-				FTime=`date '+%F %X' --date="@$Epoch"`
-				printf "%s: %s\n" "$FTime" "$MSG"
-			}
-
-			if [ "$LogView" = "all" ]; then
-				ShowLog
-			elif [ "$Type" = "$LogView" ]; then
-				ShowLog
-			fi
-		done < "$EventLog"
-
-		exit 0
-	else
-		Err 1 "File '$EventLog' not found."
-	fi
-fi
-
-DirChk(){
-	Logger info "Checking existing of '$1'"
-
-	if ! [ -d "${1%/*}" ]; then
-		Logger info "Directory '$1' not found"
-
-		Err 1 "Directory '${1%/*}' not found."
-	fi
+DirChk() {
+	[ -d "${1%/*}" ] || Err 1 "Directory '${1%/*}' not found."
 }
 
-ReadFile(){
+ReadFile() {
 	if [ -z "$1" ]; then
 		# This is probably something the user won't see.
 		Err 0 "Cito: ReadFile(): Empty '\$1' variable."
@@ -444,28 +293,21 @@ ReadFile(){
 
 	while read F1 _; do
 		if [ "$F1" = "#$Progrm" ]; then
-			Logger info "File '$1' is supported by Cito"
-
 			HasCito='true'
 
 			for CurField in $_; do
 				case $CurField in
 					M:*)
-						Mode=${CurField#*:}
-						LogErrInf "$Mode" Mode "$1" ;;
+						Mode=${CurField#*:} ;;
 					O:*)
-						Owner=${CurField#*:}
-						LogErrInf "$Owner" Owner "$1" ;;
+						Owner=${CurField#*:} ;;
 					G:*)
-						Group=${CurField#*:}
-						LogErrInf "$Group" Group "$1" ;;
+						Group=${CurField#*:} ;;
 					T:*)
-						Target=${CurField#*:}
-						LogErrInf "$Target" Target "$1" ;;
+						Target=${CurField#*:} ;;
 					*)
-						Logger error "Field '$CurField' in '$1' is invalid"
 						Err 0 "File '$1' contains an invalid field."
-						break 2
+						break 2 ;;
 				esac
 			done
 
@@ -486,28 +328,9 @@ ReadFile(){
 	fi
 }
 
-DoChown(){ # Usage: DoChown [OWNER:GROUP] [TARGET]
-	[ "$1" = ':' ] && return 1
-	if chown "$1" "$2" 1> /dev/null 2>&1; then
-		Logger info "Successfully changed '$2' to '$1'"
-	else
-		Logger error "Failed to change '$2' to '$1'"
-	fi
-}
-
-DoChmod(){ # Usage: DoChmod [MODE] [TARGET]
-	[ "$1" = '' ] && return 1
-	if chmod "$1" "$2" 1> /dev/null 2>&1; then
-		Logger info "Successfully changed '$2' to '$1'"
-	else
-		Logger error "Failed to change '$2' to '$1'"
-	fi
-}
-
-DoRegardless(){
+DoRegardless() {
 	if [ "$Regardless" = 'true' ]; then
 		UserSpec="M:$UserMode O:$UserOwner G:$UserGroup T:$UserTarget"
-		Logger info "User specified '$UserSpec'"
 
 		Mode=$UserMode
 		Owner=$UserOwner
@@ -520,88 +343,50 @@ DoRegardless(){
 	fi
 }
 
-MainRemote(){
-	URL="$RawDomain/$GHUser/$Repo/$Branch/${1#/}"
-	Logger info "URL for '$1' is '${URL#https://*/}'"
-
-	if $DLCMD "$TemRemFile" "$URL" 1> /dev/null 2>&1; then
-		if ChkMD5 "$1"; then
-			ReadFile "$TemRemFile" || exit 0
-
-			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
-				DoRegardless
-
-				DoChown "$Owner:$Group" "$TemRemFile"
-				DoChmod "$Mode" "$TemRemFile"
-
-				if mv "$TemRemFile" "$Target" 1> /dev/null 2>&1; then
-					Logger info "File '$TemRemFile' moved to '$Target'"
-				else
-					Logger error "File '$CurFile' failed to move to '$Target'"
-				fi
-			else
-				Logger error "File '$CurFile' is NOT supported by Cito"
-				Err 0 "File '$1' is not supported by Cito."
-				continue
-			fi
-		fi
-	else
-		if [ -z "$1" ]; then
-			Logger error 'No remote file specified'
-			Err 1 "No remote file specified -- see: $Progrm -h"
-		fi
-
-		Logger error "File '$1' failed to download with '${DLCMD%% *}'"
-		Err 0 "Remote file '$1' failed to download."
-	fi
-}
+#-------------------------------------------Begin Downloading and/or Installing
 
 if [ "$DoRemote" = 'true' ]; then
-	Logger info 'Beginning remote operation'
-
 	for CurRemFile in "$@"; do
-		MainRemote "$CurRemFile"
-	done
+		URL="$RawDomain/$GHUser/$Repo/$Branch/${CurRemFile#/}"
+		if $DLCMD "$TemRemFile" "$URL" 1> /dev/null; then
+			if ChkMD5 "$CurRemFile"; then
+				ReadFile "$TemRemFile" || exit 0
 
-	exit 0
+				if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
+					DoRegardless
+
+					install -D -o "$Owner" -g "$Group" "$TemRemFile"\
+						"$Target" && rm "$TemRemFile"
+				else
+					Err 0 "File '$CurRemFile' is not supported by Cito."
+					continue
+				fi
+			fi
+		else
+			[ -z "$CurRemFile" ] && Err 1 "No remote file specified -- see: $Progrm -h"
+
+			Err 0 "Remote file '$CurRemFile' failed to download."
+		fi
+
+	done
 else
 	# Pretty sure this is handled elsewhere, but just in-case, catch it.
 	[ $# -eq 0 ] && Err 1 'No local files were provided.'
 
-	Logger info 'Beginning local operation'
-
 	for CurFile in "$@"; do
-		Logger info "Processing '$CurFile'"
-
 		if ChkMD5 "$CurFile"; then
 			ReadFile "$CurFile" || continue
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
 
-				if cp "$CurFile" "$Target" 1> /dev/null 2>&1; then
-					Logger info "File '$CurFile' moved to '$Target'"
-					DoChown "$Owner:$Group" "$Target"
-					DoChmod "$Mode" "$Target"
-				else
-					Logger error "File '$CurFile' failed to move to '$Target'"
-					Err 0 "Local file '$CurFile' failed to install."
-				fi
+				install -D -o "$Owner" -g "$Group" "$CurFile" "$Target"
 			else
-				Logger error "File '$CurFile' is NOT supported by Cito"
 				Err 0 "File '$CurFile' is not supported by Cito."
 				continue
 			fi
 		fi
 
-		Logger info "Finished processing '$CurFile'"
-
 		unset HasCito Target Group Owner Mode CurField
 	done
-
-	exit 0
 fi
-
-# If it happens to make it this far.
-Logger info 'Appears to be nothing to do'
-printf 'Nothing to do -- quitting.\n'
