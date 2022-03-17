@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/bgrep
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/bgrep
+# Started On        - Thu 17 Mar 18:38:37 GMT 2022
+# Last Change       - Thu 17 Mar 20:57:39 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Features:
+#
+#TODO: Support 'auto' colors, likely by testing whether interactive or not.
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.4.20)
+#------------------------------------------------------------------------------
+
+CurVer='2022-03-17'
+Progrm='bgrep'
+
+Usage() {
+	while read; do
+		printf '%s\n' "$REPLY"
+	done <<-EOF
+		Usage: $Progrm [OPTS] MATCH FILE_1 [FILE_2 ...]
+
+		  -h, --help               - Display this help information.
+		  -V, --version            - Output the version datestamp.
+
+		The use of \`--\` to ignore proceeding options is supported.
+	EOF
+}
+
+Err() {
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
+ChkDigit() {
+	if [[ $2 =~ ^[[:digit:]]+$ ]]; then
+		return 0
+	else
+		Err 1 "Option '$1' requires an integer."
+	fi
+}
+
+# The default color used by grep(1).
+[[ -z $GREP_COLOR ]] && GREP_COLOR='1;31'
+
+Color='never'
+
+(( $# == 0 )) && Err 1 'Argument(s) required.'
+
+while [[ -n $1 ]]; do
+	case $1 in
+		--)
+			break ;;
+		--help|-h)
+			Usage; exit 0 ;;
+		--version|-V)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--color=*|--colour=*)
+			case ${1#*=} in
+				always|never)
+					Color=${1#*=} ;;
+				auto)
+					Err 1 "Argument 'auto' for option '${1%%=*}' unsupported." ;;
+				'')
+					Err 1 "Option '${1%%=*}' requires an argument." ;;
+				*)
+					Err 1 "Option '${1%%=*}' given invalid argument." ;;
+			esac ;;
+		--fixed-strings|-F)
+			Err 1 "Option '$1' unsupported." ;;
+		--regexp|-e)
+			Err 1 "Option '$1' unsupported." ;;
+		--extended-regexp|-E)
+			printf "NOTE: Functionality for option '$1' is the default.\n" ;;
+		--file=*|-f)
+			Err 1 "Option '${1%%=*}' unsupported." ;;
+		--basic-regexp|-G)
+			Err 1 "Option '$1' unsupported." ;;
+		--ignore-case|-i)
+			CaseInsen='True' ;;
+		--max-count=*|-m)
+			if [[ $1 == --max-count=* ]]; then
+				ChkDigit "${1%%=*}" "${1#*=}"
+				MaxMatch=${1#*=}
+			elif [[ $1 == -m ]]; then
+				ChkDigit "$1" "$2"
+				MaxMatch=$2
+
+				shift
+			fi ;;
+		--perl-regexp|-P)
+			Err 1 "Option '$1' unsupported." ;;
+		--invert-match|-v)
+			Invert='True' ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+Match=$1
+shift
+
+#-------------------------------------------------------------Primary Functions
+
+Matched() {
+	declare -n Reply=$1 Rematch=$2
+	if [[ $Color == never || $Invert == True ]]; then
+		printf '%s\n' "$Reply"
+	elif [[ $Color == always ]]; then
+		Replacement="\e[${GREP_COLOR:-1;91}m$Rematch\e[0m"
+		printf '%b\n' "${Reply//$Rematch/$Replacement}"
+	fi
+}
+
+ProcessFile() {
+	while read -r; do
+		if [[ $Invert != True ]]; then
+			if [[ $REPLY =~ $Match ]]; then
+				Matched=${BASH_REMATCH[0]}
+				Matched REPLY Matched
+
+				(( ++MatchNr == MaxMatch )) && break
+			fi
+		else
+			if ! [[ $REPLY =~ $Match ]]; then
+				Matched=${BASH_REMATCH[0]}
+				Matched REPLY Matched
+
+				(( ++MatchNr == MaxMatch )) && break
+			fi
+		fi
+	done < "$1"
+}
+
+#---------------------------------------Begin Processing Data & Handling Output
+
+[[ $CaseInsen == True ]] && shopt -s nocasematch
+
+if (( $# > 0 )); then
+	for File in "$@"; {
+		if [[ -f $File ]]; then
+			if [[ -r $File ]]; then
+				ProcessFile "$File"
+			else
+				Err 1 "File '$File' unreadable."
+			fi
+		else
+			Err 1 "File '$File' not found."
+		fi
+	}
+else
+	ProcessFile /dev/stdin
+fi
