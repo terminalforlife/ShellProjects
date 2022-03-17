@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/bgrep
 # Started On        - Thu 17 Mar 18:38:37 GMT 2022
-# Last Change       - Thu 17 Mar 20:57:39 GMT 2022
+# Last Change       - Thu 17 Mar 21:07:17 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,10 +27,14 @@ Usage() {
 	while read; do
 		printf '%s\n' "$REPLY"
 	done <<-EOF
-		Usage: $Progrm [OPTS] MATCH FILE_1 [FILE_2 ...]
+		Usage: $Progrm [OPTS] PATTERN FILE_1 [FILE_2 ...]
 
 		  -h, --help               - Display this help information.
 		  -V, --version            - Output the version datestamp.
+		  --color={always|never}   - Colorize matching string(s).
+		  -i, --ignore-case        - Match case-insensitively.
+		  -m N, --max-count=N      - Stop matching after N time(s).
+		  -v, --invert-match       - Select non-matching lines.
 
 		The use of \`--\` to ignore proceeding options is supported.
 	EOF
