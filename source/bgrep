@@ -3,10 +3,12 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/bgrep
 # Started On        - Thu 17 Mar 18:38:37 GMT 2022
-# Last Change       - Thu 17 Mar 21:07:17 GMT 2022
+# Last Change       - Thu 17 Mar 21:09:43 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# A Bourne Again Shell interpretation of GNU's grep(1).
+#
 # Features:
 #
 #TODO: Support 'auto' colors, likely by testing whether interactive or not.
