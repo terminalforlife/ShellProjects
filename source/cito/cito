@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Thu 10 Mar 18:42:49 GMT 2022
+# Last Change       - Thu 17 Mar 15:49:02 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-03-10'
+CurVer='2022-03-17'
 Progrm=${0##*/}
 
 Usage() {
@@ -148,7 +148,7 @@ fi
 unset -f NullArg
 
 DepCount=0
-for Dep in install mv id chmod chown md5sum mkdir date rm mktemp; do
+for Dep in install mv chmod chown md5sum mkdir rm mktemp; do
 	if ! command -v "$Dep" 1> /dev/null 2>&1; then
 		Err 0 "Dependency '$Dep' not met."
 		DepCount=$(( DepCount + 1 ))
