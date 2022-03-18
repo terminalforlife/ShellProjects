@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
-# Last Change       - Fri 11 Mar 18:06:54 GMT 2022
+# Last Change       - Fri 18 Mar 02:12:02 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,6 +22,10 @@ if cd "$HOME/GitHub/terminalforlife/Personal/Extra"; then
 
 	if command -v compton 1> /dev/null; then
 		ln -fv misc/compton.conf $HOME/.config/
+	fi
+
+	if command -v picom 1> /dev/null; then
+		ln -fv misc/picom.conf $HOME/.config/
 	fi
 
 	if command -v keynav 1> /dev/null; then
