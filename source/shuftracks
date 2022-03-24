@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/shuftracks
+# Started On        - Thu 24 Mar 21:11:16 GMT 2022
+# Last Change       - Thu 24 Mar 21:36:06 GMT 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Quick and simple script to shuffle-rename MP3 files in the directory
+# specified. This was intended for audio tracks, written to provide a solution
+# to this thread on the Linux Mint support forums:
+#
+#   https://forums.linuxmint.com/viewtopic.php?f=18&t=369066
+#
+# Renaming occurs immediately, so be sure to back up your files beforehand, -
+# in-case the renaming works in an undesired fashion. The files will have their
+# zero-padded number prepended to the filename, like:
+#
+#   001 - A_Track.ogg
+#   002 - Some_Other_Track.ogg
+#   003 - Yet_Another_Track.ogg
+#
+# MP3 files are used, but the initial `for` loop can be adjusted as needed.
+#
+# Only 'coreutils' and BASH >= 3.1 required.
+#
+# IMPORTANT: Refer to the comment in the final `for` loop.
+#------------------------------------------------------------------------------
+
+cd "$1" || exit 1
+for File in *.mp3; {
+	[[ -f $File ]] && Files+=("$File")
+}
+
+Len=${#Files[@]}
+until (( ${#Shuffled[@]} == Len )); do
+	while :; do
+		Found='False'
+		RandTrack=${Files[RANDOM % Len]}
+		for File in "${Shuffled[@]}"; {
+			if [[ $File == $RandTrack ]]; then
+				Found='True'
+				break
+			fi
+		}
+
+		if [[ $Found == False ]]; then
+			Shuffled+=("$RandTrack")
+			break
+		fi
+	done
+done
+
+for File in "${Shuffled[@]}"; {
+	printf -v New '%0*d - %s' ${#Len} $(( ++Nr )) "$File"
+
+	# Remove or comment out these two lines to actually rename the files.
+	printf '%s\n' "$New"
+	continue
+
+	mv "$File" "$New"
+}
