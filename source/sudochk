@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/sudochk
 # Started On        - Sun 27 Mar 15:56:52 BST 2022
-# Last Change       - Sun 27 Mar 16:22:19 BST 2022
+# Last Change       - Mon 28 Mar 00:38:30 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -19,12 +19,12 @@
 # just relies on groups, but it's a nice enough solution, I believe.
 #------------------------------------------------------------------------------
 
+OldIFS=$IFS
 File='/etc/group'
 if [ -f "$File" ] && [ -r "$File" ]; then
 	while IFS=':' read Group _ _ Users; do
 		case $Group in
 			wheel|sudo)
-				OldIFS=$IFS
 				IFS=','
 				for CurUser in $Users; do
 					if [ "${USER:-`id -un`}" = "$CurUser" ]; then
