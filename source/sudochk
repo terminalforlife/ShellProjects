@@ -27,7 +27,7 @@ if [ -f "$File" ] && [ -r "$File" ]; then
 				OldIFS=$IFS
 				IFS=','
 				for CurUser in $Users; do
-					if [ "${USER:-id -un}" = "$CurUser" ]; then
+					if [ "${USER:-`id -un`}" = "$CurUser" ]; then
 						HasOrNot='has'
 						break 2
 					fi
