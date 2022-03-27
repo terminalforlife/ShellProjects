@@ -32,13 +32,13 @@ if [ -f "$File" ] && [ -r "$File" ]; then
 						break 2
 					fi
 				done
-				IFS=$OldIFS
 
 				HasOrNot='does not have'
 				break ;;
 		esac
 	done < "$File"
 
+	IFS=$OldIFS
 	printf "User '%s' %s sudo(8) access.\n" "$USER" "$HasOrNot"
 else
 	printf "Err: File '$File' missing or unreadable.\n" 1>&2
