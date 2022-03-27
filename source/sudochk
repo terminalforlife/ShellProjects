@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/sudochk
 # Started On        - Sun 27 Mar 15:56:52 BST 2022
-# Last Change       - Sun 27 Mar 16:20:37 BST 2022
+# Last Change       - Sun 27 Mar 16:22:19 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ if [ -f "$File" ] && [ -r "$File" ]; then
 				OldIFS=$IFS
 				IFS=','
 				for CurUser in $Users; do
-					if [ $USER = "$CurUser" ]; then
+					if [ "$USER" = "$CurUser" ]; then
 						HasOrNot='has'
 						break 2
 					fi
