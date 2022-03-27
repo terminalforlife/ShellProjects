@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/sudochk
+# Started On        - Sun 27 Mar 15:56:52 BST 2022
+# Last Change       - Sun 27 Mar 16:01:29 BST 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Portable and efficient solution for determining whether a user has 'root'
+# access via sudo(8) and the 'sudo' or 'wheel' groups. This of course depends
+# on the '/etc/group' file and it being readable. I wrote this for a user on
+# Discord.
+#
+# While you can also run `sudo -l` or `sudo -v`, you'll often still be asked
+# for a password. You can't use `su` to gain 'root' access to check 'sudoers'
+# either, because not all systems allow 'root' access in that way, such as
+# Ubuntu-based systems which lock the 'root' account via su(1). This script
+# just relies on groups, but it's a nice enough solution, I believe.
+#
+# Dependencies:
+#
+#   bash (>= 3.0)
+#------------------------------------------------------------------------------
+
+File='/etc/group'
+if [[ -f $File && -r $File ]]; then
+	while IFS=':' read -a Line; do
+		case ${Line[0]} in
+			wheel|sudo)
+				IFS=',' read -a Users <<< "${Line[3]}"
+				for CurUser in "${Users[@]}"; {
+					if [[ $USER == $CurUser ]]; then
+						HasOrNot='has'
+						break 2
+					fi
+				}
+
+				HasOrNot='does not have'
+				break ;;
+		esac
+	done < "$File"
+
+	printf "User '%s' %s sudo(8) access.\n" "$CurUser" "$HasOrNot"
+else
+	printf "Err: File '$File' missing or unreadable.\n" 1>&2
+	exit 1
+fi
