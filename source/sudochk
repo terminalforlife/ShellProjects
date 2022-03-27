@@ -21,13 +21,13 @@
 
 File='/etc/group'
 if [ -f "$File" ] && [ -r "$File" ]; then
-	while IFS=':' read Group _ GID Users; do
+	while IFS=':' read Group _ _ Users; do
 		case $Group in
 			wheel|sudo)
 				OldIFS=$IFS
 				IFS=','
 				for CurUser in $Users; do
-					if [ "$USER" = "$CurUser" ]; then
+					if [ "${USER:-id -un}" = "$CurUser" ]; then
 						HasOrNot='has'
 						break 2
 					fi
