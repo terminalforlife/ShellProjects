@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/sudochk
 # Started On        - Sun 27 Mar 15:56:52 BST 2022
-# Last Change       - Sun 27 Mar 16:01:29 BST 2022
+# Last Change       - Sun 27 Mar 16:20:37 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -17,31 +17,29 @@
 # either, because not all systems allow 'root' access in that way, such as
 # Ubuntu-based systems which lock the 'root' account via su(1). This script
 # just relies on groups, but it's a nice enough solution, I believe.
-#
-# Dependencies:
-#
-#   bash (>= 3.0)
 #------------------------------------------------------------------------------
 
 File='/etc/group'
-if [[ -f $File && -r $File ]]; then
-	while IFS=':' read -a Line; do
-		case ${Line[0]} in
+if [ -f "$File" ] && [ -r "$File" ]; then
+	while IFS=':' read Group _ GID Users; do
+		case $Group in
 			wheel|sudo)
-				IFS=',' read -a Users <<< "${Line[3]}"
-				for CurUser in "${Users[@]}"; {
-					if [[ $USER == $CurUser ]]; then
+				OldIFS=$IFS
+				IFS=','
+				for CurUser in $Users; do
+					if [ $USER = "$CurUser" ]; then
 						HasOrNot='has'
 						break 2
 					fi
-				}
+				done
+				IFS=$OldIFS
 
 				HasOrNot='does not have'
 				break ;;
 		esac
 	done < "$File"
 
-	printf "User '%s' %s sudo(8) access.\n" "$CurUser" "$HasOrNot"
+	printf "User '%s' %s sudo(8) access.\n" "$USER" "$HasOrNot"
 else
 	printf "Err: File '$File' missing or unreadable.\n" 1>&2
 	exit 1
