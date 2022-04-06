@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Wed  6 Apr 18:11:37 BST 2022
+# Last Change       - Wed  6 Apr 18:16:09 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ if [[ $Force != True ]]; then
 				fi
 			fi
 		done < "$OSRelease"
-	else type -P lsb_release &> /dev/null; then
+	elif type -P lsb_release &> /dev/null; then
 		[[ `lsb_release -is` == Linuxmint ]] && MintFound='True'
 	else
 		Err 1 'Unable to determine distribution.'
