@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Tue  1 Mar 17:33:30 GMT 2022
+# Last Change       - Wed  6 Apr 18:11:37 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,7 +33,7 @@
 #   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-03-01'
+CurVer='2022-04-06'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -135,11 +135,12 @@ if [[ $NewConfig == True ]]; then
 	read -d '' <<-EOF
 		# $ProgrmFancy configurations for Linux Mint Cinnamon.
 
-		# How often to check the time and set the themes.
+		# How often, in seconds, to enforce these settings.
 		Interval=60
 
-		# The time to start light/dark theme. Time is in 24hr. Do not zero-pad the
-		# numbers. 6am is 600 not 0600 or 06:00. Do not include the colon.
+		# The 24-hour time to begin setting the light and dark themes. Do not
+		# zero-pad the numbers. 6am is 600 not 0600 or 06:00. Do not include
+		# the colon.
 		LightTime=600
 		DarkTime=2000
 
@@ -178,20 +179,22 @@ if [[ $Force != True ]]; then
 				fi
 			fi
 		done < "$OSRelease"
-
-		# Only Linux Mint is officially supported.
-		if [[ $MintFound != True ]]; then
-			Err 0 'Unable to detect a running valid Linux Mint system.'
-			(( SysErr++ ))
-		fi
-
-		# This program is strictly for the Cinnamon DE.
-		if ! type -P cinnamon &> /dev/null; then
-			Err 0 'Unable to detect the Cinnamon desktop environment.'
-			(( SysErr++ ))
-		fi
+	else type -P lsb_release &> /dev/null; then
+		[[ `lsb_release -is` == Linuxmint ]] && MintFound='True'
 	else
 		Err 1 'Unable to determine distribution.'
+	fi
+
+	# Only Linux Mint is officially supported.
+	if [[ $MintFound != True ]]; then
+		Err 0 'Unable to detect a running valid Linux Mint system.'
+		(( SysErr++ ))
+	fi
+
+	# This program is strictly for the Cinnamon DE.
+	if ! type -P cinnamon &> /dev/null; then
+		Err 0 'Unable to detect the Cinnamon desktop environment.'
+		(( SysErr++ ))
 	fi
 
 	(( SysErr > 0 )) && exit 1
