@@ -16,7 +16,6 @@ As of 2022-02-25, here are some highlights:
   * [fetcher](source/fetcher) - Simple interactive multi-file downloader for the terminal
   * [glkfu](source/glkfu) - Easily compile & build Debian packages for Linux kernels
   * [lmc-darklight](source/lmc-darklight) - Scheduled dark/light themes for Linux Mint Cinnamon
-  * [lspkg](source/lspkg) - Search through, test for, and list out installed packages
   * [rmne](source/rmne) - Remove all of the non-essential Debian packages
   * [simplify-ubuntu](source/simplify-ubuntu) - De-bloat Ubuntu by interactively removing unneeded packages
   * [tagged](source/tagged) - List commits per file in the CWD of a git(1) repository
