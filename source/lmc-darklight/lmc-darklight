@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Wed  6 Apr 18:16:09 BST 2022
+# Last Change       - Wed  6 Apr 18:36:05 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,11 +15,12 @@
 #
 # Features:
 #
-#TODO: Incorporate Redshift, with flag/key only.
-#TODO: Possibly incorproate Firefox theme changing.
+#TODO: Add flag to change only backgrounds.
 #TODO: Add original values to a file. Currently, it's output only.
 #TODO: If configuration key is equal to null, ignore it.
 #TODO: Incorporate notify-send(1).
+#TODO: Incorporate Redshift, with flag/key only.
+#TODO: Possibly incorproate Firefox theme changing.
 #
 # Bugs:
 #
