@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat 26 Mar 19:38:35 GMT 2022
+# Last Change       - Sun 24 Apr 22:14:03 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,9 +21,7 @@
 #   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-
-
-CurVer='2022-03-26'
+CurVer='2022-04-24'
 Progrm='rmne'
 
 Usage() {
@@ -104,7 +102,7 @@ fi
 
 if [[ $Destroy == True ]]; then
 	read -d '' <<-EOF
-		WARNING +---------------------------------------------------+ WARNING
+		WARNING +-----------------------------------------------------+ WARNING
 
 		This is a small but dangerous program for the sole purpose of tearing
 		down the non-essential packages and their dependencies. Packages with a
@@ -117,7 +115,7 @@ if [[ $Destroy == True ]]; then
 		      want, as you will very likely be left without an Internet
 		      connection, kernel, bootloader, APT, sudo(8), etc.
 
-		WARNING +---------------------------------------------------+ WARNING
+		WARNING +-----------------------------------------------------+ WARNING
 	EOF
 
 	printf '%s\n' "$REPLY"
