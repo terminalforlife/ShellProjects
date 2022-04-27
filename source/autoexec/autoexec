@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sun 20 Feb 17:26:59 GMT 2022
+# Last Change       - Wed 27 Apr 14:26:54 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-20'
+CurVer='2022-04-27'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -141,7 +141,6 @@ fi
 
 ExecFile=$1; shift
 
-DepCount=0
 for Dep in file tput stat realpath; {
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
@@ -169,6 +168,7 @@ SignalHandler() {
 	if [[ $Once != True ]]; then
 		tput ed
 		tput rmcup
+		tput cnorm
 	fi
 
 	if [[ -n $InterpreterMissing ]]; then
@@ -198,6 +198,7 @@ trap 'SignalHandler' SIGINT EXIT
 if [[ $Once != True ]]; then
 	shopt -s checkwinsize
 	tput clear
+	tput civis
 	trap 'tput clear' WINCH
 fi
 
@@ -249,6 +250,7 @@ while :; do
 			fi
 
 			if [[ $Errors != True ]]; then
+				tput cnorm
 				if [[ $Time == True ]]; then
 					time $Exec "$ExecFile" "$@"
 					Exit=$?
@@ -256,6 +258,7 @@ while :; do
 					$Exec "$ExecFile" "$@"
 					Exit=$?
 				fi
+				tput civis
 			else
 				Exit=999
 			fi
