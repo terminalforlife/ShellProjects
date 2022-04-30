@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Thu 17 Mar 15:49:02 GMT 2022
+# Last Change       - Sun  1 May 00:09:47 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,14 +27,14 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-03-17'
-Progrm=${0##*/}
+CurVer='2022-05-01'
+Progrm='cito'
 
 Usage() {
 	while read -r CurLine; do
 		printf '%b\n' "$CurLine"
 	done <<-EOF
-		\rUsage: $Progrm [OPTS] [FILE_1 [FILE_2] ...]
+		Usage: $Progrm [OPTS] [FILE_1 [FILE_2] ...]
 
 		\r  -h, --help               - Display this help information.
 		\r  -v, --version            - Output the version datestamp.
@@ -67,7 +67,7 @@ while [ -n "$1" ]; do
 		--help|-h|-\?)
 			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$CurVer"; exit 0 ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
 		--remote|-r)
 			DoRemote='true'
 
@@ -181,7 +181,7 @@ CutStr() {
 		for CurField in "$@"; do
 			Count=$((Count + 1))
 			if [ $Count -eq $CutField ]; then
-				printf "%s" "$CurField"
+				printf '%s' "$CurField"
 				break 1
 			fi
 		done
