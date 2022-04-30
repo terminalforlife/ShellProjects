@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sun 24 Apr 22:14:03 BST 2022
+# Last Change       - Sun  1 May 00:20:31 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-04-24'
+CurVer='2022-05-01'
 Progrm='rmne'
 
 Usage() {
@@ -32,7 +32,7 @@ Usage() {
 		  -v, --version            - Output the version datestamp.
 		  --no-purge               - Don't purge remaining files.
 		  --sfile PATH             - Override 'status' file.
-		  -i, --include STR        - Destroy STR priority packages, too.
+		  -i, --include STR        - Also destroy STR priority packages.
 		  -l, --list               - List would-be-removed packages.
 
 		Where PATTERN is a glob pattern for one or more packages to keep. In
@@ -51,7 +51,10 @@ Err() {
 StatusFile='/var/lib/dpkg/status'
 KeepPriors=(important standard required)
 
-type -P apt-get &> /dev/null && Destroy='True'
+if type -P apt-get &> /dev/null; then
+	AptGetFound='True'
+	Destroy='True'
+fi
 
 while [[ -n $1 ]]; do
 	case $1 in
@@ -179,7 +182,7 @@ while IFS=':' read Key Value; do
 done < "$StatusFile"
 
 # Sort array. Using an optimized Bubble Sort algorithm as a fallback, in-case
-# in-case the user previously removed the Essential 'coreutils' package.
+# the user previously removed the Essential 'coreutils' package.
 if type -P sort &> /dev/null; then
 	List=(`printf '%s\n' "${List[@]}" | sort`)
 else
@@ -201,8 +204,12 @@ else
 fi
 
 if [[ $Destroy == True ]]; then
-	apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
-		${Purge:-purge} --autoremove "${List[@]}"
+	if [[ $AptGetFound == True ]]; then
+		apt-get -q -o Dpkg::Progress-Fancy=true --show-progress\
+			${Purge:-purge} --autoremove "${List[@]}"
+	else
+		Err 1 "Dependency 'apt-get' not met."
+	fi
 else
 	printf '%s\n' "${List[@]}"
 fi
