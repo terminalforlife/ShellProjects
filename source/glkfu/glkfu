@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sat 23 Apr 14:45:59 BST 2022
+# Last Change       - Sun  1 May 00:33:28 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -49,7 +49,7 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2022-03-04'
+CurVer='2022-05-01'
 Progrm='glkfu'
 
 Usage() {
@@ -288,7 +288,7 @@ JustOutput() {
 case $Output in
 	current|current.*)
 		;;
-	*|'')
+	*)
 		# Parse page data to get tarball filename of the latest stable kernel.
 		if [[ -z $LatestTar ]]; then
 			while read; do
@@ -399,6 +399,7 @@ fi
 if [[ $JustDownload != True || $IgnoreDeps != True ]]; then
 	FileChk "$StatusFile"
 
+	Packages=()
 	II=' install ok installed'
 	while IFS=':' read -a Line; do
 		if [[ ${Line[0]} == Package ]]; then
@@ -408,6 +409,7 @@ if [[ $JustDownload != True || $IgnoreDeps != True ]]; then
 		fi
 	done < "$StatusFile"
 
+	MissingDeps=()
 	for DepPKG in "${ReqPKGs[@]}"; {
 		Found='False'
 
@@ -509,10 +511,10 @@ fi
 if [[ $JustDownload != True ]]; then
 	read -d '' <<-EOF
 
-		CAUTION: Compilation takes up several GBs of disk space. Depending on the
-		         options selected, you may use over 20GB. If you don't have enough
-		         disk space during compilation, it will fail and your time will be
-		         wasted.
+		CAUTION: Compilation takes up several GBs of disk space. Depending on
+		         the options selected, you may use over 20GB. If you don't have
+		         enough disk space during compilation, it will fail and your
+		         time will be wasted.
 
 	EOF
 
@@ -666,9 +668,7 @@ fi
 # Thank you, YouTube user Daniel Olsson, for explaining this feature, without
 # whom this feature probably would not have made its way to glkfu(1).
 
-while read; do
-	printf '%s\n' "$REPLY"
-done <<-EOF
+read -d '' <<-EOF
 
 	INFO: If you choose 'Y' to the following question, the resulting kernel
 	      image will NOT include debugging info, resulting in a smaller kernel
@@ -681,6 +681,8 @@ done <<-EOF
 	Choose 'N' only if you plan to debug the kernel.
 
 EOF
+
+printf '%s' "$REPLY"
 
 if Ask "Disable 'DEBUG_INFO' parameter?"; then
 	scripts/config --disable DEBUG_INFO
@@ -696,15 +698,15 @@ fi
 
 Ask 'Compile kernel and build Debian packages?' || exit 0
 
-while read; do
-	printf '%s\n' "$REPLY"
-done <<-EOF
+read -d '' <<-EOF
 
 	NOTE: This operation may take some time, depending on your system
 	      performance and the options previously selected.
 
 	Attempting to compile kernel & build Debian packages...
 EOF
+
+printf '%s' "$REPLY"
 
 $Make bindeb-pkg # <-- As of 2020-12-18, no longer building source packages.
 
