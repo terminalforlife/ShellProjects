@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Sun 30 Jan 17:30:12 GMT 2022
+# Last Change       - Sun  1 May 00:49:24 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,21 +34,18 @@
 #   perl (>= 5.22.1-9)
 #------------------------------------------------------------------------------
 
-require LWP::Simple;
-
-use 5.22.1;
+use feature 'say';
 use strict;
 use warnings;
-use autodie;
 use LWP::Simple;
 
 no warnings 'uninitialized';
 
-my $CurVer = '2022-01-30';
-my $Progrm = 'glkfu-list';
+use constant VERSION => '2022-05-01';
+use constant PROGRAM => 'glkfu-list';
 
-sub Usage {
-	print(qq{Usage: $Progrm [OPTS]
+sub Usage() {
+	print(qq{Usage: ${\PROGRAM} [OPTS]
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
@@ -61,8 +58,8 @@ sub Usage {
 	} =~ tr/\t//dr)
 }
 
-my $Domain = 'https://www.kernel.org';
-my $Releases = "$Domain/category/releases.html";
+use constant DOMAIN => 'https://www.kernel.org';
+use constant RELEASES => DOMAIN . '/category/releases.html';
 
 my $DoColor = 1;
 my $AllKerns = 0;
@@ -71,13 +68,13 @@ while (defined($ARGV[0])) {
 	if ($ARGV[0] =~ '^(--help|-h)$') {
 		Usage(); exit(0)
 	} elsif ($ARGV[0] =~ '^(--version|-v)$') {
-		say($CurVer); exit(0)
+		say(VERSION); exit(0)
 	} elsif ($ARGV[0] =~ '^(--no-color|-C)$') {
 		$DoColor = 0
 	} elsif ($ARGV[0] =~ '^(--all|-a)$') {
 		$AllKerns = 1
 	} else {
-		die("Incorrect option(s) specified")
+		die("Err: Incorrect option(s) specified.\n")
 	}
 
 	shift()
@@ -85,11 +82,11 @@ while (defined($ARGV[0])) {
 
 # Parse 'releases.html' page for the table of LTS kernels.
 my (@LongTerms);
-foreach (split("\n", get($Releases))) {
+foreach (split("\n", get(RELEASES))) {
 	our $TableFound = 'True' if '<caption>Longterm release kernels</caption>';
 
 	if ($TableFound eq 'True') {
-		push(@LongTerms, $1) if /^<tr><td>([[:digit:].]+)<\/td>$/;
+		push(@LongTerms, $1) if /^<tr><td>([\d.]+)<\/td>$/;
 
 		last() if '</table>'
 	}
@@ -98,18 +95,18 @@ foreach (split("\n", get($Releases))) {
 # Gather list of applicable major releases from the directory names.
 my @KernVers;
 my $LatestMajor = `glkfu -o latest.maj`;
-foreach (split("\n", get("$Domain/pub/linux/kernel"))) {
+foreach (split("\n", get(DOMAIN . '/pub/linux/kernel'))) {
 	my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
 	next() unless $File =~ '^v\d+\.[\dx]+/';
 
 	if ($AllKerns) {
 		push(@KernVers, $File)
 	} else {
-		if ($LatestMajor =~ '^[[:digit:]]+$') {
+		if ($LatestMajor =~ '^\d+$') {
 			my $ListedMajor = $File =~ s/^v(\d+)\.[\dx]+\//$1/r;
 			push(@KernVers, $File) if $ListedMajor == $LatestMajor
 		} else {
-			die('Cannot determine valid major release')
+			die("Err: Cannot determine valid major release.\n")
 		}
 	}
 }
@@ -117,7 +114,7 @@ foreach (split("\n", get("$Domain/pub/linux/kernel"))) {
 # Gather list of kernel versions, then turn them into valid tarball filenames.
 my (@Tarballs, @Versions);
 foreach my $Version (@KernVers) {
-	foreach (split("\n", get("$Domain/pub/linux/kernel/$Version"))) {
+	foreach (split("\n", get(DOMAIN . "/pub/linux/kernel/$Version"))) {
 		my $File = (m{(?:.*>)?(.*)?(?:<.*)})[0];
 
 		next() unless $File =~ '^linux-[\d\.]+.tar.xz$';
@@ -129,7 +126,7 @@ foreach my $Version (@KernVers) {
 
 # Get and handle current version string. Because *.*.0 shows as *.* on site.
 chomp(my $CurKernVer = `glkfu -o current`);
-$CurKernVer = $1 if $CurKernVer =~ '(^[[:digit:]]+.[[:digit:]]+).0$';
+$CurKernVer = $1 if $CurKernVer =~ '(^\d+.\d+).0$';
 
 # Simplified version of version sorting algorithm found in `Sort::Versions`
 # (the 'libsort-versions-perl' package). This only sorts strings with
