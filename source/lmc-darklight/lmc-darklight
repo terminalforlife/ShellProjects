@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Wed  6 Apr 18:36:05 BST 2022
+# Last Change       - Sun  1 May 00:57:11 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 #   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-04-06'
+CurVer='2022-05-01'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -99,6 +99,7 @@ done
 
 (( UID == 0 )) && Err 1 "Do not run as 'root' user."
 
+DepCount=0
 for Dep in mkdir gsettings sleep; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
@@ -185,6 +186,8 @@ if [[ $Force != True ]]; then
 	else
 		Err 1 'Unable to determine distribution.'
 	fi
+
+	SysErr=0
 
 	# Only Linux Mint is officially supported.
 	if [[ $MintFound != True ]]; then
@@ -315,6 +318,8 @@ while :; do
 
 			if [[ $Found == True ]]; then
 				printf "Found key: %s\n" "$Key"
+
+				# Need this or similar, else invalid syntax.
 				declare $Key="$Value"
 			else
 				Err 0 "Key '$Key' invalid."
