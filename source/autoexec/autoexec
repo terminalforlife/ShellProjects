@@ -221,7 +221,8 @@ while :; do
 				exit 1
 			fi
 
-			Exec=$SheBangMain
+			# extract from both /bin/bash and /usr/bin/env bash
+			Exec=${SheBangBase#*env }
 		fi
 
 		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
