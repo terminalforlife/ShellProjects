@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Thu  5 May 21:52:45 BST 2022
+# Last Change       - Sat  7 May 17:38:34 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-05'
+CurVer='2022-05-07'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -237,7 +237,7 @@ while :; do
 					*/env\ sh|*/sh)
 						File=`type -P sh`
 						Link=`realpath "$File"`
-						if [[ $Link == /bin/dash ]]; then
+						if [[ ${Link##*/} == dash ]]; then
 							$Exec -n "$ExecFile" || Errors='True'
 						else
 							UnsupportedCheck='True'
