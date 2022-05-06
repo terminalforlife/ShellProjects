@@ -237,7 +237,7 @@ while :; do
 					*/env\ sh|*/sh)
 						File=`type -P sh`
 						Link=`realpath "$File"`
-						if [[ $Link == /bin/dash ]]; then
+						if [[ ${Link##*/} == dash ]]; then
 							$Exec -n "$ExecFile" || Errors='True'
 						else
 							UnsupportedCheck='True'
