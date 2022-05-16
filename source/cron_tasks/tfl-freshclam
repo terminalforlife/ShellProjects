@@ -8,9 +8,7 @@
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Workaround for ClamAV's `freshclam` not working in Ubuntu 18.04 and systems
-# based thereon. Talked about in my video over here:
-#
-#   https://www.youtube.com/watch?v=WRZCYebFtuk
+# based thereon.
 #
 # Dependencies:
 #

@@ -49,10 +49,6 @@ If you don't have sudo(8), you'll have to acquire root privileges by other means
 
 If you spot a dependency neither listed here nor checked for by **GLKFU**, please get in touch so this can be addressed.
 
-# Video Demonstration & Thoughts
-
-If you'd like a demonstration of, some thoughts on, or updates about **GLKFU**, check out the **Learn Linux** channel on **YouTube**, available [here](https://www.youtube.com/c/learnlinux). Perform a search for 'GLKFU' and you're sure to find relevant videos.
-
 # Bugs
 
 Bugs will be handled as soon as possible, but you can speed things up by reporting them. I cannot fix what I don't know exists! Please refer to the **GLKFU** man page (`man glkfu`) and refer to the **BUGS** section.

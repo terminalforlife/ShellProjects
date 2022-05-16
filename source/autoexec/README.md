@@ -6,8 +6,6 @@ Flexibly, the user can make use of AutoExec in Linux when working with Perl, Pyt
 
 The user can either rely on AutoExec's own interpreter auto-detection, or override with his or her own choice of executable.
 
-Demonstrations of AutoExec can be found all over the YouTube channel of the author of AutoExec, [Terminalforlife](https://www.youtube.com/c/terminalforlife) (formerly _Learn Linux_).
-
 As you might've guessed by now, this tool was written for **Linux**, so likely will _not_ work on operating systems like the BSDs, Apple's offerings, and surely Windows (maybe with WSL). If you'd like to help support such a platform, get in touch, so that perhaps we can sort out a patch or some sort of compatibility update.
 
 # Installation Instructions
