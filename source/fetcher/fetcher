@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Wed 16 Feb 02:46:16 GMT 2022
+# Last Change       - Thu 19 May 00:35:57 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-16'
+CurVer='2022-05-19'
 Progrm=${0##*/}
 
 Usage() {
@@ -192,7 +192,7 @@ elif [[ $Action == remove ]]; then
 	case $URL in
 		[1-9]|[1-9][0-9])
 			for Link in "${URLs[@]}"; {
-				if (( ${Link%%|*} == URL ]]; then
+				if [[ ${Link%%|*} == URL ]]; then
 					ToRemove=${Link#*|}
 					break
 				fi
