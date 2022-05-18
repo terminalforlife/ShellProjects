@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dwwdl
 # Started On        - Sat 16 Sep 22:41:54 BST 2017
-# Last Change       - Thu 17 Feb 15:43:17 GMT 2022
+# Last Change       - Thu 19 May 00:12:32 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-17'
+CurVer='2022-05-19'
 Progrm='dwwdl'
 
 Usage() {
@@ -46,11 +46,11 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+DownloadURL='http://distrowatch.com/podcast/dww'
 ServerKind='False'
 Interval=10
 Ext='ogg'
-
-DownloadURL='http://distrowatch.com/podcast/dww'
+Podcasts=()
 
 while [[ -n $1 ]]; do
 	case $1 in
