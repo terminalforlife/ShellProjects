@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/shuftracks
 # Started On        - Thu 24 Mar 21:11:16 GMT 2022
-# Last Change       - Thu 24 Mar 21:36:06 GMT 2022
+# Last Change       - Thu 19 May 00:31:33 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -29,10 +29,13 @@
 #------------------------------------------------------------------------------
 
 cd "$1" || exit 1
+
+Files=()
 for File in *.mp3; {
 	[[ -f $File ]] && Files+=("$File")
 }
 
+Shuffled=()
 Len=${#Files[@]}
 until (( ${#Shuffled[@]} == Len )); do
 	while :; do
