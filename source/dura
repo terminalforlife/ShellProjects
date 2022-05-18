@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dura
 # Started On        - Thu  1 Jul 12:01:03 BST 2021
-# Last Change       - Sun  9 Jan 23:35:20 GMT 2022
+# Last Change       - Thu 19 May 00:30:08 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   ffmpeg (>= 7:3.4.8-0)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-09'
+CurVer='2022-05-19'
 Progrm=${0##*/}
 
 Usage() {
@@ -93,6 +93,7 @@ for Stamp in "${!Lens[@]}"; {
 (( $# == 1 )) && exit 0
 
 # Add up all of the seconds from the hours, minutes, and remaining seconds.
+SecondTTL=0
 for Time in "${!Lens[@]}"; {
 	IFS=':' read HH MM SS <<< "$Time"
 
