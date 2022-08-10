@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/self-update
+# Started On        - Wed 10 Aug 18:35:22 BST 2022
+# Last Change       - Wed 10 Aug 18:36:30 BST 2022
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Written to address a BASH request on Discord. This script will update itself.
+# The commented 'Value' parameter below will be incremented on each execution
+# of the script, using purely BASH.
+#------------------------------------------------------------------------------
+
+# Value=0
+
+Data=()
+while read -r; do
+	if [[ $REPLY == '# Value='+([0-9]) ]]; then
+		Data+=("${REPLY%=*}=$(( ${REPLY#*=} + 1 ))")
+	else
+		Data+=("$REPLY")
+	fi
+done < "${BASH_SOURCE[0]}"
+
+printf '%s\n' "${Data[@]}" > "${BASH_SOURCE[0]}"
