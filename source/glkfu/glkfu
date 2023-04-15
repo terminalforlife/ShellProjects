@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sun  1 May 00:33:28 BST 2022
+# Last Change       - Wed 12 Oct 01:45:15 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,6 +21,15 @@
 #TODO: Ensure GLKFU supports EFI systems -- can anyone help with that?
 #
 # Bugs:
+#
+#TODO: Unexpected error found after the first shown below:
+#
+#        $ glkfu -j
+#        Err: Downloading with wget(1) failed.
+#        Err: Tarball filename '' not valid.
+#
+#      At the time I had an Internet connection hiccup, it seemed. A catch
+#      needs to be added to prevent GLKFU from continuing if wget(1) fails.
 #
 #TODO: Ignore build path (because of error!) if just checking versions.
 #
