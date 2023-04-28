@@ -2,6 +2,8 @@
 
 Add to or remove from a simple list of remote files which you can then download in bulk, with Fetcher. The actual downloading is handled by wget(1).
 
+NOTE: This is a work-in-progress, currently. Consider it beta.
+
 # Installation Instructions
 
 Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via Fetcher's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/fetcher/fetcher-installer).
