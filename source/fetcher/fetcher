@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fetcher/fetcher
 # Started On        - Fri 18 Dec 01:42:22 GMT 2020
-# Last Change       - Thu 19 May 00:35:57 BST 2022
+# Last Change       - Fri 28 Apr 21:11:13 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 #
 # Bugs:
 #
-# N/A
+#TODO: Numbering system of URLs is clunky, busy, and likely broken -- fix!
 #
 # Dependencies:
 #
@@ -34,7 +34,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-19'
+CurVer='2023-04-28'
 Progrm=${0##*/}
 
 Usage() {
@@ -178,6 +178,7 @@ elif [[ $Action == remove ]]; then
 
 	printf 'URLs currently stored:\n\n'
 
+	Line=0
 	while read; do
 		[[ $REPLY == \#* || $REPLY == '' ]] && continue
 
@@ -187,7 +188,6 @@ elif [[ $Action == remove ]]; then
 	done < "$LinkFile"
 	printf '\n'
 
-	URL=2
 	read -p 'Select a URL to remove: (1-20) ' URL
 	case $URL in
 		[1-9]|[1-9][0-9])
