@@ -3,13 +3,13 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sun  1 May 00:20:31 BST 2022
+# Last Change       - Sat 29 Apr 18:38:54 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Features:
 #
-#TODO: Allow comma-separated list of priorities for `-i`/`--include` flags.
+# N/A
 #
 # Bugs:
 #
@@ -21,7 +21,7 @@
 #   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-01'
+CurVer='2023-04-29'
 Progrm='rmne'
 
 Usage() {
@@ -30,9 +30,9 @@ Usage() {
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  --include=P[,P ...]      - Include packages of given priority.
 		  --no-purge               - Don't purge remaining files.
 		  --sfile PATH             - Override 'status' file.
-		  -i, --include STR        - Also destroy STR priority packages.
 		  -l, --list               - List would-be-removed packages.
 
 		Where PATTERN is a glob pattern for one or more packages to keep. In
@@ -73,21 +73,23 @@ while [[ -n $1 ]]; do
 				StatusFile=$2
 				shift
 			fi ;;
-		--include|-i)
-			if [[ -z $2 ]]; then
-				Err 1 "Option '$1' requires an argument."
+		--include=*)
+			IFS=',' read -a Priors <<< "${1#*=}"
+			if (( ${#Priors[@]} == 0 )); then
+				Err 1 "Option '${1%%=*}=' requires an argument."
 			else
-				shift
-				case $1 in
-					important)
-						KeepPriors[0]= ;;
-					standard)
-						KeepPriors[1]= ;;
-					required)
-						KeepPriors[2]= ;;
-					*)
-						Err 1 "Priority '$1' invalid." ;;
-				esac
+				for Priority in "${Priors[@]}"; {
+					case $Priority in
+						important)
+							KeepPriors[0]= ;;
+						standard)
+							KeepPriors[1]= ;;
+						required)
+							KeepPriors[2]= ;;
+						*)
+							Err 1 "Priority '$Priority' invalid." ;;
+					esac
+				}
 			fi ;;
 		-*)
 			Err 1 "Incorrect argument(s) specified." ;;
