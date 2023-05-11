@@ -3,15 +3,26 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tlptog
 # Started On        - Fri 18 May 14:19:48 BST 2018
-# Last Change       - Fri  4 Mar 00:18:27 GMT 2022
+# Last Change       - Fri 12 May 00:32:15 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Quick shell program to toggle TLP to improve power management on portable
-# setups.
+# Toggle TLP to improve power management on portable devices.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   N/A
 #------------------------------------------------------------------------------
 
-CurVer='2022-03-04'
+CurVer='2023-05-12'
 Progrm='tlptog'
 
 Usage() {
@@ -30,7 +41,7 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
-WorkFile='/etc/default/tlp'
+File='/etc/default/tlp'
 
 while [[ -n $1 ]]; do
 	case $1 in
@@ -44,30 +55,41 @@ while [[ -n $1 ]]; do
 	shift
 done
 
-if ! type -P sed &> /dev/null; then
-	Err 1 "Dependency 'sed' not met."
-elif (( UID != 0 )); then
+if (( UID != 0 )); then
 	Err 1 'Root access is required.'
+elif ! [[ -f $File ]]; then
+	Err 1 "File '$File' not found."
 fi
 
-[[ -f $WorkFile ]] || Err 1 "Unable to find the '$WorkFile' file."
+Changed=
+OutLines=()
+while read; do
+	if [[ $REPLY == TLP_ENABLE=* ]]; then
+		IFS='=' read Key Value <<< "$REPLY"
 
-while IFS='=' read -a Line; do
-	if [[ ${Line[0]} == \#* ]]; then
-		continue
-	elif [[ ${Line[0]} == TLP_ENABLE ]]; then
-		if (( ${Line[1]} == 1 )); then
-			if ! sed -i 's/\(TLP_ENABLE=\)1/\10/' "$WorkFile"; then
-				Err 1 "Parameter 'TLP_ENABLE' unsuccessfully set to '1'."
-			fi
-		elif (( ${Line[1]} == 0 )); then
-			if ! sed -i 's/\(TLP_ENABLE=\)0/\11/' "$WorkFile"; then
-				Err 1 "Parameter 'TLP_ENABLE' unsuccessfully set to '0'."
-			fi
+		# Avoid clobbering trailing comment.
+		ValueInt=${Value%% *}
+		ValueRest=${Value#* }
+		if (( ValueInt == 0 )); then
+			OutLines+=("$Key=1 $ValueRest")
+			Changed=1
+		elif (( ValueInt == 1 )); then
+			OutLines+=("$Key=0 $ValueRest")
+			Changed=0
 		else
-			Err 1 "Invalid 'TLP_ENABLE' parameter assignment."
+			Err 0 'Unexpected value found -- ignoring.'
 		fi
-
-		break
+	else
+		OutLines+=("$REPLY")
 	fi
-done < "$WorkFile"
+done < "$File"
+
+# Only write to file if a change was made.
+if [[ -n $Changed ]]; then
+	printf '%s\n' "${OutLines[@]}" > "$File"
+
+	case $Changed in
+		1) printf 'TLP enabled.\n' ;;
+		0) printf 'TLP disabled.\n' ;;
+	esac
+fi
