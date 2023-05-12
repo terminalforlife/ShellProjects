@@ -1,179 +1,235 @@
-#!/bin/bash
-
-#----------------------------------------------------------------------------------
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/freelfm
+#------------------------------------------------------------------------------
 # Project Name      - Extra/source/freelfm
 # Started On        - Fri 15 Sep 21:19:42 BST 2017
-# Last Change       - Wed 15 Dec 23:58:31 GMT 2021
+# Last Change       - Fri 12 May 04:20:20 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
-#----------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Download last.fm's free music into the current working directory.
+#
+# The current max page is 12. The total number is 220+ MP3 tracks. Except the
+# tracks themselves, the files are saved in '/tmp'.
+#
+# Features:
+#
+#TODO: Finish final `$PowerAct` section.
+#TODO: Consider a more helpful description and flag usage for acting.
+#TODO: Getting max page, but not telling user what the valid range is.
+#TODO: Add support for cURL, with it taking precedence.
+#
+# Bugs:
+#
+#TODO: Page 1 is downloaded twice. Store page 1 in variable if it's requested.
+#TODO: Multiple duplicate pages can be provided by the user -- handle this.
+#
+# Dependencies:
+#
+#   coreutils (>= 8.25-2)
+#   wget (>= 1.17.1-1)
+#------------------------------------------------------------------------------
 
-_VERSION_="2021-12-15"
-_PROJECT_=${0##*/}
+CurVer='2023-05-12'
+Progrm=${0##*/}
 
-Err(){
+Usage() {
+	read -d '' <<-EOF
+		Usage: $Progrm [OPTS] PAGE [PAGE ...]
+
+		  -h, --help               - Displays this help information.
+		  -v, --version            - Output only the version datestamp.
+		  -a, --act {sd|ss}        - When done, either shut down or suspend.
+		  -O, --links-only         - List download URLs instead of downloading.
+	EOF
+
+	printf '%s' "$REPLY"
+}
+
+Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
 
-USAGE(){
-	while read -r; do
-		printf "%s\n" "$REPLY"
-	done <<-EOF
-		            ${_PROJECT_^^} ($_VERSION_)
-		            Written by terminalforlife <terminalforlife@yahoo.com>
+LinksOnly=
+PowerAct=
+PageURL='https://www.last.fm/music/+free-music-downloads?page'
 
-		            Download last.fm's free music into the current working directory.
-
-		SYNTAX:     $_PROJECT_ [OPTS] <page#> <page#> <page#> . . .
-
-		OPTS:       --help|-h|-?            - Displays this help information.
-		            --version|-v            - Output only the version datestamp.
-		            --debug|-D              - Enables the built-in bash debugging.
-		            --links-only            - Don't download, just save the true, direct
-		                                      download links to a file. See FILES.
-		            --suspend|-s            - Suspend the system after $_PROJECT_ finishes.
-		            --shutdown|-S           - Shut the system down after $_PROJECT_ finishes.
-
-		NOTE:       The current max page is 12. The total number is 220+ MP3 tracks.
-
-		FILES:      The $_PROJECT_ files (except tracks) are saved in /tmp, for example:
-
-		            STDOUT and STDERR are logged into this file.
-
-		              ${_PROJECT_}_2017-09-01_21:25:47.log
-
-		            Each page is downloaded and then parsed for download links.
-
-		              ${_PROJECT_}_p2_2017-09-01_21:25:47.htm
-
-		            If you choose the --links-only flag, they will be saved here.
-
-		              ${_PROJECT_}_links_2017-09-01_21:25:47.txt
-
-		SITE:       https://www.last.fm
-	EOF
-}
-
-LINKSONLY='false'
-
-while [ "$1" ]; do
+while [[ -n $1 ]]; do
 	case $1 in
-		--help|-h|-\?)
-			USAGE; exit 0 ;;
+		--help|-h)
+			Usage; exit 0 ;;
 		--version|-v)
-			printf "%s\n" "$_VERSION_"; exit 0 ;;
-		--debug|-D)
-			DEBUGME='true' ;;
-		--suspend|-s)
-			SUSPEND='true' ;;
-		--shutdown|-S)
-			SHUTDOWN='true' ;;
-		--links-only)
-			LINKSONLY='true' ;;
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--act|-a)
+			case ${2,,} in
+				ss|sd)
+					PowerAct=$2 ;;
+				'')
+					Err 1 "Option '$1' requires an argument." ;;
+				*)
+					Err 1 "Option '$1' given invalid argument." ;;
+			esac
+			shift ;;
+		-O|--links-only)
+			LinksOnly='True' ;;
 		-*)
-			Err 1 "Incorrect argument(s) specified." ;;
+			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
 			break ;;
 	esac
 	shift
 done
 
-declare -i DEPCOUNT=0
-for DEP in tee wget sync sleep sed grep mkdir; {
-	if ! type -P "$DEP" > /dev/null 2>&1; then
-		Err 0 "Dependency '$DEP' not met."
-		DEPCOUNT+=1
+DepCount=0
+for CurDep in mkdir mktemp wget; {
+	if ! type -P "$CurDep" &> /dev/null; then
+		Err 0 "Dependency '$CurDep' not met."
+		(( DepCount++ ))
 	fi
 }
 
-[ $DEPCOUNT -gt 0 ] && exit 1
+(( DepCount > 0 )) && exit 1
 
+(( $# == 0 )) && Err 1 "Page number(s) required -- see: $Progrm -h"
 
-if ! [ "$*" ]; then
-	Err 1 "One or more page numbers missing."
-else
-	PAGENUM="$@"
-	for NUM in $PAGENUM; {
-		if ! [[ $NUM == [0-9] ]]; then
-			Err 1 "Invalid page number at: $NUM"
-		fi
-	}
-fi
+#----------------------------------------------------------------Main Functions
 
-# Newer versions of wget by default request unwanted server-side compression.
-read -a WGET_VER_LINE <<< "$(wget --version)"
-[ 0${WGET_VER_LINE[2]//[!0-9]} -ge 01192 ] && NOWARC="--no-warc-compression"
+SigHandler() {
+	Sig=$?
 
-[ "$DEBUGME" == 'true' ] && set -x
+	rm -r "$TempDir"
 
-DLDIR="./"
-printf -v CURDATE "%(%F_%X)T" -1
-SITEURL="https://www.last.fm/music/+free-music-downloads?page="
-LINKSONLY_FILE="/tmp/${_PROJECT_}_links_${CURDATE}.txt"
-LOGFILE="/tmp/${_PROJECT_}_${CURDATE}.log"
+	exit $Sig
+}
 
-for PAGE in $PAGENUM; {
-	SITETMP="/tmp/${_PROJECT_}_${PAGE}_${CURDATE}.htm"
+# I know this can be done in a simple way using BASH's parameter expansion's
+# pattern substitution, but this was a huge pain to figure out, and I'm quite
+# proud of it, so it's here to stay. After testing, it turns out this method
+# is ever so slightly faster, although it took 1000 iterations to even notice
+# that negible amount.
+#
+# It was mainly a pain because there was an annoying gotcha with seemingly
+# empty characters returned by `printf`, but in-fact they simply wern't
+# printable, hence the POSIX character class.
+#
+# To avoid using command substitution when using this function, it would be
+# best to make use of a name reference via `declare`. I'll get around to that
+# eventually.
+DecodeURL() {
+	URL=$1
 
-	printf "%s\n" "PAGE: $PAGE"
-	wget $NOWARC -q "${SITEURL}${PAGE}" -O "$SITETMP"
-
-	TITLELINK=$(
-		grep -e "title=\".* — .*\"" -oe "https://.*\.mp3" "$SITETMP"\
-			| sed 's/\s/_/g; s/&amp\;/\&/g; s/—/-/g'
-	)
-
-	for LINK in $TITLELINK; {
-		if [[ $LINK == title=* ]]; then
-			TITLE=$(
-				printf "%s\n" "${LINK//_/ }"\
-					| sed -e s/\&amp\;/\&/ -e s/^title=//\
-						   -e s/\"//g -e s/\&\#39\;/\'/g
-			)
-		else
-			if ! [ "$LINKSONLY" == 'true' ]; then
-				printf "%s\n" "FILE: ${TITLE}.mp3"
-				wget -qc --no-cookies $NOWARC \
-					"$LINK" -O "$DLDIR/${TITLE//\"}.mp3" || {
-					Err 0 "Track '${TITLE}.mp3' failed."
-				}
-			else
-				printf "%s\n" "LINK: ${TITLE}.mp3"
-				printf "%s\n" "$LINK" >> "$LINKSONLY_FILE"
+	OutChars=
+	HexChars=
+	HexFound=
+	Len=${#URL}
+	for (( Index = 0; Index < Len; Index++ )); {
+		CurChar=${URL:Index:1}
+		if [[ $HexFound == True ]]; then
+			HexChars+=$CurChar
+			printf -v HexTest "\x$HexChars"
+			if [[ $HexTest == [[:print:]] ]]; then
+				OutChars+=$HexTest
+				HexFound=
+				HexChars=
 			fi
+		elif [[ $CurChar == % ]]; then
+			HexFound='True'
+		else
+			OutChars+=$CurChar
 		fi
 	}
-} |& tee "$LOGFILE"
 
-if [ "$SHUTDOWN" == 'true' ]; then
-	shutdown +3 > /dev/null 2>&1
-	printf "%s\n" "Shutting down in 3 minutes..."
-	MSG="Type 'C' to cancel, or 'N' to shutdown now: "
-	read -n 1 -e -p "$MSG" SHUTDOWN_PROMPT
-	case ${SHUTDOWN_PROMPT:-EMPTY} in
-		[Cc])
-			shutdown --no-wall -c
-			exit 0 ;;
-		[Nn])
-			shutdown --no-wall now ;;
-		EMPTY|*)
-			printf "%s\n" "Incorrect response. Quitting." 1>&2
-			exit 1 ;;
-	esac
-fi
+	printf '%s\n' "$OutChars"
+}
 
-if [ "$SUSPEND" == 'true' ]; then
-	/bin/sync
-	printf "%s\n" "System will suspend in 3s; type Ctrl+C to cancel."
-	/bin/sleep 3
+#----------------------------------------------------Determine Valid Page Range
 
-	if type -P systemctl > /dev/null 2>&1; then
-		systemctl suspend
-	elif type -P pm-suspend > /dev/null 2>&1; then
-		pm-suspend
-	else
-		Err 1 "Unable to find a supported suspend method."
+PagesFound=(1)
+while read; do
+	if [[ $REPLY == *'<a href="?page='+([[:digit:]])'">'* ]]; then
+		for Digits in ${REPLY//[^[:digit:]]/ }; {
+			FoundDupe=
+			for Page in "${PagesFound[@]}"; {
+				if [[ $Page == $Digits ]]; then
+					FoundDupe='True'
+
+					break
+				fi
+			}
+
+			[[ $FoundDupe == True ]] || PagesFound+=($Digits)
+		}
 	fi
+done <<< "$(wget -qO - "$PageURL=1")"
+
+# Ensure we know the maximum page by sorting.
+Len=${#PagesFound[@]}
+for (( Iter = 0; Iter <= Len; Iter++ )); {
+	Switched='False'
+	for (( Index = 0; Index < Len - (1 + Iter); Index++ )); {
+		if (( ${PagesFound[Index]} < ${PagesFound[Index + 1]} )); then
+			Temp=${PagesFound[Index]}
+			PagesFound[Index]=${PagesFound[Index + 1]}
+			PagesFound[Index + 1]=$Temp
+
+			Switched='True'
+		fi
+	}
+
+	[[ $Switched == False ]] && break
+}
+
+PageMax=${PagesFound[0]}
+
+#----------------------------------Fetch List of Track URLs Per the Valid Pages
+
+TempDir=`mktemp -d`
+
+trap SigHandler EXIT INT
+
+for PageNr; {
+	if [[ $PageNr != +([0-9]) ]]; then
+		Err 0 "Page number '$PageNr' invalid."
+		continue
+	elif ! (( PageNr >= 1 && PageNr <= PageMax )); then
+		Err 0 "Page number '$PageNr' not found."
+		continue
+	fi
+
+	CurPageURL="$PageURL=$PageNr"
+
+	# Grab direct download link for each track.
+	TrackURLs=()
+	while read; do
+		if [[ $REPLY == *\"https:*.mp3\"* ]]; then
+			FileURL=${REPLY#*https://}
+			FileURL=${FileURL%.mp3*}
+			FileURL="https://$FileURL.mp3"
+			TrackURLs+=("$FileURL")
+		fi
+	done <<< "$(wget -qO - "$CurPageURL")"
+}
+
+#-------------------------------------------Begin Downloading or Listing Tracks
+
+if [[ $LinksOnly == True ]]; then
+	printf '%s\n' "${TrackURLs[@]}"
+else
+	for TrackURL in "${TrackURLs[@]}"; {
+		TrackName=${TrackURL##*/}
+		TrackName=${TrackName%.mp3}
+
+		# Cleanse the filename for our local version.
+		TrackName=${TrackName//+/ }
+		TrackName=`DecodeURL "$TrackName"`
+
+		wget -qc --show-progress -O ./"$TrackName".mp3 "$TrackURL"
+	}
 fi
 
+#---------------------------------------------------------------------Finish Up
+
+if [[ -n $PowerAct ]]; then
+	:
+fi
