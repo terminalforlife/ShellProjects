@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/freelfm
 # Started On        - Fri 15 Sep 21:19:42 BST 2017
-# Last Change       - Fri 12 May 04:20:20 BST 2023
+# Last Change       - Fri 12 May 22:46:13 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,16 +12,20 @@
 # The current max page is 12. The total number is 220+ MP3 tracks. Except the
 # tracks themselves, the files are saved in '/tmp'.
 #
+# Downloaded tracks will not clobber those partially-downloaded.
+#
+# Does not show you a total number of tracks available, because that would
+# require unnecessarily parsing every single page, when the user might not want
+# all of them. Therefore, not providing this output seems more respectiful to
+# the server(s) hosting the tracks. As a result, FreeLFM is faster.
+#
 # Features:
 #
-#TODO: Finish final `$PowerAct` section.
-#TODO: Consider a more helpful description and flag usage for acting.
-#TODO: Getting max page, but not telling user what the valid range is.
-#TODO: Add support for cURL, with it taking precedence.
+#TODO: Add a target directory flag.
+#TODO: Provide range feature as an argument. Like `freelfm 2-7`. Think WCDL.
 #
 # Bugs:
 #
-#TODO: Page 1 is downloaded twice. Store page 1 in variable if it's requested.
 #TODO: Multiple duplicate pages can be provided by the user -- handle this.
 #
 # Dependencies:
@@ -82,8 +86,10 @@ while [[ -n $1 ]]; do
 done
 
 DepCount=0
-for CurDep in mkdir mktemp wget; {
+for CurDep in wget sleep systemctl; {
 	if ! type -P "$CurDep" &> /dev/null; then
+		[[ $CurDep == systemctl && -z $PowerAct ]] && continue
+
 		Err 0 "Dependency '$CurDep' not met."
 		(( DepCount++ ))
 	fi
@@ -95,29 +101,16 @@ for CurDep in mkdir mktemp wget; {
 
 #----------------------------------------------------------------Main Functions
 
-SigHandler() {
-	Sig=$?
-
-	rm -r "$TempDir"
-
-	exit $Sig
-}
-
 # I know this can be done in a simple way using BASH's parameter expansion's
 # pattern substitution, but this was a huge pain to figure out, and I'm quite
 # proud of it, so it's here to stay. After testing, it turns out this method
 # is ever so slightly faster, although it took 1000 iterations to even notice
 # that negible amount.
 #
-# It was mainly a pain because there was an annoying gotcha with seemingly
-# empty characters returned by `printf`, but in-fact they simply wern't
-# printable, hence the POSIX character class.
-#
-# To avoid using command substitution when using this function, it would be
-# best to make use of a name reference via `declare`. I'll get around to that
-# eventually.
+# Usage: DecodeURL VARIABLE URL
 DecodeURL() {
-	URL=$1
+	declare -n Return=$1
+	URL=$2
 
 	OutChars=
 	HexChars=
@@ -127,7 +120,18 @@ DecodeURL() {
 		CurChar=${URL:Index:1}
 		if [[ $HexFound == True ]]; then
 			HexChars+=$CurChar
+			HexTest="\x$HexChars"
+
+			# Have to use `printf` here, due to limitations of shell. I could
+			# use the $'...' syntax, but the shell won't allow a variable
+			# where the elipsis is, and you weirdly must use single-quotes. The
+			# only way I know around that is to use `eval`, unfortunately.
+			#
+			# Note that `printf` will spit out a null value if so-called not
+			# valid. Hence using the character class to check it's actually
+			# printable, vs. just checking the variable is not empty.
 			printf -v HexTest "\x$HexChars"
+
 			if [[ $HexTest == [[:print:]] ]]; then
 				OutChars+=$HexTest
 				HexFound=
@@ -135,17 +139,28 @@ DecodeURL() {
 			fi
 		elif [[ $CurChar == % ]]; then
 			HexFound='True'
+		elif [[ $CurChar == '+' ]]; then
+			OutChars+=' '
 		else
 			OutChars+=$CurChar
 		fi
 	}
 
-	printf '%s\n' "$OutChars"
+	Return=$OutChars
+}
+
+Info() {
+	[[ $LinksOnly == True ]] || printf '%s\n' "$1"
 }
 
 #----------------------------------------------------Determine Valid Page Range
 
-PagesFound=(1)
+Info 'Looking for available pages.'
+
+# Kinder to the servers if page 1 is later requested.
+Page1Data=`wget -qO - "$PageURL=1"`
+
+PagesFound=()
 while read; do
 	if [[ $REPLY == *'<a href="?page='+([[:digit:]])'">'* ]]; then
 		for Digits in ${REPLY//[^[:digit:]]/ }; {
@@ -161,7 +176,7 @@ while read; do
 			[[ $FoundDupe == True ]] || PagesFound+=($Digits)
 		}
 	fi
-done <<< "$(wget -qO - "$PageURL=1")"
+done <<< "$Page1Data"
 
 # Ensure we know the maximum page by sorting.
 Len=${#PagesFound[@]}
@@ -182,11 +197,9 @@ for (( Iter = 0; Iter <= Len; Iter++ )); {
 
 PageMax=${PagesFound[0]}
 
+Info "Found $PageMax available page(s)."
+
 #----------------------------------Fetch List of Track URLs Per the Valid Pages
-
-TempDir=`mktemp -d`
-
-trap SigHandler EXIT INT
 
 for PageNr; {
 	if [[ $PageNr != +([0-9]) ]]; then
@@ -197,18 +210,33 @@ for PageNr; {
 		continue
 	fi
 
+	Info "Scanning page $PageNr."
+
 	CurPageURL="$PageURL=$PageNr"
+
+	if (( PageNr == 1 )); then
+		PageData=$Page1Data
+	else
+		PageData=`wget -qO - "$CurPageURL"`
+	fi
+
+	Info 'Looking for tracks.'
 
 	# Grab direct download link for each track.
 	TrackURLs=()
+	TrackTotal=0
 	while read; do
 		if [[ $REPLY == *\"https:*.mp3\"* ]]; then
 			FileURL=${REPLY#*https://}
 			FileURL=${FileURL%.mp3*}
 			FileURL="https://$FileURL.mp3"
 			TrackURLs+=("$FileURL")
+
+			(( TrackTotal++ ))
 		fi
-	done <<< "$(wget -qO - "$CurPageURL")"
+	done <<< "$PageData"
+
+	Info "Found $TrackTotal track(s) on page $PageNr."
 }
 
 #-------------------------------------------Begin Downloading or Listing Tracks
@@ -218,18 +246,34 @@ if [[ $LinksOnly == True ]]; then
 else
 	for TrackURL in "${TrackURLs[@]}"; {
 		TrackName=${TrackURL##*/}
-		TrackName=${TrackName%.mp3}
 
 		# Cleanse the filename for our local version.
-		TrackName=${TrackName//+/ }
-		TrackName=`DecodeURL "$TrackName"`
+		DecodeURL TrackName "$TrackName"
 
-		wget -qc --show-progress -O ./"$TrackName".mp3 "$TrackURL"
+		Info "Found: ${TrackName%.mp3}"
+		if wget -qc -O ./"$TrackName" "$TrackURL"; then
+			Info 'Downloaded successful.'
+		else
+			Info 'Error(s) detected.'
+		fi
 	}
 fi
 
-#---------------------------------------------------------------------Finish Up
+Info 'Finished!'
+
+#-------------------------------------------------Power Down or Suspend Machine
 
 if [[ -n $PowerAct ]]; then
-	:
+	read -d '' <<-EOF
+		WARNING: System shutdown in 30 seconds!
+		         Press Ctrl + C to cancel, ...
+	EOF
+
+	printf '%s' "$REPLY"
+
+	sleep 30s || exit 0
+	case $PowerAct in
+		sd) systemctl shutdown ;;
+		ss) systemctl suspend ;;
+	esac
 fi
