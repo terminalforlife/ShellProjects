@@ -3,14 +3,13 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/freelfm
 # Started On        - Fri 15 Sep 21:19:42 BST 2017
-# Last Change       - Fri 12 May 22:46:13 BST 2023
+# Last Change       - Fri 12 May 23:03:58 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Download last.fm's free music into the current working directory.
 #
-# The current max page is 12. The total number is 220+ MP3 tracks. Except the
-# tracks themselves, the files are saved in '/tmp'.
+# 2023-05-12: Currently 12 pages holding 220+ MP3 tracks.
 #
 # Downloaded tracks will not clobber those partially-downloaded.
 #
