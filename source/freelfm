@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/freelfm
 # Started On        - Fri 15 Sep 21:19:42 BST 2017
-# Last Change       - Fri 12 May 23:03:58 BST 2023
+# Last Change       - Fri 12 May 23:07:27 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -251,7 +251,7 @@ else
 
 		Info "Found: ${TrackName%.mp3}"
 		if wget -qc -O ./"$TrackName" "$TrackURL"; then
-			Info 'Downloaded successful.'
+			Info 'Download successful.'
 		else
 			Info 'Error(s) detected.'
 		fi
