@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 16 Feb 02:45:02 GMT 2022
+# Last Change       - Mon 15 May 02:34:47 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-16'
+CurVer='2023-05-15'
 Progrm='csi3'
 
 Usage() {
@@ -137,6 +137,8 @@ for Place in "${Places[@]}"; {
 # which should be removed with Parameter Expansion before being used.
 Capitalize() { printf '%s+' "${@^}"; }
 
+declare -A Bindings=();
+
 Count=0
 KeysLenMax=0
 while read Line; do
@@ -210,7 +212,7 @@ while read Line; do
 
 			# Using the `$Count` variable in order to maintain the original
 			# order, otherwise BASH will butcher the order, unfortunately.
-			declare -A Bindings["${Count}_$Keys"]=$Action ;;
+			Bindings["${Count}_$Keys"]=$Action ;;
 	esac
 done < "$File"
 
