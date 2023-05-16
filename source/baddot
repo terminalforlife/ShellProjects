@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/baddot
 # Started On        - Tue 16 May 02:41:55 BST 2023
-# Last Change       - Tue 16 May 16:55:09 BST 2023
+# Last Change       - Tue 16 May 17:29:49 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -89,72 +89,76 @@ shopt -s dotglob nullglob
 
 #---------------------------------------------------Begin Scanning and Reporting
 
+#TODO Not working recursively in the first directory, but is the last/rest.
+
 Found=
 PrintDir=
 FoundTTL=0
 Pointers=()
-for Dir in "$@"/$Glob; {
-	File=${Dir##*/}
+for ArgDir; {
+	for Dir in "${ArgDir%/}"/$Glob; {
+		File=${Dir##*/}
 
-	# This block is neutered in < BASH 4.2.
-	Len=${#File}
-	for (( Char = 0; Char < Len; Char++ )); {
-		if [[ ${File:Char:1} == $'\u2024' ]]; then
-			(( FoundTTL++ ))
-
-			Found='True'
-			Pointers+=($Char)
-		fi
-	}
-
-	if [[ $Found == True ]]; then
-		if [[ $Dir == $HOME/* ]]; then
-			PrintDir="~${Dir#$HOME}"
-		else
-			PrintDir=$Dir
-		fi
-
-		PrintDir=${PrintDir%/*}
-
-		# Don't keep spamming the same directories.
-		[[ $PrintDir != "$PrintDirLast" ]] && printf '%s/\n' "$PrintDir"
-		PrintDirLast=$PrintDir
-
-		printf '  > "%s"\n' "$File"
-
-		Out='     '
+		# This block is neutered in < BASH 4.2.
+		Len=${#File}
 		for (( Char = 0; Char < Len; Char++ )); {
-			for Pointer in "${Pointers[@]}"; {
-				if (( Pointer == Char )); then
-					UsePointer='True'
+			if [[ ${File:Char:1} == $'\u2024' ]]; then
+				(( FoundTTL++ ))
 
-					break
-				fi
-			}
-
-			if [[ $UsePointer == True ]]; then
-				Out+='^'
-
-				UsePointer=
-			else
-				Out+=' '
+				Found='True'
+				Pointers+=($Char)
 			fi
 		}
 
-		printf '%s\n' "$Out"
+		if [[ $Found == True ]]; then
+			if [[ $Dir == $HOME/* ]]; then
+				PrintDir="~${Dir#$HOME}"
+			else
+				PrintDir=$Dir
+			fi
 
-		# In-case of wide characters. This also aids automation to remove or
-		# better identify and confirm questionable characters.
-		#printf '     Indices:\n'
-		for Pointer in "${Pointers[@]}"; {
-			printf '     - %d\n' $Pointer
-		}
+			PrintDir=${PrintDir%/*}
 
-		printf '\n'
+			# Don't keep spamming the same directories.
+			[[ $PrintDir != "$PrintDirLast" ]] && printf '%s/\n' "$PrintDir"
+			PrintDirLast=$PrintDir
 
-		Found=
-		Pointers=()
-	fi
+			printf '  > "%s"\n' "$File"
+
+			Out='     '
+			for (( Char = 0; Char < Len; Char++ )); {
+				for Pointer in "${Pointers[@]}"; {
+					if (( Pointer == Char )); then
+						UsePointer='True'
+
+						break
+					fi
+				}
+
+				if [[ $UsePointer == True ]]; then
+					Out+='^'
+
+					UsePointer=
+				else
+					Out+=' '
+				fi
+			}
+
+			printf '%s\n' "$Out"
+
+			# In-case of wide characters. This also aids automation to remove or
+			# better identify and confirm questionable characters.
+			#printf '     Indices:\n'
+			for Pointer in "${Pointers[@]}"; {
+				printf '     - %d\n' $Pointer
+			}
+
+			printf '\n'
+
+			Found=
+			Pointers=()
+		fi
+	}
 }
 
 if (( FoundTTL > 0 )); then
