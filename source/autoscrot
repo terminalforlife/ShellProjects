@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoscrot
 # Started On        - Sun 17 Sep 05:06:50 BST 2017
-# Last Change       - Thu 13 Jan 20:24:35 GMT 2022
+# Last Change       - Tue 16 May 20:51:54 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,14 +16,12 @@
 #   scrot (>= 0.8-17)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-13'
+CurVer='2023-05-16'
 Progrm='autoscrot'
 ProgrmFancy='AutoScrot'
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS] [SCROT_ARGS]
 
 		  -h, --help               - Display this help information.
@@ -40,6 +38,8 @@ Usage() {
 
 		  Screenshots will be saved in: '~/Pictures/AutoScrot'
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
@@ -47,6 +47,7 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+Interval=3
 MainDir="$HOME/Pictures/AutoScrot"
 
 while [[ -n $1 ]]; do
@@ -58,7 +59,7 @@ while [[ -n $1 ]]; do
 		--interval|-I)
 			if [[ -z $1 ]]; then
 				Err 1 "Option '$ArgInterval' requires an argument."
-			elif ! [[ $2 =~ ^[0-9]+$ ]] || (( $2 < 1 )); then
+			elif ! [[ $2 == +([[:digit:]]) ]] || (( $2 < 1 )); then
 				Err 1 'Invalid interval selected.'
 			else
 				Interval=$2
@@ -87,7 +88,7 @@ for Dep in scrot mkdir; {
 printf 'Press Ctrl + C to cancel and exit %s.\n' "$ProgrmFancy"
 
 while :; do
-	read -n 1 -st ${Interval:-3}
+	read -n 1 -st $Interval
 
 	[[ -d $MainDir ]] || mkdir -p "$MainDir"
 	printf -v Filename "%s/Screenshot_%(%F_%X)T.jpg" $MainDir -1
