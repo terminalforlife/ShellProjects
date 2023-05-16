@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/baddot
 # Started On        - Tue 16 May 02:41:55 BST 2023
-# Last Change       - Tue 16 May 04:24:02 BST 2023
+# Last Change       - Tue 16 May 16:55:09 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 # for suspicious 'dot' Unicode ('\u2024'), which is especially associated with
 # but not necessarily exclusively for a recently-surfaced PDF malware.
 #
-# Any non-arguments handed to Baddot are looked for and their filenames
+# Any non-option arguments handed to Baddot are looked for and their filenames
 # scanned. Here, 'file' means anything, Linux style. If it has a name, it will
 # be checked!
 #
@@ -40,14 +40,17 @@ Progrm=${0##*/}
 
 Usage() {
 	read -d '' <<-EOF
-		Usage: $Progrm [OPTS] [FILE] [FILE ...]
+		Usage: $Progrm [OPTS] [DIR] [DIR ...]
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  -r, --recursive          - Traverse subdirectories recursively.
 
-		Any type of file will be checked, including directories. By default, -
-		the current working directory will be scanned. Hidden files and
-		directories will also be included.
+		All provided directories will be checked for files and directories, -
+		including those which are hidden, whose names hide suspicious 'dot'
+		Unicode. By default, the current working directory will be scanned.
+
+		The use of '--' to ignore proceeding options is supported.
 	EOF
 
 	printf '%s' "$REPLY"
@@ -58,12 +61,20 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+Glob='*'
+
 while [[ -n $1 ]]; do
 	case $1 in
+		--)
+			break ;;
 		--help|-h)
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
+		--recursive|-r)
+			shopt -s globstar
+
+			Glob='**' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -72,16 +83,18 @@ while [[ -n $1 ]]; do
 	shift
 done
 
-shopt -s dotglob
+(( $# == 0 )) && set -- .
 
-(( $# == 0 )) && set -- *
+shopt -s dotglob nullglob
+
+#---------------------------------------------------Begin Scanning and Reporting
 
 Found=
+PrintDir=
 FoundTTL=0
 Pointers=()
-for File; {
-	Path=$File
-	File=${Path##*/}
+for Dir in "$@"/$Glob; {
+	File=${Dir##*/}
 
 	# This block is neutered in < BASH 4.2.
 	Len=${#File}
@@ -95,7 +108,18 @@ for File; {
 	}
 
 	if [[ $Found == True ]]; then
-		printf '%s/\n' "$(dirname "$Path")"
+		if [[ $Dir == $HOME/* ]]; then
+			PrintDir="~${Dir#$HOME}"
+		else
+			PrintDir=$Dir
+		fi
+
+		PrintDir=${PrintDir%/*}
+
+		# Don't keep spamming the same directories.
+		[[ $PrintDir != "$PrintDirLast" ]] && printf '%s/\n' "$PrintDir"
+		PrintDirLast=$PrintDir
+
 		printf '  > "%s"\n' "$File"
 
 		Out='     '
@@ -121,7 +145,7 @@ for File; {
 
 		# In-case of wide characters. This also aids automation to remove or
 		# better identify and confirm questionable characters.
-		printf '     Indices:\n'
+		#printf '     Indices:\n'
 		for Pointer in "${Pointers[@]}"; {
 			printf '     - %d\n' $Pointer
 		}
