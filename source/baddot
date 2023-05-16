@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/bin/baddot
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/baddot
+# Started On        - Tue 16 May 02:41:55 BST 2023
+# Last Change       - Tue 16 May 04:24:02 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# A purely BASH tool to search file and directory names character by character
+# for suspicious 'dot' Unicode ('\u2024'), which is especially associated with
+# but not necessarily exclusively for a recently-surfaced PDF malware.
+#
+# Any non-arguments handed to Baddot are looked for and their filenames
+# scanned. Here, 'file' means anything, Linux style. If it has a name, it will
+# be checked!
+#
+# As Baddot scans, you should expect to see a list of directories in which it
+# is searching for the questionable 'dot' Unicode. If anything is found, the
+# filenames will be clearly listed, the suspect characters pointed out, and
+# each suspect character's substring listed for reference or parsing.
+#
+# If checking exit statuses, you'll want 2 and NOT want 0.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.2)
+#------------------------------------------------------------------------------
+
+CurVer='2023-05-16'
+Progrm=${0##*/}
+
+Usage() {
+	read -d '' <<-EOF
+		Usage: $Progrm [OPTS] [FILE] [FILE ...]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+
+		Any type of file will be checked, including directories. By default, -
+		the current working directory will be scanned. Hidden files and
+		directories will also be included.
+	EOF
+
+	printf '%s' "$REPLY"
+}
+
+Err() {
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
+while [[ -n $1 ]]; do
+	case $1 in
+		--help|-h)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+shopt -s dotglob
+
+(( $# == 0 )) && set -- *
+
+Found=
+FoundTTL=0
+Pointers=()
+for File; {
+	Path=$File
+	File=${Path##*/}
+
+	# This block is neutered in < BASH 4.2.
+	Len=${#File}
+	for (( Char = 0; Char < Len; Char++ )); {
+		if [[ ${File:Char:1} == $'\u2024' ]]; then
+			(( FoundTTL++ ))
+
+			Found='True'
+			Pointers+=($Char)
+		fi
+	}
+
+	if [[ $Found == True ]]; then
+		printf '%s/\n' "$(dirname "$Path")"
+		printf '  > "%s"\n' "$File"
+
+		Out='     '
+		for (( Char = 0; Char < Len; Char++ )); {
+			for Pointer in "${Pointers[@]}"; {
+				if (( Pointer == Char )); then
+					UsePointer='True'
+
+					break
+				fi
+			}
+
+			if [[ $UsePointer == True ]]; then
+				Out+='^'
+
+				UsePointer=
+			else
+				Out+=' '
+			fi
+		}
+
+		printf '%s\n' "$Out"
+
+		# In-case of wide characters. This also aids automation to remove or
+		# better identify and confirm questionable characters.
+		printf '     Substrings:\n'
+		for Pointer in "${Pointers[@]}"; {
+			printf '     - %d:1\n' $Pointer
+		}
+
+		printf '\n'
+
+		Found=
+		Pointers=()
+	fi
+}
+
+if (( FoundTTL > 0 )); then
+	printf 'WARNING: Found %d suspicious Unicode character(s).\n' $FoundTTL
+	exit 0
+else
+	exit 2
+fi
