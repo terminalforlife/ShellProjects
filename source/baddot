@@ -18,7 +18,7 @@
 # As Baddot scans, you should expect to see a list of directories in which it
 # is searching for the questionable 'dot' Unicode. If anything is found, the
 # filenames will be clearly listed, the suspect characters pointed out, and
-# each suspect character's substring listed for reference or parsing.
+# each suspect character's index listed for reference or parsing.
 #
 # If checking exit statuses, you'll want 2 and NOT want 0.
 #
@@ -121,9 +121,9 @@ for File; {
 
 		# In-case of wide characters. This also aids automation to remove or
 		# better identify and confirm questionable characters.
-		printf '     Substrings:\n'
+		printf '     Indices:\n'
 		for Pointer in "${Pointers[@]}"; {
-			printf '     - %d:1\n' $Pointer
+			printf '     - %d\n' $Pointer
 		}
 
 		printf '\n'
