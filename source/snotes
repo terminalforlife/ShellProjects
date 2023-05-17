@@ -3,16 +3,21 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Thu 19 May 00:14:41 BST 2022
+# Last Change       - Wed 17 May 02:19:56 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# To use your own comment character, change the Comment variable. This feature
-# will eventually be included into snotes properly.
+# With as old as BASH 3.1 support and POSIX-compliant mkdir(1) usage, this
+# tool allows the user to view and filter notes. Snotes is intended for
+# programmers, but can absolutely be used outside of that realm.
 #
 # Features:
 #
-# N/A
+#TODO: Find a way to incorporate a multi-character comment string.
+#
+#      Prior to a recent overhaul of Snotes, this was a given feature.
+#      However, due to the sheer complexity and limitation of the new code put
+#      in place, only one comment character is so far supported.
 #
 # Bugs:
 #
@@ -20,38 +25,41 @@
 #
 # Dependencies:
 #
-#   bash (>= 4.4.20)
+#   bash (>= 3.1)
 #   coreutils (>= 8.28)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-19'
+CurVer='2023-05-17'
 Progrm='snotes'
 
 Usage() {
 	read -d '' <<-EOF
-		Usage: $Progrm [OPTS] [MATCH]
+		Usage: $Progrm [OPTS] [STRING]
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  -C, --comment STR        - Use STR as the single comment character.
+		  -C, --no-colors          - Disable ANSI color escape sequences.
+		  -c, --comment CHAR       - Use CHAR as the single comment character.
 		  -f, --file PATH          - Specify & remember the notes file to use.
+		  -n, --line-number        - Print line numbers in grep(1) style.
 
 		  The location of the file read by ${Progrm^} is saved here:
 
 		    ~${SnotesFile##*$HOME}
 
-		  Regular expressions are used for MATCH. Comment lines are ignored. To
-		  tell $Progrm when you wish to stop searching for MATCH, have a line
-		  in the notes file which contains only:
+		  Comment lines are ignored. To tell $Progrm when you wish to stop
+		  searching for STRING, add a line in the file containing only:
 
 		    ${Comment}END
 
 		  The default comment character is '$Comment'.
 
-		  The use of '--' to ignore proceeding flags is supported.
+		  The use of '--' to ignore proceeding flags is supported. The use of
+		  '-' to read from STDIN, instead of the assigned file, is also
+		  supported.
 	EOF
 
-	printf '%' "$REPLY"
+	printf '%s' "$REPLY"
 }
 
 Err() {
@@ -59,7 +67,15 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+BRed=$'\e[1;31m'
+Green=$'\e[32m'
+Cyan=$'\e[36m'
+Reset=$'\e[0m'
+
+NoColors=
+ReadSTDIN=
 Comment='#'
+LineNumber=
 SnotesFile="$HOME/.config/$Progrm.conf"
 
 while [[ -n $1 ]]; do
@@ -67,14 +83,20 @@ while [[ -n $1 ]]; do
 		--)
 			shift
 			break ;;
+		-)
+			ReadSTDIN='True' ;;
 		--help|-h)
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
-		--comment|-C)
+		-C|--no-colors|--no-colours)
+			NoColors='True' ;;
+		--comment|-c)
 			ArgComment=$1
 			if [[ -z $2 ]]; then
 				Err 1 "Option '$ArgComment' requires an argument."
+			elif (( ${#2} > 1 )); then
+				Err 1 "Option '$ArgComment' only supports a single character."
 			else
 				Comment=$2
 				shift
@@ -87,6 +109,8 @@ while [[ -n $1 ]]; do
 				NotesFile=$2
 				shift
 			fi ;;
+		--line-number|-n)
+			LineNumber='True' ;;
 		-*)
 			Err 1 'Incorrect argument(s) specified.' ;;
 		*)
@@ -108,42 +132,117 @@ if [[ -n $NotesFile ]]; then
 	[[ -d $ConfigDir ]] || mkdir -p "$ConfigDir"
 	printf '%s\n' "$NotesFile" > "$SnotesFile"
 
-	printf 'New location saved.\n'
+	printf 'NOTE: New location saved.\n'
 	exit 0
 fi
 
-[[ -r $SnotesFile ]] || Err 1 "File '$SnotesFile' unreadable."
-NotesFile=$(< "$SnotesFile")
+if [[ $ReadSTDIN == True ]]; then
+	NotesFile='/dev/stdin'
+else
+	[[ -r $SnotesFile ]] || Err 1 "File '$SnotesFile' unreadable."
+	NotesFile=$(< "$SnotesFile")
+
+	if ! [[ -f $NotesFile ]]; then
+		Err 1 'Notes file not found.'
+	elif ! [[ -r $NotesFile ]]; then
+		Err 1 'Notes file unreadable.'
+	fi
+fi
+
+#----------------------------------------------------------------Main Functions
+
+# Usage: PrintLine LINE_NUMBER LINE_DATA
+PrintLine() {
+	if [[ $LineNumber == True ]]; then
+		local NumberOut="$Green$1$Reset$Cyan:$Reset"
+	fi
+
+	printf '%s%s\n' "$NumberOut" "$2"
+}
 
 #--------------------------------------------------------Parse and Display Data
 
-if ! [[ -f $NotesFile ]]; then
-	Err 1 'Notes file not found.'
-elif ! [[ -r $NotesFile ]]; then
-	Err 1 'Notes file unreadable.'
+# Also allow removing colors when non-interactive (e.g., pipe).
+if [[ $NoColors == True || ! -t 1 ]]; then
+	BRed=
+	Green=
+	Cyan=
+	Reset=
 fi
 
-FinalLines=()
-while read -r CurLine; do
-	(( LineCount++ ))
+Match=$1
+MatchLen=${#Match}
 
-	[[ $CurLine == ${Comment}END ]] && break
-	if [[ $CurLine =~ ^($|$Comment) ]]; then
+Found=
+LineNr=0
+while read -r; do
+	(( LineNr++ ))
+
+	# Ignore standard comment lines and stop at '#END' line.
+	if [[ $REPLY == "${Comment}END" ]]; then
+		break
+	elif [[ ${REPLY:0:1} == "$Comment" ]]; then
 		continue
-	elif [[ $CurLine =~ $1 ]]; then
-		LineCountLen=${#LineCount}
-		if (( LineCountLen > LineCountLenMax )); then
-			LineCountLenMax=$LineCountLen
-		fi
+	fi
 
-		FinalLines+=("$LineCount:$CurLine")
+	if (( $# == 0 )) && [[ -n $REPLY && $REPLY != +([[:space:]]) ]]; then
+		PrintLine $LineNr "$REPLY"
+
+		continue
+	fi
+
+	MIndex=0
+	LineOut=
+	CurMatchRaw=
+	Len=${#REPLY}
+	for (( LIndex = 0; LIndex < Len; LIndex++ )); {
+		if [[ ${REPLY:LIndex:1} == "${Match:MIndex:1}" ]]; then
+			CurMatchRaw+=${REPLY:LIndex:1}
+
+			(( MIndex++ ))
+
+			if [[ $CurMatchRaw == "$Match" ]]; then
+				LineOut+="$BRed$CurMatchRaw$Reset"
+
+				# To help us print only lines with matches.
+				Found='True'
+			fi
+
+			# Very confusing, but required. If the first character of the
+			# target match is the last character of the line, the last
+			# character will be omitted from the final output. This addresses
+			# that.
+			#
+			# The alternative is to arbitrarily increase the length of the line
+			# by 1, but I'd be concerned of unexpected and undesired results.
+			if (( LIndex == Len - 1 )); then
+				if [[ ${REPLY:Len - 1:1} == "${Match:0:1}" ]]; then
+					LineOut+=${REPLY:LIndex:1}
+
+					break
+				fi
+			fi
+		else
+			# If found the first or last character of the match, but there's an
+			# incomplete match, then still send those characters to be printed.
+			if [[ -n $CurMatchRaw ]]; then
+				if [[ ${CurMatchRaw:-1:1} != ${Match:-1:1} ]]; then
+					LineOut+=${REPLY:LIndex - 1:1}
+				fi
+			fi
+
+			# Catch 'command not found' errors in < BASH 3.1.
+			LineOut+=${REPLY:LIndex:1} || exit $?
+
+			CurMatchRaw=
+			MIndex=0
+		fi
+	}
+
+	# Begin printing, if 1 or more matches were found on this line.
+	if [[ $Found == True ]]; then
+		PrintLine $LineNr "$LineOut"
+
+		Found=
 	fi
 done < "$NotesFile"
-
-for Line in "${FinalLines[@]}"; {
-	# Colorize the match, à la grep(1). Need to use the $'' syntax to use
-	# escape sequences properly, otherwise it won't work.
-	Line=${Line//$1/$'\e[91m'$1$'\e[0m'}
-
-	printf '\e[2;37m%*d\e[0m  %s\n' $LineCountLenMax ${Line%%:*} "${Line#*:}"
-}
