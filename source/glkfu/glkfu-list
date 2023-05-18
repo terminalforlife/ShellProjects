@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Sun  1 May 00:49:24 BST 2022
+# Last Change       - Thu 18 May 19:30:50 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ use LWP::Simple;
 
 no warnings 'uninitialized';
 
-use constant VERSION => '2022-05-01';
+use constant VERSION => '2023-05-18';
 use constant PROGRAM => 'glkfu-list';
 
 sub Usage() {
@@ -59,7 +59,6 @@ sub Usage() {
 }
 
 use constant DOMAIN => 'https://www.kernel.org';
-use constant RELEASES => DOMAIN . '/category/releases.html';
 
 my $DoColor = 1;
 my $AllKerns = 0;
@@ -78,18 +77,6 @@ while (defined($ARGV[0])) {
 	}
 
 	shift()
-}
-
-# Parse 'releases.html' page for the table of LTS kernels.
-my (@LongTerms);
-foreach (split("\n", get(RELEASES))) {
-	our $TableFound = 'True' if '<caption>Longterm release kernels</caption>';
-
-	if ($TableFound eq 'True') {
-		push(@LongTerms, $1) if /^<tr><td>([\d.]+)<\/td>$/;
-
-		last() if '</table>'
-	}
 }
 
 # Gather list of applicable major releases from the directory names.
@@ -128,45 +115,29 @@ foreach my $Version (@KernVers) {
 chomp(my $CurKernVer = `glkfu -o current`);
 $CurKernVer = $1 if $CurKernVer =~ '(^\d+.\d+).0$';
 
-# Simplified version of version sorting algorithm found in `Sort::Versions`
-# (the 'libsort-versions-perl' package). This only sorts strings with
-# '.'-delimited parts of only numbers.
+# Inspired by `versioncmp()` from `Sort::Versions`. This helps to sort strings
+# with '.'-delimited parts of only numbers, without needing to install
+# something like the 'libsort-versions-perl' package.
+#
+# This assumes only numeric, 3-part, period-delimited version strings.
 sub Compare($;$) {
-	my @A_Parts = ($_[0] =~ /(\.|\d+)/g);
-	my @B_Parts = ($_[1] =~ /(\.|\d+)/g);
+	my @A_Parts = split(/\./, $_[0]);
+	my @B_Parts = split(/\./, $_[1]);
 	while (@A_Parts and @B_Parts) {
-		our $A = shift(@A_Parts);
-		our $B = shift(@B_Parts);
-		if ($A eq '.' and $B eq '.') {
-			next()
-		} elsif ($A eq '.') {
-			return(-1)
-		} elsif ($B eq '.') {
-			return(1)
-		} else {
-			return($A <=> $B) if $A <=> $B
-		}
+		my $A = shift(@A_Parts);
+		my $B = shift(@B_Parts);
+
+		return($A <=> $B) if $A <=> $B
 	}
 
-	@A_Parts <=> @B_Parts
+	return(@A_Parts <=> @B_Parts)
 }
 
 # List the kernels.
 foreach my $Version (sort({Compare($a, $b)} @Versions)) {
 	if ($Version eq $CurKernVer and $DoColor) {
-		print("\e[1;32mlinux-$Version.tar.xz\e[0m")
+		print("\e[1;32mlinux-$Version.tar.xz\e[0m\n")
 	} else {
-		print("linux-$Version.tar.xz")
-	}
-
-	# Mark LTS releases, with or without color.
-	if (grep({$_ eq $Version} @LongTerms)) {
-		if ($DoColor) {
-			say("\e[2;37m  <-- LTS\e[0m")
-		} else {
-			say("  <-- LTS")
-		}
-	} else {
-		say('')
+		print("linux-$Version.tar.xz\n")
 	}
 }
