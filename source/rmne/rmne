@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Sat 29 Apr 18:38:54 BST 2023
+# Last Change       - Thu 18 May 03:40:58 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-04-29'
+CurVer='2023-05-18'
 Progrm='rmne'
 
 Usage() {
@@ -183,25 +183,21 @@ while IFS=':' read Key Value; do
 	esac
 done < "$StatusFile"
 
-# Sort array. Using an optimized Bubble Sort algorithm as a fallback, in-case
-# the user previously removed the Essential 'coreutils' package.
+# Sort array. Using Insertion Sort algorithm as a fallback, in-case the user
+# somehow removed the Essential 'coreutils' package containing sort(1).
 if type -P sort &> /dev/null; then
 	List=(`printf '%s\n' "${List[@]}" | sort`)
 else
 	Len=${#List[@]}
-	for (( Iter = 0; Iter < Len; Iter++ )); {
-		Switched='False'
-		for (( Index = 0; Index < Len - (1 + Iter); Index++ )); {
-			if [[ ${List[Index]} > ${List[Index + 1]} ]]; then
-				Temp=${List[Index]}
-				List[Index]=${List[Index + 1]}
-				List[Index + 1]=$Temp
+	for (( Index = 1; Index < Len; Index++ )); {
+		Cur=${List[Index]}
+		Pos=$Index
 
-				Switched='True'
-			fi
-		}
+		while (( Pos > 0 )) && [[ ${List[Pos - 1]} > $Cur ]]; do
+			List[Pos--]=${List[Pos - 1]}
+		done
 
-		[[ $Switched == False ]] && break
+		List[Pos]=$Cur
 	}
 fi
 
