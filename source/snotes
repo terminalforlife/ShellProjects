@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Wed 17 May 02:19:56 BST 2023
+# Last Change       - Fri 19 May 17:59:50 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 #   coreutils (>= 8.28)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-17'
+CurVer='2023-05-19'
 Progrm='snotes'
 
 Usage() {
@@ -45,7 +45,7 @@ Usage() {
 
 		  The location of the file read by ${Progrm^} is saved here:
 
-		    ~${SnotesFile##*$HOME}
+		    ${SnotesFile/$HOME/\~}
 
 		  Comment lines are ignored. To tell $Progrm when you wish to stop
 		  searching for STRING, add a line in the file containing only:

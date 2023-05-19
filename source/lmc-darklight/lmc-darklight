@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Sun  1 May 00:57:11 BST 2022
+# Last Change       - Fri 19 May 18:01:10 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 #   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-01'
+CurVer='2023-05-19'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -122,7 +122,7 @@ if [[ $NewConfig == True ]]; then
 					if [[ -w $Config ]]; then
 						break
 					else
-						Err 1 "File '~${Config#$HOME}' unwritable."
+						Err 1 "File '${Config/$HOME/\~}' unwritable."
 					fi ;;
 				n|no)
 					exit 0 ;;
@@ -163,7 +163,7 @@ if [[ $NewConfig == True ]]; then
 		DarkBG='/usr/share/backgrounds/linuxmint/default_background.jpg'
 	EOF
 
-	printf "File '~%s' generated.\n" "${Config#$HOME}"
+	printf "File '%s' generated.\n" "${Config/$HOME/\~}"
 	printf '%s' "$REPLY" > "$Config"
 	exit 0
 fi
@@ -294,9 +294,9 @@ while :; do
 	VErrs=0
 	InvalidKeys=0
 	if ! [[ -f $Config ]]; then
-		Err 1 "File '~${Config#$HOME}' not found."
+		Err 1 "File '${Config/$HOME/\~}' not found."
 	elif ! [[ -r $Config ]]; then
-		Err 1 "File '~${Config#$HOME}' unreadable."
+		Err 1 "File '${Config/$HOME/\~}' unreadable."
 	else
 		VErr() {
 			Err 0 "$1"
