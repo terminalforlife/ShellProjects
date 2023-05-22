@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/ripmydvd
+#cito M:755 O:0 G:0 T:/usr/local/bin/ripmydvd
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ripmydvd
 # Started On        - Fri 29 Sep 21:19:47 BST 2017

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/csdwm
+#cito M:755 O:0 G:0 T:/usr/local/bin/csdwm
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csdwm/csdwm
 # Started On        - Wed 26 May 15:36:21 BST 2021

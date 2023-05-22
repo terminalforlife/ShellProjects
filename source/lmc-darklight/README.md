@@ -1,33 +1,27 @@
-# Introduction
+### Description
 
-This seems to be an oft-requested feature in Linux Mint, so I thought I'd have a bash (pun intended) at writing something which will effectively work as a daemon to auto-set values based on the time of day.
+Using a simple configuration file, LMC DarkLight works like a daemon to automatically adjust day and night themes for the Cinnamon desktop environment in Linux Mint.
 
-This program is strictly for Linux Mint Cinnamon. Currently, LMDE is _not_ supported.
+### Requirements
 
-# Installation Instructions
+Written for Linux Mint's Cinnamon DE.
 
-Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via LMC-DarkLight's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/lmc-darklight/lmc-darklight-installer).
+* BASH (>= 4.4)
+* coreutils
+* gsettings (e.g., 'libglib2.0-bin')
 
-For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
+### Files
 
-```sh
-(cd /tmp; curl -so lmc-darklight-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/lmc-darklight/lmc-darklight-installer' && sudo \sh lmc-darklight-installer; rm lmc-darklight-installer)
-```
+The installer provides the following:
 
-If that fails, you probably don't have curl(1), so try wget(1):
+* '/usr/local/bin/lmc-darklight'
+* '/usr/share/bash-completion/completions/lmc-darklight'
+* '/usr/share/man/man1/lmc-darklight.1.gz'
 
-```sh
-(cd /tmp; wget -qO lmc-darklight-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/lmc-darklight/lmc-darklight-installer' && sudo \sh lmc-darklight-installer; rm lmc-darklight-installer)
-```
+### Contributions
 
-If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+The best way to help is to let me know of any bugs or oversights.
 
-# Removing LMC-DarkLight
+If you wish to contribute any code, try to keep to the existing programming style. Avoid reaching outside of the language whenever possible or reasonable, and keep things consistent and presentable. If you're contributing a new file, such as a helper or wrapper, try to stick to similar dependencies (where reasonable) and please keep the style of the output the same.
 
-If you've used the installer, then you can run the following to delete the files it creates:
-
-```
-sudo rm -v /usr/share/bash-completion/completions/lmc-darklight /usr/share/man/man1/lmc-darklight.1.gz /usr/bin/lmc-darklight
-```
-
-If you don't have sudo(8), you'll have to acquire root privileges by other means.
+If submitting any documentation, try to ensure the English is correct and presentable.

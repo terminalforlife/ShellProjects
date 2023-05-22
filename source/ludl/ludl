@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/ludl
+#cito M:755 O:0 G:0 T:/usr/local/bin/ludl
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022

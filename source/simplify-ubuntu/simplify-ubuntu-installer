@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/simplify-ubuntu-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/simplify-ubuntu-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
@@ -152,7 +152,7 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/simplify-ubuntu'\
 	'simplify-ubuntu.8.gz:/usr/share/man/man8/simplify-ubuntu.8.gz'\
-	'simplify-ubuntu:/usr/bin/simplify-ubuntu'
+	'simplify-ubuntu:/usr/local/bin/simplify-ubuntu'
 do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
@@ -198,7 +198,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/simplify-ubuntu'; do
+for File in '/usr/local/bin/simplify-ubuntu'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/nwchk
+#cito M:755 O:0 G:0 T:/usr/local/bin/nwchk
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/nwchk/nwchk
 # Started On        - Thu 18 Apr 11:19:19 BST 2019

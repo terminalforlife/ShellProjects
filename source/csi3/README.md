@@ -1,35 +1,29 @@
-# Introduction
+### Description
 
-Simple, lightweight, and portable command-line `i3-wm` and `i3-gaps` cheat sheet, supporting the ability to filter output.
+A presentable cheat sheet for your i3WM key bindings, written entirely in BASH.
 
-# Caveat(s)
+CSi3 will work on _everyone's_ configuration file. If you use non-standard configuration formatting and/or syntax, then it may not display correctly. Although modes aren't supported, the bindings for them should still be listed.
 
-Unfortunately, CSi3 may not work on everyone's configuration file. If you have standard 'config' syntax, it should work swimmingly. For an example of a configuration file with which CSi3 well behaves, check out my _i3Config_ repository here on my GitHub. Modes are not currently (if ever) supported; although the bindings should be listed, it would be without the context of the mode.
+### Requirements
 
-# Installation Instructions
+Written for Linux.
 
-Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via CSi3's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/csi3/csi3-installer).
+Depends:
 
-For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
+* BASH (>= 4.0)
 
-```sh
-(cd /tmp; curl -so csi3-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/csi3/csi3-installer' && sudo \sh csi3-installer; rm csi3-installer)
-```
+### Files
 
-If that fails, you probably don't have curl(1), so try wget(1):
+The installer provides the following:
 
-```sh
-(cd /tmp; wget -qO csi3-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/csi3/csi3-installer' && sudo \sh csi3-installer; rm csi3-installer)
-```
+* '/usr/local/bin/csi3'
+* '/usr/share/bash-completion/completions/csi3'
+* '/usr/share/man/man1/csi3.1.gz'
 
-If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+### Contributions
 
-# Removing CSi3
+The best way to help is to let me know of any bugs or oversights.
 
-If you've used the installer, then you can run the following to delete the files it creates:
+If you wish to contribute any code, try to keep to the existing programming style. Avoid reaching outside of the language whenever possible or reasonable, and keep things consistent and presentable. If you're contributing a new file, such as a helper or wrapper, try to stick to similar dependencies (where reasonable) and please keep the style of the output the same.
 
-```
-sudo rm -v /usr/share/man/man1/csi3.1.gz /usr/share/bash-completion/completions/csi3 /usr/bin/csi3
-```
-
-If you don't have sudo(8), you'll have to acquire root privileges by other means.
+If submitting any documentation, try to ensure the English is correct and presentable.

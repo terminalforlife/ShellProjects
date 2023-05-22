@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/dwwdl
+#cito M:755 O:0 G:0 T:/usr/local/bin/dwwdl
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dwwdl
 # Started On        - Sat 16 Sep 22:41:54 BST 2017

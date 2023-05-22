@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/autoexec-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/autoexec-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
@@ -148,7 +148,7 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/autoexec'\
 	'autoexec.1.gz:/usr/share/man/man1/autoexec.1.gz'\
-	'autoexec:/usr/bin/autoexec'
+	'autoexec:/usr/local/bin/autoexec'
 do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
@@ -197,9 +197,9 @@ else
 	printf "Symlink for 'ae' completions already present\n"
 fi
 
-if ! [ -L '/usr/bin/ae' ]; then
+if ! [ -L '/usr/local/bin/ae' ]; then
 	printf "* Creating symlink for 'ae' executable ... "
-	if ln -s '/usr/bin/autoexec' '/usr/bin/ae' 2>> "$LogFile"; then
+	if ln -s '/usr/local/bin/autoexec' '/usr/local/bin/ae' 2>> "$LogFile"; then
 		printf '\033[32m[OK]\033[0m\n'
 	else
 		printf '\033[31m[ERR]\033[0m\n'
@@ -219,7 +219,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/autoexec'; do
+for File in '/usr/local/bin/autoexec'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0

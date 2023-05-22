@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/rmne-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/rmne-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
@@ -152,7 +152,7 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/rmne'\
 	'rmne.8.gz:/usr/share/man/man8/rmne.8.gz'\
-	'rmne:/usr/bin/rmne'
+	'rmne:/usr/local/bin/rmne'
 do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
@@ -198,7 +198,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/rmne'; do
+for File in '/usr/local/bin/rmne'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0

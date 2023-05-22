@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/filesitter
+#cito M:755 O:0 G:0 T:/usr/local/bin/filesitter
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/filesitter
 # Started On        - Thu 28 Sep 23:58:07 BST 2017

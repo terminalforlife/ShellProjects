@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/glkfu-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/glkfu-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
@@ -154,9 +154,9 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/glkfu'\
 	'glkfu.1.gz:/usr/share/man/man1/glkfu.1.gz'\
-	'glkfu-changes:/usr/bin/glkfu-changes'\
-	'glkfu-list:/usr/bin/glkfu-list'\
-	'glkfu:/usr/bin/glkfu'
+	'glkfu-changes:/usr/local/bin/glkfu-changes'\
+	'glkfu-list:/usr/local/bin/glkfu-list'\
+	'glkfu:/usr/local/bin/glkfu'
 do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
@@ -214,7 +214,12 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/glkfu' '/usr/bin/glkfu-list' '/usr/bin/glkfu-list'; do
+for File in\
+\
+	'/usr/local/bin/glkfu'\
+	'/usr/local/bin/glkfu-list'\
+	'/usr/local/bin/glkfu-list'
+do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0

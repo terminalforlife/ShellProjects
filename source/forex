@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/forex
+#cito M:755 O:0 G:0 T:/usr/local/bin/forex
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/forex
 # Started On        - Sun 15 Oct 16:25:38 BST 2017

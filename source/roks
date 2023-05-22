@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/roks
+#cito M:755 O:0 G:0 T:/usr/local/bin/roks
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks
 # Started On        - Sun 17 Sep 23:32:47 BST 2017

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/snotes
+#cito M:755 O:0 G:0 T:/usr/local/bin/snotes
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018

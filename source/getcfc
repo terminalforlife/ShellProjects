@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/getcfc
+#cito M:755 O:0 G:0 T:/usr/local/bin/getcfc
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/getcfc
 # Started On        - Thu 23 Nov 14:44:50 GMT 2017

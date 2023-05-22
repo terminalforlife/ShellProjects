@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/autoscrot
+#cito M:755 O:0 G:0 T:/usr/local/bin/autoscrot
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoscrot
 # Started On        - Sun 17 Sep 05:06:50 BST 2017

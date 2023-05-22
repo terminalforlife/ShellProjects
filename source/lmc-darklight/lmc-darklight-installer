@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/lmc-darklight-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/lmc-darklight-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight/lmc-darklight-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
@@ -151,7 +151,7 @@ printf 'Moving files into place:\n'
 ErrCount=0
 for File in\
 \
-	'lmc-darklight:/usr/bin/lmc-darklight'\
+	'lmc-darklight:/usr/local/bin/lmc-darklight'\
 	'lmc-darklight.1.gz:/usr/share/man/man1/lmc-darklight.1.gz'\
 	'completions:/usr/share/bash-completion/completions/lmc-darklight'
 do
@@ -199,7 +199,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/lmc-darklight'; do
+for File in '/usr/local/bin/lmc-darklight'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0

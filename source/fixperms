@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/fixperms
+#cito M:755 O:0 G:0 T:/usr/local/bin/fixperms
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fixperms
 # Started On        - Sun 14 Feb 13:10:32 GMT 2021

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/seewttr
+#cito M:755 O:0 G:0 T:/usr/local/bin/seewttr
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017

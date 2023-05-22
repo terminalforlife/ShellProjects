@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/rmne
+#cito M:755 O:0 G:0 T:/usr/local/bin/rmne
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018

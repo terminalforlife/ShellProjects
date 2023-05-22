@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/mfw
+#cito M:755 O:0 G:0 T:/usr/local/bin/mfw
 #----------------------------------------------------------------------------------
 # Project Name      - Extra/source/mfw (Mint Forum Watch)
 # Started On        - Sun 21 Jan 14:15:13 GMT 2018

@@ -1,35 +1,33 @@
-# Introduction
+### Description
 
-Utility written in _Bourne Shell_ to allow the user to easily back up their _HOME_ to a pre-defined storage location, using a _GZip_-compressed archive generated with _tar_(1).
+Portable utility allowing the user to easily back up their _HOME_ to a pre-defined storage location, using a _Gzip_-compressed archive generated with _tar_(1).
 
-Optionally, the user can have _notify-send_(1) send a notification to his or her notifications daemon and/or a shell command executed, when the backup routine is finished.
+The user can optionally have _notify-send_(1) hand over a notification to his or her notifications daemon and/or a shell command executed, when the backup routine is finished. Per _tar_(1)'s regular functionality, the user can also provide an exclusion file, with which files can be ignored by the backup process.
 
-Per _tar_(1)'s regular functionality, you can also provide an exclusion file, in which the user can list files he or she wishes not to be backed up.
+### Requirements
 
-# Installation Instructions
+Written for Linux.
 
-Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via BackMeUp's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/backmeup/backmeup-installer).
+Depends:
 
-For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
+* POSIX-compliant shell (e.g., DASH)
+* notify-send
+* coreutils
+* gzip
+* tar
 
-```sh
-(cd /tmp; curl -so backmeup-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/backmeup/backmeup-installer' && sudo \sh backmeup-installer; rm backmeup-installer)
-```
+### Files
 
-If that fails, you probably don't have curl(1), so try wget(1):
+The installer provides the following:
 
-```sh
-(cd /tmp; wget -qO backmeup-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/backmeup/backmeup-installer' && sudo \sh backmeup-installer; rm backmeup-installer)
-```
+* '/usr/local/bin/backmeup'
+* '/usr/share/bash-completion/completions/backmeup'
+* '/usr/share/man/man1/backmeup.1.gz'
 
-If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+### Contributions
 
-# Removing BackMeUp
+The best way to help is to let me know of any bugs or oversights.
 
-If you've used the installer, then you can run the following to delete the files it creates:
+If you wish to contribute any code, try to keep to the existing programming style. Avoid reaching outside of the language whenever possible or reasonable, and keep things consistent and presentable. If you're contributing a new file, such as a helper or wrapper, try to stick to similar dependencies (where reasonable) and please keep the style of the output the same.
 
-```
-sudo rm -v /usr/share/man/man1/backmeup.1.gz /usr/share/bash-completion/completions/backmeup /usr/bin/backmeup
-```
-
-If you don't have sudo(8), you'll have to acquire root privileges by other means.
+If submitting any documentation, try to ensure the English is correct and presentable.

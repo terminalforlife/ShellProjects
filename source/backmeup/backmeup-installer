@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/backmeup-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/backmeup-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
@@ -148,7 +148,7 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/backmeup'\
 	'backmeup.1.gz:/usr/share/man/man1/backmeup.1.gz'\
-	'backmeup:/usr/bin/backmeup'
+	'backmeup:/usr/local/bin/backmeup'
 do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
@@ -194,7 +194,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/backmeup'; do
+for File in '/usr/local/bin/backmeup'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0

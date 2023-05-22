@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/mif
+#cito M:755 O:0 G:0 T:/usr/local/bin/mif
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/mif (Movie Index Filter)
 # Started On        - Fri 13 Oct 13:21:13 BST 2017

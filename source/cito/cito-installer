@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/cito-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/cito-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
@@ -148,7 +148,7 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/cito'\
 	'cito.8.gz:/usr/share/man/man8/cito.8.gz'\
-	'cito:/usr/bin/cito'
+	'cito:/usr/local/bin/cito'
 do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
@@ -194,7 +194,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/cito'; do
+for File in '/usr/local/bin/cito'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0

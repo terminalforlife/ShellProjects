@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/lmc-darklight
+#cito M:755 O:0 G:0 T:/usr/local/bin/lmc-darklight
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
@@ -31,7 +31,6 @@
 #   bash (>= 4.4.20)
 #   coreutils (>= 8.28-1ubuntu1)
 #   libglib2.0-bin (>= 2.56.4-0ubuntu0.18.04.9)
-#   sysvinit-utils (>= 2.88dsf-59.10ubuntu1)
 #------------------------------------------------------------------------------
 
 CurVer='2023-05-19'

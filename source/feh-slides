@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/feh-slides
+#cito M:755 O:0 G:0 T:/usr/local/bin/feh-slides
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017

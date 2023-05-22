@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/rudbgvid
+#cito M:755 O:0 G:0 T:/usr/local/bin/rudbgvid
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rudbgvid
 # Started On        - Thu 12 Nov 19:52:44 GMT 2020

@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/backmeup
+#cito M:755 O:0 G:0 T:/usr/local/bin/backmeup
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/backmeup/backmeup
 # Started On        - Tue  7 Nov 21:50:05 GMT 2017

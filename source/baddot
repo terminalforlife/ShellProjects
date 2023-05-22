@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/baddot
+#cito M:755 O:0 G:0 T:/usr/local/bin/baddot
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/baddot
 # Started On        - Tue 16 May 02:41:55 BST 2023

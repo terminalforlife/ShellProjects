@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/bin/simplify-ubuntu
+#cito M:755 O:0 G:0 T:/usr/local/bin/simplify-ubuntu
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/simplify-ubuntu/simplify-ubuntu
 # Started On        - Fri 12 Jan 04:52:52 GMT 2018

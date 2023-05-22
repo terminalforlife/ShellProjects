@@ -1,53 +1,29 @@
-# Installation Instructions
+### Description
 
-Your best bet is one of two options:
+A portable companion to users and developers alike, Cito allows you to quickly and easily install local files or those stored on GitHub, based on either command-line options or predefined values stored in the files themselves, making this perfect for scripts.
 
-  * Install via [Cito's DEB package](https://github.com/terminalforlife/DEB-Packages/tree/master/cito) for Debian- and Ubuntu-based systems.
-  * Install via Cito's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/cito/cito-installer).
+### Requirements
 
-For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
+Written for Linux.
 
-```sh
-(cd /tmp; curl -so cito-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito-installer' && sudo \sh cito-installer; rm cito-installer)
-```
+Depends:
 
-If that fails, you probably don't have curl(1), so try wget(1):
+* POSIX-compliant shell (e.g., DASH)
+* coreutils
+* cURL or Wget
 
-```sh
-(cd /tmp; wget -qO cito-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/cito/cito-installer' && sudo \sh cito-installer; rm cito-installer)
-```
+### Files
 
-If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+The installer provides the following:
 
-# Removing Cito
+* '/usr/local/bin/cito'
+* '/usr/share/man/man8/cito.8.gz'
+* '/usr/share/bash-completion/completions/cito'
 
-If you've used a Debian package to install Cito, refer to your package manager. However, if you've used the installer, then you can run the following to delete the files it creates:
+### Contributions
 
-```
-sudo rm /usr/bin/cito /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
-```
+The best way to help is to let me know of any bugs or oversights.
 
-If you don't have sudo(8), you'll have to acquire root privileges by other means.
+If you wish to contribute any code, try to keep to the existing programming style. Avoid reaching outside of the language whenever possible or reasonable, and keep things consistent and presentable. If you're contributing a new file, such as a helper or wrapper, try to stick to similar dependencies (where reasonable) and please keep the style of the output the same.
 
-```
-sudo rm /usr/bin/cito /usr/share/man/man8/cito.8.gz /usr/share/bash-completion/completions/cito
-```
-
-Provided you have access to sudo(8), of course.
-
-# Updating Cito
-
-You can update Cito by installing Cito _with_ Cito, as you would anything else. This one-liner will update '/usr/bin/cito' itself:
-
-```
-sudo cito -r terminalforlife Extra master source/cito/cito
-```
-
-As above, provided you have access to sudo(8).
-
-But a better method is to just use the 'cito-installer' again, because that will install everything anew.
-
-# Dependencies
-
-  * coreutils (>= 8.25-2)
-  * curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
+If submitting any documentation, try to ensure the English is correct and presentable.

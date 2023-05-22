@@ -1,31 +1,28 @@
-# Introduction
+### Description
 
-List commits per file in the CWD of a git(1) repository.
+List commits per file in the CWD of a Git repository.
 
-# Installation Instructions
+### Requirements
 
-Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via Tagged's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/tagged/tagged-installer).
+Written for Linux.
 
-For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
+Depends:
 
-```sh
-(cd /tmp; curl -so tagged-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/tagged/tagged-installer' && sudo \sh tagged-installer; rm tagged-installer)
-```
+* BASH (>= 3.1)
+* git
 
-If that fails, you probably don't have curl(1), so try wget(1):
+### Files
 
-```sh
-(cd /tmp; wget -qO tagged-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/tagged/tagged-installer' && sudo \sh tagged-installer; rm tagged-installer)
-```
+The installer provides the following:
 
-If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+* '/usr/share/man/man1/tagged.1.gz'
+* '/usr/share/bash-completion/completions/tagged'
+* '/usr/bin/tagged'
 
-# Removing Tagged
+### Contributions
 
-If you've used the installer, then you can run the following to delete the files it creates:
+The best way to help is to let me know of any bugs or oversights.
 
-```
-sudo rm -v /usr/share/man/man1/tagged.1.gz /usr/share/bash-completion/completions/tagged /usr/bin/tagged
-```
+If you wish to contribute any code, try to keep to the existing programming style. Avoid reaching outside of the language whenever possible or reasonable, and keep things consistent and presentable. If you're contributing a new file, such as a helper or wrapper, try to stick to similar dependencies (where reasonable) and please keep the style of the output the same.
 
-If you don't have sudo(8), you'll have to acquire root privileges by other means.
+If submitting any documentation, try to ensure the English is correct and presentable.

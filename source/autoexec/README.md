@@ -1,37 +1,31 @@
-# Introduction
+### Description
 
-Together with an editor like Vi-IMproved, EMACS, or even Nano, this Linux development tool allows the user the pleasure of programming in an IDE-like environment, surrounded by terminals. Simply touching (writing to) the file will result in the re-execution of it.
+Linux development tool allowing the user the pleasure of seeing their high level code updated the moment changes are detected, ideal when paired with an editor like Vi-IMproved.
 
-Flexibly, the user can make use of AutoExec in Linux when working with Perl, Python, Shell, AWK, and Ruby; this is, however, not a complete list, as it's very likely AutoExec can be used in multiple additional ways.
+### Requirements
 
-The user can either rely on AutoExec's own interpreter auto-detection, or override with his or her own choice of executable.
+Written for Linux.
 
-As you might've guessed by now, this tool was written for **Linux**, so likely will _not_ work on operating systems like the BSDs, Apple's offerings, and surely Windows (maybe with WSL). If you'd like to help support such a platform, get in touch, so that perhaps we can sort out a patch or some sort of compatibility update.
+Depends:
 
-# Installation Instructions
+* BASH (>= 4.4)
+* coreutils
+* tput
 
-Installation can be done with [Cito](https://github.com/terminalforlife/Extra/blob/master/source/cito). Your best bet, however, is to install via AutoExec's [installation script](https://github.com/terminalforlife/Extra/blob/master/source/autoexec/autoexec-installer).
+### Files
 
-For a quick terminal one-liner, using the aforementioned installation script, you should be able to execute the following, assuming you have sudo(8):
+The installer provides the following:
 
-```sh
-(cd /tmp; curl -so autoexec-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/autoexec/autoexec-installer' && sudo \sh autoexec-installer; rm autoexec-installer)
-```
+* '/usr/local/bin/ae'
+* '/usr/local/bin/autoexec'
+* '/usr/share/bash-completion/completions/ae'
+* '/usr/share/bash-completion/completions/autoexec'
+* '/usr/share/man/man1/autoexec.1.gz'
 
-If that fails, you probably don't have curl(1), so try wget(1):
+### Contributions
 
-```sh
-(cd /tmp; wget -qO autoexec-installer 'https://raw.githubusercontent.com/terminalforlife/Extra/master/source/autoexec/autoexec-installer' && sudo \sh autoexec-installer; rm autoexec-installer)
-```
+The best way to help is to let me know of any bugs or oversights.
 
-If you don't have sudo(8), just omit it from the command(s) above, and run them as the `root` user, however you gain such privileges.
+If you wish to contribute any code, try to keep to the existing programming style. Avoid reaching outside of the language whenever possible or reasonable, and keep things consistent and presentable. If you're contributing a new file, such as a helper or wrapper, try to stick to similar dependencies (where reasonable) and please keep the style of the output the same.
 
-# Removing AutoExec
-
-If you've used the installer, then you can run the following to delete the files it creates, including the '/usr/bin/ae' symlink created by the installer script:
-
-```
-sudo rm -v /usr/share/man/man1/autoexec.1.gz /usr/share/bash-completion/completions/autoexec /usr/bin/autoexec; [ -L /usr/bin/ae ] && sudo rm -v /usr/bin/ae; [ -L /usr/share/bash-completion/completions/ae ] && sudo rm -v /usr/share/bash-completion/completions/ae
-```
-
-If you don't have sudo(8), you'll have to acquire root privileges by other means.
+If submitting any documentation, try to ensure the English is correct and presentable.

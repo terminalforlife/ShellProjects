@@ -1,5 +1,5 @@
 #!/bin/sh
-#cito M:755 O:0 G:0 T:/usr/bin/tagged-installer
+#cito M:755 O:0 G:0 T:/usr/local/bin/tagged-installer
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
@@ -150,7 +150,7 @@ for File in\
 \
 	'completions:/usr/share/bash-completion/completions/tagged'\
 	'tagged.1.gz:/usr/share/man/man1/tagged.1.gz'\
-	'tagged:/usr/bin/tagged'
+	'tagged:/usr/local/bin/tagged'
 do
 	if [ -f "${File#*:}" ]; then
 		Replace='False'
@@ -196,7 +196,7 @@ fi
 
 printf 'Checking for dependencies:\n'
 
-for File in '/usr/bin/tagged'; do
+for File in '/usr/local/bin/tagged'; do
 	printf "* Looking in '%s' file...\n" "$File"
 
 	FileErr=0
