@@ -11,6 +11,7 @@
 #
 # Features:
 #
+#TODO: Overhaul with vastly superior grep(1)-like code from Snotes.
 #TODO: Support 'auto' colors, likely by testing whether interactive or not.
 #
 # Bugs:
