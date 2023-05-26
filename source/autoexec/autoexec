@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Fri 26 May 17:43:23 BST 2023
+# Last Change       - Fri 26 May 17:50:40 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -276,7 +276,10 @@ while :; do
 
 	SSEOld=${SSE//[![:digit:]]}
 
-	if [[ $Once != True ]]; then
+	if [[ $Once == True ]]; then
+		# Exit status is handled by the `SignalHandler()` function.
+		[[ $Once == True ]] && exit
+	else
 		# Have the exit status on the bottom-right of the terminal.
 		if [[ $ExitStatus == True ]]; then
 			tput cup $LINES $((COLUMNS - 3))
@@ -316,10 +319,6 @@ while :; do
 			fi
 		fi
 	fi
-
-	# The exit status here is irrelevant. Exiting with the correct status when
-	# running just once is handled by the `SignalHandler()` function.
-	[[ $Once == True ]] && exit
 
 	read -n 1 -st $Refresh
 done
