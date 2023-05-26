@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 22 May 22:16:39 BST 2023
+# Last Change       - Fri 26 May 17:43:23 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -30,7 +30,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-22'
+CurVer='2023-05-26'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -90,8 +90,6 @@ while [[ -n $1 ]]; do
 
 			if [[ -z $1 ]]; then
 				Err 1 'Name of command not provided.'
-			#elif ! type -P "$1" > /dev/null 2>&1; then
-			#	Err 1 'Provided command not found in PATH.'
 			else
 				Exec=$1
 			fi ;;
@@ -206,69 +204,7 @@ if [[ $Once != True ]]; then
 fi
 
 while :; do
-	if [[ -f $ExecFile && -r $ExecFile ]]; then
-		# Determine the interpreter to use.
-		if [[ -z $Exec ]]; then
-			read SheBang < "$ExecFile"
-
-			if [[ $SheBang != '#!'* ]]; then
-				SheBangInvalid='True'
-				exit 1
-			fi
-
-			SheBangMain=${SheBang#\#\!}
-			SheBangBase=${SheBangMain##*/}
-
-			if ! type -P "${SheBangMain%% *}" &> /dev/null; then
-				InterpreterMissing=$SheBangMain
-				exit 1
-			fi
-
-			Exec=$SheBangMain
-		fi
-
-		SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
-		if [[ ${SSEOld//[![:digit:]]} -lt ${SSE//[![:digit:]]} ]]; then
-			[[ $Once == True ]] || tput clear
-
-			# If using DASH, BASH, or ZSH, check for errors before executing.
-			if [[ $Check == True ]]; then
-				unset Errors
-				case $Exec in
-					*/env\ bash|*/bash|*/env\ zsh|*/zsh)
-						$Exec -n "$ExecFile" || Errors='True' ;;
-					*/env\ sh|*/sh)
-						File=`type -P sh`
-						Link=`realpath "$File"`
-						if [[ ${Link##*/} == dash ]]; then
-							$Exec -n "$ExecFile" || Errors='True'
-						else
-							UnsupportedCheck='True'
-						fi ;;
-					*)
-						UnsupportedCheck='True' ;;
-				esac
-
-				[[ $Force == False && $UnsupportedCheck == True ]] && exit 1
-			fi
-
-			if [[ $Errors != True ]]; then
-				tput cnorm
-				if [[ $Time == True ]]; then
-					time $Exec "$ExecFile" "$@"
-					Exit=$?
-				else
-					$Exec "$ExecFile" "$@"
-					Exit=$?
-				fi
-				tput civis
-			else
-				Exit=999
-			fi
-		fi
-
-		SSEOld=${SSE//[![:digit:]]}
-	else
+	if ! [[ -f $ExecFile && -r $ExecFile ]]; then
 		if [[ $Once != True ]]; then
 			tput ed
 			tput rmcup
@@ -277,6 +213,68 @@ while :; do
 		FileNotFoundErr='True'
 		exit 1
 	fi
+
+	# Determine the interpreter to use.
+	if [[ -z $Exec ]]; then
+		read SheBang < "$ExecFile"
+
+		if [[ $SheBang != '#!'* ]]; then
+			SheBangInvalid='True'
+			exit 1
+		fi
+
+		SheBangMain=${SheBang#\#\!}
+		SheBangBase=${SheBangMain##*/}
+
+		if ! type -P "${SheBangMain%% *}" &> /dev/null; then
+			InterpreterMissing=$SheBangMain
+			exit 1
+		fi
+
+		Exec=$SheBangMain
+	fi
+
+	SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
+	if [[ ${SSEOld//[![:digit:]]} -lt ${SSE//[![:digit:]]} ]]; then
+		[[ $Once == True ]] || tput clear
+
+		# If using DASH, BASH, or ZSH, check for errors before executing.
+		if [[ $Check == True ]]; then
+			unset Errors
+			case $Exec in
+				*/env\ bash|*/bash|*/env\ zsh|*/zsh)
+					$Exec -n "$ExecFile" || Errors='True' ;;
+				*/env\ sh|*/sh)
+					File=`type -P sh`
+					Link=`realpath "$File"`
+					if [[ ${Link##*/} == dash ]]; then
+						$Exec -n "$ExecFile" || Errors='True'
+					else
+						UnsupportedCheck='True'
+					fi ;;
+				*)
+					UnsupportedCheck='True' ;;
+			esac
+
+			[[ $Force == False && $UnsupportedCheck == True ]] && exit 1
+		fi
+
+		if [[ $Errors != True ]]; then
+			tput cnorm
+			if [[ $Time == True ]]; then
+				time $Exec "$ExecFile" "$@"
+				Exit=$?
+			else
+				$Exec "$ExecFile" "$@"
+				Exit=$?
+			fi
+			tput civis
+		else
+			Exit=999
+		fi
+	fi
+
+	SSEOld=${SSE//[![:digit:]]}
 
 	if [[ $Once != True ]]; then
 		# Have the exit status on the bottom-right of the terminal.
