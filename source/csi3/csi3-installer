@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3-installer
 # Started On        - Fri 19 Feb 00:55:56 GMT 2021
-# Last Change       - Sun  9 Jan 18:05:22 GMT 2022
+# Last Change       - Fri 26 May 21:14:46 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -223,9 +223,6 @@ for File in '/usr/local/bin/csi3'; do
 		elif [ "$Line" = '# Dependencies:' ]; then
 			Found='True'
 		elif [ "$Found" = 'True' ]; then
-			# Line to help debug parsing on stubborn files.
-			#printf '\e[2;37m%s\e[0m\n' "$Line"
-
 			case $Line in
 				'#'------*)
 					break ;;

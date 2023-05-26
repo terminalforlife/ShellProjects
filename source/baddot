@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/baddot
 # Started On        - Tue 16 May 02:41:55 BST 2023
-# Last Change       - Tue 16 May 17:55:29 BST 2023
+# Last Change       - Fri 26 May 21:15:40 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -35,7 +35,7 @@
 #   bash (>= 4.2)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-16'
+CurVer='2023-05-26'
 Progrm=${0##*/}
 
 Usage() {
@@ -152,7 +152,6 @@ for ArgDir; {
 
 			# In-case of wide characters. This also aids automation to remove or
 			# better identify and confirm questionable characters.
-			#printf '     Indices:\n'
 			for Pointer in "${Pointers[@]}"; {
 				printf '     - %d\n' $Pointer
 			}

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-installer
 # Started On        - Thu 12 Mar 14:54:26 GMT 2020
-# Last Change       - Sun  9 Jan 18:05:32 GMT 2022
+# Last Change       - Fri 26 May 21:14:53 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -244,9 +244,6 @@ do
 		elif [ "$Line" = '# Dependencies:' ]; then
 			Found='True'
 		elif [ "$Found" = 'True' ]; then
-			# Line to help debug parsing on stubborn files.
-			#printf '\e[2;37m%s\e[0m\n' "$Line"
-
 			case $Line in
 				'#'------*)
 					break ;;

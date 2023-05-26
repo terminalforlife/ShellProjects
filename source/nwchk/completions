@@ -3,11 +3,11 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/nwchk/completions
 # Started On        - Wed 12 Feb 18:58:13 GMT 2020
-# Last Change       - Fri 26 May 18:00:45 BST 2023
+# Last Change       - Fri 26 May 21:18:04 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# This is the bash completion script for NWCHK.
+# This is the bash completion script for NWChk.
 #------------------------------------------------------------------------------
 
 _nwchk() {

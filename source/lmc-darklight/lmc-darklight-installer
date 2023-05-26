@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight/lmc-darklight-installer
 # Started On        - Sun 31 Jan 22:35:39 GMT 2021
-# Last Change       - Fri 25 Feb 17:36:55 GMT 2022
+# Last Change       - Fri 26 May 21:14:57 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -224,9 +224,6 @@ for File in '/usr/local/bin/lmc-darklight'; do
 		elif [ "$Line" = '# Dependencies:' ]; then
 			Found='True'
 		elif [ "$Found" = 'True' ]; then
-			# Line to help debug parsing on stubborn files.
-			#printf '\e[2;37m%s\e[0m\n' "$Line"
-
 			case $Line in
 				'#'------*)
 					break ;;

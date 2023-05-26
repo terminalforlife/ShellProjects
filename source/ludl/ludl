@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Wed 16 Feb 02:56:41 GMT 2022
+# Last Change       - Fri 26 May 21:16:55 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -45,7 +45,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-16'
+CurVer='2023-05-26'
 Progrm=${0##*/}
 
 Usage() {
@@ -174,7 +174,6 @@ for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
 
 	while IFS='"' read -a Line; do
 		if [[ ${Line[3]} == $URL_Download*.mp3 ]]; then
-			#declare -A Pods[$Pod]=${Line[3]}
 			Pods+=("$Pod:${Line[3]}")
 			LinkAcquired='True'
 
