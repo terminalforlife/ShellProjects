@@ -3,12 +3,28 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu 19 May 00:27:52 BST 2022
+# Last Change       - Sat 27 May 23:34:50 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Inspired by `purge-old-kernels`. ROKS is no longer actively maintained, with
-# the exception of general code maintenance.
+# Written as an improvement over the now-deprecated script called
+# 'purge-old-kernels' found in the 'byobu' package. This small program will
+# clear out your system of old kernel versions on an Ubuntu- or Debian-based
+# system.
+#
+# By way of example, assume the following:
+#
+#   6.2.11
+#   6.3.0       <-- Currently Loaded
+#   6.3.1
+#   6.3.2
+#   6.3.3
+#   6.3.4
+#
+# ROKs will ignore anything newer than 6.3.0, opting to keep 6.3.0, because it
+# is currently loaded, and 6.2.11 will by default be kept as well, because it's
+# the fallback. If no fallback is selected (keep 1), 6.2.11 will be selected
+# for removal or purging.
 #
 # Features:
 #
@@ -21,13 +37,13 @@
 # Dependencies:
 #
 #   apt (>= 1.6.12)
-#   bash (>= 4.3-14)
-#   coreutils (>= 8.28)
+#   bash (>= 4.1)
 #   linux-base (>= 4.5)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-19'
+CurVer='2023-05-27'
 Progrm='roks'
+ProgrmFancy='ROKs'
 
 Usage() {
 	read -d '' <<-EOF
@@ -35,21 +51,17 @@ Usage() {
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
+		  -k, --keep INT           - Keep INT number of kernels, instead of 1.
 		  -p, --purge              - Don't just remove, but purge the kernels.
 		  -t, --type TYPE          - Work with TYPE kernels. Any by default.
-		  -k, --keep INT           - Keep INT number of kernels, instead of 1.
 
-		  Written as an improvement over the now-deprecated script called
-		  'purge-old-kernels' found in the byobu package. This small program
-		  will clear out your system of old kernel versions on an Ubuntu- or
-		  Debian-based system.
+		  Remember to check before saying yes to APT, in-case gathered packages
+		  aren't as expected. By default, two kernel will be held back, which
+		  includes the one currently loaded. Kernels newer than your currently
+		  loaded kernel will be ignored. $ProgrmFancy may not be suitable for all Linux
+		  systems or kernel types.
 
-		  Unrecognised short or long flags will be passed to apt or apt-get.
-
-		  As of 2019-03-31, $Progrm no longer supports handling older kernel
-		  versions in Debian- or Ubuntu-based systems. I recommend taking extra
-		  care when using $Progrm on systems with kernels older than 4.15; it
-		  might work, but not necessarily as intended.
+		  Unrecognised flags will be passed to apt-get(8).
 	EOF
 
 	printf '%s' "$REPLY"
@@ -70,16 +82,15 @@ while [[ -n $1 ]]; do
 			printf '%s\n' "$CurVer"
 			exit 0 ;;
 		--keep|-k)
-			shift
-
-			if [[ $1 == +([0-9]) ]]; then
-				if (( $1 == 0 )); then
-					Err 1 'Invalid number of kernels selected.'
+			if [[ $2 == +([0-9]) ]]; then
+				if (( $2 == 0 )); then
+					Err 1 "Unable to removal currently-loaded kernel."
 				else
-					KernKeep=$1
+					KernKeep=$2
+					shift
 				fi
 			else
-				Err 1 'Invalid expression specified.'
+				Err 1 "Option '$1' given non-numeric argument."
 			fi ;;
 		--type|-t)
 			shift; KernType="-$1" ;;
@@ -94,7 +105,7 @@ while [[ -n $1 ]]; do
 done
 
 DepCount=0
-for CurDep in uname apt-get linux-version; {
+for CurDep in apt-get linux-version; {
 	if ! type -P "$CurDep" &> /dev/null; then
 		Err 0 "Dependency '$CurDep' not met."
 		(( DepCount++ ))
@@ -103,33 +114,37 @@ for CurDep in uname apt-get linux-version; {
 
 (( DepCount > 0 )) && exit 1
 
-if [[ -f /proc/version && -r /proc/version ]]; then
-	read -a VerStr < /proc/version
-	CurKern=${VerStr[2]}
-elif ! type -P uname &> /dev/null; then
-	CurKern=`uname -r`
+(( UID == 0 )) || Err 1 'Root access is required for system-wide changes.'
+
+ProcVerFile='/proc/version'
+if type -P uname &> /dev/null; then
+	Current=`uname -r`
+elif [[ -f $ProcVerFile && -r $ProcVerFile ]]; then
+	read _ _ Current _ < /proc/version
 else
 	Err 1 'Unable to determine current kernel version.'
 fi
 
-(( UID == 0 )) || Err 1 'Root access is required for system-wide changes.'
+while read; do
+	[[ $REPLY == $Current ]] && break
 
-(( KernKeep++ ))
-KernList=`linux-version list`
-if ! [[ -n $KernList ]]; then
-	Err 1 'No kernels were found.'
-elif ! [[ -n $KernList ]]; then
-	Err 1 'No kernels were selected for removal.'
-else
-	KernRemove=()
-	for CurIter in $KernList; {
-		if [[ $CurIter != $CurKern ]]; then
-			KernRemove+=(" ${CurIter%-*}$KernType ")
-		fi
-	}
+	Kerns+=("$REPLY")
+done <<< "$(linux-version list)"
+Kerns=("${Kerns[@]:0:${#Kerns[@]} - KernKeep + 1}")
 
-	apt-get $AptGetOpts -o Dpkg::Progress=true\
-		-o Dpkg::Progress-Fancy=true remove $DoPurge ${KernRemove[@]}
+if (( ${#Kerns[@]} == 0 )); then
+	Err 1 'No suitable kernels found.'
+fi
 
-	(( $? == 0 )) || Err 1 'Non-zero exit status while removing old kernels.'
+Packages=()
+for Kern in "${Kerns[@]}"; {
+	Packages+=(linux-{image,headers}-"$Kern")
+}
+
+apt-get $AptGetOpts -o Dpkg::Progress=true\
+	-o Dpkg::Progress-Fancy=true remove $DoPurge "${Packages[@]}"
+
+Exit=$?
+if (( Exit > 0 )); then
+	Err 1 "Exit $Exit detected from apt-get(8)."
 fi
