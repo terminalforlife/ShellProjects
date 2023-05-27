@@ -3,12 +3,14 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 27 May 19:42:44 BST 2023
+# Last Change       - Sat 27 May 20:22:44 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # If no exit status has been provided for `exit`, assume the `SignalHandler()`
 # will handle this, due to the limitations of the shell.
+#
+# Shebangs are assumed to be on the first line, as one would expect.
 #
 # Features:
 #
@@ -24,6 +26,10 @@
 #      limitation of Shell/terminals.
 #
 #TODO: Still refuses to detect when the shebang is changed.
+#TODO: When everything on the bottom line is disabled, still get an empty line.
+#
+#      This only occurs when not running once. When all the usual stuff is
+#      displayed on that last line (e.g., wait message), AE works as intended.
 #
 # Dependencies:
 #
@@ -286,46 +292,43 @@ while :; do
 
 	SSEOld=${SSE//[![:digit:]]}
 
-	if [[ $Once == True ]]; then
-		# Exit status is handled by the `SignalHandler()` function.
-		[[ $Once == True ]] && exit
-	else
-		# Have the exit status on the bottom-right of the terminal.
-		if [[ $ExitStatus == True ]]; then
-			tput cup $LINES $((COLUMNS - 3))
+	[[ $Once == True ]] && exit
 
-			if [[ $Color == True ]]; then
-				if (( Exit == 0 )); then
-					printf '\e[2;37m%#3d\e[0m' $Exit
-				else
-					printf '\e[1;31m%#3d\e[0m' $Exit
-				fi
+	# Have the exit status on the bottom-right of the terminal.
+	if [[ $ExitStatus == True ]]; then
+		tput cup $LINES $((COLUMNS - 3))
+
+		if [[ $Color == True ]]; then
+			if (( Exit == 0 )); then
+				printf '\e[2;37m%#3d\e[0m' $Exit
 			else
-				printf '%#3d' $Exit
+				printf '\e[1;31m%#3d\e[0m' $Exit
 			fi
+		else
+			printf '%#3d' $Exit
 		fi
+	fi
 
-		if [[ $WaitMSG == True ]]; then
-			if [[ $Spinner == True ]]; then
-				for Char in '|' '/' '-' '\'; {
-					tput cud $LINES
-
-					if [[ $Color == True ]]; then
-						printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
-					else
-						printf '\r[%s] Waiting for changes... ' "$Char"
-					fi
-
-					read -n 1 -st 0.04
-				}
-			else
+	if [[ $WaitMSG == True ]]; then
+		if [[ $Spinner == True ]]; then
+			for Char in '|' '/' '-' '\'; {
 				tput cud $LINES
 
 				if [[ $Color == True ]]; then
-					printf '\r\e[2;37mWaiting for changes...\e[0m '
+					printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
 				else
-					printf '\rWaiting for changes... '
+					printf '\r[%s] Waiting for changes... ' "$Char"
 				fi
+
+				read -n 1 -st 0.04
+			}
+		else
+			tput cud $LINES
+
+			if [[ $Color == True ]]; then
+				printf '\r\e[2;37mWaiting for changes...\e[0m '
+			else
+				printf '\rWaiting for changes... '
 			fi
 		fi
 	fi
