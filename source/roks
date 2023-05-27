@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Sat 27 May 23:34:50 BST 2023
+# Last Change       - Sat 27 May 23:40:38 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ while [[ -n $1 ]]; do
 		--keep|-k)
 			if [[ $2 == +([0-9]) ]]; then
 				if (( $2 == 0 )); then
-					Err 1 "Unable to removal currently-loaded kernel."
+					Err 1 "Unable to remove currently-loaded kernel."
 				else
 					KernKeep=$2
 					shift
