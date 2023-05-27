@@ -3,10 +3,13 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Fri 26 May 17:50:40 BST 2023
+# Last Change       - Sat 27 May 19:42:44 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+# If no exit status has been provided for `exit`, assume the `SignalHandler()`
+# will handle this, due to the limitations of the shell.
+#
 # Features:
 #
 # N/A
@@ -30,7 +33,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-26'
+CurVer='2023-05-27'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -172,12 +175,15 @@ SignalHandler() {
 
 	tput cnorm
 
-	if [[ -n $InterpreterMissing ]]; then
-		Err 1 "Interpreter '$InterpreterMissing' not found."
-	elif [[ $SheBangInvalid == True ]]; then
-		Err 1 'Invalid shebang detected.'
+	# The order of these tests is important.
+	if [[ $TermSizeErr == True ]]; then
+		Err 1 'Insufficient terminal size detected.'
 	elif [[ $FileNotFoundErr == True ]]; then
 		Err 1 'File not found or inaccessible.'
+	elif [[ $SheBangInvalidErr == True ]]; then
+		Err 1 'Invalid shebang detected.'
+	elif [[ -n $InterpreterMissingErr ]]; then
+		Err 1 "Interpreter '$InterpreterMissingErr' not found."
 	fi
 
 	# Needs to be here otherwise the above line clears it.
@@ -211,7 +217,11 @@ while :; do
 		fi
 
 		FileNotFoundErr='True'
-		exit 1
+		exit
+	elif [[ $Once != True ]] && (( LINES < 2 || COLUMNS < 30 )); then
+		TermSizeErr='True'
+
+		exit
 	fi
 
 	# Determine the interpreter to use.
@@ -219,16 +229,16 @@ while :; do
 		read SheBang < "$ExecFile"
 
 		if [[ $SheBang != '#!'* ]]; then
-			SheBangInvalid='True'
-			exit 1
+			SheBangInvalidErr='True'
+			exit
 		fi
 
 		SheBangMain=${SheBang#\#\!}
 		SheBangBase=${SheBangMain##*/}
 
 		if ! type -P "${SheBangMain%% *}" &> /dev/null; then
-			InterpreterMissing=$SheBangMain
-			exit 1
+			InterpreterMissingErr=$SheBangMain
+			exit
 		fi
 
 		Exec=$SheBangMain
