@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat 27 May 19:06:41 BST 2023
+# Last Change       - Tue 30 May 21:24:11 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-15'
+CurVer='2023-05-30'
 Progrm='csi3'
 
 Usage() {
@@ -36,6 +36,7 @@ Usage() {
 		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
 		  -f, --file FILE          - Override default locations with FILE.
 		  -k, --key KEY            - Display only bindings with KEY.
+		  -n, --number             - Include line number of each binding.
 
 		A key binding's action being prepended with an exclamation mark ('!')
 		indicates it's a shell command, and not a native i3-wm command.
@@ -55,9 +56,11 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
-Red='\e[91m'
+Green='\e[32m'
 Grey='\e[37m'
+Red='\e[91m'
 Reset='\e[0m'
+Number=
 
 while [[ -n $1 ]]; do
 	case $1 in
@@ -66,8 +69,9 @@ while [[ -n $1 ]]; do
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--nocolor|-C)
-			Red=
+			Green=
 			Grey=
+			Red=
 			Reset= ;;
 		--noexecs|-E)
 			NoExecsFlag=$1
@@ -96,6 +100,8 @@ while [[ -n $1 ]]; do
 			else
 				Places=("$1")
 			fi ;;
+		--number|-n)
+			Number='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -140,10 +146,12 @@ Capitalize() { printf '%s+' "${@^}"; }
 declare -A Bindings=();
 
 Count=0
+LineNr=0
 KeysLenMax=0
 while read Line; do
-	CurrentKey=
+	(( LineNr++ ))
 
+	CurrentKey=
 	case $Line in
 		'set $'[Mm][Oo][Dd]\ *)
 			ModVar=${Line#set }
@@ -212,24 +220,36 @@ while read Line; do
 
 			# Using the `$Count` variable in order to maintain the original
 			# order, otherwise BASH will butcher the order, unfortunately.
-			Bindings["${Count}_$Keys"]=$Action ;;
+			Bindings["$LineNr|${Count}_$Keys"]=$Action ;;
 	esac
 done < "$File"
 
+# Grab from last iteration of above loop.
+MaxLineNrLen=${#LineNr}
+
 #----------------Display Results, Using `$Count` to Maintain the Original Order
 
-Count=1
-until (( Count > ${#Bindings[@]} )); do
+CurCount=1
+until (( CurCount > ${#Bindings[@]} )); do
 	for Binding in "${!Bindings[@]}"; {
-		if (( Count == "${Binding%%_*}" )); then
-			printf '%*s ' $KeysLenMax "${Binding#*_}"
+		LineNrCount=${Binding%%_*}
+		LineNr=${LineNrCount%|*}
+		Count=${LineNrCount#*|}
+		if (( Count == CurCount )); then
+			if [[ $Number == True ]]; then
+				printf "%*s $Green%*d$Reset " $KeysLenMax "${Binding#*_}"\
+					$MaxLineNrLen $LineNr
+			else
+				printf '%*s ' $KeysLenMax "${Binding#*_}"
+			fi
+
 			if [[ ${Bindings[$Binding]} == \!* ]]; then
 				printf "$Red!$Grey%s$Reset\n" "${Bindings[$Binding]#!}"
 			else
 				printf "$Grey%s$Reset\n" "${Bindings[$Binding]}"
 			fi
 
-			(( Count++ ))
+			(( CurCount++ ))
 
 			break
 		fi
