@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Tue 30 May 22:03:39 BST 2023
+# Last Change       - Tue 30 May 23:43:27 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,6 +33,7 @@ Usage() {
 		  -v, --version            - Output the version datestamp.
 		  -C, --nocolor            - Disable ANSI color escape sequences.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
+		  -V, --ignore-vars        - Do not attempt to expand i3WM variables.
 		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
 		  -f, --file FILE          - Override default locations with FILE.
 		  -k, --key KEY            - Display only bindings with KEY.
@@ -47,6 +48,7 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+ExpandVars='True'
 Green='\e[32m'
 Grey='\e[37m'
 Red='\e[91m'
@@ -67,6 +69,8 @@ while [[ -n $1 ]]; do
 		--noexecs|-E)
 			NoExecsFlag=$1
 			NoExecs='True' ;;
+		--ignore-vars|-V)
+			ExpandVars= ;;
 		--execs|-e)
 			ExecsFlag=$1
 			Execs='True' ;;
@@ -127,6 +131,88 @@ for Place in "${Places[@]}"; {
 
 [[ -z $File ]] && Err 1 'Unable to find a suitable configuration file.'
 
+#-----------------------Pre-Process to Gather List of Variable Names and Values
+
+readarray -t < "$File"
+
+if [[ $ExpandVars == True ]]; then
+	declare -A Names=()
+
+	# Gather set lines.
+	Sets=()
+	for Line in "${MAPFILE[@]}"; {
+		case $Line in
+			[[:space:]]set*|set*)
+				Sets+=("$Line") ;;
+		esac
+	}
+
+	# Parse set lines.
+	for Set in "${Sets[@]}"; {
+		Buffer=
+		SigilFound=
+		EqualFound=
+		Len=${#Set}
+		FirstSpaceAfterEqualFound=
+		for (( Index = 0; Index < Len; Index++ )); {
+			Char=${Set:Index:1}
+			if [[ $SigilFound == True ]]; then
+				if [[ $Char != [[:space:]] ]]; then
+					Buffer+=$Char
+				else
+					# When a space has been found, we've got the name, so now
+					# we can continue with the value, after the equal sign is
+					# found.
+					Name=$Buffer
+					SigilFound=
+					Buffer=
+				fi
+			elif [[ $EqualFound == True ]]; then
+				if [[ $FirstSpaceAfterEqualFound == True ]]; then
+					Buffer+=$Char
+				elif [[ $Char != [[:space:]] ]]; then
+					case $Char in
+						'"'|"'") # <-- Don't want leading quotes.
+							;;
+						*)
+							Buffer+=$Char ;;
+					esac
+
+					FirstSpaceAfterEqualFound='True'
+				fi
+			elif [[ $Char == '$' ]]; then
+				SigilFound='True'
+			elif [[ $Char == '=' ]]; then
+				EqualFound='True'
+			fi
+		}
+
+		# Process buffer backwards to strip trailing spaces and a possible
+		# quote. We only need to process the buffer until we have the part to
+		# strip.
+		LastRev=
+		Len=${#Buffer}
+		for (( Index = Len - 1; Index >= 0; Index-- )); {
+			Char=${Buffer:Index:1}
+			case $Char in
+				[[:space:]]|"'"|'"')
+					LastRev+=$Char ;;
+				*)
+					break ;;
+			esac
+		}
+
+		# Reverse `$LastRev` to make it usable as `$Last` below.
+		Last=
+		Len=${#LastRev}
+		for (( Index = Len - 1; Index >= 0; Index-- )); {
+			Last+=${LastRev:Index:1}
+		}
+
+		Names["$Name"]=${Buffer%$Last}
+	}
+fi
+
 #-------------------------------------------------------------------Gather Data
 
 # Capitalize the first character of each word. Intended to be used with
@@ -139,15 +225,26 @@ declare -A Bindings=();
 Count=0
 LineNr=0
 KeysLenMax=0
-while read Line; do
+for Line in "${MAPFILE[@]}"; {
 	(( LineNr++ ))
+
+	# Naive approach, but it'll do, at least for now. The reason this is naive
+	# is because the strings might be found somewhere that i3WM isn't supposed
+	# to look for variables, such as part of shell code which just happens to
+	# be using the same names.
+	#
+	# It's for that reason that this feature will include flags which turn it
+	# off, in-case a user has such issues. Luckily, this caveat is easily
+	# addressed by simply using different variable names.
+	if [[ $ExpandVars == True ]]; then
+		for Name in "${!Names[@]}"; {
+			Line=${Line//\$$Name/${Names["$Name"]}}
+			Line=${Line//\$\{$Name\}/${Names["$Name"]}}
+		}
+	fi
 
 	CurrentKey=
 	case $Line in
-		'set $'[Mm][Oo][Dd]\ *)
-			ModVar=${Line#set }
-			ModVar=${ModVar% *}
-			ModKey=${Line#set \$* } ;;
 		bindsym\ *)
 			read _ Keys Action <<< "$Line"
 
@@ -213,7 +310,7 @@ while read Line; do
 			# order, otherwise BASH will butcher the order, unfortunately.
 			Bindings["$LineNr|${Count}_$Keys"]=$Action ;;
 	esac
-done < "$File"
+}
 
 # Grab from last iteration of above loop.
 MaxLineNrLen=${#LineNr}
