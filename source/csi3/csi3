@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Tue 30 May 23:43:27 BST 2023
+# Last Change       - Wed 31 May 00:17:26 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,6 +12,10 @@
 # Features:
 #
 #TODO: Cut off lines exceeding column length.
+#TODO: Look into allowing multiple files to be processed, via concatenation.
+#
+#      One downside with this is that the line number feature wouldn't really
+#      work. Still, I'm fairly sure this feature is doable.
 #
 # Bugs:
 #
@@ -22,7 +26,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-30'
+CurVer='2023-05-31'
 Progrm='csi3'
 
 Usage() {
@@ -244,72 +248,71 @@ for Line in "${MAPFILE[@]}"; {
 	fi
 
 	CurrentKey=
-	case $Line in
-		bindsym\ *)
-			read _ Keys Action <<< "$Line"
+	[[ $Line == bindsym\ * ]] || continue
 
-			# Account for something like `$mod` being used. (Issue #16)
-			if [[ -n $ModKey ]]; then
-				NewKeys=
-				for Key in ${Keys//+/ }; {
-					if [[ $Key == $ModVar ]]; then
-						NewKeys+="$ModKey+"
-					else
-						NewKeys+="$Key+"
-					fi
-				}
+	read _ Keys Action <<< "$Line"
 
-				Keys=$NewKeys
+	# Account for something like `$mod` being used. (Issue #16)
+	if [[ -n $ModKey ]]; then
+		NewKeys=
+		for Key in ${Keys//+/ }; {
+			if [[ $Key == $ModVar ]]; then
+				NewKeys+="$ModKey+"
+			else
+				NewKeys+="$Key+"
 			fi
+		}
 
-			# Capitalize the first character of each key.
-			Keys=`Capitalize ${Keys//+/ }`
-			Keys=${Keys%+}
+		Keys=$NewKeys
+	fi
 
-			# Allows for filtering by a specific key. This is done here to
-			# properly maintain table size. Keys provided by user should be in
-			# the form of 'Mod4' instead of 'mod4' or 'F2' instead of 'f2'.
-			if [[ -n $Match ]]; then
-				IFS='+' read -a KeyList <<< "$Keys"
+	# Capitalize the first character of each key.
+	Keys=`Capitalize ${Keys//+/ }`
+	Keys=${Keys%+}
 
-				Show=
-				for Key in "${KeyList[@]}"; {
-					if [[ $Key == $Match ]]; then
-						Show='True'
-					fi
-				}
+	# Allows for filtering by a specific key. This is done here to properly
+	# maintain table size. Keys provided by user should be in the form of
+	# 'Mod4' instead of 'mod4' or 'F2' instead of 'f2'.
+	if [[ -n $Match ]]; then
+		IFS='+' read -a KeyList <<< "$Keys"
 
-				[[ $Show == True ]] || continue
+		Show=
+		for Key in "${KeyList[@]}"; {
+			if [[ $Key == $Match ]]; then
+				Show='True'
 			fi
+		}
 
-			if [[ $NoExecs == True ]]; then
-				case $Action in
-					exec\ *|exec_always\ *)
-						continue ;;
-				esac
-			elif [[ $Execs == True ]]; then
-				case $Action in
-					exec\ *|exec_always\ *)
-						;;
-					*)
-						continue ;;
-				esac
-			fi
+		[[ $Show == True ]] || continue
+	fi
 
-			Action=${Action/exec --no-startup-id /!}
-			Action=${Action/exec_always --no-startup-id /!}
-			Action=${Action/exec_always /!}
-			Action=${Action/exec /!}
+	if [[ $NoExecs == True ]]; then
+		case $Action in
+			exec\ *|exec_always\ *)
+				continue ;;
+		esac
+	elif [[ $Execs == True ]]; then
+		case $Action in
+			exec\ *|exec_always\ *)
+				;;
+			*)
+				continue ;;
+		esac
+	fi
 
-			KeysLen=${#Keys}
-			(( KeysLen > KeysLenMax )) && KeysLenMax=$KeysLen
+	Action=${Action/exec --no-startup-id /!}
+	Action=${Action/exec_always --no-startup-id /!}
+	Action=${Action/exec_always /!}
+	Action=${Action/exec /!}
 
-			(( Count++ ))
+	KeysLen=${#Keys}
+	(( KeysLen > KeysLenMax )) && KeysLenMax=$KeysLen
 
-			# Using the `$Count` variable in order to maintain the original
-			# order, otherwise BASH will butcher the order, unfortunately.
-			Bindings["$LineNr|${Count}_$Keys"]=$Action ;;
-	esac
+	(( Count++ ))
+
+	# Using the `$Count` variable in order to maintain the original
+	# order, otherwise BASH will butcher the order, unfortunately.
+	Bindings["$LineNr|${Count}_$Keys"]=$Action
 }
 
 # Grab from last iteration of above loop.
