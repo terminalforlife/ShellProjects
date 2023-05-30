@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Tue 30 May 21:24:11 BST 2023
+# Last Change       - Tue 30 May 22:03:39 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -37,15 +37,6 @@ Usage() {
 		  -f, --file FILE          - Override default locations with FILE.
 		  -k, --key KEY            - Display only bindings with KEY.
 		  -n, --number             - Include line number of each binding.
-
-		A key binding's action being prepended with an exclamation mark ('!')
-		indicates it's a shell command, and not a native i3-wm command.
-
-		If a \$mod (case-insensitive) variable is set for the primary modifier
-		key, in the i3 configuration file, it should be correctly parsed. Other
-		variables will not be parsed.
-
-		Modes are not handled.
 	EOF
 
 	printf '%s' "$REPLY"
