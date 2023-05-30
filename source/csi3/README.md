@@ -2,7 +2,7 @@
 
 A presentable cheat sheet for your i3WM key bindings, written entirely in BASH.
 
-CSi3 will work on _everyone's_ configuration file. If you use non-standard configuration formatting and/or syntax, then it may not display correctly. Although modes aren't supported, the bindings for them should still be listed.
+CSi3 will not work on _everyone's_ configuration file. If you use non-standard configuration formatting and/or syntax, then it may not display correctly. Although modes aren't supported, the bindings for them should still be listed. More information is available in the included man page.
 
 ### Requirements
 
