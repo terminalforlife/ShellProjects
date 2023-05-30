@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 27 May 20:22:44 BST 2023
+# Last Change       - Tue 30 May 20:46:16 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -25,7 +25,6 @@
 #      sure this is something which can be fixed, as it's probably just a
 #      limitation of Shell/terminals.
 #
-#TODO: Still refuses to detect when the shebang is changed.
 #TODO: When everything on the bottom line is disabled, still get an empty line.
 #
 #      This only occurs when not running once. When all the usual stuff is
@@ -39,7 +38,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-27'
+CurVer='2023-05-30'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -85,6 +84,7 @@ Refresh='0.05'
 Spinner='True'
 Time='False'
 WaitMSG='True'
+ArgExec='False'
 
 while [[ -n $1 ]]; do
 	case $1 in
@@ -101,6 +101,7 @@ while [[ -n $1 ]]; do
 				Err 1 'Name of command not provided.'
 			else
 				Exec=$1
+				ArgExec='True'
 			fi ;;
 		--refresh|-r)
 			RefreshArg=$1
@@ -231,7 +232,7 @@ while :; do
 	fi
 
 	# Determine the interpreter to use.
-	if [[ -z $Exec ]]; then
+	if [[ $ArgExec != True ]]; then
 		read SheBang < "$ExecFile"
 
 		if [[ $SheBang != '#!'* ]]; then
