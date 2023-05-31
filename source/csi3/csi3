@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 31 May 14:23:52 BST 2023
+# Last Change       - Wed 31 May 14:48:00 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -38,6 +38,8 @@ Usage() {
 		  -f, --file FILE          - Override default locations with FILE.
 		  -k, --key KEY            - Display only bindings with KEY.
 		  -n, --number             - Include line number of each binding.
+
+		  The use of '-' to instead read from STDIN is supported.
 	EOF
 
 	printf '%s' "$REPLY"
@@ -48,6 +50,7 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+StandardIn='False'
 ExpandVars='True'
 Green='\e[32m'
 Grey='\e[37m'
@@ -97,6 +100,8 @@ while [[ -n $1 ]]; do
 			fi ;;
 		--number|-n)
 			Number='True' ;;
+		-)
+			StandardIn='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -106,30 +111,36 @@ while [[ -n $1 ]]; do
 done
 
 if [[ $Execs == True && $NoExecs == True ]]; then
-	Err 1 "OPTs '$NoExecsFlag' & '$ExecsFlag' are incompatible."
+	Err 1 "OPTs '$NoExecsFlag' & '$ExecsFlag' incompatible."
+elif [[ $StandardIn == True ]] && (( ${#Places[@]} > 0 )); then
+	Err 1 "OPT '$FileArg' unavailable when reading from STDIN."
 fi
 
 #----------------------------------------Confirm Suitable File Found & Readable
 
-if [[ -z $Places ]]; then
-	Places=(
-		"$HOME/.config/i3/config"
-		"$HOME/.i3/config"
-	)
-fi
-
-for Place in "${Places[@]}"; {
-	if [[ -f $Place ]]; then
-		if [[ -r $Place ]]; then
-			File=$Place
-			break
-		else
-			Err 1 "File '$Place' unreadable."
-		fi
+if [[ $StandardIn == True ]]; then
+	File='/dev/stdin'
+else
+	if [[ -z $Places ]]; then
+		Places=(
+			"$HOME/.config/i3/config"
+			"$HOME/.i3/config"
+		)
 	fi
-}
 
-[[ -z $File ]] && Err 1 'Unable to find a suitable configuration file.'
+	for Place in "${Places[@]}"; {
+		if [[ -f $Place ]]; then
+			if [[ -r $Place ]]; then
+				File=$Place
+				break
+			else
+				Err 1 "File '$Place' unreadable."
+			fi
+		fi
+	}
+
+	[[ -z $File ]] && Err 1 'Unable to find a suitable configuration file.'
+fi
 
 #-----------------------Pre-Process to Gather List of Variable Names and Values
 
