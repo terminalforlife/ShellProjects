@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 31 May 14:08:33 BST 2023
+# Last Change       - Wed 31 May 14:23:52 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,10 +12,6 @@
 # Features:
 #
 #TODO: Cut off lines exceeding column length.
-#TODO: Look into allowing multiple files to be processed, via concatenation.
-#
-#      One downside with this is that the line number feature wouldn't really
-#      work. Still, I'm fairly sure this feature is doable.
 #
 # Bugs:
 #
