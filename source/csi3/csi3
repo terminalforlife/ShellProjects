@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 31 May 17:58:26 BST 2023
+# Last Change       - Wed 31 May 19:11:02 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -116,6 +116,31 @@ elif [[ $StandardIn == True ]] && (( ${#Places[@]} > 0 )); then
 	Err 1 "OPT '$FileArg' unavailable when reading from STDIN."
 fi
 
+#-------------------------------------------------------------Primary Functions
+
+# Capitalize the first character of each word. Intended to be used with
+# separate arguments -- ideally a quoted array. This will create a trailing '+'
+# which should be removed with Parameter Expansion before being used.
+Capitalize() { printf '%s+' "${@^}"; }
+
+# Usage: LeftTrim VARIABLE DATA
+LeftTrim() {
+	declare -n _Data=$1
+
+	LTrim=
+	Len=${#2}
+	for (( Index = 0; Index < Len; Index++ )); {
+		Char=${2:Index:1}
+		if [[ $Char == [[:space:]] ]]; then
+			LTrim+=$Char
+		else
+			break
+		fi
+	}
+
+	_Data=$LTrim
+}
+
 #----------------------------------------Confirm Suitable File Found & Readable
 
 if [[ $StandardIn == True ]]; then
@@ -218,18 +243,37 @@ fi
 
 #-------------------------------------------------------------------Gather Data
 
-# Capitalize the first character of each word. Intended to be used with
-# separate arguments -- ideally a quoted array. This will create a trailing '+'
-# which should be removed with Parameter Expansion before being used.
-Capitalize() { printf '%s+' "${@^}"; }
-
 declare -A Bindings=();
 
 Count=0
 LineNr=0
+SlashLine=
 KeysLenMax=0
 for Line in "${MAPFILE[@]}"; {
 	(( LineNr++ ))
+
+	# Begin handling lines ending in '\', to process split up lines.
+	if [[ ${Line:${#Line} - 1:1} == '\' ]]; then
+		[[ -z $SlashLineNr ]] && SlashLineNr=$LineNr
+
+		LeftTrim LTrim "$Line"
+
+		Line=${Line#$LTrim}
+		SlashLine+="${Line%\\} "
+
+		continue
+	fi
+
+	# Continue processing the rest of the file, with our current line being the
+	# cleaned up concatenated result of the previously split up lines.
+	if [[ -n $SlashLine ]]; then
+		LeftTrim LTrim "$Line"
+
+		SlashLine+="${Line#$LTrim}"
+
+		Line=$SlashLine
+		SlashLine=
+	fi
 
 	# Naive approach, but it'll do, at least for now. The reason this is naive
 	# is because the strings might be found somewhere that i3WM isn't supposed
@@ -297,9 +341,16 @@ for Line in "${MAPFILE[@]}"; {
 
 	(( Count++ ))
 
+	# If line was split up, use original line number.
+	LineNrFinal=$LineNr
+	if [[ -n $SlashLineNr ]]; then
+		LineNrFinal=$SlashLineNr
+		SlashLineNr=
+	fi
+
 	# Using the `$Count` variable in order to maintain the original
 	# order, otherwise BASH will butcher the order, unfortunately.
-	Bindings["$LineNr|${Count}_$Keys"]=$Action
+	Bindings["$LineNrFinal|${Count}_$Keys"]=$Action
 }
 
 # Grab from last iteration of above loop.
