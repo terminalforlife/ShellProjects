@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 31 May 16:35:22 BST 2023
+# Last Change       - Wed 31 May 17:58:26 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -162,25 +162,27 @@ if [[ $ExpandVars == True ]]; then
 	for Set in "${Sets[@]}"; {
 		Name=
 		Buffer=
+		QuoteFound=
 		SigilFound=
 		Len=${#Set}
 		for (( Index = 0; Index < Len; Index++ )); {
 			Char=${Set:Index:1}
 			if [[ $SigilFound == True ]]; then
-				if [[ $Char != [[:space:]] ]]; then
-					Buffer+=$Char
+				if [[ -n $Name ]]; then
+					if [[ $QuoteFound == True ]]; then
+						Buffer+=$Char
+					elif [[ $Char == '"' || $Char == "'" ]]; then
+						QuoteFound='True'
+					else
+						Buffer+=$Char
+					fi
 				else
-					if [[ -z $Name ]]; then
+					if [[ $Char == [[:space:]] ]]; then
 						Name=$Buffer
 						Buffer=
+					else
+						Buffer+=$Char
 					fi
-
-					case $Char in
-						[[:space:]]|'"'|"'")
-							;; # <-- No leading spaces or quotes.
-						*)
-							Buffer+=$Char ;;
-					esac
 				fi
 			elif [[ $Char == '$' ]]; then
 				SigilFound='True'
@@ -189,7 +191,8 @@ if [[ $ExpandVars == True ]]; then
 
 		# Process buffer backwards to strip trailing spaces and a possible
 		# quote. We only need to process the buffer until we have the part to
-		# strip.
+		# strip. Trailing comments don't seem to be allowed, so we don't need
+		# to check for those.
 		LastRev=
 		Len=${#Buffer}
 		for (( Index = Len - 1; Index >= 0; Index-- )); {
