@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 31 May 00:17:26 BST 2023
+# Last Change       - Wed 31 May 14:08:33 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -153,41 +153,30 @@ if [[ $ExpandVars == True ]]; then
 
 	# Parse set lines.
 	for Set in "${Sets[@]}"; {
+		Name=
 		Buffer=
 		SigilFound=
-		EqualFound=
 		Len=${#Set}
-		FirstSpaceAfterEqualFound=
 		for (( Index = 0; Index < Len; Index++ )); {
 			Char=${Set:Index:1}
 			if [[ $SigilFound == True ]]; then
 				if [[ $Char != [[:space:]] ]]; then
 					Buffer+=$Char
 				else
-					# When a space has been found, we've got the name, so now
-					# we can continue with the value, after the equal sign is
-					# found.
-					Name=$Buffer
-					SigilFound=
-					Buffer=
-				fi
-			elif [[ $EqualFound == True ]]; then
-				if [[ $FirstSpaceAfterEqualFound == True ]]; then
-					Buffer+=$Char
-				elif [[ $Char != [[:space:]] ]]; then
+					if [[ -z $Name ]]; then
+						Name=$Buffer
+						Buffer=
+					fi
+
 					case $Char in
-						'"'|"'") # <-- Don't want leading quotes.
-							;;
+						[[:space:]]|'"'|"'")
+							;; # <-- No leading spaces or quotes.
 						*)
 							Buffer+=$Char ;;
 					esac
-
-					FirstSpaceAfterEqualFound='True'
 				fi
 			elif [[ $Char == '$' ]]; then
 				SigilFound='True'
-			elif [[ $Char == '=' ]]; then
-				EqualFound='True'
 			fi
 		}
 
