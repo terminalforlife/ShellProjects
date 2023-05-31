@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 31 May 19:11:02 BST 2023
+# Last Change       - Wed 31 May 19:26:44 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ for Line in "${MAPFILE[@]}"; {
 	CurrentKey=
 	[[ $Line == bindsym\ * ]] || continue
 
-	read _ Keys Action <<< "$Line"
+	read -r _ Keys Action <<< "$Line"
 
 	# Capitalize the first character of each key.
 	Keys=`Capitalize ${Keys//+/ }`
