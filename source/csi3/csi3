@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Wed 31 May 14:48:00 BST 2023
+# Last Change       - Wed 31 May 16:35:22 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -236,6 +236,8 @@ for Line in "${MAPFILE[@]}"; {
 	# It's for that reason that this feature will include flags which turn it
 	# off, in-case a user has such issues. Luckily, this caveat is easily
 	# addressed by simply using different variable names.
+	#
+	# This should expand on the old solution for Issue #16.
 	if [[ $ExpandVars == True ]]; then
 		for Name in "${!Names[@]}"; {
 			Line=${Line//\$$Name/${Names["$Name"]}}
@@ -247,20 +249,6 @@ for Line in "${MAPFILE[@]}"; {
 	[[ $Line == bindsym\ * ]] || continue
 
 	read _ Keys Action <<< "$Line"
-
-	# Account for something like `$mod` being used. (Issue #16)
-	if [[ -n $ModKey ]]; then
-		NewKeys=
-		for Key in ${Keys//+/ }; {
-			if [[ $Key == $ModVar ]]; then
-				NewKeys+="$ModKey+"
-			else
-				NewKeys+="$Key+"
-			fi
-		}
-
-		Keys=$NewKeys
-	fi
 
 	# Capitalize the first character of each key.
 	Keys=`Capitalize ${Keys//+/ }`
