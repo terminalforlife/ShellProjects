@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/nozombies.sh
 # Started On        - Fri 26 May 19:32:02 BST 2023
-# Last Change       - Fri  2 Jun 13:55:47 BST 2023
+# Last Change       - Fri  2 Jun 14:28:19 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -24,6 +24,8 @@
 #   - Trailing comments.
 #
 # Assumes filepaths don't have a pipe ('|') in them.
+#
+# If testing exit status, 4 indicates zombie code was found.
 #
 # Usage: $0 [FILE]
 #
@@ -56,7 +58,7 @@ else
 	Files=("$GitDir"/**)
 fi
 
-ZombieHits=()
+Counter=0
 for File in "${Files[@]}"; {
 	[[ -f $File ]] || continue
 	[[ -r $File ]] || Err 0 "File '$File' unreadable."
@@ -77,6 +79,8 @@ for File in "${Files[@]}"; {
 			if [[ $PotentialHit == True ]]; then
 				[[ ${REPLY:Index - 1:5} == TODO: ]] && break
 				[[ ${REPLY:Index - 1:5} == 'cito ' ]] && break
+
+				(( Counter++ ))
 
 				if [[ -n $1 ]]; then
 					printf '\e[36m%d:\e[0m%s\n' "$LineNr" "$REPLY"
@@ -101,3 +105,7 @@ for File in "${Files[@]}"; {
 		}
 	done < "$File"
 }
+
+if (( Counter > 0 )); then
+	exit 4
+fi
