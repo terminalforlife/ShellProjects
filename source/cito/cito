@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Fri  2 Jun 15:06:46 BST 2023
+# Last Change       - Fri  2 Jun 15:24:10 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -345,6 +345,7 @@ DoRegardless() {
 
 #-------------------------------------------Begin Downloading and/or Installing
 
+UnsupportedFile=0
 if [ "$DoRemote" = 'true' ]; then
 	for CurRemFile in "$@"; do
 		URL="$RawDomain/$GHUser/$Repo/$Branch/${CurRemFile#/}"
@@ -359,6 +360,9 @@ if [ "$DoRemote" = 'true' ]; then
 						"$Target" && rm "$TemRemFile" || exit $?
 				else
 					Err 0 "File '$CurRemFile' is not supported by Cito."
+
+					UnsupportedFile=$(( UnsupportedFile + 1 ))
+
 					continue
 				fi
 			fi
@@ -395,7 +399,7 @@ else
 		unset HasCito Target Group Owner Mode CurField
 	done
 
-	if [ $ReadFileFail -gt 0 ]; then
+	if [ $ReadFileFail -gt 0 -o $UnsupportedFile -gt 0 ]; then
 		exit 1
 	fi
 fi
