@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/nozombies.sh
 # Started On        - Fri 26 May 19:32:02 BST 2023
-# Last Change       - Fri 26 May 21:10:56 BST 2023
+# Last Change       - Fri  2 Jun 13:55:47 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -25,6 +25,8 @@
 #
 # Assumes filepaths don't have a pipe ('|') in them.
 #
+# Usage: $0 [FILE]
+#
 # Dependencies:
 #
 #   bash (>= 4.0)
@@ -42,8 +44,20 @@ Repo='Extra'
 
 shopt -s globstar
 
+if [[ -n $1 ]]; then
+	Files=$1
+
+	if ! [[ -f $Files ]]; then
+		Err 1 "File '$Files' not found."
+	elif ! [[ -r $Files ]]; then
+		Err 1 "File '$Files' unreadable."
+	fi
+else
+	Files=("$GitDir"/**)
+fi
+
 ZombieHits=()
-for File in "$GitDir"/**; {
+for File in "${Files[@]}"; {
 	[[ -f $File ]] || continue
 	[[ -r $File ]] || Err 0 "File '$File' unreadable."
 
@@ -64,8 +78,12 @@ for File in "$GitDir"/**; {
 				[[ ${REPLY:Index - 1:5} == TODO: ]] && break
 				[[ ${REPLY:Index - 1:5} == 'cito ' ]] && break
 
-				printf '\e[32m%s:\e[36m%d:\e[0m%s\n'\
-					"$Repo/${File#*/}" "$LineNr" "$REPLY"
+				if [[ -n $1 ]]; then
+					printf '\e[36m%d:\e[0m%s\n' "$LineNr" "$REPLY"
+				else
+					printf '\e[32m%s:\e[36m%d:\e[0m%s\n'\
+						"$Repo/${File#*/}" "$LineNr" "$REPLY"
+				fi
 
 				break
 			elif [[ $Comment == True ]]; then
