@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Fri  2 Jun 02:24:58 BST 2023
+# Last Change       - Fri  2 Jun 18:05:28 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -58,6 +58,24 @@ Grey='\e[37m'
 Red='\e[91m'
 Reset='\e[0m'
 Number=
+
+Args=()
+while [[ -n $1 ]]; do
+	case $1 in
+		-[^-]*)
+			Str=${1#-}
+			Len=${#Str}
+			for (( Index = 0; Index < Len; Index++ )); {
+				Char=${Str:Index:1}
+				Args+=(-"$Char")
+			} ;;
+		*)
+			Args+=("$1") ;;
+	esac
+	shift
+done
+
+set -- "${Args[@]}"
 
 while [[ -n $1 ]]; do
 	case $1 in

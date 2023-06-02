@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Fri 19 May 18:01:10 BST 2023
+# Last Change       - Fri  2 Jun 18:06:09 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,7 +33,7 @@
 #   libglib2.0-bin (>= 2.56.4-0ubuntu0.18.04.9)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-19'
+CurVer='2023-06-02'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -68,6 +68,24 @@ ValidKeys=(
 		Interval LightTime DarkTime LightBorders LightIcons LightControls\
 		DarkCursor DarkDesktop LightBG DarkBG
 )
+
+Args=()
+while [[ -n $1 ]]; do
+	case $1 in
+		-[^-]*)
+			Str=${1#-}
+			Len=${#Str}
+			for (( Index = 0; Index < Len; Index++ )); {
+				Char=${Str:Index:1}
+				Args+=(-"$Char")
+			} ;;
+		*)
+			Args+=("$1") ;;
+	esac
+	shift
+done
+
+set -- "${Args[@]}"
 
 while [[ -n $1 ]]; do
 	case $1 in

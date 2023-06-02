@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged
 # Started On        - Sun  9 Jan 16:57:12 GMT 2022
-# Last Change       - Wed 16 Feb 03:07:13 GMT 2022
+# Last Change       - Fri  2 Jun 18:06:33 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -26,7 +26,7 @@
 #   git (>= 2.17.1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-02-16'
+CurVer='2023-06-02'
 Progrm=${0##*/}
 
 Usage() {
@@ -53,6 +53,24 @@ Err() {
 }
 
 Sorted='<'
+
+Args=()
+while [[ -n $1 ]]; do
+	case $1 in
+		-[^-]*)
+			Str=${1#-}
+			Len=${#Str}
+			for (( Index = 0; Index < Len; Index++ )); {
+				Char=${Str:Index:1}
+				Args+=(-"$Char")
+			} ;;
+		*)
+			Args+=("$1") ;;
+	esac
+	shift
+done
+
+set -- "${Args[@]}"
 
 while [[ -n $1 ]]; do
 	case $1 in
