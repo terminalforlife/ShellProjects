@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/cito/cito
 # Started On        - Thu  5 Dec 20:40:35 GMT 2019
-# Last Change       - Sun  1 May 00:09:47 BST 2022
+# Last Change       - Fri  2 Jun 15:06:46 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 #   curl (>= 7.47.0-1) | wget (>= 1.17.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-01'
+CurVer='2023-06-02'
 Progrm='cito'
 
 Usage() {
@@ -350,13 +350,13 @@ if [ "$DoRemote" = 'true' ]; then
 		URL="$RawDomain/$GHUser/$Repo/$Branch/${CurRemFile#/}"
 		if $DLCMD "$TemRemFile" "$URL" 1> /dev/null; then
 			if ChkMD5 "$CurRemFile"; then
-				ReadFile "$TemRemFile" || exit 0
+				ReadFile "$TemRemFile" || exit 1
 
 				if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 					DoRegardless
 
 					install -D -o "$Owner" -g "$Group" "$TemRemFile"\
-						"$Target" && rm "$TemRemFile"
+						"$Target" && rm "$TemRemFile" || exit $?
 				else
 					Err 0 "File '$CurRemFile' is not supported by Cito."
 					continue
@@ -373,14 +373,19 @@ else
 	# Pretty sure this is handled elsewhere, but just in-case, catch it.
 	[ $# -eq 0 ] && Err 1 'No local files were provided.'
 
+	ReadFileFail=0
 	for CurFile in "$@"; do
 		if ChkMD5 "$CurFile"; then
-			ReadFile "$CurFile" || continue
+			if ! ReadFile "$CurFile"; then
+				ReadFileFail=$(( ReadFileFail + 1 ))
+
+				continue
+			fi
 
 			if [ "$HasCito" = 'true' -o "$Regardless" = 'true' ]; then
 				DoRegardless
 
-				install -D -o "$Owner" -g "$Group" "$CurFile" "$Target"
+				install -D -o "$Owner" -g "$Group" "$CurFile" "$Target" || exit $?
 			else
 				Err 0 "File '$CurFile' is not supported by Cito."
 				continue
@@ -389,4 +394,8 @@ else
 
 		unset HasCito Target Group Owner Mode CurField
 	done
+
+	if [ $ReadFileFail -gt 0 ]; then
+		exit 1
+	fi
 fi
