@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Sat  3 Jun 13:38:34 BST 2023
+# Last Change       - Sat  3 Jun 19:23:43 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -78,15 +78,23 @@ Comment='#'
 LineNumber=
 SnotesFile="$HOME/.config/$Progrm.conf"
 
+Skip=
 Args=()
 while [[ -n $1 ]]; do
 	case $1 in
+		--)
+			Args+=(--)
+			Skip='True' ;;
 		-[^-]*)
-			Str=${1#-}
-			Len=${#Str}
-			for (( Index = 0; Index < Len; Index++ )); {
-				Args+=(-"${Str:Index:1}")
-			} ;;
+			if [[ $Skip == True ]]; then
+				Args+=("$1")
+			else
+				Str=${1#-}
+				Len=${#Str}
+				for (( Index = 0; Index < Len; Index++ )); {
+					Args+=(-"${Str:Index:1}")
+				}
+			fi ;;
 		*)
 			Args+=("$1") ;;
 	esac
@@ -129,7 +137,7 @@ while [[ -n $1 ]]; do
 		--line-number|-n)
 			LineNumber='True' ;;
 		-*)
-			Err 1 'Incorrect argument(s) specified.' ;;
+			Err 1 'Incorrect option(s) specified.' ;;
 		*)
 			break ;;
 	esac
