@@ -2,13 +2,12 @@
 
 Programs and scripts written in POSIX shell and BASH.
 
-As of 2022-02-25, here are some highlights:
+As of 2023-06-03, here are some highlights:
 
   * [autoexec](source/autoexec) - Development tool for automatic execution of files
   * [backmeup](source/backmeup) - Simple and portable solution to HOME backup
   * [cito](source/cito) - Portable installer for local or GitHub files
   * [csi3](source/csi3) - Command-line cheat sheet for i3-wm/i3-gaps
-  * [fetcher](source/fetcher) - Simple interactive multi-file downloader for the terminal
   * [glkfu](source/glkfu) - Easily compile & build Debian packages for Linux kernels
   * [lmc-darklight](source/lmc-darklight) - Scheduled dark/light themes for Linux Mint Cinnamon
   * [rmne](source/rmne) - Remove all of the non-essential Debian packages
