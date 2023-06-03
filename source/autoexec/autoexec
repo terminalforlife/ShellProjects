@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Fri  2 Jun 18:04:56 BST 2023
+# Last Change       - Sat  3 Jun 13:37:13 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -38,7 +38,7 @@
 #   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-02'
+CurVer='2023-06-03'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -93,8 +93,7 @@ while [[ -n $1 ]]; do
 			Str=${1#-}
 			Len=${#Str}
 			for (( Index = 0; Index < Len; Index++ )); {
-				Char=${Str:Index:1}
-				Args+=(-"$Char")
+				Args+=(-"${Str:Index:1}")
 			} ;;
 		*)
 			Args+=("$1") ;;

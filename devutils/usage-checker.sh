@@ -3,10 +3,12 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/usage-checker.sh
 # Started On        - Fri  2 Jun 16:03:20 BST 2023
-# Last Change       - Fri  2 Jun 17:30:47 BST 2023
+# Last Change       - Fri  2 Jun 22:12:45 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
+#TODO: Make this work properly in BASH scripts.
+#
 # Parse usage output from STDIN to ensure all is correct.
 #------------------------------------------------------------------------------
 

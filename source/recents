@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/recents
 # Started On        - Fri  2 Jun 00:15:00 BST 2023
-# Last Change       - Fri  2 Jun 18:09:06 BST 2023
+# Last Change       - Sat  3 Jun 13:39:20 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-02'
+CurVer='2023-06-03'
 Progrm=${0##*/}
 
 Usage() {
@@ -65,8 +65,7 @@ while [[ -n $1 ]]; do
 			Str=${1#-}
 			Len=${#Str}
 			for (( Index = 0; Index < Len; Index++ )); {
-				Char=${Str:Index:1}
-				Args+=(-"$Char")
+				Args+=(-"${Str:Index:1}")
 			} ;;
 		*)
 			Args+=("$1") ;;
