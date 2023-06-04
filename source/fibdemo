@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fibdemo
 # Started On        - Sat  3 Jun 23:55:42 BST 2023
-# Last Change       - Sun  4 Jun 01:28:56 BST 2023
+# Last Change       - Sun  4 Jun 01:31:13 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -36,8 +36,6 @@ SECONDS=0
 Fib 20
 
 printf '\nTook %d second(s).\n\n' $SECONDS
-
-#---------------Bad Optimization Attempt Trying to Work Around BASH Limitations
 
 printf 'Using advanced method for #1000:\n\n'
 
