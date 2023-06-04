@@ -1,0 +1,49 @@
+#!/bin/sh
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/posix-recurse
+# Started On        - Sun  4 Jun 19:09:00 BST 2023
+# Last Change       - Sun  4 Jun 20:13:00 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# A demonstration of how you can recursively crawl a directory tree with POSIX
+# shell. The basis of this approach is via function recursion. Will crawl other
+# filesystems, if given the chance. You could avoid this by parsing
+# '/proc/mounts', then using those as exceptions.
+#
+# This approach works fine in BASH, if you need it, but BASH 4.0 introduced the
+# `globstar` shell option, which allows recursion. This is perhaps handy for
+# embedded systems which don't have the likes of find(1), orf or more specific
+# ways of handling the recursion.
+#
+# This is also surprisingly quick in DASH. I can crawl through my entire HOME
+# in 1.12s. 0.72s without printing. My HOME (slower SSD, EXT4) contains 107,913
+# items. I used this approach to print only all JPEGs in my entire HOME in
+# 0.84s. I even crawled through my entire system of 633,664 items in just
+# 5.29s, which includes a large external backup HDD with a heck of a lot of
+# files.
+#
+# You need not always parse another program's output.
+#------------------------------------------------------------------------------
+
+Recurse() {
+	Arg=${1%/}
+	for File in "$Arg"/.* "$Arg"/*; do
+		if [ -f "$File" ]; then
+			printf '%s\n' "$File"
+		elif [ -d "$File" ]; then
+			case ${File##*/} in
+				.|..) continue ;;
+			esac
+
+			printf '%s/\n' "$File"
+
+			[ -L "$File" ] && continue
+
+			Recurse "$File"
+		fi
+	done
+}
+
+Recurse "${1:-.}"
