@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/local/bin/pbtree
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/pbtree
+# Started On        - Sat  3 Jun 16:56:38 BST 2023
+# Last Change       - Mon  5 Jun 00:58:25 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# A simple and portable tool written purely in BASH to traverse recursively
+# through a directory to print a pleasant but simple directory tree.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.3)
+#------------------------------------------------------------------------------
+
+CurVer='2023-06-05'
+Progrm=${0##*/}
+
+Usage() {
+	read -d '' <<-EOF
+		Usage: $Progrm [OPTS]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  -A, --hidden             - Include hidden files and directories.
+		  -C, --nocolor            - Disable ANSI color escape sequences.
+		  -i, --indent N           - Indent by N number of whitespaces.
+		  -q, --quote              - Protect each name with double-quotes.
+		  -r, --raw                - Display paths as they are processed.
+	EOF
+
+	printf '%s' "$REPLY"
+}
+
+Err() {
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
+Skip=
+Args=()
+while [[ -n $1 ]]; do
+	case $1 in
+		--)
+			Args+=(--)
+			Skip='True' ;;
+		-[^-]*)
+			if [[ $Skip == True ]]; then
+				Args+=("$1")
+			else
+				Str=${1#-}
+				Len=${#Str}
+				for (( Index = 0; Index < Len; Index++ )); {
+					Args+=(-"${Str:Index:1}")
+				}
+			fi ;;
+		*)
+			Args+=("$1") ;;
+	esac
+	shift
+done
+
+set -- "${Args[@]}"
+
+Indent=4
+Raw='False'
+Quotes='False'
+
+C_Dir=$'\e[1m'
+C_Err=$'\e[1;31m'
+C_Exec=$'\e[36m'
+C_File=$'\e[37m'
+C_Link=$'\e[2;37m'
+C_Reset=$'\e[0m'
+
+RawArg=
+IndentArg=
+NoColorArg=
+while [[ -n $1 ]]; do
+	case $1 in
+		--help|-h)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--hidden|-A)
+			shopt -s dotglob ;;
+		--nocolor|-C)
+			NoColorArg=$1
+
+			C_Dir=
+			C_Err=
+			C_Exec=
+			C_File=
+			C_Link=
+			C_Reset= ;;
+		--indent|-i)
+			IndentArg=$1
+
+			Int=$2
+			if [[ -z $Int ]]; then
+				Err 1 "Option '$1' requires an argument."
+			elif [[ $Int != +([[:digit:]]) ]]; then
+				Err 1 "Option '$1' requires an integer."
+			elif (( Int < 2 )); then
+				Err 1 "Unable to indent by fewer than 2 whitespaces."
+			fi
+
+			Indent=$Int
+			shift ;;
+		--quotes|-q)
+			QuotesArg=$1
+
+			Quotes='True' ;;
+		--raw|-r)
+			RawArg=$1
+
+			Raw='True' ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+if [[ $Raw == True ]]; then
+	if [[ -n $QuotesArg ]]; then
+		Err 1 "Option '$QuotesArg' and '$RawArg' incompatible."
+	elif [[ -n $IndentArg ]]; then
+		Err 1 "Option '$IndentArg' and '$RawArg' incompatible."
+	elif [[ -n $NoColorArg ]]; then
+		Err 1 "Option '$NoColorArg' and '$RawArg' incompatible."
+	fi
+fi
+
+if ! [[ -t 1 ]]; then
+	C_Dir=
+	C_Err=
+	C_Exec=
+	C_File=
+	C_Link=
+	C_Reset=
+fi
+
+# Usage: Sanitize VARIABLE COLOR STRING
+Sanitize() {
+	declare -n _Out=$1
+
+	_Out=
+	Len=${#3}
+	for (( Index = 0; Index < Len; Index++ )); {
+		Char=${3:Index:1}
+		case $Char in
+			$'\n'|$'\u2024'|$'\x00')
+				_Out+="$C_Err?$C_Reset$2" ;;
+			[[:print:]])
+				_Out+=$Char ;;
+		esac
+	}
+}
+
+# Usage: CountParts PATH
+CountParts() {
+	Count=0
+	Len=${#1}
+	for (( Index = 0; Index < Len; Index++ )); {
+		[[ ${1:Index:1} == '/' ]] && printf '%*s' $Indent ' '
+	}
+}
+
+# Usage: Recurse DIRECTORY
+Recurse() {
+	for File in "$1"/*; {
+		if [[ $Quotes == True ]]; then
+			Pretty="\"${File##*/}\""
+		else
+			Pretty=${File##*/}
+		fi
+
+		if [[ -f $File ]]; then
+			if [[ $Raw == True ]]; then
+				printf '%s\n' "$File"
+			else
+				if [[ -L $File ]]; then
+					Color=$C_Link
+				elif [[ -x $File ]]; then
+					Color=$C_Exec
+				else
+					Color=$C_File
+				fi
+
+				CountParts "$File"
+				Sanitize Pretty "$Color" "$Pretty"
+
+				printf '%s%s%s\n' "$Color" "$Pretty" "$C_Reset"
+			fi
+		elif [[ -d $File ]]; then
+			case ${File##*/} in
+				..|.) continue ;;
+			esac
+
+			if [[ $Raw == True ]]; then
+				printf '%s\n' "$File"
+			else
+				CountParts "$File"
+				Sanitize Pretty "$C_Dir" "$Pretty"
+
+				printf '%s%s/%s\n' "$C_Dir" "$Pretty" "$C_Reset"
+			fi
+
+			[[ -L $File ]] || Recurse "$File"
+		fi
+	}
+}
+
+Dir=${1:-.}
+Dir=${Dir%/}
+
+if [[ -d $Dir ]]; then
+	printf '%s/\n' "$Dir"
+	Recurse "$Dir"
+else
+	Err 1 "Directory '$Dir' not found."
+fi
