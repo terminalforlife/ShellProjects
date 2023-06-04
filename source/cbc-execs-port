@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/cbc-execs-port
+# Started On        - Sun  4 Jun 20:19:57 BST 2023
+# Last Change       - Sun  4 Jun 21:19:13 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Demonstrating simple character-by-character string parsing in a very portable
+# way, requiring only >= BASH 3.0. This prints PATH executables, if found and
+# executable, as a tree and in lexicographical order, while maintaining the
+# priority of the directories themselves.
+#
+# While this is written to demonstrate how useful and portable this approach to
+# shell programming is, making use of BASH 3.1's `+=` assignment operator would
+# be a decent improvement, and it's worth noting that old BASH versions can be
+# very slow.
+#
+# The CBC approach to splitting `$PATH` is of course unnecessary in even BASH
+# 3.0, because parameter expansion's pattern substitution is available.
+# However, the CBC approach is used as a simple demonstration. This approach
+# can be massively helpful, but it can get confusing if you're not used to it.
+#------------------------------------------------------------------------------
+
+Buffer=
+Dirs=()
+Path="$PATH:"
+Len=${#Path}
+for (( Index = 0; Index < Len; Index++ )); {
+	Char=${Path:Index:1}
+	if [[ $Char == : ]]; then
+		if [[ -d $Buffer ]]; then
+			Dirs[${#Dirs[@]}]=$Buffer
+		fi
+
+		Buffer=
+	else
+		Buffer="$Buffer$Char"
+	fi
+}
+
+for Dir in "${Dirs[@]}"; {
+	Files=()
+	printf '%s/\n' "$Dir"
+	for File in "$Dir"/*; {
+		if [[ -f $File && -x $File ]]; then
+			Files[${#Files[@]}]=${File##*/}
+		fi
+	}
+
+	Len=${#Files[@]}
+	for (( Index = 1; Index < Len; Index++ )); {
+		Cur=${Files[Index]}
+		Pos=$Index
+
+		while (( Pos > 0 )) && [[ ${Files[Pos - 1]} > $Cur ]]; do
+			Files[Pos--]=${Files[Pos - 1]}
+		done
+
+		Files[Pos]=$Cur
+	}
+
+	(( Len > 0 )) && printf '  %s\n' "${Files[@]}"
+}
