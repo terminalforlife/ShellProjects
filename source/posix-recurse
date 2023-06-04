@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/posix-recurse
 # Started On        - Sun  4 Jun 19:09:00 BST 2023
-# Last Change       - Sun  4 Jun 20:13:00 BST 2023
+# Last Change       - Sun  4 Jun 20:16:12 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 #
 # This approach works fine in BASH, if you need it, but BASH 4.0 introduced the
 # `globstar` shell option, which allows recursion. This is perhaps handy for
-# embedded systems which don't have the likes of find(1), orf or more specific
+# embedded systems which don't have the likes of find(1), or for more specific
 # ways of handling the recursion.
 #
 # This is also surprisingly quick in DASH. I can crawl through my entire HOME
