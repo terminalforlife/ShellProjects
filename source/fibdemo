@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/fibdemo
+# Started On        - Sat  3 Jun 23:55:42 BST 2023
+# Last Change       - Sun  4 Jun 01:28:56 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# A demonstration of the obligatory Fibonacci Sequence recursive function. This
+# file includes both the simple version and the more advanced version. I had to
+# jump through a ton of hoops to get BASH to actually play nicely in the second
+# monstrosity, but I'm happy with the result.
+#
+# The simple version works on BASH 3.0, but it's pretty painful. I'm not yet
+# sure how the advanced version can be done with anything less than BASH 4.3.
+#
+# WARNING: If you have a potato, do NOT run this!
+#------------------------------------------------------------------------------
+
+Fib() {
+	local Nr=$1
+	if (( Nr <= 2 )); then
+		printf '1\n'
+	else
+		Last1=`Fib $(( Nr - 1 ))`
+		Last2=`Fib $(( Nr - 2 ))`
+		printf '%d\n' $(( Last1 + Last2 ))
+	fi
+}
+
+printf 'Using simple method for #20:\n\n'
+
+SECONDS=0
+
+Fib 20
+
+printf '\nTook %d second(s).\n\n' $SECONDS
+
+#---------------Bad Optimization Attempt Trying to Work Around BASH Limitations
+
+printf 'Using advanced method for #1000:\n\n'
+
+declare -A Nrs=()
+Nrs[0]=0
+Nrs[1]=1
+
+Fib() {
+	declare -n Out=$1
+	local Nr=$2
+
+	for Element in "${!Nrs[@]}"; {
+		if (( Element == Nr )); then
+			Out=${Nrs[$Nr]}
+
+			return
+		fi
+	}
+
+	Fib Last1 $(( Nr - 1 ))
+	Fib Last2 $(( Nr - 2 ))
+	Out=$(( Last1 + Last2 ))
+
+	Nrs[$Nr]=$Out
+}
+
+SECONDS=0
+
+Fib Final 1000 # 8
+printf '%d\n' $Final
+
+printf '\nTook %d second(s).\n' $SECONDS
