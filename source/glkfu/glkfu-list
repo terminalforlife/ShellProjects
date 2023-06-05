@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu-list
 # Started On        - Sun 20 Dec 03:09:11 GMT 2020
-# Last Change       - Thu 18 May 19:30:50 BST 2023
+# Last Change       - Mon  5 Jun 17:31:32 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ use LWP::Simple;
 
 no warnings 'uninitialized';
 
-use constant VERSION => '2023-05-18';
+use constant VERSION => '2023-06-05';
 use constant PROGRAM => 'glkfu-list';
 
 sub Usage() {
@@ -136,7 +136,7 @@ sub Compare($;$) {
 # List the kernels.
 foreach my $Version (sort({Compare($a, $b)} @Versions)) {
 	if ($Version eq $CurKernVer and $DoColor) {
-		print("\e[1;32mlinux-$Version.tar.xz\e[0m\n")
+		print("\e[92mlinux-$Version.tar.xz\e[0m\n")
 	} else {
 		print("linux-$Version.tar.xz\n")
 	}

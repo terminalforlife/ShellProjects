@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Sat  3 Jun 19:23:43 BST 2023
+# Last Change       - Mon  5 Jun 17:31:12 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 #   coreutils (>= 8.28)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-03'
+CurVer='2023-06-05'
 Progrm='snotes'
 
 Usage() {
@@ -67,7 +67,7 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
-BRed=$'\e[1;31m'
+BRed=$'\e[91m'
 Green=$'\e[32m'
 Cyan=$'\e[36m'
 Reset=$'\e[0m'
