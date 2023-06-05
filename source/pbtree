@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pbtree
 # Started On        - Sat  3 Jun 16:56:38 BST 2023
-# Last Change       - Mon  5 Jun 00:58:25 BST 2023
+# Last Change       - Mon  5 Jun 01:06:03 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -163,8 +163,10 @@ Sanitize() {
 		case $Char in
 			$'\n'|$'\u2024'|$'\x00')
 				_Out+="$C_Err?$C_Reset$2" ;;
-			[[:print:]])
+			[[:print:]]|'')
 				_Out+=$Char ;;
+			*)
+				_Out+="$C_Err?$C_Reset$2" ;;
 		esac
 	}
 }
