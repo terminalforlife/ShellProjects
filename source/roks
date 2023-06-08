@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu  8 Jun 15:17:25 BST 2023
+# Last Change       - Thu  8 Jun 15:49:22 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -144,23 +144,21 @@ else
 	Err 1 'Unable to determine current kernel version.'
 fi
 
-AllKerns=()
-while read; do
-	AllKerns+=("$REPLY")
+readarray -t <<< "$(linux-version list)"
 
-	[[ $REPLY == $Current ]] && break
+Kerns=()
+for Line in "${MAPFILE[@]}"; {
+	[[ $Line == $Current ]] && break
 
-	Kerns+=("$REPLY")
-done <<< "$(linux-version list)"
+	Kerns+=("$Line")
+}
+
+KernsAvail=${#Kerns[@]}
 Kerns=("${Kerns[@]:0:${#Kerns[@]} - KernKeep + 1}")
 
-if (( ${#Kerns[@]} == 0 )); then
-	Err 1 'No suitable kernels found.'
-fi
-
 if [[ $NoRoot == True ]]; then
-	printf "Found %d kernel installation(s):\n\n" ${#AllKerns[@]}
-	for Kern in "${AllKerns[@]}"; {
+	printf "Found %d kernel installation(s):\n\n" ${#MAPFILE[@]}
+	for Kern in "${MAPFILE[@]}"; {
 		if [[ $Kern == $Current ]]; then
 			printf '  %s <-- Active\n' "$Kern"
 		else
@@ -168,9 +166,13 @@ if [[ $NoRoot == True ]]; then
 		fi
 	}
 
-	printf '\nUp to %d kernel(s) are available for uninstallation.\n' $(( ${#Kerns[@]} + 1 ))
+	printf '\nUp to %d kernel(s) available for uninstallation.\n' $KernsAvail
 	printf "Launch %s with 'root' privileges to take action.\n" "$ProgrmFancy"
 else
+	if (( ${#Kerns[@]} == 0 )); then
+		Err 1 'No suitable kernels found.'
+	fi
+
 	Packages=()
 	for Kern in "${Kerns[@]}"; {
 		Packages+=(linux-{image,headers}-"$Kern")
