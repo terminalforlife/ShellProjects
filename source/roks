@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu  8 Jun 15:09:44 BST 2023
+# Last Change       - Thu  8 Jun 15:17:25 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ if [[ $NoRoot == True ]]; then
 	}
 
 	printf '\nUp to %d kernel(s) are available for uninstallation.\n' $(( ${#Kerns[@]} + 1 ))
-	printf "Launch %s with 'root' privileges to take action." "$ProgrmFancy"
+	printf "Launch %s with 'root' privileges to take action.\n" "$ProgrmFancy"
 else
 	Packages=()
 	for Kern in "${Kerns[@]}"; {
