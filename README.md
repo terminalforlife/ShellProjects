@@ -14,6 +14,19 @@ As of 2023-06-03, here are some highlights:
   * [simplify-ubuntu](source/simplify-ubuntu) - De-bloat Ubuntu by interactively removing unneeded packages
   * [tagged](source/tagged) - List commits per file in the CWD of a git(1) repository
 
+As of 2023-06-08, here are some other useful tools:
+
+  * [roks](roks) - Clean the system out of old Linux kernel installations
+  * [snotes](snotes) - View and filter notes from a predefined programming notes file
+  * [baddot](baddot) - Scan directories for filenames containing suspicious 'dot' Unicode
+  * [recents](recents) - List recently opened files in traditional desktop environments
+  * [trimit](trimit) - Trim leading and trailing spaces from filenames
+
+As of 2023-06-08, here are some of the more educational highlights:
+
+  * [posix-recurse](posix-recurse) - Isolated example of recursing through directories using a POSIX shell
+  * [fibdemo](fibdemo) - Demonstration of recursive functions for the Fibonacci sequence
+
 ### Contributions
 
 The best way to help is to let me know of any bugs or oversights.

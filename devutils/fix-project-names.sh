@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/devutils/fix-project-names.sh
 # Started On        - Wed  7 Jun 20:21:59 BST 2023
-# Last Change       - Wed  7 Jun 22:39:31 BST 2023
+# Last Change       - Thu  8 Jun 17:38:13 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,6 +21,8 @@
 # will need to use a very similar path for `$Dir`.
 #
 # WARNING: This script is immediately destructive across ALL repositories!
+#
+#TODO: Files with empty project names are not correclty handled.
 #
 # Dependencies:
 #
