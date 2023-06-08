@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu  8 Jun 13:58:34 BST 2023
+# Last Change       - Thu  8 Jun 22:42:14 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -12,7 +12,6 @@
 # Features:
 #
 #TODO: Cut off lines exceeding column length.
-#TODO: Look into handling `--release` bindings (Issue #17).
 #
 # Bugs:
 #
@@ -20,7 +19,7 @@
 #
 # Dependencies:
 #
-#   bash (>= 4.0)
+#   bash (>= 4.3)
 #------------------------------------------------------------------------------
 
 CurVer='2023-06-08'
@@ -318,6 +317,14 @@ for Line in "${MAPFILE[@]}"; {
 	CurrentKey=
 	[[ $Line == bindsym\ * ]] || continue
 
+	# To avoid making a mess below this block, remember this is a release line
+	# but then edit the line to be as though '--release' weren't there.
+	Release=
+	if [[ $Line == bindsym\ --release\ * ]]; then
+		Release='True'
+		Line=${Line//--release/}
+	fi
+
 	read -r _ Keys Action <<< "$Line"
 
 	# Capitalize the first character of each key.
@@ -371,6 +378,8 @@ for Line in "${MAPFILE[@]}"; {
 		SlashLineNr=
 	fi
 
+	[[ $Release == True ]] && Action="R$Action"
+
 	# Using the `$Count` variable in order to maintain the original
 	# order, otherwise BASH will butcher the order, unfortunately.
 	Bindings["$LineNrFinal|${Count}_$Keys"]=$Action
@@ -395,10 +404,18 @@ until (( CurCount > ${#Bindings[@]} )); do
 				printf '%*s ' $KeysLenMax "${Binding#*_}"
 			fi
 
-			if [[ ${Bindings[$Binding]} == \!* ]]; then
-				printf "$Red!$Grey%s$Reset\n" "${Bindings[$Binding]#!}"
+			# If it's a `--release` binding.
+			Action=${Bindings[$Binding]}
+			if [[ ${Action:0:1} == R ]]; then
+				Action=${Action:1}
+				printf "${Red}^$Reset"
+			fi
+
+			# If it's an `exec` action.
+			if [[ ${Action:0:1} == '!' ]]; then
+				printf "$Red!$Grey%s$Reset\n" "${Action:1}"
 			else
-				printf "$Grey%s$Reset\n" "${Bindings[$Binding]}"
+				printf "$Grey%s$Reset\n" "$Action"
 			fi
 
 			(( CurCount++ ))
