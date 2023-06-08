@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fbdriver
 # Started On        - Thu 10 Dec 14:59:18 GMT 2020
-# Last Change       - Fri  4 Mar 00:22:43 GMT 2022
+# Last Change       - Thu  8 Jun 14:43:56 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -41,14 +41,8 @@ elif type -P lshw &> /dev/null; then
 	done <<< "$(lshw -c video 2> /dev/null)"
 fi
 
-case $Driver in
-	nvidia|amd|nouveau|vesa-framebuffer)
-		# I have no idea what all the possible values are, so add as needed.
-		printf '%s\n' "$Driver" ;;
-	'')
-		Err 1 'Unable to determine display driver.' ;;
-	*)
-		# You could replace 'Unrecognised' with 'Unsupported' if that's your
-		# goal from this functionality.
-		Err 1 "Unrecognised '$Driver' display driver." ;;
-esac
+if [[ -n $Driver ]]; then
+	printf "Found: '%s'\n" "$Driver"
+else
+	Err 1 'Unable to identify framebuffer.'
+fi
