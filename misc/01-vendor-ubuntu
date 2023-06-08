@@ -1,6 +1,8 @@
-Acquire::Changelogs::AlwaysOnline "true";
-Acquire::http::AllowRedirect "false";
-APT::Get::AutomaticRemove "true";
 APT::Get::AllowUnauthenticated "false";
-APT::Install-Recommends "false";
-APT::Install-Suggests "false";
+APT::Get::AutomaticRemove "true";
+APT::Get::Show-User-Simulation-Note "false";
+Acquire::Changelogs::AlwaysOnline "true";
+Acquire::Languages "none";
+Acquire::http::AllowRedirect "false";
+Dpkg::Progress "true";
+Dpkg::Progress-Fancy "true";
