@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/roks
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Thu  8 Jun 15:49:22 BST 2023
+# Last Change       - Thu  8 Jun 15:54:08 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -167,7 +167,10 @@ if [[ $NoRoot == True ]]; then
 	}
 
 	printf '\nUp to %d kernel(s) available for uninstallation.\n' $KernsAvail
-	printf "Launch %s with 'root' privileges to take action.\n" "$ProgrmFancy"
+
+	if (( KernsAvail > 0 )); then
+		printf "Launch %s with 'root' privileges to take action.\n" "$ProgrmFancy"
+	fi
 else
 	if (( ${#Kerns[@]} == 0 )); then
 		Err 1 'No suitable kernels found.'
