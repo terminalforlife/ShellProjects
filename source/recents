@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/recents
 # Started On        - Fri  2 Jun 00:15:00 BST 2023
-# Last Change       - Sat  3 Jun 13:39:20 BST 2023
+# Last Change       - Thu  8 Jun 14:10:49 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-03'
+CurVer='2023-06-08'
 Progrm=${0##*/}
 
 Usage() {
@@ -50,9 +50,14 @@ Err() {
 
 Number='False'
 StandardIn='False'
-File="$HOME/.recently-used.xbel"
 Sort='never'
 NoColor='True'
+
+PossibleRecents=(
+	"$HOME/.recently-used"
+	"$HOME/.recently-used.xbel"
+	"$HOME/.local/share/recently-used.xbel"
+)
 
 Green=$'\e[32m'
 Red=$'\e[31m'
@@ -103,7 +108,7 @@ while [[ -n $1 ]]; do
 			if [[ -z $1 ]]; then
 				Err 1 "Option '$ArgFile' requires an argument."
 			else
-				File=$1
+				RecentFile=$1
 			fi ;;
 		--number|-n)
 			Number='True' ;;
@@ -150,12 +155,18 @@ if ! [[ -t 1 ]]; then
 fi
 
 if [[ $StandardIn == True ]]; then
-	File='/dev/stdin'
+	RecentFile='/dev/stdin'
 else
-	if ! [[ -f $File ]]; then
-		Err 1 "File '${File/$HOME/\~}' not found."
-	elif ! [[ -r $File ]]; then
-		Err 1 "File '${File/$HOME/\~}' unreadable."
+	for File in "${PossibleRecents[@]}"; {
+		if [[ -f $File && -r $File ]]; then
+			RecentFile=$File
+
+			break
+		fi
+	}
+
+	if [[ -z $RecentFile ]]; then
+		Err 1 'Unable to find suitable file.'
 	fi
 fi
 
@@ -203,7 +214,7 @@ while read; do
 			Start='True'
 		fi
 	}
-done < "$File"
+done < "$RecentFile"
 
 #------------------------------------------------------------------Sort Results
 

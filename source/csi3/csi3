@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Fri  2 Jun 18:05:28 BST 2023
+# Last Change       - Thu  8 Jun 13:58:34 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-02'
+CurVer='2023-06-08'
 Progrm='csi3'
 
 Usage() {
@@ -187,7 +187,7 @@ else
 		fi
 	}
 
-	[[ -z $File ]] && Err 1 'Unable to find a suitable configuration file.'
+	[[ -z $File ]] && Err 1 'Unable to find suitable configuration file.'
 fi
 
 #-----------------------Pre-Process to Gather List of Variable Names and Values
