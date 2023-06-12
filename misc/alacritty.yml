@@ -1,21 +1,21 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/misc/alacritty.yml
 # Started On        - Fri 11 Mar 18:01:22 GMT 2022
-# Last Change       - Fri 11 Mar 18:01:51 GMT 2022
+# Last Change       - Mon 25 Apr 17:03:26 BST 2022
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 
 window:
   padding:
-    x: 6
-    y: 6
+    x: 18
+    y: 18
 
   # full | none
   decorations: none
 
   # <= 1.0
-  opacity: 0.8
+  opacity: 1.0
 
   # Windowed | Maximized | Fullscreen
   startup_mode: Windowed
@@ -36,22 +36,22 @@ scrolling:
 # Font configuration
 font:
   normal:
-    family: Mononoki
+    family: JetBrainsMono
     style: Regular
 
   bold:
-    family: Mononoki
+    family: JetBrainsMono
     style: Bold
 
   italic:
-    family: Mononoki
+    family: JetBrainsMono
     style: Italic
 
   bold_italic:
-    family: Mononoki
+    family: JetBrainsMono
     style: Bold Italic
 
-  size: 14
+  size: 12
 
   offset:
     x: 0
