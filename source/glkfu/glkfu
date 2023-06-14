@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sat  3 Jun 13:37:31 BST 2023
+# Last Change       - Wed 14 Jun 21:01:03 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -44,7 +44,7 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-03'
+CurVer='2023-06-14'
 Progrm='glkfu'
 
 Usage() {
@@ -82,6 +82,7 @@ VerFile='/proc/version'
 ProcInfoFile='/proc/cpuinfo'
 StatusFile='/var/lib/dpkg/status'
 KernOrg='https://www.kernel.org'
+RSS_Feed='https://www.kernel.org/feeds/kdist.xml'
 GPGPubKeys=('torvalds@kernel.org' 'gregkh@kernel.org')
 KernOrgMirrs='https://cdn.kernel.org'
 BuildDir='.'
@@ -300,15 +301,59 @@ case $Output in
 	*)
 		# Parse page data to get tarball filename of the latest stable kernel.
 		if [[ -z $LatestTar ]]; then
-			while read; do
-				if [[ $REPLY == +([[:space:]])'<td id="latest_link">' ]]; then
-					FirstLineFound='True'
-				elif [[ $FirstLineFound == True ]]; then
-					IFS='/' read -a Buffer <<< "$REPLY"
-					LatestTar=${Buffer[7]%%\"*}
-					break
-				fi
-			done <<< "$(Get - "$KernOrg")"
+			Data=$(Get - "$RSS_Feed")
+			Status=$?
+
+			# Parse RSS feed. Assumes most recent versions are close to top.
+			# This is much quicker than the old method (see below). This also
+			# assumes the version numbers are the usual maj.min.patch. This, -
+			# and the chance of the page being inaccessble, is why the fallback
+			# is in place.
+			if (( Status == 0 )); then
+				Buffer=
+				TagStart=
+				ItemFound=
+				while read -N 1 Char; do
+					if [[ $TagStart == True ]]; then
+						if [[ $InsideTag == True ]]; then
+							Buffer+=$Char
+
+							if [[ $Char == '<' ]]; then
+								if [[ ${Buffer:0:6} == title\> ]]; then
+									Buffer=${Buffer#*>}
+									if [[ ${Buffer:0 - 7:-1} == stable ]]; then
+										LatestTar="linux-${Buffer%:*}.tar.xz"
+
+										break
+									fi
+								fi
+
+								TagStart=
+								Buffer=
+							fi
+						elif [[ $Char == '>' ]]; then
+							InsideTag='True'
+							Buffer=
+						fi
+					elif [[ $Char == '<' ]]; then
+						TagStart='True'
+					fi
+				done <<< "$Data"
+			fi
+
+			# As of 2023-06-14, this is the old method, kept as fallback.
+			Pattern='linux-+([[:digit:]]).+([[:digit:]]).+([[:digit:]]).tar.xz'
+			if [[ -z $LatestTar || $LatestTar != $Pattern ]]; then
+				while read; do
+					if [[ $REPLY == +([[:space:]])'<td id="latest_link">' ]]; then
+						FirstLineFound='True'
+					elif [[ $FirstLineFound == True ]]; then
+						IFS='/' read -a Buffer <<< "$REPLY"
+						LatestTar=${Buffer[7]%%\"*}
+						break
+					fi
+				done <<< "$(Get - "$KernOrg")"
+			fi
 		fi
 
 		JustOutput 'latest.tarball' "$LatestTar"
@@ -322,7 +367,7 @@ case $Output in
 			# This is mainly here to compensate for BASH command substitutions
 			# being executed within a subshell, thus exiting out of GLKFU from
 			# Get() with a suitable error via Err() is not possible.
-			Err 1 "Tarball filename empty."
+			Err 1 'Tarball filename empty.'
 		elif ! [[ $LatestTar == linux-+([[:digit:]]).+([[:digit:].]).tar.xz ]]; then
 			Err 1 "Tarball filename '$LatestTar' not valid."
 		fi
