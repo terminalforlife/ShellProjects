@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Thu 15 Jun 21:13:04 BST 2023
+# Last Change       - Thu 15 Jun 21:18:15 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -56,10 +56,10 @@ Usage() {
 		  -v, --version            - Output the version datestamp.
 		  -O, --links-only         - Output only the download links.
 		  -V, --verbose            - Provide operational information.
-		  -e, --start INT          - Target from INT podcast.
+		  -s, --start INT          - Target from INT podcast.
 		  -k, --kind               - Random wait time between each download.
 		  -l, --latest             - Target only the latest podcast.
-		  -s, --end INT            - Target up to INT podcast.
+		  -e, --end INT            - Target up to INT podcast.
 
 		  Downloaded podcasts are sent to the CWD.
 	EOF
@@ -192,6 +192,8 @@ for (( Pod = StartPoint; Pod <= EndPoint; Pod++ )); {
 
 #----------------------------------------------------Start Downloading Podcasts
 
+[[ -t 1 ]] && Interactive='True'
+
 for Pod in "${Pods[@]}"; {
 	PodNr=${Pod%%:*}
 	PodURL=${Pod#*:}
@@ -208,6 +210,10 @@ for Pod in "${Pods[@]}"; {
 	if [[ $BeKind == True ]]; then
 		Wait=$(( RANDOM % 10 ))
 		[[ $Verbose == True ]] && printf 'Waiting for %d seconds ...\n' $Wait
-		read -n 1 -st $Wait
+		if [[ $Interactive == True ]]; then
+			read -n 1 -st $Wait
+		else
+			sleep ${Wait}s
+		fi
 	fi
 }
