@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/dura
 # Started On        - Thu  1 Jul 12:01:03 BST 2021
-# Last Change       - Thu 19 May 00:30:08 BST 2022
+# Last Change       - Thu 15 Jun 20:49:26 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -27,20 +27,20 @@
 #   ffmpeg (>= 7:3.4.8-0)
 #------------------------------------------------------------------------------
 
-CurVer='2022-05-19'
+CurVer='2023-06-15'
 Progrm=${0##*/}
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
-		Usage: $Progrm [OPTS] [FILE_1 [FILE_2] ...]
+	read -d '' <<-EOF
+		Usage: $Progrm [OPTS] [FILE [FILE] ...]
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 
 		Results will be accurate up to the second.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
@@ -69,7 +69,7 @@ elif ! type -P ffprobe &> /dev/null; then
 fi
 
 for File in "$@"; {
-	ShowFile="~/${File#$HOME/}"
+	ShowFile=${File/$HOME/\~}
 
 	if ! [[ -f $File ]]; then
 		Err 0 "File '$ShowFile' not found."

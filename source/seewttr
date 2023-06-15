@@ -3,26 +3,26 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/seewttr
 # Started On        - Thu 21 Sep 18:53:42 BST 2017
-# Last Change       - Fri 14 Jan 20:37:53 GMT 2022
+# Last Change       - Thu 15 Jun 21:01:30 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # Fetch weather information, using the 'wttr.in' website.
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-14'
+CurVer='2023-06-15'
 Progrm='seewttr'
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS] TOWN,COUNTRY
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
 		  -c, --current            - Show only the current weather.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err(){

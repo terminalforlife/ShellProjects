@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/mozff
 # Started On        - Sat 19 Mar 22:28:32 GMT 2022
-# Last Change       - Sun 20 Mar 01:23:30 GMT 2022
+# Last Change       - Thu 15 Jun 20:51:34 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,18 +33,18 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2022-03-20'
+CurVer='2023-06-15'
 Progrm=${0##*/}
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS]
 
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
