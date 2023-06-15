@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/rudbgvid
 # Started On        - Thu 12 Nov 19:52:44 GMT 2020
-# Last Change       - Fri  4 Mar 00:47:48 GMT 2022
+# Last Change       - Thu 15 Jun 21:07:40 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 #   imagemagick (>= 8:6.9.7.4+dfsg-16)
 #------------------------------------------------------------------------------
 
-CurVer='2022-03-04'
+CurVer='2023-06-15'
 Progrm='rudbgvid'
 
 Usage() {
@@ -86,7 +86,7 @@ while [[ -n $1 ]]; do
 		--interval|-i)
 			shift
 
-			if [[ $1 =~ ^[0-9]+$ ]]; then
+			if [[ $1 == +([[:digit:]]) ]]; then
 				Speed=$1
 			else
 				Err 1 "Invalid animation INT provided."
@@ -94,7 +94,7 @@ while [[ -n $1 ]]; do
 		--delay|-d)
 			shift
 
-			if [[ $1 =~ ^[0-9]+$ ]]; then
+			if [[ $1 == +([[:digit:]]) ]]; then
 				Delay=$1
 			else
 				Err 1 "Invalid loop delay provided."

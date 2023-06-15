@@ -8,6 +8,7 @@
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
 # A rough Pure-BASH solution to nicely listing all of your DWM keybindings.
+# This is not a complete solution and should be considered beta, at most.
 #
 # Features:
 #

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/tagged/tagged
 # Started On        - Sun  9 Jan 16:57:12 GMT 2022
-# Last Change       - Sat  3 Jun 13:39:49 BST 2023
+# Last Change       - Thu 15 Jun 21:26:33 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -26,7 +26,7 @@
 #   git (>= 2.17.1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-03'
+CurVer='2023-06-15'
 Progrm=${0##*/}
 
 Usage() {
@@ -82,7 +82,7 @@ while [[ -n $1 ]]; do
 		--top|-T)
 			if [[ -z $2 ]]; then
 				Err 1 "Option '$1' requires an argument."
-			elif ! [[ $2 != 0 && $2 =~ ^[[:digit:]]+$ ]]; then
+			elif ! [[ $2 != 0 && $2 == +([[:digit:]]) ]]; then
 				Err 1 "Option '$1' requires a positive integer."
 			else
 				Top=$2
@@ -124,13 +124,15 @@ fi
 
 #-------------------------Use git(1) to Get the Number of Commits for Each File
 
+printf -v Pattern '[[:alnum:]]%.0s' {1..40}
+
 for File in "$@"; {
 	[[ -f $File ]] || continue
 
 	Commits=0
 	Failed='False'
 	while read; do
-		if [[ $REPLY =~ ^[[:alnum:]]{40}$ ]]; then
+		if [[ $REPLY == $Pattern ]]; then
 			(( Commits++ ))
 		else
 			Failed='True'

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/ludl
 # Started On        - Tue 11 Jan 22:43:03 GMT 2022
-# Last Change       - Thu  1 Jun 21:15:34 BST 2023
+# Last Change       - Thu 15 Jun 21:13:04 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -45,7 +45,7 @@
 #   wget (>= 1.19.4-1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-26'
+CurVer='2023-06-15'
 Progrm=${0##*/}
 
 Usage() {
@@ -90,7 +90,7 @@ while [[ -n $1 ]]; do
 		--start|-s)
 			if [[ -z $2 ]]; then
 				Err 1 "Option '$1' requires an argument."
-			elif ! [[ $2 =~ ^[[:digit:]]+$ ]]; then
+			elif [[ $2 != +([[:digit:]]) ]]; then
 				Err 1 "Option '$1' requires an integer >= 1."
 			else
 				StartPoint=$2
@@ -103,7 +103,7 @@ while [[ -n $1 ]]; do
 		--end|-e)
 			if [[ -z $2 ]]; then
 				Err 1 "Option '$1' requires an argument."
-			elif ! [[ $2 =~ ^[[:digit:]]+$ ]]; then
+			elif [[ $2 != +([[:digit:]]) ]]; then
 				Err 1 "Option '$1' requires an integer >= 1."
 			else
 				EndPoint=$2
@@ -143,7 +143,7 @@ Info() {
 
 if [[ -z $EndPoint || $Latest == True ]]; then
 	while read; do
-		if [[ $REPLY =~ \<a\ href=\"/([[:digit:]]+)\"\>\<figure\ id= ]]; then
+		if [[ $REPLY =~ '<a href="'/([[:digit:]]+)'"><figure id=' ]]; then
 			EndPoint=${BASH_REMATCH[1]}
 			FoundMax='True'
 			break

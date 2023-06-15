@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/feh-slides
 # Started On        - Sun  5 Nov 12:04:09 GMT 2017
-# Last Change       - Sat 27 May 22:24:27 BST 2023
+# Last Change       - Thu 15 Jun 21:06:19 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #   feh (>= 2.23.2)
 #------------------------------------------------------------------------------
 
-CurVer='2023-05-27'
+CurVer='2023-06-15'
 Progrm='feh-slides'
 
 Usage() {
@@ -49,7 +49,7 @@ while [[ -n $1 ]]; do
 		--interval|-i)
 			if [[ -z $2 ]]; then
 				Err 1 "Option '$1' requires an argument."
-			elif [[ $2 == 0 || ! $2 =~ ^[[:digit:]]+$ ]]; then
+			elif [[ $2 == 0 || $2 != +([[:digit:]]) ]]; then
 				Err 1 "Option '$1' invalid."
 			else
 				Interval=$2
