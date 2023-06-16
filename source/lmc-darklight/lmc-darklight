@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/lmc-darklight/lmc-darklight
 # Started On        - Wed 23 Feb 21:40:31 GMT 2022
-# Last Change       - Wed  7 Jun 22:22:18 BST 2023
+# Last Change       - Fri 16 Jun 14:14:46 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,7 +33,7 @@
 #   libglib2.0-bin (>= 2.56.4-0ubuntu0.18.04.9)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-03'
+CurVer='2023-06-16'
 Progrm='lmc-darklight'
 ProgrmFancy='LMC-DarkLight'
 
@@ -64,9 +64,9 @@ OldValues="$MainDir/old_values"
 Current="$MainDir/current"
 
 ValidKeys=(
-		LightCursor LightDesktop DarkBorders DarkIcons DarkControls\
-		Interval LightTime DarkTime LightBorders LightIcons LightControls\
-		DarkCursor DarkDesktop LightBG DarkBG
+	LightCursor LightDesktop DarkBorders DarkIcons DarkControls\
+	Interval LightTime DarkTime LightBorders LightIcons LightControls\
+	DarkCursor DarkDesktop LightBG DarkBG
 )
 
 Args=()
@@ -113,7 +113,7 @@ while [[ -n $1 ]]; do
 	shift
 done
 
-(( UID == 0 )) && Err 1 "Do not run as 'root' user."
+(( UID == 0 )) && Err 1 "This tool should not be executed as the 'root' user."
 
 DepCount=0
 for Dep in mkdir gsettings sleep; do
@@ -265,8 +265,7 @@ Info() {
 }
 
 ChkTime() {
-	[[ $1 == 0* ]] && return 1
-	[[ $1 =~ ^[[:digit:]]{3,4}$ ]] || return 1
+	[[ $1 == 0* || ! $1 =~ ^[[:digit:]]{3,4}$ ]] && return 1
 }
 
 # Usage: Set DESKTOP CONTROLS ICONS CURSOR BORDERS BG
@@ -343,7 +342,7 @@ while :; do
 			fi
 		done < "$Config"
 
-		if [[ ! $Interval =~ ^[[:digit:]]+$ || $Interval == 0 ]]; then
+		if [[ $Interval != +([[:digit:]]) || $Interval == 0 ]]; then
 			VErr "Value for 'Interval' invalid."
 		fi
 
