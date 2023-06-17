@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/local/bin/wgodw
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/wgodw
+# Started On        - Sat 17 Jun 19:12:01 BST 2023
+# Last Change       - Sat 17 Jun 19:50:19 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# What's Going On, DistroWatch?
+#
+# Simple tool for getting a pretty list of the titles of the DistroWatch RSS
+# feed, without faffing about with RSS viewers. This is simply to get an
+# overview as to what's going on, without going all out. If you find something
+# interesting, visit DuckDuckGo!
+#
+# NOTE: Long lines are not wrapped, so use a sensible size.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.4.12)
+#   wget (>= 1.17.1-1)
+#------------------------------------------------------------------------------
+
+CurVer='2023-06-17'
+Progrm=${0##*/}
+
+Usage() {
+	read -d '' <<-EOF
+		Usage: $Progrm [OPTS]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+	EOF
+
+	printf '%s' "$REPLY"
+}
+
+while [[ -n $1 ]]; do
+	case $1 in
+		--help|-h)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		*)
+			printf 'Err: Incorrect argument(s) specified.\n' 1>&2
+			exit 1 ;;
+	esac
+	shift
+done
+
+if ! type -P wget &> /dev/null; then
+	printf "Err: Dependency 'wget' not met.\n" 1>&2
+	exit 1
+fi
+
+printf 'Checking DistroWatch ... '
+
+URL='https://distrowatch.com/news/news-headlines.xml'
+if Data=$(wget -qO - -U 'Mozilla/5.0' "$URL" 2>&1); then
+	printf '[\e[92mOK\e[0m]\n'
+else
+	exit 1
+fi
+
+Buffer=
+TagFound=
+Titles=()
+TitleFound=
+while read -N 1 Char; do
+	[[ $Char == $'\n' ]] && continue
+	if [[ $TitleFound == True ]]; then
+		if [[ $Char == '<' ]]; then
+			Titles+=("$Buffer")
+
+			Buffer=
+			TagFound=
+			TitleFound=
+		fi
+
+		Buffer+=$Char
+	elif [[ $TagFound == True ]]; then
+		Buffer+=$Char
+
+		if (( ${#Buffer} == 7 )); then
+			if [[ $Buffer == '<title>' ]]; then
+				TitleFound='True'
+			fi
+
+			Buffer=
+		fi
+	elif [[ $Char == '<' ]]; then
+		TagFound='True'
+	fi
+done <<< "$Data"
+
+printf 'Parsing RSS feed ... '
+
+Len=${#Titles[@]}
+if (( Len > 0 )); then
+	printf '[\e[92mOK\e[0m]\n'
+else
+	printf '[\e[91m!\e[0m]\n'
+	exit 1
+fi
+
+shopt -s checkwinsize; (:)
+
+printf '\n'
+
+for Title in "${Titles[@]}"; {
+	printf '  \e[92m-\e[0m %s\n' "${Title:0:$COLUMNS - 1}"
+}
+
+printf "\nFound \e[92m%'d\e[0m post(s).\n" $Len
