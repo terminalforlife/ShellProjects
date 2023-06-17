@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Thu  8 Jun 22:42:14 BST 2023
+# Last Change       - Sat 17 Jun 22:26:18 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.3)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-08'
+CurVer='2023-06-17'
 Progrm='csi3'
 
 Usage() {
@@ -81,7 +81,7 @@ while [[ -n $1 ]]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
-		--nocolor|-C)
+		--nocolor|--nocolour|-C)
 			Green=
 			Grey=
 			Red=

@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pbtree
 # Started On        - Sat  3 Jun 16:56:38 BST 2023
-# Last Change       - Mon  5 Jun 01:06:03 BST 2023
+# Last Change       - Sat 17 Jun 22:27:21 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   bash (>= 4.3)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-05'
+CurVer='2023-06-17'
 Progrm=${0##*/}
 
 Usage() {
@@ -94,7 +94,7 @@ while [[ -n $1 ]]; do
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--hidden|-A)
 			shopt -s dotglob ;;
-		--nocolor|-C)
+		--nocolor|--nocolour|-C)
 			NoColorArg=$1
 
 			C_Dir=

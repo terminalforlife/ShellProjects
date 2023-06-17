@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Mon  5 Jun 17:31:12 BST 2023
+# Last Change       - Sat 17 Jun 22:27:58 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 #   coreutils (>= 8.28)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-05'
+CurVer='2023-06-17'
 Progrm='snotes'
 
 Usage() {
@@ -38,7 +38,7 @@ Usage() {
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
-		  -C, --no-colors          - Disable ANSI color escape sequences.
+		  -C, --no-color           - Disable ANSI color escape sequences.
 		  -c, --comment CHAR       - Use CHAR as the single comment character.
 		  -f, --file PATH          - Specify & remember the notes file to use.
 		  -n, --line-number        - Print line numbers in grep(1) style.
@@ -114,7 +114,7 @@ while [[ -n $1 ]]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
-		-C|--no-colors|--no-colours)
+		-C|--no-color|--no-colour)
 			NoColors='True' ;;
 		--comment|-c)
 			ArgComment=$1

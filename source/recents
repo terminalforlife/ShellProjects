@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/recents
 # Started On        - Fri  2 Jun 00:15:00 BST 2023
-# Last Change       - Thu  8 Jun 14:10:49 BST 2023
+# Last Change       - Sat 17 Jun 22:27:36 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-08'
+CurVer='2023-06-17'
 Progrm=${0##*/}
 
 Usage() {
@@ -97,7 +97,7 @@ while [[ -n $1 ]]; do
 				*)
 					Err 1 "Option '$Flag' given an invalid argument." ;;
 			esac ;;
-		--nocolor|-C)
+		--nocolor|--nocolour|-C)
 			Green=
 			Red=
 			Reset= ;;

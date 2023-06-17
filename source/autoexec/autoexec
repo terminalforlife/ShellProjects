@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 17 Jun 21:16:37 BST 2023
+# Last Change       - Sat 17 Jun 22:25:37 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ while [[ -n $1 ]]; do
 			Spinner='False' ;;
 		--no-exit|-E)
 			ExitStatus='False' ;;
-		--no-color|-C)
+		--no-color|--no-colour|-C)
 			Color='False' ;;
 		--force|-f)
 			Force='True' ;;
