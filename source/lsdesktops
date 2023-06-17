@@ -1,0 +1,29 @@
+#!/bin/sh
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/lsdesktops
+# Started On        - Sun 18 Jun 00:07:53 BST 2023
+# Last Change       - Sun 18 Jun 00:37:46 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Portable script to scan the system for and list '*.desktop' files.
+#------------------------------------------------------------------------------
+
+Dirs() {
+	OldIFS=$IFS
+	IFS=':'
+
+	set -- $1
+
+	IFS=$OldIFS
+
+	for Dir in "$@"; do
+		Dir=${Dir%/}
+		for File in "$Dir"/applications/*.desktop; do
+			[ -f "$File" ] && printf '%s\n' "$File"
+		done
+	done
+}
+
+Dirs "$XDG_DATA_DIRS"
