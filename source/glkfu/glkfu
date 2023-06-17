@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Wed 14 Jun 21:01:03 BST 2023
+# Last Change       - Sat 17 Jun 23:13:59 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,6 +18,7 @@
 #
 # Features:
 #
+#TODO: Ask if user would like to also build source packages.
 #TODO: Ensure GLKFU supports EFI systems -- can anyone help with that?
 #
 # Bugs:
@@ -44,7 +45,7 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-14'
+CurVer='2023-06-17'
 Progrm='glkfu'
 
 Usage() {
@@ -54,16 +55,18 @@ Usage() {
 		  -h, --help               - Display this help information.
 		  -v, --version            - Output the version datestamp.
 		  --changelog              - View kernel's changelog using less(1).
+		  --no-color               - Disable ANSII color escape sequences.
 		  -C, --config FILE        - Use FILE instead of newest available.
 		  -D, --build-dir PATH     - Build in PATH instead of CWD.
 		  -I, --ignore-deps        - Ignore compile & build dependencies.
 		  -O, --override FILE      - Use FILE instead of the latest. See below.
 		  -c, --cores INT          - Use INT CPU cores (jobs) for make(1).
 		  -d, --just-download      - Just download the Linux Tar archive.
-		  -i, --ignore-versions    - Disregard current & new version strings.
+		  -i, --ignore-versions    - Bypass current to new version comparison.
 		  -j, --just-check         - Just check kernel.org for a newer version.
 		  -l, --list-kerns         - List all available kernel versions.
 		  -o, --output TYPE        - Output one of TYPE, for use in scripts.
+		  -s, --silent-make        - Tell make(1) not to be verbose.
 		  -y, --assume-yes         - Assume user answers yes when prompted.
 
 		  Refer to the glkfu(1) man page for information on valid TYPEs.
@@ -77,6 +80,7 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+SilentMake=
 Make="make -j ${Cores:-1}"
 VerFile='/proc/version'
 ProcInfoFile='/proc/cpuinfo'
@@ -92,6 +96,11 @@ ValidOutputs=(
     'latest' 'latest.split' 'latest.maj' 'latest.min' 'latest.rev'
     'latest.tarball'
 )
+
+C_Red=$'\e[91m'
+C_Green=$'\e[92m'
+C_Yellow=$'\e[93m'
+C_Reset=$'\e[0m'
 
 # Packages required to build at least Linux v5.9.12.
 ReqPKGs=(
@@ -122,6 +131,10 @@ done
 
 set -- "${Args[@]}"
 
+ArgOutput=
+ArgJustCheck=
+ArgIgnoreVers=
+ArgJustDownload=
 while [[ -n $1 ]]; do
 	case $1 in
 		--help|-h|-\?)
@@ -201,22 +214,35 @@ while [[ -n $1 ]]; do
 			fi ;;
 		--list-kerns|-l)
 			ListKerns='True' ;;
+		--silent-make|-s)
+			SilentMake='-s' ;;
 		--changelog)
 			ChangeLog='True' ;;
+		--no-color|--no-colour)
+			C_Red=
+			C_Green=
+			C_Yellow=
+			C_Reset= ;;
 		*)
 			Err 1 'Incorrect option(s) specified.' ;;
 	esac
 	shift
 done
 
-if [[ $JustCheck == True && $JustDownload == True ]]; then
-	Err 1 "OPTs '$ArgJustCheck' and '$ArgJustDownload' are incompatible."
-elif [[ $IgnoreVers == True && $JustCheck == True ]]; then
-	Err 1 "OPTs '$ArgJustCheck' and '$ArgIgnoreVers' are incompatible."
+# Check for conflicting arguments -- tedious and noisy, but helpful.
+Conflict() { Err 1 "OPTs '$1' and '$2' are incompatible."; }
+if [[ $JustCheck == True ]]; then
+	if [[ $JustDownload == True ]]; then
+		Conflict "$ArgJustCheck" "$ArgJustDownload"
+	elif [[ $IgnoreVers == True ]]; then
+		Conflict "$ArgJustCheck" "$ArgIgnoreVers"
+	elif [[ -n $Output ]]; then
+		Conflict "$ArgJustCheck" "$ArgOutput"
+	fi
 fi
 
 DepCount=0
-for Dep in glkfu-{list,changes} sync make tar rm cp gpg xz; do
+for Dep in make tar rm cp gpg xz; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		(( DepCount++ ))
@@ -226,6 +252,15 @@ done
 (( DepCount > 0 )) && exit 1
 
 if [[ $ListKerns == True ]]; then
+	printf "* Looking for 'glkfu-list' ... "
+
+	if type -P glkfu-list &> /dev/null; then
+		printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
+	else
+		printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+		exit 1
+	fi
+
 	glkfu-list
 	exit $?
 elif [[ $AssumeYes == True ]]; then
@@ -248,7 +283,7 @@ Get() {
 	elif type -P wget &> /dev/null; then
 		[[ $1 == - ]] || Progress='--show-progress'
 
-		wget $Progress -q -O "$1" "$2" ||
+		wget $Progress -qO "$1" "$2" ||
 			Err $? 'Downloading with wget(1) failed.'
 	else
 		Err 1 "Neither 'wget' nor 'curl' were found."
@@ -258,7 +293,7 @@ Get() {
 Ask() {
 	[[ $AssumeYes == True ]] && return 0
 
-	read -ep "Q: $1 (Y/N) " Response
+	read -ep "${C_Yellow}Q$C_Reset: $1 (Y/N) " Response
 	case ${Response,,} in
 		y|yes)
 			return 0 ;;
@@ -301,8 +336,19 @@ case $Output in
 	*)
 		# Parse page data to get tarball filename of the latest stable kernel.
 		if [[ -z $LatestTar ]]; then
-			Data=$(Get - "$RSS_Feed")
+			[[ -z $Output ]] && printf '* Finding latest kernel ... '
+
+			Data=$(Get - "$RSS_Feed" 2>&1)
 			Status=$?
+
+			if [[ -z $Output ]]; then
+				if (( Status > 0 )); then
+					printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+					printf '* Attemting alternative method ... '
+				else
+					printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
+				fi
+			fi
 
 			# Parse RSS feed. Assumes most recent versions are close to top.
 			# This is much quicker than the old method (see below). This also
@@ -353,12 +399,24 @@ case $Output in
 						break
 					fi
 				done <<< "$(Get - "$KernOrg")"
+
+				if [[ -z $Output ]]; then
+					if [[ -z $LatestTar ]]; then
+						printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+					else
+						printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
+					fi
+				fi
 			fi
 		fi
 
 		JustOutput 'latest.tarball' "$LatestTar"
 
+		[[ -z $Output ]] && printf '* Verifying tarball filename ... '
+
 		# Just in-case, check the resulting filename is valid.
+		EmptyFileName=
+		InvalidFileName=
 		if [[ -z $LatestTar ]]; then
 			# Indirectly addresses when there is no Internet connection
 			# available, to avoid an empty string being quoted in what would be
@@ -367,9 +425,21 @@ case $Output in
 			# This is mainly here to compensate for BASH command substitutions
 			# being executed within a subshell, thus exiting out of GLKFU from
 			# Get() with a suitable error via Err() is not possible.
-			Err 1 'Tarball filename empty.'
+			EmptyFileName='True'
 		elif ! [[ $LatestTar == linux-+([[:digit:]]).+([[:digit:].]).tar.xz ]]; then
+			InvalidFileName='True'
+		fi
+
+		if [[ $EmptyFileName == True ]]; then
+			[[ -z $Output ]] && printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+
+			Err 1 'Tarball filename empty.'
+		elif [[ $InvalidFileName == True ]]; then
+			[[ -z $Output ]] && printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+
 			Err 1 "Tarball filename '$LatestTar' not valid."
+		else
+			[[ -z $Output ]] && printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
 		fi
 
 		# From the tarball filename, store just the version string. Shouldn't
@@ -382,12 +452,24 @@ case $Output in
 
 		JustOutput 'latest' "$LatestVer"
 
-		[[ -z $Output ]] && printf 'Latest Linux version: %s\n' "$LatestVer" ;;
+		if [[ -z $Output ]]; then
+			printf 'Latest Linux version: %s%s%s\n'\
+				"$C_Yellow" "$LatestVer" "$C_Reset"
+		fi ;;
 esac
 
 #-----------------------------------Viewing the Changelog (via `glkfu-changes`)
 
 if [[ $ChangeLog == True ]]; then
+	printf "* Looking for 'glkfu-changes' ... "
+
+	if type -P glkfu-changes &> /dev/null; then
+		printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
+	else
+		printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+		exit 1
+	fi
+
 	glkfu-changes "$LatestVer"
 	exit $?
 fi
@@ -401,7 +483,10 @@ CurVer=${Line[2]}
 
 JustOutput 'current' "${CurVer%.0}"
 
-[[ -z $Output ]] && printf 'Current Linux version: %s\n' "${CurVer%.0}"
+if [[ -z $Output ]]; then
+	printf 'Current Linux version: %s%s%s\n'\
+		"$C_Yellow" "${CurVer%.0}" "$C_Reset"
+fi
 
 NewVerAvail='False'
 if [[ $IgnoreVers != True ]]; then
@@ -414,6 +499,10 @@ if [[ $IgnoreVers != True ]]; then
 			Ask "Continue with ${Progrm^^}?" || exit 3
 		fi
 	else
+		if [[ -z $Output && $JustCheck != True ]]; then
+			printf '* Comparing current to latest ... '
+		fi
+
 		# Split strings up by major, minor, and revision, then compare them.
 		# Where C_* is for the current version, and L_* for the latest.
 		read C_Maj C_Min C_Rev <<< "${CurVer//./ }"
@@ -435,9 +524,17 @@ if [[ $IgnoreVers != True ]]; then
 				break
 			fi
 		}
+
+		if [[ -z $Output && $JustCheck != True ]]; then
+			if [[ $NewVerAvail == True ]]; then
+				printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
+			else
+				printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+			fi
+		fi
 	fi
 else
-	printf 'Ignoring version strings.\n'
+	printf 'Bypassing version comparison.\n'
 fi
 
 if [[ $JustCheck == True ]]; then
@@ -453,7 +550,7 @@ if [[ $JustCheck == True ]]; then
 fi
 
 if [[ $IgnoreVers != True ]] && [[ $NewVerAvail == False ]]; then
-	printf "No new version available -- nothing to do.\n"
+	printf "Kernel appears up-to-date -- quitting.\n"
 	exit 0
 fi
 
@@ -461,9 +558,15 @@ fi
 
 # Catch `Makefile:188`, for when build directory has spaces or colons.
 if [[ $JustCheck != True && $ListKerns != True ]]; then
-	if [[ `realpath "$BuildDir"` == *+([\ :])* ]]; then
+	printf '* Checking build path ... '
+
+	if [[ `realpath "$BuildDir" 2>&1` == *+([\ :])* ]]; then
+		printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+
 		Err 1 'Build path must not contain whitespaces or colons.'
 	fi
+
+	printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
 fi
 
 if [[ $JustDownload != True || $IgnoreDeps != True ]]; then
@@ -479,6 +582,8 @@ if [[ $JustDownload != True || $IgnoreDeps != True ]]; then
 		fi
 	done < "$StatusFile"
 
+	printf '* Looking for build packages ... '
+
 	MissingDeps=()
 	for DepPKG in "${ReqPKGs[@]}"; {
 		Found='False'
@@ -492,11 +597,18 @@ if [[ $JustDownload != True || $IgnoreDeps != True ]]; then
 			fi
 		}
 
-		if [[ $Found != True ]]; then
-			printf 'Dependency NOT met: %s\n' "$DepPKG"
-			MissingDeps+=("$DepPKG")
-		fi
+		[[ $Found == True ]] || MissingDeps+=("$DepPKG")
 	}
+
+	if (( ${#MissingDeps[@]} > 0 )); then
+		printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+		for MissingDep in "${MissingDeps[@]}"; {
+			printf "Dependency %sNOT%s met: '%s%s%s'\n"\
+				"$C_Red" "$C_Reset" "$C_Yellow" "$MissingDep" "$C_Reset"
+		}
+	else
+		printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
+	fi
 
 	type -P sudo &> /dev/null && HasSudo='True'
 
@@ -552,6 +664,8 @@ fi
 #-----------------------------------------------Determining Number of CPU Cores
 
 if [[ $JustDownload != True ]]; then
+	printf '* Determining CPU cores ... '
+
 	if [[ -f $ProcInfoFile && -r $ProcInfoFile ]]; then
 		while read -a Line; do
 			if [[ "${Line[0]}${Line[1]}" == cpucores ]]; then
@@ -566,10 +680,14 @@ if [[ $JustDownload != True ]]; then
 	Cores=$TTLCores
 
 	if ! [[ $TTLCores == +([[:digit:]]) ]]; then
+		printf '[%s!%s]\n' "$C_Red" "$C_Reset"
+
 		Err 0 'Unable to determine available number of CPU cores.'
 		Ask 'Continue with just the 1 core/thread?'
 
 		Cores=1
+	else
+		printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
 	fi
 
 	printf 'Using %d/%d available CPU core(s).\n' $Cores $TTLCores
@@ -580,7 +698,7 @@ fi
 if [[ $JustDownload != True ]]; then
 	read -d '' <<-EOF
 
-		CAUTION: Compilation takes up several GBs of disk space. Depending on
+		${C_Red}CAUTION${C_Reset}: Compilation takes up several GBs of disk space. Depending on
 		         the options selected, you may use over 20GB. If you don't have
 		         enough disk space during compilation, it will fail and your
 		         time will be wasted.
@@ -601,13 +719,16 @@ elif [[ -f "$BuildDir/${LatestTar%.xz}" ]]; then
 fi
 
 if [[ $JustDownload != True && -n $ExistingTarball ]]; then
+	printf 'Found: %s%s%s%s\n' "$BuildDir/"\
+		"$C_Yellow" "${LatestTar%.xz}" "$C_Reset"
+
 	Ask "Use existing tarball found in build directory?" && Reuse='True'
 fi
 
 if [[ $Reuse != True ]]; then
-	Ask "Begin downloading '$LatestTar' tarball?" || exit 0
+	Ask "Begin downloading '$C_Yellow$LatestTar$C_Reset' tarball?" || exit 0
 
-	printf 'Downloading tarball...\n'
+	printf 'Downloading tarball:\n'
 	if [[ -w $BuildDir ]]; then
 		URL="$KernOrgMirrs/pub/linux/kernel/v$LatestVerMaj.x/$LatestTar"
 		Get "$BuildDir/$LatestTar" "$URL"
@@ -619,24 +740,24 @@ fi
 Ask 'Verify the GPG signature of the tarball?' && Verify='True'
 
 if [[ $Verify == True ]]; then
-	printf 'Importing GPG public keys...\n'
+	printf 'Importing GPG public keys:\n'
 	gpg --locate-keys "${GPGPubKeys[@]}" ||
 		Err 1 'Failed to import public keys with gpg(1).'
 
-	printf 'Downloading GPG signature file...\n'
+	printf 'Downloading GPG signature file\n'
 	URL="$KernOrgMirrs/pub/linux/kernel/v$LatestVerMaj.x/${LatestTar%.xz}.sign"
 	Get "$BuildDir/${LatestTar%.xz}.sign" "$URL"
 fi
 
 if [[ $JustDownload != True ]]; then
 	if [[ $ExistingTarball != Uncompressed ]]; then
-		printf 'Decompressing tarball...\n'
+		printf 'Decompressing tarball\n'
 		xz -d "$BuildDir/$LatestTar"
 		(( $? > 1 )) && Err 1 'Non-zero exit status from xz(1).'
 	fi
 
 	if [[ $Verify == True ]]; then
-		printf 'Verifying kernel signature...\n'
+		printf 'Verifying kernel signature\n'
 
 		gpg --verify "$BuildDir/${LatestTar%.xz}.sign"
 
@@ -656,7 +777,7 @@ fi
 
 Ask 'Begin extracting tarball?' || exit 0
 
-printf 'Extracting tarball...\n'
+printf 'Extracting tarball\n'
 tar -C "$BuildDir" -xvf "$BuildDir/${LatestTar%.xz}"
 
 rm "$BuildDir/${LatestTar%.xz}"
@@ -668,13 +789,13 @@ if [[ -n $ConfigOverrideFile ]]; then
 
 	cp -v "$ConfigOverrideFile" "$BuildDir/${LatestTar%.tar.xz}/.config"
 else
-	printf 'Looking for suitable kernel configuration...\n'
+	printf 'Looking for suitable kernel configuration\n'
 
 	TargetConfig="/boot/config-$CurVer"
 	if [[ -f $TargetConfig ]]; then
 		printf "File found: '%s'\n" "$TargetConfig"
 
-		printf "Importing current kernel's configuration...\n"
+		printf "Importing current kernel's configuration\n"
 		cp -v "$TargetConfig" "$BuildDir/${LatestTar%.tar.xz}/.config"
 	else
 		Err 1 "Cannot find suitable configuration file -- see: $Progrm -h"
@@ -768,12 +889,13 @@ read -d '' <<-EOF
 	NOTE: This operation may take some time, depending on your system
 	      performance and the options previously selected.
 
-	Attempting to compile kernel & build Debian packages...
+	Attempting to compile kernel & build Debian packages
 EOF
 
 printf '%s' "$REPLY"
 
-$Make bindeb-pkg # <-- As of 2020-12-18, no longer building source packages.
+# As of 2020-12-18, no longer building source packages.
+$Make $HushMake bindeb-pkg
 
 DebPKGExit=$?
 
@@ -788,8 +910,5 @@ fi
 if Ask 'Delete kernel source files?'; then
 	rm -r "../${LatestTar%.tar.xz}"
 fi
-
-printf 'Synchronising cached writes...\n'
-sync
 
 printf 'Finished.\n'
