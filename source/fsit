@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/fsit
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sun 18 Jun 21:35:48 BST 2023
+# Last Change       - Sun 18 Jun 21:40:20 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -70,10 +70,6 @@ if (( $# == 0 )); then
 	Err 1 'File required.'
 elif (( $# > 1 )); then
 	Err 1 'Too many arguments.'
-elif ! [[ -f $1 ]]; then
-	Err 1 "File '$1' not found."
-elif ! [[ -r $1 ]]; then
-	Err 1 "File '$1' unreadable."
 fi
 
 Interactive=
@@ -92,7 +88,11 @@ done
 Original=`stat -c '%Y' "$1" 2> /dev/null`
 
 while :; do
-	[[ -f $1 ]] || continue
+	if ! [[ -f $1 ]]; then
+		Err 1 "File '$1' not found."
+	elif ! [[ -r $1 ]]; then
+		Err 1 "File '$1' unreadable."
+	fi
 
 	(( Current > Original )) && break
 
