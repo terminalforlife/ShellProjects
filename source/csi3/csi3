@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Sat 17 Jun 22:26:18 BST 2023
+# Last Change       - Sun 18 Jun 23:09:31 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.3)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-17'
+CurVer='2023-06-18'
 Progrm='csi3'
 
 Usage() {
@@ -34,6 +34,7 @@ Usage() {
 		  -C, --nocolor            - Disable ANSI color escape sequences.
 		  -E, --noexecs            - Omit 'exec' & 'exec_always' bindings.
 		  -V, --ignore-vars        - Do not attempt to expand i3WM variables.
+		  -c, --csv                - Display bindings in CSV format.
 		  -e, --execs              - Show only 'exec' & 'exec_always' bindings.
 		  -f, --file FILE          - Override default locations with FILE.
 		  -k, --key KEY            - Display only bindings with KEY.
@@ -50,6 +51,7 @@ Err() {
 	(( $1 > 0 )) && exit $1
 }
 
+DoCSV='False'
 StandardIn='False'
 ExpandVars='True'
 Green='\e[32m'
@@ -82,6 +84,8 @@ while [[ -n $1 ]]; do
 		--version|-v)
 			printf '%s\n' "$CurVer"; exit 0 ;;
 		--nocolor|--nocolour|-C)
+			ArgNoColor=$1
+
 			Green=
 			Grey=
 			Red=
@@ -91,6 +95,10 @@ while [[ -n $1 ]]; do
 			NoExecs='True' ;;
 		--ignore-vars|-V)
 			ExpandVars= ;;
+		--csv|-c)
+			ArgDoCSV=$1
+
+			DoCSV='True' ;;
 		--execs|-e)
 			ExecsFlag=$1
 			Execs='True' ;;
@@ -116,6 +124,8 @@ while [[ -n $1 ]]; do
 				Places=("$1")
 			fi ;;
 		--number|-n)
+			ArgNumber=$1
+
 			Number='True' ;;
 		-)
 			StandardIn='True' ;;
@@ -129,6 +139,12 @@ if [[ $Execs == True && $NoExecs == True ]]; then
 	Err 1 "OPTs '$NoExecsFlag' & '$ExecsFlag' incompatible."
 elif [[ $StandardIn == True ]] && (( ${#Places[@]} > 0 )); then
 	Err 1 "OPT '$FileArg' unavailable when reading from STDIN."
+elif [[ $DoCSV == True ]]; then
+	if [[ $Number == True ]]; then
+		Err 1 "OPTs '$ArgDoCSV' & '$ArgNumber' incompatible."
+	elif [[ -n $ArgNoColor ]]; then
+		Err 1 "OPTs '$ArgDoCSV' & '$ArgNoColor' incompatible."
+	fi
 fi
 
 if ! [[ -t 1 ]]; then
@@ -390,6 +406,8 @@ MaxLineNrLen=${#LineNr}
 
 #----------------Display Results, Using `$Count` to Maintain the Original Order
 
+[[ $DoCSV == True ]] && printf 'LineNr,Bindings,Action\n'
+
 CurCount=1
 until (( CurCount > ${#Bindings[@]} )); do
 	for Binding in "${!Bindings[@]}"; {
@@ -397,25 +415,36 @@ until (( CurCount > ${#Bindings[@]} )); do
 		LineNr=${LineNrCount%|*}
 		Count=${LineNrCount#*|}
 		if (( Count == CurCount )); then
-			if [[ $Number == True ]]; then
-				printf "%*s $Green%*d$Reset " $KeysLenMax "${Binding#*_}"\
-					$MaxLineNrLen $LineNr
-			else
-				printf '%*s ' $KeysLenMax "${Binding#*_}"
-			fi
-
 			# If it's a `--release` binding.
+			ReleaseCSV=
 			Action=${Bindings[$Binding]}
 			if [[ ${Action:0:1} == R ]]; then
 				Action=${Action:1}
-				printf "${Red}^$Reset"
+
+				if [[ $DoCSV != True ]]; then
+					printf "${Red}^$Reset"
+				else
+					ReleaseCSV='^'
+				fi
 			fi
 
-			# If it's an `exec` action.
-			if [[ ${Action:0:1} == '!' ]]; then
-				printf "$Red!$Grey%s$Reset\n" "${Action:1}"
+			if [[ $DoCSV == True ]]; then
+				printf '%d,%s,%s%s\n' $LineNr "${Binding#*_}"\
+					"$ReleaseCSV" "$Action"
 			else
-				printf "$Grey%s$Reset\n" "$Action"
+				if [[ $Number == True ]]; then
+					printf "%*s $Green%*d$Reset " $KeysLenMax "${Binding#*_}"\
+						$MaxLineNrLen $LineNr
+				else
+					printf '%*s ' $KeysLenMax "${Binding#*_}"
+				fi
+
+				# If it's an `exec` action.
+				if [[ ${Action:0:1} == '!' ]]; then
+					printf "$Red!$Grey%s$Reset\n" "${Action:1}"
+				else
+					printf "$Grey%s$Reset\n" "$Action"
+				fi
 			fi
 
 			(( CurCount++ ))
