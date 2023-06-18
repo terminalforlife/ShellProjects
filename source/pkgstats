@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Sun 18 Jun 15:45:27 BST 2023
+# Last Change       - Mon 19 Jun 00:32:22 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -75,8 +75,7 @@ elif [[ -d $1 ]]; then
 	printf 'Err: Argument is a directory.\n' 1>&2
 	exit 1
 elif [[ -f $1 ]]; then
-	printf 'Err: File already exists.\n' 1>&2
-	exit 1
+	FileExists='True'
 fi
 
 DepCount=0
@@ -89,33 +88,72 @@ done
 
 (( DepCount > 0 )) && exit 1
 
-readarray -t <<< "$(apt-cache pkgnames 2>&-)" || exit 1
+Interactive=
+[[ -t 1 ]] && Interactive='True'
 
-> "$1"
-
-Count=0
-Len=${#MAPFILE[@]}
-for Package in "${MAPFILE[@]}"; {
-	awk -v C=$(( ++Count )) -v L=$Len -v PKG="$Package" '
-		BEGIN {printf("[%05.4f%%] \033[92m%s\033[0m ", C / L * 100, PKG)}
-	' 2>&-
-
-	while read Line; do
-		if [[ ${Line:0:1} == "'" ]]; then
-			Link=${Line%\'*}
-			Link=${Link#\'}
-
-			break
-		fi
-	done <<< "$(apt-get download --print-uris "$Package" 2>&-)"
-	printf 'is '
-
-	while read F1 F2 _; do
-		if [[ $F1 == Length: ]]; then
-			printf '%s %s\n' "$F2" "$Package" >> "$1"
-			printf '\e[93m%d\e[0m bytes.\n' "$F2"
-
-			break
-		fi
-	done <<< "$(wget --spider "$Link" 2>&1)"
+SigHandler() {
+	printf '\n'
+	exit 130
 }
+
+trap SigHandler INT
+
+if [[ $FileExists == True ]]; then
+	readarray -t FileLines < "$1"
+
+	declare -A FilePKGs=()
+	for Line in "${FileLines[@]}"; {
+		Bytes=${Line%% *}
+		FilePKG=${Line#* }
+
+		FilePKGs["$FilePKG"]=$Bytes
+	}
+fi
+
+readarray -t Packages <<< "$(apt-cache pkgnames 2>&-)" || exit 1
+
+[[ $FileExists == True ]] || > "$1"
+
+Exists=
+Count=0
+Len=${#Packages[@]}
+for Package in "${Packages[@]}"; {
+	if [[ $FileExists == True ]]; then
+		Exists=
+		if [[ -n ${FilePKGs["$Package"]} ]]; then
+			Bytes=${FilePKGs["$Package"]}
+			Exists='True'
+		fi
+	fi
+
+	if [[ $Exists != True ]]; then
+		while read Line; do
+			if [[ ${Line:0:1} == "'" ]]; then
+				Link=${Line%\'*}
+				Link=${Link#\'}
+
+				break
+			fi
+		done <<< "$(apt-get download --print-uris "$Package" 2>&-)"
+
+		while read F1 Bytes _; do
+			if [[ $F1 == Length: ]]; then
+				printf '%s %s\n' "$Bytes" "$Package" >> "$1"
+
+				break
+			fi
+		done <<< "$(wget --spider "$Link" 2>&1)"
+	fi
+
+	if [[ $Interactive == True ]]; then
+		awk -v C=$(( ++Count )) -v L=$Len -v PKG="$Package" -v B=$Bytes '
+			BEGIN {
+				Format = "\r[%05.4f%%] \033[92m%s\033[0m "
+				Format = Format "is \033[93m%d\033[0m bytes\033[K"
+				printf(Format, C / L * 100, PKG, B)
+			}
+		' 2>&-
+	fi
+}
+
+printf '\n'
