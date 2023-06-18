@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Sat 17 Jun 22:25:37 BST 2023
+# Last Change       - Sun 18 Jun 20:46:17 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -35,10 +35,9 @@
 #   bash (>= 4.4)
 #   coreutils (>= 8.28-1)
 #   file (>= 1:5.32-2)
-#   ncurses-bin (>= 6.1-1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-17'
+CurVer='2023-06-18'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -48,6 +47,7 @@ Usage() {
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
+		  --use-tput               - Override escape sequences with tput(1).
 		  -C, --no-color           - Disable ANSI color escape sequences.
 		  -E, --no-exit            - Omit the exit status on the bottom-right.
 		  -S, --no-spinner         - Omit 'spinner' from the waiting message.
@@ -75,6 +75,8 @@ Err() {
 
 TIMEFORMAT='[R:%3R|U:%3U|S:%3S|P:%P]'
 
+UseTPUT=
+ArgExec='False'
 Check='False'
 Color='True'
 ExitStatus='True'
@@ -84,7 +86,6 @@ Refresh='0.05'
 Spinner='True'
 Time='False'
 WaitMSG='True'
-ArgExec='False'
 
 Skip=
 Args=()
@@ -119,6 +120,8 @@ while [[ -n $1 ]]; do
 			Usage; exit 0 ;;
 		--version|-v)
 			printf "%s\n" "$CurVer"; exit 0 ;;
+		--use-tput)
+			UseTPUT='tput' ;;
 		--exec|-e)
 			shift
 
@@ -176,7 +179,7 @@ fi
 
 ExecFile=$1; shift
 
-for Dep in file tput stty stat realpath; {
+for Dep in $UseTPUT file stty stat realpath; {
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		(( DepCount++ ))
@@ -185,28 +188,64 @@ for Dep in file tput stty stat realpath; {
 
 (( DepCount > 0 )) && exit 1
 
-#----------------------------------------------Prepare for an Execute Main Loop
+#-------------------------------------------------------------Primary Functions
 
-if [[ $Force == False ]]; then
-	case $Exec in
-		*/man|man|*/less|less|*/pager|pager|*/more|more)
-			Err 1 "Using pagers with $ProgrmFancy is unsupported." ;;
-	esac
+# Usage: TermDo CAPNAME PARAMS
+#
+# Replaces tput(1), unless disabled by associated flag. The escapue sequences
+# used here are for the standard terminal type, especially in Linux. If anyone
+# is using an obscure terminal, stick with `--use-tput` instead.
+TermDo() {
+	if [[ -n $UseTPUT ]]; then
+		tput "$@" || return $?
+	fi
 
-	case `file -b --mime-type "$ExecFile"` in
-		application|application/*)
-			Err 1 'Binary files are not supported.' ;;
-	esac
-fi
+	local Sequence
+	while [[ -n $1 ]]; do
+		case $1 in
+			clear) # Clear screen.
+				Sequence+=$'\e[3J\e[H\e[2J' ;;
+			cnorm) # Normal cursor.
+				Sequence+=$'\e[?12l\e[?25h' ;;
+			civis) # Invisible cursor.
+				Sequence+=$'\e[?25l' ;;
+			ed) # Clear down.
+				Sequence+=$'\e[J' ;;
+			rmcup) # Restore layout.
+				Sequence+=$'\e[?1049l\e[23;0;0t' ;;
+			smcup) # Save layout.
+				Sequence+=$'\e[?1049h\e[22;0;0t' ;;
+			cup) # Move to Y and X position.
+				Y=$2
+				X=$(( $3 - 1 ))
+				shift 2
+
+				Sequence+=$"\e[$Y;${X}H" ;;
+			cud) # Move down Y times.
+				Y=$(( $2 - 1 ))
+				shift
+
+				Sequence+=$"\e[${Y}B" ;;
+		esac
+		shift
+	done
+
+	printf "$Sequence"
+}
+
+DoWINCH() {
+	shopt -s checkwinsize; (:)
+	TermDo clear
+}
 
 SignalHandler() {
 	if [[ $Once != True ]]; then
-		tput ed
-		tput rmcup
+		TermDo ed
+		TermDo rmcup
 		stty echo
 	fi
 
-	tput cnorm
+	TermDo cnorm
 
 	# The order of these tests is important.
 	if [[ $TermSizeErr == True ]]; then
@@ -231,23 +270,37 @@ SignalHandler() {
 	fi
 }
 
-trap 'SignalHandler' SIGINT EXIT
+#----------------------------------------------Prepare for an Execute Main Loop
 
-[[ $Once == True ]] || tput smcup
+if [[ $Force == False ]]; then
+	case $Exec in
+		*/man|man|*/less|less|*/pager|pager|*/more|more)
+			Err 1 "Using pagers with $ProgrmFancy is unsupported." ;;
+	esac
+
+	case `file -b --mime-type "$ExecFile"` in
+		application|application/*)
+			Err 1 'Binary files are not supported.' ;;
+	esac
+fi
+
+trap SignalHandler SIGINT EXIT
+
+[[ $Once == True ]] || TermDo smcup
 
 if [[ $Once != True ]]; then
-	shopt -s checkwinsize
-	tput clear
-	tput civis
-	trap 'tput clear' WINCH
+	shopt -s checkwinsize; (:)
+	TermDo clear
+	TermDo civis
+	trap DoWINCH WINCH
 	stty -echo
 fi
 
 while :; do
 	if ! [[ -f $ExecFile && -r $ExecFile ]]; then
 		if [[ $Once != True ]]; then
-			tput ed
-			tput rmcup
+			TermDo ed
+			TermDo rmcup
 		fi
 
 		FileNotFoundErr='True'
@@ -280,7 +333,7 @@ while :; do
 
 	SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
 	if [[ ${SSEOld//[![:digit:]]} -lt ${SSE//[![:digit:]]} ]]; then
-		[[ $Once == True ]] || tput clear
+		[[ $Once == True ]] || TermDo clear
 
 		# If using DASH, BASH, or ZSH, check for errors before executing.
 		if [[ $Check == True ]]; then
@@ -304,7 +357,7 @@ while :; do
 		fi
 
 		if [[ $Errors != True ]]; then
-			tput cnorm
+			TermDo cnorm
 			stty echo
 			if [[ $Time == True ]]; then
 				time $Exec "$ExecFile" "$@"
@@ -314,7 +367,7 @@ while :; do
 				Exit=$?
 			fi
 			stty -echo
-			tput civis
+			TermDo civis
 		else
 			Exit=999
 		fi
@@ -326,7 +379,7 @@ while :; do
 
 	# Have the exit status on the bottom-right of the terminal.
 	if [[ $ExitStatus == True ]]; then
-		tput cup $LINES $((COLUMNS - 3))
+		TermDo cup $LINES $((COLUMNS - 3))
 
 		if [[ $Color == True ]]; then
 			if (( Exit == 0 )); then
@@ -342,7 +395,7 @@ while :; do
 	if [[ $WaitMSG == True ]]; then
 		if [[ $Spinner == True ]]; then
 			for Char in '|' '/' '-' '\'; {
-				tput cud $LINES
+				TermDo cud $LINES
 
 				if [[ $Color == True ]]; then
 					printf '\r\e[2;37m[%s] Waiting for changes...\e[0m ' "$Char"
@@ -353,7 +406,7 @@ while :; do
 				read -n 1 -st 0.04
 			}
 		else
-			tput cud $LINES
+			TermDo cud $LINES
 
 			if [[ $Color == True ]]; then
 				printf '\r\e[2;37mWaiting for changes...\e[0m '
