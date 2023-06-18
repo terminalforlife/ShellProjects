@@ -1,0 +1,31 @@
+#!/bin/sh
+
+#------------------------------------------------------------------------------
+# Project Name      - Extra/source/lspath
+# Started On        - Sun 18 Jun 12:57:24 BST 2023
+# Last Change       - Sun 18 Jun 12:57:54 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Portable script to list executable files in `$PATH`.
+#------------------------------------------------------------------------------
+
+Dirs() {
+	OldIFS=$IFS
+	IFS=':'
+
+	set -- $1
+
+	IFS=$OldIFS
+
+	for Dir in "$@"; do
+		Dir=${Dir%/}
+		for File in "$Dir"/*; do
+			if [ -f "$File" ] && [ -x "$File" ]; then
+				printf '%s\n' "$File"
+			fi
+		done
+	done
+}
+
+Dirs "$PATH"
