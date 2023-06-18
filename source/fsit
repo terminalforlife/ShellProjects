@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-#cito M:755 O:0 G:0 T:/usr/local/bin/filesitter
+#cito M:755 O:0 G:0 T:/usr/local/bin/fsit
 #------------------------------------------------------------------------------
-# Project Name      - Extra/source/filesitter
+# Project Name      - Extra/source/fsit
 # Started On        - Thu 28 Sep 23:58:07 BST 2017
-# Last Change       - Sat 22 Jan 00:51:12 GMT 2022
+# Last Change       - Sun 18 Jun 21:27:50 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Wait around until a file has been touched within a given interval.
+# Do nothing until the given file is touched.
 #
 # Features:
 #
@@ -22,29 +22,27 @@
 #   bash (>= 3.2.48)
 #------------------------------------------------------------------------------
 
-CurVer='2022-01-22'
-Progrm='filesitter'
+CurVer='2023-06-18'
+Progrm='fsit'
 
 Usage() {
-	while read; do
-		printf '%s\n' "$REPLY"
-	done <<-EOF
+	read -d '' <<-EOF
 		Usage: $Progrm [OPTS] FILE
 
 		  -h, --help               - Displays this help information.
 		  -v, --version            - Output only the version datestamp.
 		  -i, --interval N         - Use a check interval of N seconds.
 
-		  By default, the checking interval is 300 seconds.
+		  By default, the checking interval is 0.3 seconds.
 	EOF
+
+	printf '%s' "$REPLY"
 }
 
 Err() {
 	printf 'Err: %s\n' "$2" 1>&2
 	(( $1 > 0 )) && exit $1
 }
-
-Action='suspend'
 
 while [[ -n $1 ]]; do
 	case $1 in
@@ -68,9 +66,13 @@ while [[ -n $1 ]]; do
 	shift
 done
 
-(( $# == 0 )) && Err 1 'No file given to monitor.'
+(( $# == 0 )) && Err 1 'File required.'
 
-for Dep in stat systemctl sleep; do
+Interactive=
+[[ -t 1 ]] && Interactive='sleep'
+
+DepCount=0
+for Dep in stat $Interactive; do
 	if ! type -P "$Dep" &> /dev/null; then
 		Err 0 "Dependency '$Dep' not met."
 		(( DepCount++ ))
@@ -79,14 +81,18 @@ done
 
 (( DepCount > 0 )) && exit 1
 
+Original=`stat -c '%Y' "$1" 2> /dev/null`
+
 while :; do
 	[[ -f $1 ]] || continue
 
-	New=`stat -c '%Y' "$1" 2> /dev/null`
-	if (( Old == New )); then
-		break
+	(( Current > Original )) && break
+
+	if [[ -z $Interactive ]]; then
+		read -n 1 -st ${Interval:-0.3}
 	else
-		Old=$New
-		sleep ${Interval:-300}s
+		sleep ${Interval:-0.3}s
 	fi
+
+	Current=`stat -c '%Y' "$1" 2> /dev/null`
 done
