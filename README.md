@@ -17,6 +17,7 @@ As of 2023-06-03, here are some highlights:
 As of 2023-06-18, here are some other useful tools:
 
   * [baddot](source/baddot) - Scan directories for filenames containing suspicious 'dot' Unicode
+  * [fsit](source/fsit) - Do nothing until the given file is touched
   * [recents](source/recents) - List recently opened files in traditional desktop environments
   * [roks](source/roks) - Clean the system out of old Linux kernel installations
   * [snotes](source/snotes) - View and filter notes from a predefined programming notes file
