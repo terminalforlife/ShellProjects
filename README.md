@@ -16,21 +16,21 @@ As of 2023-06-03, here are some highlights:
 
 As of 2023-06-18, here are some other useful tools:
 
-  * [baddot](baddot) - Scan directories for filenames containing suspicious 'dot' Unicode
-  * [recents](recents) - List recently opened files in traditional desktop environments
-  * [roks](roks) - Clean the system out of old Linux kernel installations
-  * [snotes](snotes) - View and filter notes from a predefined programming notes file
-  * [trimit](trimit) - Trim leading and trailing spaces from filenames
-  * [wgodw](wgodw) - Present list of recent highlights from DistroWatch
+  * [baddot](source/baddot) - Scan directories for filenames containing suspicious 'dot' Unicode
+  * [recents](source/recents) - List recently opened files in traditional desktop environments
+  * [roks](source/roks) - Clean the system out of old Linux kernel installations
+  * [snotes](source/snotes) - View and filter notes from a predefined programming notes file
+  * [trimit](source/trimit) - Trim leading and trailing spaces from filenames
+  * [wgodw](source/wgodw) - Present list of recent highlights from DistroWatch
 
 As of 2023-06-18, here are some of the more educational highlights:
 
-  * [fibdemo](fibdemo) - Demonstration of recursive functions for the Fibonacci sequence
-  * [lsdesktops](lsdesktops) - POSIX shell script for listing '\*.desktop' files
-  * [lspath](lspath) - POSIX shell script for listing `$PATH` executable files
-  * [pbtree](pbtree) - Pure BASH tool for recursively listing directory trees
-  * [pkgstats](pkgstats) - Gather package sizes in Debian- and Ubuntu-based systems.
-  * [posix-recurse](posix-recurse) - Isolated example of recursing through directories using a POSIX shell
+  * [fibdemo](source/fibdemo) - Demonstration of recursive functions for the Fibonacci sequence
+  * [lsdesktops](source/lsdesktops) - POSIX shell script for listing '\*.desktop' files
+  * [lspath](source/lspath) - POSIX shell script for listing `$PATH` executable files
+  * [pbtree](source/pbtree) - Pure BASH tool for recursively listing directory trees
+  * [pkgstats](source/pkgstats) - Gather package sizes in Debian- and Ubuntu-based systems.
+  * [posix-recurse](source/posix-recurse) - Isolated example of recursing through directories using a POSIX shell
 
 ### Contributions
 
