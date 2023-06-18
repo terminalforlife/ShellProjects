@@ -22,7 +22,6 @@ As of 2023-06-18, here are some other useful tools:
   * [snotes](snotes) - View and filter notes from a predefined programming notes file
   * [trimit](trimit) - Trim leading and trailing spaces from filenames
   * [wgodw](wgodw) - Present list of recent highlights from DistroWatch
-  *
 
 As of 2023-06-18, here are some of the more educational highlights:
 
