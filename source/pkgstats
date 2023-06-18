@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Sun 18 Jun 13:01:43 BST 2023
+# Last Change       - Sun 18 Jun 15:45:27 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -55,9 +55,10 @@
 #       connections, so please don't run this excessively!
 #------------------------------------------------------------------------------
 
-if (( $# != 1 )); then
+Args=$#
+if (( Args < 1 )); then
 	read -d '' <<-EOF
-		Err: Missing argument.
+		Err: Argument required.
 
 		     This script requires a file into which to save the package
 		     information, consisting of a 'BYTES PACKAGE' format.
@@ -66,6 +67,15 @@ if (( $# != 1 )); then
 	EOF
 
 	printf '%s' "$REPLY"
+	exit 1
+elif (( Args > 1 )); then
+	printf 'Err: Invalid argument(s).\n' 1>&2
+	exit 1
+elif [[ -d $1 ]]; then
+	printf 'Err: Argument is a directory.\n' 1>&2
+	exit 1
+elif [[ -f $1 ]]; then
+	printf 'Err: File already exists.\n' 1>&2
 	exit 1
 fi
 
@@ -78,14 +88,6 @@ for Dep in apt-get apt-cache wget awk; do
 done
 
 (( DepCount > 0 )) && exit 1
-
-if [[ -d $1 ]]; then
-	printf 'Err: Argument is a directory.\n' 1>&2
-	exit 1
-elif [[ -f $1 ]]; then
-	printf 'Err: File already exists.\n' 1>&2
-	exit 1
-fi
 
 readarray -t <<< "$(apt-cache pkgnames 2>&-)" || exit 1
 
