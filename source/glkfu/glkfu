@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sun 18 Jun 13:09:03 BST 2023
+# Last Change       - Sun 18 Jun 13:21:03 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -829,16 +829,18 @@ else
 	$Make silentoldconfig
 fi
 
-read -d '' <<-EOF
+if [[ $AssumeYes != True ]]; then
+	read -d '' <<-EOF
 
-	CAUTION: Removing unneeded kernel modules is only relevant to the system in
-	         its current state, so if you currently or eventually will have
-	         need of such a module, you will likely need to recompile the
-	         kernel with the needed support.
+		CAUTION: Removing unneeded kernel modules is only relevant to the system in
+		         its current state, so if you currently or eventually will have
+		         need of such a module, you will likely need to recompile the
+		         kernel with the needed support.
 
-EOF
+	EOF
 
-printf '%s' "$REPLY"
+	printf '%s' "$REPLY"
+fi
 
 if Ask 'Strip unneeded modules for the current system?'; then
 	$Make localmodconfig
@@ -856,21 +858,23 @@ fi
 # whom this feature probably would not have made its way to glkfu(1).
 #------------------------------------------------------------------------------
 
-read -d '' <<-EOF
+if [[ $AssumeYes != True ]]; then
+	read -d '' <<-EOF
 
-	INFO: If you choose 'Y' to the following question, the resulting kernel
-	      image will NOT include debugging info, resulting in a smaller kernel
-	      image and speeding up compile-time.
+		INFO: If you choose 'Y' to the following question, the resulting kernel
+		      image will NOT include debugging info, resulting in a smaller kernel
+		      image and speeding up compile-time.
 
-	      If enabled, debug symbols will be added to the kernel and modules
-	      (gcc -g), and is needed if you intend to use kernel crashdump or
-	      binary object tools like crash, kgdb, LKCD, gdb, etc on the kernel.
+		      If enabled, debug symbols will be added to the kernel and modules
+		      (gcc -g), and is needed if you intend to use kernel crashdump or
+		      binary object tools like crash, kgdb, LKCD, gdb, etc on the kernel.
 
-	Choose 'N' only if you plan to debug the kernel.
+		Choose 'N' only if you plan to debug the kernel.
 
-EOF
+	EOF
 
-printf '%s' "$REPLY"
+	printf '%s' "$REPLY"
+fi
 
 if Ask "Disable 'DEBUG_INFO' parameter?"; then
 	scripts/config --disable DEBUG_INFO
@@ -897,7 +901,7 @@ EOF
 printf '%s' "$REPLY"
 
 # As of 2020-12-18, no longer building source packages.
-$Make $HushMake bindeb-pkg
+$Make $SilentMake bindeb-pkg
 
 DebPKGExit=$?
 
