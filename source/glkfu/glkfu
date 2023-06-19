@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Sun 18 Jun 13:21:03 BST 2023
+# Last Change       - Mon 19 Jun 18:26:03 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -45,7 +45,7 @@
 #   xz-utils (>= 5.2.2-1.3)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-18'
+CurVer='2023-06-19'
 Progrm='glkfu'
 
 Usage() {
@@ -293,15 +293,20 @@ Get() {
 Ask() {
 	[[ $AssumeYes == True ]] && return 0
 
-	read -ep "${C_Yellow}Q$C_Reset: $1 (Y/N) " Response
-	case ${Response,,} in
-		y|yes)
-			return 0 ;;
-		n|no)
-			return 1 ;;
-		*)
-			Err 1 'Unrecognised response -- quitting.' ;;
-	esac
+	while :; do
+		read -ep "${C_Yellow}Q$C_Reset: $1 (Y/N) " Response
+
+		case ${Response,,} in
+			y|yes)
+				return 0 ;;
+			n|no)
+				return 1 ;;
+			'')
+				Err 0 'Empty response -- try again.' ;;
+			*)
+				Err 0 'Unrecognised response -- try again.' ;;
+		esac
+	done
 }
 
 FileChk() {
