@@ -18,7 +18,7 @@
 #   Download the archive of it directly from GitHub, then extract its contents.
 #
 # Since this installer just fetches from GitHub, you needn't actually download
-# the entire Extra repository to install it; only the installer.
+# the entire ShellProjects repository to install it; only the installer.
 #
 # If you want a HOME-only installation, you'll have to either use Cito, or
 # otherwise install it manually, but you may miss out on a lot of features.
@@ -71,7 +71,7 @@ chmod 644 "$LogFile"
 TmpDir=`mktemp -d --suffix '_tfl'`
 
 URL='https://raw.githubusercontent.com/terminalforlife'
-URL="$URL/Extra/master/source/lmc-darklight"
+URL="$URL/ShellProjects/master/source/lmc-darklight"
 
 SigHandler(){
 	Sig=$?
