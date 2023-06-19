@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Mon 19 Jun 18:37:11 BST 2023
+# Last Change       - Mon 19 Jun 18:58:32 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -199,7 +199,36 @@ else
 	fi
 fi
 
-#----------------------------------------------------------Begin Gathering Data
+#-----------------------------------Gather Data from and Validate Existing File
+
+if [[ $FileExists == True ]]; then
+	LineNr=0
+	LineErrs=0
+	declare -A FilePKGs=()
+	while read Bytes FilePKG; do
+		(( LineNr++ ))
+
+		[[ ${Bytes:0:1} == '#' ]] && continue
+
+		if [[ $Bytes != +([[:digit:]]) ]]; then
+			Err 0 "Invalid bytes on line $LineNr."
+
+			(( LineErrs++ ))
+		fi
+
+		if [[ $FilePKG == *[[:space:]]* ]]; then
+			Err 0 "Invalid package on line $LineNr."
+
+			(( LineErrs++ ))
+		fi
+
+		(( LineErrs > 0 )) || FilePKGs["$FilePKG"]=$Bytes
+	done < "$1"
+
+	(( LineErrs > 0 )) && exit 1
+fi
+
+#---------------------------------------Begin Gathering Package Names and Sizes
 
 if [[ $SummaryOnly != True ]]; then
 	SigHandler() {
@@ -208,18 +237,6 @@ if [[ $SummaryOnly != True ]]; then
 	}
 
 	trap SigHandler INT
-
-	if [[ $FileExists == True ]]; then
-		readarray -t FileLines < "$1"
-
-		declare -A FilePKGs=()
-		for Line in "${FileLines[@]}"; {
-			Bytes=${Line%% *}
-			FilePKG=${Line#* }
-
-			FilePKGs["$FilePKG"]=$Bytes
-		}
-	fi
 
 	readarray -t Packages <<< "$(apt-cache pkgnames 2>&-)" || exit 1
 
@@ -275,7 +292,7 @@ if [[ $SummaryOnly != True ]]; then
 	}
 fi
 
-#---------------------------------------------------------------Display Summary
+#---------------------------Display Summary (AWK for Floating Point Arithmetic)
 
 Interactive=True
 if [[ $Interactive == True ]]; then
