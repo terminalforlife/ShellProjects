@@ -30,7 +30,7 @@ As of 2023-06-18, here are some of the more educational highlights:
   * [lsdesktops](source/lsdesktops) - POSIX shell script for listing '\*.desktop' files
   * [lspath](source/lspath) - POSIX shell script for listing `$PATH` executable files
   * [pbtree](source/pbtree) - Pure BASH tool for recursively listing directory trees
-  * [pkgstats](source/pkgstats) - Gather package sizes in Debian- and Ubuntu-based systems.
+  * [pkgstats](source/pkgstats) - Gather, store, and maintain list of available packages and their file sizes.
   * [posix-recurse](source/posix-recurse) - Isolated example of recursing through directories using a POSIX shell
 
 ### Contributions
