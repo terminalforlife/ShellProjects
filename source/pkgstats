@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Mon 19 Jun 15:49:01 BST 2023
+# Last Change       - Mon 19 Jun 16:00:02 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -149,6 +149,13 @@ for Package in "${Packages[@]}"; {
 	fi
 
 	if [[ $Interactive == True ]]; then
+		if [[ $Exists == True ]]; then
+			printf '\r[???.????] \e[92m%s\e[0m is \e[93m%d\e[0m bytes\e[K'\
+				"$Package" $Bytes
+
+			continue
+		fi
+
 		awk -v C=$(( ++Count )) -v L=$Len -v PKG="$Package" -v B=$Bytes '
 			BEGIN {
 				Format = "\r[%08.4f%%] \033[92m%s\033[0m "
