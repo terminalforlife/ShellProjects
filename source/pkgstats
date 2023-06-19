@@ -3,11 +3,11 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Mon 19 Jun 19:19:14 BST 2023
+# Last Change       - Mon 19 Jun 19:20:55 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Gather, store, and maintain available packages and their file sizes.
+# Gather, store, and maintain list of available packages and their file sizes.
 #
 # Example:
 #
