@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Mon 19 Jun 00:44:41 BST 2023
+# Last Change       - Mon 19 Jun 15:49:01 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ for Package in "${Packages[@]}"; {
 	if [[ $Interactive == True ]]; then
 		awk -v C=$(( ++Count )) -v L=$Len -v PKG="$Package" -v B=$Bytes '
 			BEGIN {
-				Format = "\r[%05.4f%%] \033[92m%s\033[0m "
+				Format = "\r[%08.4f%%] \033[92m%s\033[0m "
 				Format = Format "is \033[93m%d\033[0m bytes\033[K"
 				printf(Format, C / L * 100, PKG, B)
 			}
@@ -159,4 +159,81 @@ for Package in "${Packages[@]}"; {
 	fi
 }
 
-printf '\n'
+Interactive=True
+if [[ $Interactive == True ]]; then
+	printf '\rDone! Summary below.\e[K\n\n'
+
+	awk '
+		# Underscores because AWK sucks at localizing variables.
+		function Human(_Size) {
+			_UnitStr = "b K M G T P E Z Y"
+			_Len = split(_UnitStr, _Units)
+			for (_Index = 1; _Index <= _Len; _Index++) {
+				if (_Size < 1024) {
+					_Result = sprintf("%.1f", _Size)
+					_Len = length(_Result)
+
+					if (substr(_Result, _Len - 1) == ".0") {
+						_Result = substr(_Result, 0, _Len - 2)
+					}
+
+					if (_Units[_Index] == "b") {
+						return(substr(_Result, 0, _Len - 1))
+					} else {
+						return(_Result _Units[_Index])
+					}
+				}
+
+				_Size = _Size / 1024
+			}
+		}
+
+		function Top10(__Sorted_Array, __Len) {
+			for (__Index = 1; __Index <= __Len; __Index++) {
+				split(__Sorted_Array[__Index], __Fields)
+
+				printf("  - '"'%s'"' (%s)\n", __Fields[2], Human(__Fields[1]))
+
+				if (__Index == 3) break
+			}
+		}
+
+		{
+			Lines[$0]
+
+			Total += $1
+		}
+
+		$1 >= 524288000 {
+			GE500M++
+			GE500M_Size += $1
+		}
+
+		$1 <= 10485760 {
+			LE10M++
+			LE10M_Size += $1
+		}
+
+		END {
+			printf(" Packages: %s\n", NR)
+			printf(" TTL Size: %s\n", Human(Total))
+			printf("Avg. Size: %s\n", Human(Total / NR))
+
+			Perc = GE500M / NR * 100
+			Size = Human(GE500M_Size)
+			printf("  >= 500M: %s (%s, %0.2f%%)\n", GE500M, Size, Perc)
+
+			Perc = LE10M / NR * 100
+			Size = Human(LE10M_Size)
+			printf("   <= 10M: %s (%s, %0.2f%%)\n\n", LE10M, Size, Perc)
+
+			print("Largest:\n")
+			Len = asorti(Lines, Sorted, "@ind_num_desc")
+			Top10(Sorted, Len)
+
+			print("\nSmallest:\n")
+			Len = asorti(Lines, Sorted, "@ind_num_asc")
+			Top10(Sorted, Len)
+		}
+	' "$1"
+fi
