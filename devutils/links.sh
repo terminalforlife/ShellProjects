@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/links.sh
+# Project Name      - ShellProjects/devutils/links.sh
 # Started On        - Sun 22 Oct 00:15:02 BST 2017
 # Last Change       - Fri 18 Mar 02:12:02 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com
@@ -12,7 +12,7 @@
 
 exec 2> /dev/null
 
-if cd "$HOME/GitHub/terminalforlife/Personal/Extra"; then
+if cd "$HOME/GitHub/terminalforlife/Personal/ShellProjects"; then
 	mkdir -pv "$HOME/.config"
 
 	if command -v alacritty 1> /dev/null; then

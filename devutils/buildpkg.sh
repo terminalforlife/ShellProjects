@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/buildpkg.sh
+# Project Name      - ShellProjects/devutils/buildpkg.sh
 # Started On        - Sat 23 Nov 00:28:26 GMT 2019
 # Last Change       - Wed 11 Nov 17:39:35 GMT 2020
 # Author E-Mail     - terminalforlife@yahoo.com
@@ -41,7 +41,7 @@ Err(){
 }
 
 BuildStore="$HOME/Documents/TT"
-GitHub="$HOME/GitHub/terminalforlife/Personal/Extra/source"
+GitHub="$HOME/GitHub/terminalforlife/Personal/ShellProjects/source"
 ProgName=$1
 
 [ $# -eq 0 ] && Err 1 "Argument '\$1' must be the '\$ProgName'."

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/compile-bash.sh
+# Project Name      - ShellProjects/devutils/compile-bash.sh
 # Started On        - Mon  6 Dec 00:18:01 GMT 2021
 # Last Change       - Sun  9 Jan 13:33:02 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com

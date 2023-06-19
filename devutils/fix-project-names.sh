@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/fix-project-names.sh
+# Project Name      - ShellProjects/devutils/fix-project-names.sh
 # Started On        - Wed  7 Jun 20:21:59 BST 2023
 # Last Change       - Thu  8 Jun 17:38:13 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com

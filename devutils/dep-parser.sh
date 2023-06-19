@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/dep-parser.sh
+# Project Name      - ShellProjects/devutils/dep-parser.sh
 # Started On        - Tue  2 Mar 15:21:35 GMT 2021
 # Last Change       - Wed 19 Jan 14:17:06 GMT 2022
 # Author E-Mail     - terminalforlife@yahoo.com

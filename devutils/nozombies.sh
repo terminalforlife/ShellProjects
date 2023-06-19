@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #------------------------------------------------------------------------------
-# Project Name      - Extra/devutils/nozombies.sh
+# Project Name      - ShellProjects/devutils/nozombies.sh
 # Started On        - Fri 26 May 19:32:02 BST 2023
 # Last Change       - Fri  2 Jun 14:28:19 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
@@ -40,7 +40,7 @@ Err() {
 }
 
 GitDir='../source'
-Repo='Extra'
+Repo='ShellProjects'
 
 [[ -d $GitDir ]] || Err 1 "Directory '$GitDir' not found."
 
