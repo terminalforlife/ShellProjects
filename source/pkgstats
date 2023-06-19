@@ -3,54 +3,38 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Mon 19 Jun 18:58:32 BST 2023
+# Last Change       - Mon 19 Jun 19:19:14 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# Displays and stores the size (in bytes) and name of every package available
-# in the repositories, then sums them all up. Below are the related information
-# for my system, and what I determined from the results I got from this.
+# Gather, store, and maintain available packages and their file sizes.
 #
-# Note that this takes a LONG time. The below results too me all day, from
-# about 8am to 2am the next morning. It's possible to parallelise this
-# approach, if needed. I didn't want to hammer the servers, though. One way to
-# handle this script, would be to fetch the results in parts, by having
-# multiple iterations fetching each part simultaneously. The `download`
-# operation of apt-get(8) does permit this.
+# Example:
 #
-#   - Test performed on: 2023-06-18
-#   - Presumably using AMD64 packages
-#   - Ubuntu 18.04.6 repositories
-#   - Using 'main', 'restricted', 'universe', 'multiverse', via the 'bionic', -
-#     'bionic-updates', and 'bionic-security' repositories
-#   - Using no PPAs or similar; only standard repositories
-#   - Using Ubuntu's parter repository
-#   - 82795 packages available
+#   $ pkgstats -s packages_bytes_bionic.txt
+#    Packages: 82795
+#    TTL Size: 252.2G
+#   Avg. Size: 3.1M
+#     >= 500M: 6 (3.9G, 0.01%)
+#      <= 10M: 74287 (66G, 89.72%)
 #
-# My results:
+#   Largest:
 #
-#   - Total package size is 253G
-#   - Average package size is 3.2M
-#   - 0.0072% of packages are over 500M
-#   - 73.8% of packages are ≤ 10M
+#     - 'flightgear-data-base' (1004.6M)
+#     - 'redeclipse-data' (822.3M)
+#     - '0ad-data' (610.5M)
 #
-#   Top 10 package sizes:
+#   Smallest:
 #
-#      1 1005M flightgear-data-base
-#      2  823M redeclipse-data
-#      3  611M 0ad-data
-#      4  540M sauerbraten
-#      5  537M mrpt-doc
-#      6  529M firefox-dbg
-#      7  499M thunderbird-dbg
-#      8  491M supertuxkart-data
-#      9  477M alien-arena-data
-#     10  435M nexuiz-textures
+#     - 'libc6-armel-armhf-cross' (776)
+#     - 'libc6-armhf-armel-cross' (776)
+#     - 'libc6-dev-armel-armhf-cross' (780)
 #
-#   The smallest packages are 'libc6-armhf-armel-cross' and
-#   'libc6-armel-armhf-cross', at just 776 bytes each.
+# NOTE: This can take a very long time, depending on the repositories you have
+#       available. Thanks to the ability for PKGStats to pick up where it left
+#       off, you needn't do it all in one session.
 #
-# NOTE: If you run this, please be mindful of the servers. While sending a
+#       If you run this, please be mindful of the servers. While sending a
 #       spider to grab the header is surely harmless, it's still constant
 #       connections, so please don't run this excessively!
 #
