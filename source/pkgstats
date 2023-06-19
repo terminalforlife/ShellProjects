@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - Extra/source/pkgstats
 # Started On        - Sat 17 Jun 09:08:12 BST 2023
-# Last Change       - Mon 19 Jun 18:15:43 BST 2023
+# Last Change       - Mon 19 Jun 18:34:10 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -140,8 +140,9 @@ done
 
 Args=$#
 if (( Args < 1 )); then
+	Err 0 'Argument required.'
+
 	read -d '' <<-EOF
-		Err: Argument required.
 
 		     $ProgrmFancy requires a file into which to save the package
 		     information, consisting of a 'BYTES PACKAGE' format.
@@ -152,27 +153,13 @@ if (( Args < 1 )); then
 	printf '%s' "$REPLY"
 	exit 1
 elif (( Args > 1 )); then
-	printf 'Err: Invalid argument(s).\n' 1>&2
-	exit 1
-elif [[ -d $1 ]]; then
-	printf 'Err: Argument is a directory.\n' 1>&2
-	exit 1
-elif [[ -f $1 ]]; then
-	FileExists='True'
-
-	if [[ $SummaryOnly == True && ! -s $1 ]]; then
-		Err 1 'Unable to summarize empty FILE.'
-	fi
-else
-	if [[ $SummaryOnly == True ]]; then
-		Err 1 'Unable to summarize non-existent FILE.'
-	fi
+	Err 1 'Invalid argument(s).'
 fi
 
 DepCount=0
 for Dep in apt-get apt-cache wget awk; do
 	if ! type -P "$Dep" &> /dev/null; then
-		printf "Err: Dependency '$Dep' not met.\n" 1>&2
+		Err 0 "Dependency '$Dep' not met."
 		(( DepCount++ ))
 	fi
 done
@@ -182,14 +169,44 @@ done
 Interactive=
 [[ -t 1 ]] && Interactive='True'
 
-SigHandler() {
-	printf '\n'
-	exit 130
-}
+if [[ -d $1 ]]; then
+	Err 1 'Argument is a directory.'
+elif [[ -f $1 ]]; then
+	FileExists='True'
+
+	if [[ $SummaryOnly == True ]]; then
+		[[ -s $1 ]] || Err 1 'Unable to summarize empty FILE.'
+	else
+		printf "NOTE: File '%s' already exists.\n" "$1"
+
+		while :; do
+			read -p '      Continue? [Y/N] '
+			case ${REPLY,,} in
+				y|yes)
+					break ;;
+				n|no)
+					exit 1 ;;
+				'')
+					Err 0 'Empty response -- try again.' ;;
+				*)
+					Err 0 'Unrecognised response -- try again.' ;;
+			esac
+		done
+	fi
+else
+	if [[ $SummaryOnly == True ]]; then
+		Err 1 'Unable to summarize non-existent FILE.'
+	fi
+fi
 
 #----------------------------------------------------------Begin Gathering Data
 
 if [[ $SummaryOnly != True ]]; then
+	SigHandler() {
+		printf '\n'
+		exit 130
+	}
+
 	trap SigHandler INT
 
 	if [[ $FileExists == True ]]; then
