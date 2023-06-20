@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/rmne/rmne
 # Started On        - Fri  6 Apr 21:27:34 BST 2018
-# Last Change       - Mon 19 Jun 23:34:57 BST 2023
+# Last Change       - Tue 20 Jun 20:27:38 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 #   bash (>= 3.1)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-03'
+CurVer='2023-06-20'
 Progrm='rmne'
 
 Usage() {
@@ -119,7 +119,7 @@ done
 if ! [[ -f $StatusFile && -r $StatusFile ]]; then
 	Err 1 "File '$StatusFile' missing or inaccessible."
 elif (( UID != 0 )) && [[ $Destroy == True ]]; then
-	Err 1 "Root access required for system-wide changes."
+	Err 1 "Permission denied -- are you 'root'?"
 fi
 
 if [[ $Destroy == True ]]; then

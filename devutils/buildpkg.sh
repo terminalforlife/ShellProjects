@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/devutils/buildpkg.sh
 # Started On        - Sat 23 Nov 00:28:26 GMT 2019
-# Last Change       - Wed 11 Nov 17:39:35 GMT 2020
+# Last Change       - Tue 20 Jun 20:28:30 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ else
 fi
 
 if [ `id -u` -ne 0 ]; then
-	Err 1 'Root access is required for this operation.'
+	Err 1 "Permission denied -- are you 'root'?"
 elif ! [ -d "$BuildStore" ]; then
 	Err 1 "Build store directory '`basename "$BuildStore"`' not found."
 elif ! [ -r "$BuildStore" ] || ! [ -w "$BuildStore" ] || ! [ -x "$BuildStore" ]; then

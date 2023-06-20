@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/mozff
 # Started On        - Sat 19 Mar 22:28:32 GMT 2022
-# Last Change       - Mon 19 Jun 23:34:57 BST 2023
+# Last Change       - Tue 20 Jun 20:27:48 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -33,7 +33,7 @@
 #   wget (>= 1.19.4-1) | curl (>= 7.58.0-2ubuntu3.10)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-15'
+CurVer='2023-06-20'
 Progrm=${0##*/}
 
 Usage() {
@@ -77,7 +77,7 @@ done
 
 (( DepCount > 0 )) && exit 1
 
-(( UID == 0 )) || Err 1 'Root access is required.'
+(( UID == 0 )) || Err 1 "Permission denied -- are you 'root'?"
 
 #-------------------------------------------------------------Primary Functions
 
