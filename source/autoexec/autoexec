@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/autoexec/autoexec
 # Started On        - Thu 31 Oct 22:49:41 GMT 2019
-# Last Change       - Mon 19 Jun 23:34:57 BST 2023
+# Last Change       - Fri 23 Jun 12:41:33 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -18,6 +18,7 @@
 #
 # Bugs:
 #
+#TODO: Handle spaces between '#' and '!'. (see: `$SheBang`)
 #TODO: Using AutoExec for man pages (pagers) is buggy, but functional.
 #
 #      More specifically, the prompt shows through and when ^C-ing, the last
@@ -37,7 +38,7 @@
 #   file (>= 1:5.32-2)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-18'
+CurVer='2023-06-23'
 Progrm=${0##*/}
 ProgrmFancy='AE'
 
@@ -173,11 +174,13 @@ if [[ $Once == True && $RefreshCustom == True ]]; then
 	Err 1 "OPTs '$OnceArg' and '$RefreshArg' aren't compatible."
 fi
 
-[[ -z $1 ]] && Err 1 'Missing argument -- file name required.'
-[[ -f $1 ]] || Err 1 'Provided file is not a file.'
-[[ -r $1 ]] || Err 1 'Provided file is unreadable.'
+[[ -z $1 ]] && Err 1 'Missing argument -- FILE required.'
 
 ExecFile=$1; shift
+ExecFileNoHOME=${ExecFile/$HOME/\~}
+
+[[ -f $ExecFile ]] || Err 1 "File '$ExecFileNoHOME' not found."
+[[ -r $ExecFile ]] || Err 1 "File '$ExecFileNoHOME' unreadable."
 
 for Dep in $UseTPUT file stty stat realpath; {
 	if ! type -P "$Dep" &> /dev/null; then
@@ -200,7 +203,7 @@ TermDo() {
 		tput "$@" || return $?
 	fi
 
-	local Sequence
+	Sequence=
 	while [[ -n $1 ]]; do
 		case $1 in
 			clear) # Clear screen.
@@ -251,11 +254,11 @@ SignalHandler() {
 	if [[ $TermSizeErr == True ]]; then
 		Err 1 'Insufficient terminal size detected.'
 	elif [[ $FileNotFoundErr == True ]]; then
-		Err 1 'File not found or inaccessible.'
+		Err 1 "File '$ExecFileNoHOME' not found or inaccessible."
 	elif [[ $SheBangInvalidErr == True ]]; then
-		Err 1 'Invalid shebang detected.'
-	elif [[ -n $InterpreterMissingErr ]]; then
-		Err 1 "Interpreter '$InterpreterMissingErr' not found."
+		Err 1 "File '$ExecFileNoHOME' missing shebang."
+	elif [[ $InterpreterMissingErr == True ]]; then
+		Err 1 "File '$SheBangFile' not found."
 	fi
 
 	# Needs to be here otherwise the above line clears it.
@@ -270,7 +273,89 @@ SignalHandler() {
 	fi
 }
 
-#----------------------------------------------Prepare for an Execute Main Loop
+ParseHashBang() {
+	if [[ $1 == --initial ]]; then
+		Initial='True'
+
+		shift
+	fi
+
+	declare -n _Exec=$1
+
+	read -r SheBang < "$ExecFile"
+
+	if [[ $SheBang != '#!'* ]]; then
+		SheBangInvalidErr='True'
+
+		if [[ $Initial == True ]]; then
+			Err 1 "File '$ExecFileNoHOME' missing shebang."
+		fi
+
+		exit
+	fi
+
+	SheBangMain=${SheBang#'#!'}
+
+	# Trim leading spaces.
+	Found=
+	Buffer=
+	Len=${#SheBangMain}
+	for (( Index = 0; Index < Len; Index++ )); {
+		Char=${SheBangMain:Index:1}
+		if [[ $Found == True ]]; then
+			Buffer+=$Char
+		elif [[ $Char != [[:space:]] ]]; then
+			Buffer+=$Char
+			Found='True'
+		fi
+	}
+
+	SheBangMain=$Buffer
+
+	# Get just the executable, no arguments. Catches situation when path
+	# includes spaces (e.g., '/path/to/f\ ile') or when using things like
+	# env(1). However, this is appears to be an invalid shebang, at least in
+	# Linux 6.2.9.
+	Buffer=
+	PathFound=
+	SpaceFound=
+	Len=${#SheBangMain}
+	for (( Index = Len - 1; Index >= 0; Index-- )); {
+		Char=${SheBangMain:Index:1}
+		if [[ $PathFound == True ]]; then
+			Buffer="$Char$Buffer"
+		elif [[ $SpaceFound == True ]]; then
+			if [[ $Char != [[:space:]] ]]; then
+				Buffer="$Char$Buffer"
+				PathFound='True'
+			fi
+		elif [[ $Char == [[:space:]] ]]; then
+			SpaceFound='True'
+		fi
+	}
+
+	# If we're not using something like env(1), or don't have any arguments, -
+	# then just use what we had in the first place.
+	if [[ -n $Buffer ]]; then
+		SheBangFile=$Buffer
+	else
+		SheBangFile=$SheBangMain
+	fi
+
+	if ! type -P "${SheBangFile##*/}" &> /dev/null; then
+		InterpreterMissingErr='True'
+
+		if [[ $Initial == True ]]; then
+			Err 1 "File '$SheBangFile' not found."
+		fi
+
+		exit
+	fi
+
+	_Exec=$SheBangMain
+}
+
+#---------------------------------------------Prepare for and Execute Main Loop
 
 if [[ $Force == False ]]; then
 	case $Exec in
@@ -283,6 +368,9 @@ if [[ $Force == False ]]; then
 			Err 1 'Binary files are not supported.' ;;
 	esac
 fi
+
+# Handle initial shebang-related errors, free of `trap` and escape sequences.
+[[ $ArgExec == True ]] || ParseHashBang --initial Exec
 
 trap SignalHandler SIGINT EXIT
 
@@ -311,25 +399,7 @@ while :; do
 		exit
 	fi
 
-	# Determine the interpreter to use.
-	if [[ $ArgExec != True ]]; then
-		read SheBang < "$ExecFile"
-
-		if [[ $SheBang != '#!'* ]]; then
-			SheBangInvalidErr='True'
-			exit
-		fi
-
-		SheBangMain=${SheBang#\#\!}
-		SheBangBase=${SheBangMain##*/}
-
-		if ! type -P "${SheBangMain%% *}" &> /dev/null; then
-			InterpreterMissingErr=$SheBangMain
-			exit
-		fi
-
-		Exec=$SheBangMain
-	fi
+	[[ $ArgExec == True ]] || ParseHashBang Exec
 
 	SSE=`stat -c '%Y' "$ExecFile" 2> /dev/null`
 	if [[ ${SSEOld//[![:digit:]]} -lt ${SSE//[![:digit:]]} ]]; then
