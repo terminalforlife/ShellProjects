@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/local/bin/deb-chklist
+#------------------------------------------------------------------------------
+# Project Name      -
+# Started On        - Mon 26 Jun 22:53:12 BST 2023
+# Last Change       - Tue 27 Jun 11:09:22 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# For Debian- and Ubuntu-based distributions, scan '*.list' files for errors.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.1)
+#------------------------------------------------------------------------------
+
+CurVer='2023-06-27'
+Progrm=${0##*/}
+
+Usage() {
+	read -d '' <<-EOF
+		Usage: $Progrm [OPTS] [FILE [FILE] ...]
+
+		  -h, --help               - Display this help information.
+		  -v, --version            - Output the version datestamp.
+		  -C, --nocolor            - Disable ANSI color escape sequences.
+
+		  The use of '--' to ignore proceeding options is supported.
+	EOF
+
+	printf '%s' "$REPLY"
+}
+
+Err() {
+	printf 'Err: %s\n' "$2" 1>&2
+	(( $1 > 0 )) && exit $1
+}
+
+NoColor=
+
+BRed=$'\e[91m'
+BYellow=$'\e[93m'
+Reset=$'\e[0m'
+
+Skip=
+Args=()
+while [[ -n $1 ]]; do
+	case $1 in
+		--)
+			Args+=(--)
+			Skip='True' ;;
+		-[^-]*)
+			if [[ $Skip == True ]]; then
+				Args+=("$1")
+			else
+				Str=${1#-}
+				Len=${#Str}
+				for (( Index = 0; Index < Len; Index++ )); {
+					Args+=(-"${Str:Index:1}")
+				}
+			fi ;;
+		*)
+			Args+=("$1") ;;
+	esac
+	shift
+done
+
+set -- "${Args[@]}"
+
+while [[ -n $1 ]]; do
+	case $1 in
+		--)
+			break ;;
+		--help|-h)
+			Usage; exit 0 ;;
+		--version|-v)
+			printf '%s\n' "$CurVer"; exit 0 ;;
+		--nocolor|-C)
+			BRed=
+			BYellow=
+			Reset= ;;
+		-*)
+			Err 1 'Incorrect option(s) specified.' ;;
+		*)
+			break ;;
+	esac
+	shift
+done
+
+OneFile=
+Space='  '
+if (( $# > 0 )); then
+	Files=("$@")
+
+	if (( ${#Files[@]} == 1 )); then
+		OneFile='True'
+		Space=
+	fi
+else
+	Files=(/var/lib/dpkg/info/*.list)
+fi
+
+FileErr() {
+	local FileArg=
+	if [[ $1 == -f ]]; then
+		FileArg='True'
+		shift
+	fi
+
+	if [[ $FileArg == True ]]; then
+		printf '%s%sFile%s %s.\n' "$Space"\
+			"$BRed" "$Reset" "${1,}" 1>&2
+	else
+		printf '%sLine %s%d%s %s.\n' "$Space"\
+			"$BRed" $LineNr "$Reset" "${1,}" 1>&2
+	fi
+
+	(( ErrCount++ ))
+}
+
+ErrCount=0
+FileCount=0
+for File in "${Files[@]}"; {
+	[[ -f $File ]] || continue
+
+	(( FileCount++ ))
+
+	if [[ $OneFile != True ]]; then
+		printf "* %s%s%s\n" "$BYellow" "${File##*/}" "$Reset"
+	fi
+
+	Stat=$(stat --printf='%a %u %g\n' "$File")
+	read Mode Owner Group <<< "$Stat"
+	if [[ $Mode != 644 ]]; then
+		FileErr -f "mode $Mode unexpected"
+	fi
+
+	(( Owner != 0 )) && FileErr -f "owner $Owner unexpected"
+	(( Group != 0 )) && FileErr -f "group $Group unexpected"
+
+	LineNr=0
+	while read; do
+		(( LineNr++ ))
+
+		if [[ -z $REPLY ]]; then
+			FileErr 'empty'
+		elif [[ $REPLY == +([[:space:]]) ]]; then
+			FileErr 'only spaces'
+		elif [[ $REPLY == *//* ]]; then
+			FileErr 'invalid path'
+		elif [[ $REPLY != /* ]]; then
+			FileErr 'relative path'
+		fi
+	done < "$File"
+
+	if [[ -n "${REPLY:${#REPLY} - 1}" ]]; then
+		FileErr -f 'missing final newline'
+	fi
+}
+
+printf '\n'
+
+if (( FileCount > 1 )); then
+	printf 'Scanned %s%d%s file(s).\n'\
+		"$BYellow" $FileCount "$Reset"
+fi
+
+if (( ErrCount > 0 )); then
+	printf 'Found %s%d%s error(s).\n' "$BRed" $ErrCount "$Reset"
+
+	exit 1
+else
+	printf 'No errors found.\n'
+fi
