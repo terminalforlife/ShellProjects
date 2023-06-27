@@ -14,9 +14,10 @@ As of 2023-06-03, here are some highlights:
   * [simplify-ubuntu](source/simplify-ubuntu) - De-bloat Ubuntu by interactively removing unneeded packages
   * [tagged](source/tagged) - List commits per file in the CWD of a git(1) repository
 
-As of 2023-06-18, here are some other useful tools:
+As of 2023-06-27, here are some other useful tools:
 
   * [baddot](source/baddot) - Scan directories for filenames containing suspicious 'dot' Unicode
+  * [deb-chklist](source/deb-chklist) - Scan '\*.list' files for errors.
   * [fsit](source/fsit) - Do nothing until the given file is touched
   * [recents](source/recents) - List recently opened files in traditional desktop environments
   * [roks](source/roks) - Clean the system out of old Linux kernel installations
