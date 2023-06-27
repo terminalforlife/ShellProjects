@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/deb-chklist
 # Started On        - Mon 26 Jun 22:53:12 BST 2023
-# Last Change       - Tue 27 Jun 11:16:36 BST 2023
+# Last Change       - Tue 27 Jun 11:28:55 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -116,14 +116,17 @@ FileErr() {
 	fi
 
 	if [[ $FileArg == True ]]; then
-		printf '%s%sFile%s %s.\n' "$Space"\
+		printf -v ErrorStr '%s%sFile%s %s.' "$Space"\
 			"$BRed" "$Reset" "${1,}" 1>&2
 	else
-		printf '%sLine %s%d%s %s.\n' "$Space"\
+		printf -v ErrorStr '%sLine %s%d%s %s.' "$Space"\
 			"$BRed" $LineNr "$Reset" "${1,}" 1>&2
 	fi
 
+	ErrorArr+=("$ErrorStr")
+
 	(( ErrCount++ ))
+	(( ErrCountThisFile++ ))
 }
 
 ErrCount=0
@@ -131,11 +134,9 @@ FileCount=0
 for File in "${Files[@]}"; {
 	[[ -f $File ]] || continue
 
+	ErrorArr=()
+	ErrCountThisFile=0
 	(( FileCount++ ))
-
-	if [[ $OneFile != True ]]; then
-		printf "* %s%s%s\n" "$BYellow" "${File##*/}" "$Reset"
-	fi
 
 	Stat=$(stat --printf='%a %u %g\n' "$File")
 	read Mode Owner Group <<< "$Stat"
@@ -164,9 +165,19 @@ for File in "${Files[@]}"; {
 	if [[ -n "${REPLY:${#REPLY} - 1}" ]]; then
 		FileErr -f 'missing final newline'
 	fi
+
+	if (( ErrCountThisFile > 0 )); then
+		if [[ $OneFile != True ]]; then
+			printf "* %s%s%s\n" "$BYellow" "${File##*/}" "$Reset"
+		fi
+
+		for Error in "${ErrorArr[@]}"; {
+			echo "$Error"
+		}
+	fi
 }
 
-printf '\n'
+(( ErrCount > 0 )) && printf '\n'
 
 if (( FileCount > 1 )); then
 	printf 'Scanned %s%d%s file(s).\n'\
