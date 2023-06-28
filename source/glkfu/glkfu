@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/glkfu/glkfu
 # Started On        - Sun  6 Dec 19:41:35 GMT 2020
-# Last Change       - Wed 28 Jun 23:41:48 BST 2023
+# Last Change       - Wed 28 Jun 23:48:07 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,6 @@
 #
 # Bugs:
 #
-#TODO: RSS approach to latest kernel string currently useless; fix!
 #TODO: Use of the -o flag(s) not working properly if unmet dependencies.
 #
 #      In this case, GLKFU is unable to determine whether the latest version is
@@ -90,7 +89,6 @@ VerFile='/proc/version'
 ProcInfoFile='/proc/cpuinfo'
 StatusFile='/var/lib/dpkg/status'
 KernOrg='https://www.kernel.org'
-RSS_Feed='https://www.kernel.org/feeds/kdist.xml'
 GPGPubKeys=('torvalds@kernel.org' 'gregkh@kernel.org')
 KernOrgMirrs='https://cdn.kernel.org'
 BuildDir='.'
@@ -346,61 +344,6 @@ if [[ $Output != +(current|current.*) ]]; then
 	if [[ -z $LatestTar ]]; then
 		[[ -z $Output ]] && printf '* Finding latest kernel ... '
 
-		# 2023-06-28: This RSS code is a zombie for now, as kernel order seems
-		#             unreliable. When 6.4 was released, 6.3.10 was displayed
-		#             as the latest.
-
-		#Data=$(Get - "$RSS_Feed" 2>&1)
-		#Status=$?
-
-		#if [[ -z $Output ]]; then
-		#	if (( Status > 0 )); then
-		#		printf '[%s!%s]\n' "$C_Red" "$C_Reset"
-		#		printf '* Attemting alternative method ... '
-		#	else
-		#		printf '[%sOK%s]\n' "$C_Green" "$C_Reset"
-		#	fi
-		#fi
-
-		# Parse RSS feed. Assumes most recent versions are close to top. This
-		# is much quicker than the old method (see below). This also assumes
-		# the version numbers are the usual maj.min.patch. This, and the chance
-		# of the page being inaccessble, is why the fallback is in place.
-		#if (( Status == 0 )); then
-		#	Buffer=
-		#	TagStart=
-		#	ItemFound=
-		#	while read -N 1 Char; do
-		#		if [[ $TagStart == True ]]; then
-		#			if [[ $InsideTag == True ]]; then
-		#				Buffer+=$Char
-
-		#				if [[ $Char == '<' ]]; then
-		#					if [[ ${Buffer:0:6} == title\> ]]; then
-		#						Buffer=${Buffer#*>}
-		#						if [[ ${Buffer:0 - 7:-1} == stable ]]; then
-		#							LatestTar="linux-${Buffer%:*}.tar.xz"
-
-		#							break
-		#						fi
-		#					fi
-
-		#					TagStart=
-		#					Buffer=
-		#				fi
-		#			elif [[ $Char == '>' ]]; then
-		#				InsideTag='True'
-		#				Buffer=
-		#			fi
-		#		elif [[ $Char == '<' ]]; then
-		#			TagStart='True'
-		#		fi
-		#	done <<< "$Data"
-		#fi
-
-		# 2023-06-28: This became the main method again, at least for now.
-		#
-		# As of 2023-06-14, this is the old method, kept as fallback.
 		Pattern='linux-+([[:digit:]]).+([[:digit:]]).+([[:digit:]]).tar.xz'
 		if [[ -z $LatestTar || $LatestTar != $Pattern ]]; then
 			while read; do
