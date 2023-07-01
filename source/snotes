@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Sat  1 Jul 22:43:24 BST 2023
+# Last Change       - Sat  1 Jul 23:08:55 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -37,6 +37,7 @@ Usage() {
 		  -c, --comment CHAR       - Use CHAR as the single comment character.
 		  -f, --file PATH          - Specify & remember the notes file to use.
 		  -n, --line-number        - Print line numbers in grep(1) style.
+		  -r, --random             - Display random note from results.
 
 		  The location of the file read by ${Progrm^} is saved here:
 
@@ -67,6 +68,7 @@ Green=$'\e[32m'
 Cyan=$'\e[36m'
 Reset=$'\e[0m'
 
+Random=
 NoColors=
 ReadSTDIN=
 Comment='#'
@@ -131,6 +133,8 @@ while [[ -n $1 ]]; do
 			fi ;;
 		--line-number|-n)
 			LineNumber='True' ;;
+		--random|-r)
+			Random='True' ;;
 		-*)
 			Err 1 'Incorrect option(s) specified.' ;;
 		*)
@@ -182,6 +186,9 @@ PrintLine() {
 
 #--------------------------------------------------------Parse and Display Data
 
+# For use when grabbing random note.
+Lines=()
+
 # Also allow removing colors when non-interactive (e.g., pipe).
 if [[ $NoColors == True || ! -t 1 ]]; then
 	BRed=
@@ -206,6 +213,14 @@ while read -r; do
 		continue
 	fi
 
+	if [[ $Random == True ]]; then
+		[[ $REPLY == *"$Match"* ]] || continue
+
+		Lines+=("$LineNr|$REPLY")
+
+		continue
+	fi
+
 	if (( $# == 0 )); then
 		PrintLine $LineNr "$REPLY"
 	else
@@ -214,3 +229,11 @@ while read -r; do
 		fi
 	fi
 done < "$NotesFile"
+
+if [[ $Random == True ]]; then
+	Chosen=${Lines[RANDOM % ${#Lines[@]}]}
+	LineNr=${Chosen%%|*}
+	Line=${Chosen#*|}
+
+	PrintLine $LineNr "$Line"
+fi
