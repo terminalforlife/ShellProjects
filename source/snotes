@@ -3,21 +3,16 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/snotes
 # Started On        - Fri  9 Feb 00:07:19 GMT 2018
-# Last Change       - Mon 19 Jun 23:34:57 BST 2023
+# Last Change       - Sat  1 Jul 22:43:24 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
-# With as old as BASH 3.1 support and POSIX-compliant mkdir(1) usage, this
-# tool allows the user to view and filter notes. Snotes is intended for
-# programmers, but can absolutely be used outside of that realm.
+# View and filter notes. Snotes is intended for programmers, but can absolutely
+# be used outside of that realm.
 #
 # Features:
 #
 #TODO: Find a way to incorporate a multi-character comment string.
-#
-#      Prior to a recent overhaul of Snotes, this was a given feature.
-#      However, due to the sheer complexity and limitation of the new code put
-#      in place, only one comment character is so far supported.
 #
 # Bugs:
 #
@@ -25,11 +20,11 @@
 #
 # Dependencies:
 #
-#   bash (>= 3.1)
+#   bash (>= 4.1)
 #   coreutils (>= 8.28)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-17'
+CurVer='2023-07-01'
 Progrm='snotes'
 
 Usage() {
@@ -198,76 +193,24 @@ fi
 Match=$1
 MatchLen=${#Match}
 
-Found=
 LineNr=0
 while read -r; do
 	(( LineNr++ ))
 
-	# Ignore standard comment lines and stop at '#END' line.
+	# Avoid unnecessary processing, and stop at '#END' line.
 	if [[ $REPLY == "${Comment}END" ]]; then
 		break
 	elif [[ ${REPLY:0:1} == "$Comment" ]]; then
 		continue
-	fi
-
-	if (( $# == 0 )) && [[ -n $REPLY && $REPLY != +([[:space:]]) ]]; then
-		PrintLine $LineNr "$REPLY"
-
+	elif [[ -z $REPLY || $REPLY == +([[:space:]]) ]]; then
 		continue
 	fi
 
-	MIndex=0
-	LineOut=
-	CurMatchRaw=
-	Len=${#REPLY}
-	for (( LIndex = 0; LIndex < Len; LIndex++ )); {
-		if [[ ${REPLY:LIndex:1} == "${Match:MIndex:1}" ]]; then
-			CurMatchRaw+=${REPLY:LIndex:1}
-
-			(( MIndex++ ))
-
-			if [[ $CurMatchRaw == "$Match" ]]; then
-				LineOut+="$BRed$CurMatchRaw$Reset"
-
-				# To help us print only lines with matches.
-				Found='True'
-			fi
-
-			# Very confusing, but required. If the first character of the
-			# target match is the last character of the line, the last
-			# character will be omitted from the final output. This addresses
-			# that.
-			#
-			# The alternative is to arbitrarily increase the length of the line
-			# by 1, but I'd be concerned of unexpected and undesired results.
-			if (( LIndex == Len - 1 )); then
-				if [[ ${REPLY:Len - 1:1} == "${Match:0:1}" ]]; then
-					LineOut+=${REPLY:LIndex:1}
-
-					break
-				fi
-			fi
-		else
-			# If found the first or last character of the match, but there's an
-			# incomplete match, then still send those characters to be printed.
-			if [[ -n $CurMatchRaw ]]; then
-				if [[ ${CurMatchRaw:-1:1} != ${Match:-1:1} ]]; then
-					LineOut+=${REPLY:LIndex - 1:1}
-				fi
-			fi
-
-			# Catch 'command not found' errors in < BASH 3.1.
-			LineOut+=${REPLY:LIndex:1} || exit $?
-
-			CurMatchRaw=
-			MIndex=0
+	if (( $# == 0 )); then
+		PrintLine $LineNr "$REPLY"
+	else
+		if [[ $REPLY == *"$Match"* ]]; then
+			PrintLine $LineNr "${REPLY//"$Match"/$BRed$Match$Reset}"
 		fi
-	}
-
-	# Begin printing, if 1 or more matches were found on this line.
-	if [[ $Found == True ]]; then
-		PrintLine $LineNr "$LineOut"
-
-		Found=
 	fi
 done < "$NotesFile"
