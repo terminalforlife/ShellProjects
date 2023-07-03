@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - ShellProjects/source/tidyfonts
+# Started On        - Mon  3 Jul 00:40:32 BST 2023
+# Last Change       - Mon  3 Jul 01:23:25 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Simple but flexible personal script for uninstalling all font Debian packages
+# (as 'fonts-*') except a predefined selection or those packages specified as
+# arguments.
+#
+# CAUTION: This does assume all font packages begin with 'fonts-'.
+#
+# Written for:
+#
+#   https://forums.linuxmint.com/viewtopic.php?t=399263
+#
+# Dependencies:
+#
+#   bash (>= 4.0)
+#------------------------------------------------------------------------------
+
+List=
+case $1 in
+	-h|--help)
+		printf 'Usage: %s [{-l|--list}|{-h|--help}] [PKG [PKG] ...]\n' "${0##*/}"
+
+		exit 0 ;;
+	-l|--list)
+		List='True'
+
+		shift ;;
+esac
+
+if [[ $List != True ]]; then
+	Sim=
+	if (( UID != 0 )); then
+		printf 'NOTE: Simulating operation.\n' 1>&2
+
+		Sim='-o APT::Get::Show-User-Simulation-Note=0 -s'
+	fi
+fi
+
+if (( $# == 0 )); then
+	FontsTemp=(
+		fonts-freefont-ttf fonts-liberation fonts-liberation2 fonts-inter
+		fonts-wine fonts-mathjax fonts-opensymbol fonts-ubuntu fonts-urw-base35
+		fonts-open-sans fonts-dejavu-core fonts-dejavu-extra dejavu
+	)
+else
+	printf 'NOTE: Overriding selection with arguments.\n' 1>&2
+
+	FontsTemp=("$@")
+fi
+
+declare -A Fonts=()
+for Font in "${FontsTemp[@]}"; {
+	Fonts["$Font"]=1
+}
+
+unset FontsTemp
+
+Removes=()
+while read Status Package; do
+	[[ $Status == ii ]] || continue
+	[[ $Package == fonts-* ]] || continue
+	[[ -z ${Fonts["$Package"]} ]] || continue
+
+	Targets+=("$Package")
+done <<< "$(dpkg-query -Wf '${db:Status-Abbrev} ${Package}\n')"
+
+if [[ $List == True ]]; then
+	printf '%s\n' "${Targets[@]}"
+else
+	apt-get $Sim remove "${Targets[@]}"
+fi
