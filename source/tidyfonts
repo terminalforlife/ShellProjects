@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/tidyfonts
 # Started On        - Mon  3 Jul 00:40:32 BST 2023
-# Last Change       - Mon  3 Jul 01:23:25 BST 2023
+# Last Change       - Tue  4 Jul 11:19:25 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -21,6 +21,19 @@
 #
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
+
+read -d '' <<-EOF
+
+	WARNING: Some font packages may be marked as dependencies for other
+	         packages, therefore the list of packages apt-get(8) would remove
+	         should be read thoroughly. If packages which aren't fonts are
+	         listed, it's likely the action is undesired.
+
+	         Running TidyFonts without 'root' privileges will allow a simulated
+	         operation, displaying what would happen, without actually removing
+	         anything.
+
+EOF
 
 List=
 case $1 in
@@ -40,6 +53,22 @@ if [[ $List != True ]]; then
 		printf 'NOTE: Simulating operation.\n' 1>&2
 
 		Sim='-o APT::Get::Show-User-Simulation-Note=0 -s'
+	else
+		printf '%s' "$REPLY"
+
+		while :; do
+			read -p 'Continue? [Y|N] '
+			case ${REPLY,,} in
+				y|yes)
+					break ;;
+				n|no)
+					exit 1 ;;
+				'')
+					printf 'Err: Empty required -- try again.\n' 1>&2 ;;
+				*)
+					printf 'Err: Invalid response -- try again.\n' 1>&2 ;;
+			esac
+		done
 	fi
 fi
 
