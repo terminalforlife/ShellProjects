@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/csi3/csi3
 # Started On        - Sat 29 May 22:47:07 BST 2021
-# Last Change       - Mon 19 Jun 23:34:57 BST 2023
+# Last Change       - Thu 27 Jul 21:21:28 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -22,7 +22,7 @@
 #   bash (>= 4.3)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-18'
+CurVer='2023-07-27'
 Progrm='csi3'
 
 Usage() {
@@ -416,15 +416,16 @@ until (( CurCount > ${#Bindings[@]} )); do
 		Count=${LineNrCount#*|}
 		if (( Count == CurCount )); then
 			# If it's a `--release` binding.
+			Release=
 			ReleaseCSV=
 			Action=${Bindings[$Binding]}
 			if [[ ${Action:0:1} == R ]]; then
 				Action=${Action:1}
 
-				if [[ $DoCSV != True ]]; then
-					printf "${Red}^$Reset"
-				else
+				if [[ $DoCSV == True ]]; then
 					ReleaseCSV='^'
+				else
+					Release="$Red^$Reset"
 				fi
 			fi
 
@@ -432,18 +433,19 @@ until (( CurCount > ${#Bindings[@]} )); do
 				printf '%d,%s,%s%s\n' $LineNr "${Binding#*_}"\
 					"$ReleaseCSV" "$Action"
 			else
+				# Display the key binding.
 				if [[ $Number == True ]]; then
-					printf "%*s $Green%*d$Reset " $KeysLenMax "${Binding#*_}"\
-						$MaxLineNrLen $LineNr
+					printf "%*s $Green%*d$Reset " $KeysLenMax\
+						"${Binding#*_}" $MaxLineNrLen $LineNr
 				else
 					printf '%*s ' $KeysLenMax "${Binding#*_}"
 				fi
 
-				# If it's an `exec` action.
+				# Display the action and handle if it's an `exec` action.
 				if [[ ${Action:0:1} == '!' ]]; then
-					printf "$Red!$Grey%s$Reset\n" "${Action:1}"
+					printf "$Release$Red!$Grey%s$Reset\n" "${Action:1}"
 				else
-					printf "$Grey%s$Reset\n" "$Action"
+					printf "$Release$Grey%s$Reset\n" "$Action"
 				fi
 			fi
 
