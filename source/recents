@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/recents
 # Started On        - Fri  2 Jun 00:15:00 BST 2023
-# Last Change       - Mon 19 Jun 23:34:57 BST 2023
+# Last Change       - Thu 27 Jul 22:19:07 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@
 #   bash (>= 4.0)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-17'
+CurVer='2023-07-27'
 Progrm=${0##*/}
 
 Usage() {
@@ -239,6 +239,36 @@ for File in "${Files[@]}"; {
 	LineNr=${File%%:*}
 	File=${File#*:}
 
+	# Decode URI. (e.g., '%20' = ' ' and '&amp;' = '&') Almost certainly not
+	# complete, because these URIs contain the annoying '&...;' syntax instead
+	# of just hex values.
+	FileNew=''
+	Len=${#File}
+	Found='False'
+	for (( Index = 0; Index < Len; Index++ )); {
+		Char=${File:Index:1}
+		if [[ $Char == '%' ]]; then
+			printf -v Hex "\x${File:Index + 1:2}"
+			FileNew+=$Hex
+			(( Index += 2 ))
+		elif [[ $Char == '&' ]]; then
+			if [[ ${File:Index + 1:4} == 'amp;' ]]; then
+				FileNew+='&'
+				(( Index += 4 ))
+			elif [[ ${File:Index + 1:5} == 'apos;' ]]; then
+				FileNew+="'"
+				(( Index += 5 ))
+			else
+				FileNew+=$Char
+			fi
+		else
+			FileNew+=$Char
+		fi
+	}
+
+	File=$FileNew
+
+	# If a URI wasn't decoded correctly, this test won't work properly.
 	FileColor=
 	if ! [[ -f $File ]]; then
 		FileColor=$Red
