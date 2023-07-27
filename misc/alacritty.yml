@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
-# Project Name      - ShellProjects/misc/alacritty.yml
+# Project Name      - Extra/misc/alacritty.yml
 # Started On        - Fri 11 Mar 18:01:22 GMT 2022
-# Last Change       - Mon 25 Apr 17:03:26 BST 2022
+# Last Change       - Thu 27 Jul 21:23:52 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -25,10 +25,6 @@ window:
 
   class:
     instance: Alacritty
-    general: Alacritty
-
-  # dark | light | None
-  gtk_theme_variant: None
 
 scrolling:
   history: 8000
