@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+#cito M:755 O:0 G:0 T:/usr/local/bin/modtidy
+#------------------------------------------------------------------------------
+# Project Name      - ShellProjects/source/modtidy
+# Started On        - Fri 28 Jul 20:07:44 BST 2023
+# Last Change       - Sat 29 Jul 13:07:15 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Clear out '/lib/modules' of modules for kernels not installed.
+#
+# CAUTION: This may well not apply to everybody's Linux installation, is
+#          intended for more experienced users who understand this action, and
+#          is primarily targeting Debian- and Ubuntu-based installations.
+#
+# Features:
+#
+# N/A
+#
+# Bugs:
+#
+# N/A
+#
+# Dependencies:
+#
+#   bash (>= 4.0)
+#   coreutils (>= 8.28)
+#   linux-base (>= 4.5)
+#------------------------------------------------------------------------------
+
+Errs=0
+if (( $# != 0 )); then
+	printf 'E: Argument(s) not handled.\n' 1>&2
+	(( Errs++ ))
+fi
+
+if (( UID != 0 )); then
+	printf 'E: Permission denied.\n' 1>&2
+	(( Errs++ ))
+fi
+
+(( Errs > 0 )) && exit 1
+
+DepCount=0
+for Dep in linux-version rm; {
+	if ! type -P "$Dep" &> /dev/null; then
+		printf "E: Dependency '%s' not met.\n" "$Dep" 1>&2
+		(( DepCount++ ))
+	fi
+}
+
+(( DepCount > 0 )) && exit 1
+
+ModDir='/lib/modules'
+
+printf -- '- Looking for installed kernels\n'
+
+if readarray -t <<< "$(linux-version list)"; then
+	declare -A Kerns=()
+	for Line in "${MAPFILE[@]}"; {
+		Kerns["$Line"]=1
+	}
+else
+	printf 'E: Failed to get list of installed kernels.\n' 1>&2
+	exit 1
+fi
+
+Found=${#Kerns[@]}
+if (( Found == 0 )); then
+	printf 'E: No installed kernels found.\n' 1>&2
+	exit 1
+elif (( Found <= 2 )); then
+	printf "  Found %d, '%s' and '%s'\n" $Found "${MAPFILE[@]}"
+elif (( Found > 2 )); then
+	printf "  Found %d, from '%s' to '%s'\n"\
+		$Found "${MAPFILE[0]}" "${MAPFILE[-1]}"
+fi
+
+read -d '' <<-EOF
+
+	INFO: In some Linux installations, fully removing (e.g., 'purging') kernel
+	      packages may result in directories in '$ModDir' being deleted.
+
+	      However, sometimes new files are added to these directories after
+	      installation, which will NOT be deleted by the package manager. This
+	      utility addresses this by removing the directories for kernels NOT
+	      currently installed.
+EOF
+
+printf '%s\nWARNING: The following action may be irreversable and/or undesired.\n' "$REPLY"
+while :; do
+	read -p 'Q: Delete applicable directories? (Y/N) '
+	case ${REPLY,,} in
+		y|yes)
+			break ;;
+		n|no)
+			exit 1 ;;
+		'')
+			printf 'E: Empty response -- try again.\n' 1>&2 ;;
+		*)
+			printf 'E: Invalid response -- try again.\n' 1>&2 ;;
+	esac
+done
+printf '\n'
+
+printf -- "- Tidying '%s' directory\n" "$ModDir"
+
+if ! [[ -d $ModDir ]]; then
+	printf "E: Directory '%s' not found.\n" "$ModDir" 1>&2
+	exit 1
+fi
+
+Found=0
+Deleted=0
+for Dir in "$ModDir"/*; {
+	[[ -d $Dir ]] || continue
+
+	(( Found++ ))
+
+	Base=${Dir##*/}
+	if [[ -z ${Kerns["$Base"]} ]]; then
+		if rm -r "$Dir"; then
+			(( Deleted++ ))
+		else
+			printf "E: Directory '%s' deletion failed.\n" "$Base" 1>&2
+			exit 0
+		fi
+	fi
+}
+
+if (( Found == 1 )); then
+	Noun='directory'
+elif (( Found > 1 )); then
+	Noun='directories'
+fi
+
+printf '  Deleted %d/%d module %s\n' $Deleted $Found $Noun
