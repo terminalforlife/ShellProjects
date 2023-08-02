@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/devutils/new-repo-name.sh
 # Started On        - Mon 19 Jun 23:39:54 BST 2023
-# Last Change       - Tue 20 Jun 00:12:25 BST 2023
+# Last Change       - Thu  3 Aug 00:14:20 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ for Repo in "$Dir"/*; {
 		Len=${#MAPFILE[@]}
 		for (( Index = 0; Index < Len; Index++ )); {
 			LineNr=$(( Index + 1 ))
-			if [[ ${MAPFILE[Index]} == *Extra* ]]; then
+			if [[ ${MAPFILE[Index]} == *Extra[^[:alnum:]]* ]]; then
 				if [[ $Shown != True ]]; then
 					printf -- '* \e[2;37m%s\e[0m\e[37m/%s/\e[0m\e[93m%s\e[0m\n'\
 						 "$RepoName" "$DirName" "$BaseName"
