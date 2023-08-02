@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/devutils/fix-project-names.sh
 # Started On        - Wed  7 Jun 20:21:59 BST 2023
-# Last Change       - Thu  8 Jun 17:38:13 BST 2023
+# Last Change       - Wed  2 Aug 23:57:49 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -20,6 +20,9 @@
 # directory structure as I have over on my end. If you do want to use it, you
 # will need to use a very similar path for `$Dir`.
 #
+# CAVEAT: This does not account for files like 'alacritty.yml' which don't
+#         have a shebang, thus the line count of the header doesn't match up.
+#
 # WARNING: This script is immediately destructive across ALL repositories!
 #
 #TODO: Files with empty project names are not correclty handled.
@@ -31,11 +34,14 @@
 
 Dir="$HOME/GitHub/terminalforlife/Personal"
 
+shopt -s globstar dotglob
 for Repo in "$Dir"/*; {
 	[[ -d $Repo ]] || continue
 
-	for File in "$Repo"/source/{*,*/*}; {
+	for File in "$Repo"/**; {
 		[[ -f $File ]] || continue
+
+		[[ $File == $Repo/.git/* ]] && continue
 
 		read -n 2 < "$File"
 		[[ $REPLY == '#!' ]] || continue
