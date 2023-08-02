@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
-# Project Name      - Extra/misc/alacritty.yml
+# Project Name      - ShellProjects/misc/alacritty.yml
 # Started On        - Fri 11 Mar 18:01:22 GMT 2022
-# Last Change       - Thu 27 Jul 21:23:52 BST 2023
+# Last Change       - Wed  2 Aug 23:59:15 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ window:
   decorations: none
 
   # <= 1.0
-  opacity: 1.0
+  opacity: 0.8
 
   # Windowed | Maximized | Fullscreen
   startup_mode: Windowed
