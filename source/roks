@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # Project Name      - ShellProjects/source/roks
 # Started On        - Sun 17 Sep 23:32:47 BST 2017
-# Last Change       - Mon 19 Jun 23:34:57 BST 2023
+# Last Change       - Fri 11 Aug 13:08:38 BST 2023
 # Author E-Mail     - terminalforlife@yahoo.com
 # Author GitHub     - https://github.com/terminalforlife
 #------------------------------------------------------------------------------
@@ -26,6 +26,14 @@
 # the fallback. If no fallback is selected (keep 1), 6.2.11 will be selected
 # for removal or purging.
 #
+# NOTE:
+#
+#   Noticed on 2023-08-11, that linux-version(1) was actually incorrectly
+#   sorting the kernel version strings, which of course is a huge problem. To
+#   handle this issue, sort(1) was used, with its `-V` flag to sort version
+#   strings, which it appears to do correctly with at least regular MAJ.MIN.REV
+#   version strings.
+#
 # Features:
 #
 # N/A
@@ -38,10 +46,11 @@
 #
 #   apt (>= 1.6.12)
 #   bash (>= 4.1)
+#   coreutils (>= 8.25-2)
 #   linux-base (>= 4.5)
 #------------------------------------------------------------------------------
 
-CurVer='2023-06-08'
+CurVer='2023-08-11'
 Progrm='roks'
 ProgrmFancy='ROKs'
 
@@ -124,7 +133,7 @@ while [[ -n $1 ]]; do
 done
 
 DepCount=0
-for CurDep in apt-get linux-version; {
+for CurDep in apt-get linux-version sort; {
 	if ! type -P "$CurDep" &> /dev/null; then
 		Err 0 "Dependency '$CurDep' not met."
 		(( DepCount++ ))
@@ -144,7 +153,7 @@ else
 	Err 1 'Unable to determine current kernel version.'
 fi
 
-readarray -t <<< "$(linux-version list)"
+readarray -t <<< "$(linux-version list | sort -V)"
 
 Kerns=()
 for Line in "${MAPFILE[@]}"; {
