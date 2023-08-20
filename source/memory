@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+#------------------------------------------------------------------------------
+# Project Name      - ShellProjects/source/memory
+# Started On        - Sun 14 May 01:55:17 BST 2023
+# Last Change       - Mon 21 Aug 00:52:07 BST 2023
+# Author E-Mail     - terminalforlife@yahoo.com
+# Author GitHub     - https://github.com/terminalforlife
+#------------------------------------------------------------------------------
+# Simple script to aid the improvement of memory, such as for mental maths.
+#
+# Dependencies:
+#
+#   bash (>= 3.1)
+#------------------------------------------------------------------------------
+
+Length=7
+Questions=10
+Wait=2
+
+read -sp 'Press Enter to continue... '
+printf '\r\e[K'
+
+Total=0
+Correct=0
+for (( Iter = 1; Iter <= Questions; Iter++ )); {
+	(( Total++ ))
+
+	Digits=
+	for (( Nr = 1; Nr <= Length; Nr++ )); {
+		Digits+=$(( RANDOM % 10 ))
+	}
+
+	printf '%s: ' "${Digits[@]}"
+	read -t $Wait
+	printf '\r\e[37m%s\e[0m: ' "${Digits//?/*}"
+
+	read -s
+	case $REPLY in
+		"${Digits[*]}")
+			printf '\e[32mYep!\e[0m\n'
+
+			(( Correct++ )) ;;
+		''|*)
+			printf '\e[31mNope.\e[0m\n'
+	esac
+}
+
+printf 'Result: %d/%d\n' $Correct $Total
